@@ -10,6 +10,7 @@ calls.txt
 venv
 Procfile
 app.yaml
+secrets_manager.py
 
 # Ignore other files or directories
 node_modules/

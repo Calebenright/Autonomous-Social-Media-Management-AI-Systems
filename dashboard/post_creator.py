@@ -13,12 +13,17 @@ from google.cloud import storage
 from google.oauth2 import service_account
 from django.conf import settings
 from .generate_unique_filename import generate_unique_filename
-from decouple import config
 import random
 import json
 
-openai.api_key = config('OPENAI_API_KEY')
-UNSPLASH_API_KEY = config('UNSPLASH_API_KEY')
+# # FOR DEVELOPMENT
+# from decouple import config
+# openai.api_key = config('OPENAI_API_KEY')
+# UNSPLASH_API_KEY = config('UNSPLASH_API_KEY')
+
+from project1.secrets_manager import get_secret_value
+openai.api_key = get_secret_value('OPENAI_API_KEY')
+UNSPLASH_API_KEY = get_secret_value('UNSPLASH_API_KEY')
 
 def create_post (business_description, bucket_name, bucket_credentials):
     post, url = create_AI_post (business_description, bucket_name, bucket_credentials)

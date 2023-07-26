@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 import os
 from pathlib import Path
 from decouple import config
+from project1.secrets_manager import get_secret_value
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -23,7 +24,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = config('DJANGO_KEY')
+SECRET_KEY = get_secret_value('DJANGO_KEY')
+
+# # FOR DEVELOPMENT
+# SECRET_KEY = config('DJANGO_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -137,9 +141,10 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
 
 # Google Cloud Storage settings
-GS_BUCKET_NAME = 'starter_web_app_bucket'
-GS_PROJECT_ID = 'starter-web-app-389316'
-GS_CREDENTIALS = 'credentials.json'
+GS_BUCKET_NAME = config('GS_BUCKET_NAME')
+GS_PROJECT_ID = config('GS_PROJECT_ID')
+GS_CREDENTIALS = config('GS_CREDENTIALS')
+
 
 # settings.py
 # EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'

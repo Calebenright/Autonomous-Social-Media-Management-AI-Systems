@@ -1,7 +1,11 @@
 import requests
-from decouple import config
 
-API_KEY = config('AYRSHARE_API_KEY')
+# # FOR DEVELOPMENT
+# from decouple import config
+# API_KEY = config('AYRSHARE_API_KEY')
+
+from project1.secrets_manager import get_secret_value
+API_KEY = get_secret_value('AYRSHARE_API_KEY')
 
 def send_post(caption, image_url):
     payload = {
