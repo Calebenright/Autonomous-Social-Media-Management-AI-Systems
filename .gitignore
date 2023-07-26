@@ -7,6 +7,7 @@
 .env
 credentials.json
 calls.txt
+venv
 
 # Ignore other files or directories
 node_modules/
