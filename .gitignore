@@ -8,6 +8,8 @@
 credentials.json
 calls.txt
 venv
+Procfile
+app.yaml
 
 # Ignore other files or directories
 node_modules/
