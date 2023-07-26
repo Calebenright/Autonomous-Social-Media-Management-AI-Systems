@@ -1,6 +1,6 @@
 # FeedAI V1
 
-![FeedAI Logo](logo.png)
+![FeedAI Logo](logo.svg)
 
 > Autonomous social media creator Version 1.0
 
