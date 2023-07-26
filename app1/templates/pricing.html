@@ -1,0 +1,257 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+
+<head>
+  <title>Pricing</title>
+  <meta charset="utf-8">
+  <meta name="description"
+    content="A minimal and responsive HTML5 landing page built on lightweight, clean and customizable code.">
+  <meta name="viewport" content="width=device-width">
+  <link rel="apple-touch-icon-precomposed" href="{% static 'website/media/favicon.png' %}">
+  <link rel="icon" href="{% static 'website/media/favicon.png' %}">
+  <link rel="mask-icon" href="{% static 'website/media/favicon.svg' %}" color="rgb(36,38,58)">
+  <link rel="shortcut icon" href="{% static 'website/media/favicon.png' %}">
+  <link rel="stylesheet" href="{% static 'website/css/main.css' %}">
+</head>
+
+<body class="page page-pricing preload">
+
+  <header class="header-main">
+    <nav>
+      <a href="{% url 'index' %}" class="logo" rel="home">
+        <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+        viewBox="0 0 250 250" style="enable-background:new 0 0 250 250; width: 25px; height: 25px; vertical-align: middle" xml:space="preserve" fill="#000000">
+        <g>
+          <g>
+            <path d="M113.2,143.6v90.7c0,3.8-3.1,6.9-6.9,6.9H15.6c-3.8,0-6.9-3.1-6.9-6.9v-90.7c0-3.8,3.1-6.9,6.9-6.9h90.7
+              C110.1,136.7,113.2,139.9,113.2,143.6z"/>
+          </g>
+          <g>
+            <path d="M241.2,15.6v90.7c0,3.8-3.1,6.9-6.9,6.9H15.6c-3.8,0-6.9-3.1-6.9-6.9V15.6c0-3.8,3.1-6.9,6.9-6.9h218.7
+              C238.2,8.7,241.2,11.8,241.2,15.6z"/>
+          </g>
+          <g>
+            <path d="M177.2,207.6v26.7c0,3.8-3.1,6.9-6.9,6.9h-26.7c-3.8,0-6.9-3.1-6.9-6.9v-26.7c0-3.8,3.1-6.9,6.9-6.9h26.7
+              C174.1,200.7,177.2,203.9,177.2,207.6z"/>
+          </g>
+          <g>
+            <path d="M241.2,207.6v26.7c0,3.8-3.1,6.9-6.9,6.9h-26.6c-3.8,0-6.9-3.1-6.9-6.9v-26.7c0-3.8,3.1-6.9,6.9-6.9h26.7
+              C238.2,200.7,241.2,203.9,241.2,207.6z"/>
+          </g>
+          <g>
+            <path d="M241.2,143.6v26.7c0,3.8-3.1,6.9-6.9,6.9h-90.7c-3.8,0-6.9-3.1-6.9-6.9v-26.7c0-3.8,3.1-6.9,6.9-6.9h90.7
+              C238.1,136.7,241.2,139.9,241.2,143.6z"/>
+          </g>
+        </g>
+      </svg>
+        <!-- <img src="{% static 'website/media/WhiteLetteringLogo.svg' %}" alt="feedAI Logo" > -->
+        <span style="vertical-align:middle">FeedAI</span>
+      </a>
+      <div class="nav-toggle"></div>
+      <ul class="inline">
+        <li><a href="{% url 'index' %}">Home</a></li>
+        <li><a href="{% url 'pricing' %}" class="active">Pricing</a></li>
+        <!-- <li><a href="{% url 'about' %}">About</a></li> -->
+      </ul>
+      <ul class="inline right">
+        <li><a href="{% url 'login' %}">Log In</a></li>
+        <li><a href="{% url 'signup' %}" class="button button-secondary button-m full-width-tablet" role="button">Sign Up</a>
+        </li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+
+    <section class="bg-gradient-light padding padding-top">
+      <div class="center max-width-l">
+        <h1 class="hero">Find the perfect plan for your business.</h1>
+      </div>
+      <div class="row margin-top max-width-l">
+        <div class="col-one-third card card-content">
+          <p class="muted">Free</p>
+          <h2>
+            <span class="pricing-price">Free</span>
+          </h2>
+          <p class="paragraph">Ut enim ad minima veniam, quis nostrum exercitationem.</p>
+          <ul class="space-bottom">
+            <li>At vero eos et accusamus</li>
+            <li>Odio dignissimos ducimus</li>
+            <li>Blanditiis praesentium</li>
+          </ul>
+          <a href="{% url 'signup' %}" class="button button-secondary full-width space-top" role="button">Sign Up For
+            Free</a>
+        </div>
+        <div class="col-one-third card card-content">
+          <p class="muted">For Teams</p>
+          <h2>
+            <span class="pricing-price">$20</span>
+            <span class="pricing-duration muted sans">/MO</span>
+          </h2>
+          <p class="paragraph">Nemo enim ipsam voluptatem quia voluptas sit.</p>
+          <ul class="space-bottom">
+            <li>At vero eos et accusamus</li>
+            <li>Odio dignissimos ducimus</li>
+            <li>Blanditiis praesentium</li>
+          </ul>
+          <a href="{% url 'signup' %}" class="button button-secondary full-width space-top" role="button">Start 14-Day
+            Trial</a>
+        </div>
+        <div class="col-one-third card card-content dark">
+          <p class="muted">For Enterprises</p>
+          <h2>
+            <span class="pricing-price">$140</span>
+            <span class="pricing-duration muted sans">/MO</span>
+          </h2>
+          <p class="paragraph">Sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+          <ul class="space-bottom">
+            <li>At vero eos et accusamus</li>
+            <li>Odio dignissimos ducimus</li>
+            <li>Blanditiis praesentium</li>
+          </ul>
+          <a href="{% url 'signup' %}" class="button button-primary full-width space-top" role="button">Start 14-Day
+            Trial</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- <section class="bg-gradient-light padding">
+      <div class="bg-image-08 dark margin-bottom max-width-l overlay padding padding-bottom padding-top rounded">
+        <div class="center max-width-m">
+          <h2>Packed With Epic Features</h2>
+          <p class="paragraph">So you can focus on your most important work.</p>
+        </div>
+      </div>
+      <div class="row center margin-bottom max-width-l min-two-columns">
+        <div class="col-one-fourth">
+          <i class="feature-icons material-icons">format_shapes</i>
+          <h6>Minimal Design</h6>
+          <p class="muted paragraph">Sed ut perspiciatis unde omnis iste natus.</p>
+        </div>
+        <div class="col-one-fourth">
+          <i class="feature-icons material-icons">network_check</i>
+          <h6>Rocket Fast</h6>
+          <p class="muted paragraph">Sed ut perspiciatis unde omnis iste natus.</p>
+        </div>
+        <div class="col-one-fourth">
+          <i class="feature-icons material-icons">line_style</i>
+          <h6>Framework</h6>
+          <p class="muted paragraph">Sed ut perspiciatis unde omnis iste natus.</p>
+        </div>
+        <div class="col-one-fourth">
+          <i class="feature-icons material-icons">chrome_reader_mode</i>
+          <h6>Style Guide</h6>
+          <p class="muted paragraph">Sed ut perspiciatis unde omnis iste natus.</p>
+        </div>
+      </div>
+      <div class="row center max-width-l min-two-columns">
+        <div class="col-one-fourth">
+          <i class="feature-icons material-icons">code</i>
+          <h6>CSS + SASS</h6>
+          <p class="muted paragraph">Sed ut perspiciatis unde omnis iste natus.</p>
+        </div>
+        <div class="col-one-fourth">
+          <i class="feature-icons material-icons">settings</i>
+          <h6>Customizable</h6>
+          <p class="muted paragraph">Sed ut perspiciatis unde omnis iste natus.</p>
+        </div>
+        <div class="col-one-fourth">
+          <i class="feature-icons material-icons">dashboard</i>
+          <h6>Modular Design</h6>
+          <p class="muted paragraph">Sed ut perspiciatis unde omnis iste natus.</p>
+        </div>
+        <div class="col-one-fourth">
+          <i class="feature-icons material-icons">check</i>
+          <h6>HTML5 Valid</h6>
+          <p class="muted paragraph">Sed ut perspiciatis unde omnis iste natus.</p>
+        </div>
+      </div>
+    </section> -->
+
+    <!-- <section class="bg-light padding">
+      <div class="center max-width-m">
+        <h2>Auto-generate more business.</h2>
+        <p class="paragraph">Don't waste another minute.</p>
+        <a href="{% url 'signup' %}" class="button button-primary space-top" role="button">Sign Up Today</a>
+      </div>
+    </section> -->
+
+  </main>
+
+  <footer class="footer-main bg-gradient-primary dark overlay-shape-06">
+    <div class="padding">
+      <div class="center margin-bottom max-width-m">
+        <h3>Welcome to the new era of online marketing.</h3>
+        <!-- <p class="paragraph">text</p> -->
+      </div>
+      <!-- <div class="center margin-bottom max-width-l">
+        <div class="row margin-bottom min-two-columns">
+          <div class="col-one-fourth">
+            <i class="feature-icons material-icons bg-gradient-pink">format_shapes</i>
+            <h6>Minimal Design</h6>
+          </div>
+          <div class="col-one-fourth">
+            <i class="feature-icons material-icons bg-gradient-cyan">network_check</i>
+            <h6>Rocket Fast</h6>
+          </div>
+          <div class="col-one-fourth">
+            <i class="feature-icons material-icons bg-gradient-green">line_style</i>
+            <h6>Framework</h6>
+          </div>
+          <div class="col-one-fourth">
+            <i class="feature-icons material-icons bg-gradient-indigo">check</i>
+            <h6>HTML5 Valid</h6>
+          </div>
+        </div>
+      </div> -->
+      <div class="card card-content dark margin-bottom max-width-l">
+        <form class="row reduce-spacing">
+          <div class="col-two-thirds center-tablet middle">
+            <h3 class="space-none">Ready to get started?</h3>
+            <p class="paragraph">Love it or your money back!</p>
+          </div>
+          <div class="col-one-third middle">
+            <a href="{% url 'signup' %}" class="button button-primary" role="button">Create An Account</a>
+          </div>
+        </form>
+      </div>
+      <div class="row center-desktop max-width-l">
+        <div class="col-two-fifths">
+          <h6>FeedAI ®</h6>
+          <p>Leading a new era of artificial intelligence driven online marketing.</p>
+        </div>
+        <div class="col-one-fifth">
+          <h6>Info</h6>
+          <ul class="blank">
+            <!-- <li><a href="{% url 'about' %}">About</a></li> -->
+            <li><a href="{% url 'pricing' %}">Pricing</a></li>
+          </ul>
+        </div>
+        <div class="col-one-fifth">
+          <h6>Support</h6>
+          <ul class="blank">
+            <!-- <li><a href="#">Documentation</a></li>
+            <li><a href="#">Requirements</a></li>
+            <li><a href="#">License</a></li>
+            <li><a href="#">Updates</a></li> -->
+            <li><a href="{% url 'index' %}">Contact</a></li>
+          </ul>
+        </div>
+        <div class="col-one-fifth">
+          <h6>Connect</h6>
+          <ul class="blank">
+            <li><a href="#">Twitter</a></li>
+            <li><a href="#">Facebook</a></li>
+            <li><a href="#">Instagram</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <p class="copyright"><span>Copyright </span><a href="https://uiuxassets.com/" target="_blank">© feedAI</a><span> - 2023, all rights reserved.</span></p>
+  </footer>
+
+  <script src="{% static 'website/js/main.js' %}"></script>
+</body>
+
+</html>

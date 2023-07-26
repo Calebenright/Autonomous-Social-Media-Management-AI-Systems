@@ -1,0 +1,243 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>About</title>
+    <meta charset="utf-8">
+    <meta name="description"
+        content="A minimal and responsive HTML5 landing page built on lightweight, clean and customizable code.">
+    <meta name="viewport" content="width=device-width">
+    <link rel="apple-touch-icon-precomposed" href="{% static 'website/media/favicon.png' %}">
+    <link rel="icon" href="{% static 'website/media/favicon.png' %}">
+    <link rel="mask-icon" href="{% static 'website/media/favicon.svg' %}" color="rgb(36,38,58)">
+    <link rel="shortcut icon" href="{% static 'website/media/favicon.png' %}">
+    <link rel="stylesheet" href="{% static 'website/css/main.css' %}">
+</head>
+
+<body class="page page-about preload">
+
+    <header class="header-main">
+        <nav>
+          <a href="{% url 'index' %}" class="logo" rel="home">
+            <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+            viewBox="0 0 250 250" style="enable-background:new 0 0 250 250; width: 25px; height: 25px; vertical-align: middle" xml:space="preserve" fill="#000000">
+            <g>
+              <g>
+                <path d="M113.2,143.6v90.7c0,3.8-3.1,6.9-6.9,6.9H15.6c-3.8,0-6.9-3.1-6.9-6.9v-90.7c0-3.8,3.1-6.9,6.9-6.9h90.7
+                  C110.1,136.7,113.2,139.9,113.2,143.6z"/>
+              </g>
+              <g>
+                <path d="M241.2,15.6v90.7c0,3.8-3.1,6.9-6.9,6.9H15.6c-3.8,0-6.9-3.1-6.9-6.9V15.6c0-3.8,3.1-6.9,6.9-6.9h218.7
+                  C238.2,8.7,241.2,11.8,241.2,15.6z"/>
+              </g>
+              <g>
+                <path d="M177.2,207.6v26.7c0,3.8-3.1,6.9-6.9,6.9h-26.7c-3.8,0-6.9-3.1-6.9-6.9v-26.7c0-3.8,3.1-6.9,6.9-6.9h26.7
+                  C174.1,200.7,177.2,203.9,177.2,207.6z"/>
+              </g>
+              <g>
+                <path d="M241.2,207.6v26.7c0,3.8-3.1,6.9-6.9,6.9h-26.6c-3.8,0-6.9-3.1-6.9-6.9v-26.7c0-3.8,3.1-6.9,6.9-6.9h26.7
+                  C238.2,200.7,241.2,203.9,241.2,207.6z"/>
+              </g>
+              <g>
+                <path d="M241.2,143.6v26.7c0,3.8-3.1,6.9-6.9,6.9h-90.7c-3.8,0-6.9-3.1-6.9-6.9v-26.7c0-3.8,3.1-6.9,6.9-6.9h90.7
+                  C238.1,136.7,241.2,139.9,241.2,143.6z"/>
+              </g>
+            </g>
+          </svg>
+            <!-- <img src="{% static 'website/media/WhiteLetteringLogo.svg' %}" alt="feedAI Logo" > -->
+            <span style="vertical-align:middle">FeedAI</span>
+          </a>
+            <div class="nav-toggle"></div>
+            <ul class="inline">
+                <li><a href="{% url 'index' %}">Home</a></li>
+                <li><a href="{% url 'pricing' %}">Pricing</a></li>
+                <li><a href="{% url 'signup' %}" class="active">About</a></li>
+            </ul>
+            <ul class="inline right">
+                <li><a href="{% url 'login' %}">Log In</a></li>
+                <li><a href="{% url 'signup' %}" class="button button-secondary button-m full-width-tablet"
+                        role="button">Sign
+                        Up</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+
+        <section class="bg-gradient-light center padding padding-top">
+            <div class="max-width-m">
+                <p class="muted">Who We Are</p>
+                <h1 class="hero">We're a community of designers and developers creating tools for the web.</h1>
+            </div>
+        </section>
+
+        <section class="bg-gradient-light padding">
+            <div class="max-width-l">
+                <div class="row reduce-spacing">
+                    <div class="col-one-half">
+                        <p class="paragraph serif">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+                            eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis
+                            nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute
+                            irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+                            Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit
+                            anim id est laborum.</p>
+                        <p class="paragraph serif">Sed ut perspiciatis unde omnis iste natus error sit voluptatem
+                            accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore
+                            veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem
+                            quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui
+                            ratione voluptatem sequi nesciunt.</p>
+                    </div>
+                    <div class="col-one-half">
+                        <p class="paragraph serif">Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet,
+                            consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et
+                            dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum
+                            exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi
+                            consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil
+                            molestiae consequatur.</p>
+                        <p class="paragraph serif">At vero eos et accusamus et iusto odio dignissimos ducimus qui
+                            blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias
+                            excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia
+                            deserunt mollitia animi, id est laborum et dolorum fuga.</p>
+                    </div>
+                </div>
+                <img class="full-width margin-bottom margin-top rounded" src="{% static 'website/media/content/about-01.jpg' %}"
+                    srcset="{% static 'website/media/content/about-01.jpg' %} 1x, {% static 'website/media/content/about-01@2x.jpg' %} 2x"
+                    alt="About">
+                <p class="paragraph serif">Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore,
+                    cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere
+                    possimus, omnis voluptas assumenda est, omnis dolor repellendus. Temporibus autem quibusdam et aut
+                    officiis debitis aut rerum necessitatibus saepe eveniet ut et voluptates repudiandae sint et
+                    molestiae non recusandae.</p>
+                <div class="row margin-top">
+                    <div class="col-one-half">
+                        <img class="full-width rounded" src="{% static 'website/media/content/about-02.jpg' %}"
+                            srcset="{% static 'website/media/content/about-02.jpg' %} 1x, {% static 'website/media/content/about-02@2x.jpg' %} 2x"
+                            alt="About">
+                    </div>
+                    <div class="col-one-half">
+                        <img class="full-width rounded" src="{% static 'website/media/content/about-03.jpg' %}"
+                            srcset="{% static 'website/media/content/about-03.jpg' %} 1x, {% static 'website/media/content/about-03@2x.jpg' %} 2x"
+                            alt="About">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="bg-image-07 dark overlay padding padding-bottom padding-top">
+            <div class="center max-width-m">
+                <h2>Want to join the team?</h2>
+                <p class="paragraph">We’re hiring. Work from anywhere.</p>
+                <a href="#" class="button button-secondary space-top" role="button">Job Openings</a>
+            </div>
+        </section>
+
+        <section class="bg-gradient-light center padding">
+            <div class="max-width-l">
+                <div class="margin-bottom max-width-m">
+                    <h3>Our Investors</h3>
+                    <p class="paragraph">We've completed a $120 million Series B financing round.</p>
+                </div>
+                <div class="row min-two-columns">
+                    <div class="col-one-fourth">
+                        <img src="{% static 'website/media/content/trusted-company.png' %}"
+                            srcset="{% static 'website/media/content/trusted-company.png' %} 1x, {% static 'website/media/content/trusted-company@2x.png' %} 2x"
+                            alt="Trusted Company">
+                    </div>
+                    <div class="col-one-fourth">
+                        <img src="{% static 'website/media/content/trusted-company.png' %}"
+                            srcset="{% static 'website/media/content/trusted-company.png' %} 1x, {% static 'website/media/content/trusted-company@2x.png' %} 2x"
+                            alt="Trusted Company">
+                    </div>
+                    <div class="col-one-fourth">
+                        <img src="{% static 'website/media/content/trusted-company.png' %}"
+                            srcset="{% static 'website/media/content/trusted-company.png' %} 1x, {% static 'website/media/content/trusted-company@2x.png' %} 2x"
+                            alt="Trusted Company">
+                    </div>
+                    <div class="col-one-fourth">
+                        <img src="{% static 'website/media/content/trusted-company.png' %}"
+                            srcset="{% static 'website/media/content/trusted-company.png' %} 1x, {% static 'website/media/content/trusted-company@2x.png' %} 2x"
+                            alt="Trusted Company">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="footer-main bg-gradient-primary dark overlay-shape-06">
+        <div class="padding">
+          <div class="center margin-bottom max-width-m">
+            <h3>Welcome to the new era of online marketing.</h3>
+            <!-- <p class="paragraph">text</p> -->
+          </div>
+          <!-- <div class="center margin-bottom max-width-l">
+            <div class="row margin-bottom min-two-columns">
+              <div class="col-one-fourth">
+                <i class="feature-icons material-icons bg-gradient-pink">format_shapes</i>
+                <h6>Minimal Design</h6>
+              </div>
+              <div class="col-one-fourth">
+                <i class="feature-icons material-icons bg-gradient-cyan">network_check</i>
+                <h6>Rocket Fast</h6>
+              </div>
+              <div class="col-one-fourth">
+                <i class="feature-icons material-icons bg-gradient-green">line_style</i>
+                <h6>Framework</h6>
+              </div>
+              <div class="col-one-fourth">
+                <i class="feature-icons material-icons bg-gradient-indigo">check</i>
+                <h6>HTML5 Valid</h6>
+              </div>
+            </div>
+          </div> -->
+          <div class="card card-content dark margin-bottom max-width-l">
+            <form class="row reduce-spacing">
+              <div class="col-two-thirds center-tablet middle">
+                <h3 class="space-none">Ready to get started?</h3>
+                <p class="paragraph">Start your free 15-day trial today.</p>
+              </div>
+              <div class="col-one-third middle">
+                <a href="{% url 'signup' %}" class="button button-primary" role="button">Create An Account</a>
+              </div>
+            </form>
+          </div>
+          <div class="row center-desktop max-width-l">
+            <div class="col-two-fifths">
+              <h6>feedAI ®</h6>
+              <p>Leading a new era of artificial intelligence driven online marketing.</p>
+            </div>
+            <div class="col-one-fifth">
+              <h6>Info</h6>
+              <ul class="blank">
+                <li><a href="{% url 'about' %}">About</a></li>
+                <li><a href="{% url 'pricing' %}">Pricing</a></li>
+              </ul>
+            </div>
+            <div class="col-one-fifth">
+              <h6>Support</h6>
+              <ul class="blank">
+                <!-- <li><a href="#">Documentation</a></li>
+                <li><a href="#">Requirements</a></li>
+                <li><a href="#">License</a></li>
+                <li><a href="#">Updates</a></li> -->
+                <li><a href="{% url 'index' %}">Contact</a></li>
+              </ul>
+            </div>
+            <div class="col-one-fifth">
+              <h6>Connect</h6>
+              <ul class="blank">
+                <li><a href="#">Twitter</a></li>
+                <li><a href="#">Facebook</a></li>
+                <li><a href="#">Instagram</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <p class="copyright"><span>Copyright </span><a href="https://uiuxassets.com/" target="_blank">© feedAI</a><span> - 2023, all rights reserved.</span></p>
+      </footer>
+
+    <script src="{% static 'website/js/main.js' %}"></script>
+</body>
+
+</html>
