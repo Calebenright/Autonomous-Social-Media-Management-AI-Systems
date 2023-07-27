@@ -17,3 +17,8 @@
 __pycache__/
 # Ignored by the build system
 /setup.cfg
+
+*.pyc
+db.sqlite3
+venv/
+secrets_manager.py

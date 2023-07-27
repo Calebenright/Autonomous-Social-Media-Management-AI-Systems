@@ -8,5 +8,4 @@ urlpatterns = [
     path('post_creator/', views.post_creator, name='post_creator'),
     path('upload_post/', views.upload_post, name='upload_post'),
     path('brand_settings/', views.brand_settings, name='brand_settings'),
-    path('users/', views.user_list, name='user_list'),
 ]

@@ -7,8 +7,6 @@ from django.conf import settings
 from google.cloud import storage
 from google.oauth2 import service_account
 import os
-from django.core.files.storage import default_storage
-from django.core.files.base import ContentFile
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
@@ -16,22 +14,16 @@ from django.contrib.auth.models import User
 from .post_creator import create_post
 from .upload_post import send_post
 from .generate_comment import generate_comment
-from django.core.exceptions import ObjectDoesNotExist
 from django.http import JsonResponse
 import time
 from .generate_unique_filename import generate_unique_filename
 
 
 @login_required
-def user_list(request):
-    users = User.objects.all()
-    context = {'users': users}
-    return render(request, 'user_list.html', context)
-
 def dashboard(request):
     try:
         user_settings = UserSettings.objects.get(user=request.user)
-    except ObjectDoesNotExist:
+    except:
         user_settings = UserSettings.objects.create(user=request.user)
 
     context = {
@@ -54,7 +46,8 @@ def post_creator(request):
     if request.method == 'POST':
         # # Call the script's code to generate the image
         user_settings = UserSettings.objects.get(user=request.user)
-        post, url = create_post(user_settings.business_description, settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS)
+        user_folder_path = f'user_folders/{request.user.id}/images/'
+        post, url = create_post(user_settings.business_description, settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, user_folder_path)
         user_settings.last_image_url = user_settings.next_image_url
         user_settings.last_caption = user_settings.next_caption
         user_settings.next_image_url = url
@@ -80,7 +73,7 @@ def upload_post(request):
 def brand_settings(request):
     try:
         user_settings = UserSettings.objects.get(user=request.user)
-    except ObjectDoesNotExist:
+    except:
         user_settings = UserSettings.objects.create(user=request.user)
 
 

@@ -13,7 +13,10 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 import os
 from pathlib import Path
 from decouple import config
-from project1.secrets_manager import get_secret_value
+
+# # If using GCP SECRETS_MANAGER
+# from project1.secrets_manager import get_secret_value
+# from google.cloud import storage
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -23,17 +26,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = get_secret_value('DJANGO_KEY')
+# # SECURITY WARNING: keep the secret key used in production secret!
+# SECRET_KEY = "django-insecure-inkm&_6_$+301xnrnxn)6$6*2*#97*3hxtpq6fo+goq18%b83u"
 
-# # FOR DEVELOPMENT
-# SECRET_KEY = config('DJANGO_KEY')
+# FOR DEVELOPMENT
+SECRET_KEY = config('DJANGO_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = ['starter-web-app-389316.uc.r.appspot.com']
 
 # Application definition
 
@@ -124,27 +126,27 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = "/static/"
+STATIC_URL = '/static/'
+STATIC_ROOT = 'static'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
+
+# STATIC_URL = f'https://storage.googleapis.com/{GS_BUCKET_NAME}/static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
 # Configure the default storage class
 DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
 
 # Google Cloud Storage settings
+# GOOGLE_CLOUD_STORAGE_BUCKET = config('GS_BUCKET_NAME')
 GS_BUCKET_NAME = config('GS_BUCKET_NAME')
 GS_PROJECT_ID = config('GS_PROJECT_ID')
 GS_CREDENTIALS = config('GS_CREDENTIALS')
-
 
 # settings.py
 # EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'

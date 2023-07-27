@@ -16,20 +16,20 @@ from .generate_unique_filename import generate_unique_filename
 import random
 import json
 
-# # FOR DEVELOPMENT
-# from decouple import config
-# openai.api_key = config('OPENAI_API_KEY')
-# UNSPLASH_API_KEY = config('UNSPLASH_API_KEY')
+# FOR DEVELOPMENT
+from decouple import config
+openai.api_key = config('OPENAI_API_KEY')
+UNSPLASH_API_KEY = config('UNSPLASH_API_KEY')
 
-from project1.secrets_manager import get_secret_value
-openai.api_key = get_secret_value('OPENAI_API_KEY')
-UNSPLASH_API_KEY = get_secret_value('UNSPLASH_API_KEY')
+# from project1.secrets_manager import get_secret_value
+# openai.api_key = get_secret_value('OPENAI_API_KEY')
+# UNSPLASH_API_KEY = get_secret_value('UNSPLASH_API_KEY')
 
-def create_post (business_description, bucket_name, bucket_credentials):
-    post, url = create_AI_post (business_description, bucket_name, bucket_credentials)
+def create_post (business_description, bucket_name, bucket_credentials, user_folder_path):
+    post, url = create_AI_post (business_description, bucket_name, bucket_credentials, user_folder_path)
     return post, url
 
-def create_AI_post (business_description, bucket_name, bucket_credentials):
+def create_AI_post (business_description, bucket_name, bucket_credentials, user_folder_path):
     # Define the Business We Are Creating Media For
     # biz = input("WHAT TYPE OF BUSINESS ARE WE MAKING CONTENT FOR? ENTER RESPONSE: ")
 
@@ -159,14 +159,14 @@ def create_AI_post (business_description, bucket_name, bucket_credentials):
     filename = generate_unique_filename(".jpg")
 
     # Upload the image file to the GCS bucket
-    blob = bucket.blob(filename)
+    blob = bucket.blob(user_folder_path + filename)
     blob.upload_from_file(image_data, content_type='image/jpeg')
     blob.make_public()
 
     # Return the public URL of the uploaded image
     return post, blob.public_url
 
-def create_stock_post (business_description, bucket_name, bucket_credentials):
+def create_stock_post (business_description, bucket_name, bucket_credentials, user_folder_path):
     # Define the Business We Are Creating Media For
     # biz = input("WHAT TYPE OF BUSINESS ARE WE MAKING CONTENT FOR? ENTER RESPONSE: ")
 
@@ -302,14 +302,14 @@ def create_stock_post (business_description, bucket_name, bucket_credentials):
     filename = generate_unique_filename(".jpg")
 
     # Upload the image file to the GCS bucket
-    blob = bucket.blob(filename)
+    blob = bucket.blob(user_folder_path + filename)
     blob.upload_from_file(image_data, content_type='image/jpeg')
     blob.make_public()
 
     # Return the public URL of the uploaded image
     return post, blob.public_url
 
-def create_call_to_action (business_description, bucket_name, bucket_credentials):
+def create_call_to_action (business_description, bucket_name, bucket_credentials, user_folder_path):
 
     biz = business_description
 
@@ -383,7 +383,7 @@ def create_call_to_action (business_description, bucket_name, bucket_credentials
 
     
 
-    return post, url
+    return post
 
 # create_post('roofing', 'starter_web_app_bucket', 'credentials.json')
 # DONE :)

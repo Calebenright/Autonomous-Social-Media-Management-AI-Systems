@@ -1,11 +1,11 @@
 import openai
 
-# # FOR DEVELOPMENT
-# from decouple import config
-# openai.api_key = config('OPENAI_API_KEY')
+# FOR DEVELOPMENT
+from decouple import config
+openai.api_key = config('OPENAI_API_KEY')
 
-from project1.secrets_manager import get_secret_value
-openai.api_key = get_secret_value('OPENAI_API_KEY')
+# from project1.secrets_manager import get_secret_value
+# openai.api_key = get_secret_value('OPENAI_API_KEY')
 
 def generate_comment(recent_comment):
     comment_query = f"pretend you are the social media manager and a person commented the following: {recent_comment}. Give me a good response back in under 150 characters."
