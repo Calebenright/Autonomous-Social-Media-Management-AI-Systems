@@ -13,15 +13,24 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 import os
 from pathlib import Path
 from decouple import config
+import firebase_admin
+from firebase_admin import credentials
 
 # # If using GCP SECRETS_MANAGER
 # from project1.secrets_manager import get_secret_value
 # from google.cloud import storage
 
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+cred = credentials.Certificate('firebase-adminsdk.json')
+firebase_admin.initialize_app(cred)
+
+# Use Firebase as the authentication backend
+AUTHENTICATION_BACKENDS = [
+    'firebase_auth.firebase.FirebaseAuthenticationBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
@@ -35,7 +44,9 @@ SECRET_KEY = config('DJANGO_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['starter-web-app-389316.uc.r.appspot.com']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'starter-web-app-389316.uc.r.appspot.com']
+
+# DATABASES = {}
 
 # Application definition
 
@@ -60,6 +71,8 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
+SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
+
 ROOT_URLCONF = "project1.urls"
 
 TEMPLATES = [
@@ -81,36 +94,6 @@ TEMPLATES = [
 WSGI_APPLICATION = "project1.wsgi.application"
 
 
-# Database
-# https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
-}
-
-
-# Password validation
-# https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
-
-AUTH_PASSWORD_VALIDATORS = [
-    {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
-    },
-]
-
-
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
@@ -122,12 +105,16 @@ USE_I18N = True
 
 USE_TZ = True
 
+# Set the session timeout to 30 minutes (1800 seconds)
+SESSION_COOKIE_AGE = 1800
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = 'static'
+
+# STATIC_ROOT = 'static'
+
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
@@ -147,12 +134,4 @@ DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
 GS_BUCKET_NAME = config('GS_BUCKET_NAME')
 GS_PROJECT_ID = config('GS_PROJECT_ID')
 GS_CREDENTIALS = config('GS_CREDENTIALS')
-
-# settings.py
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-# EMAIL_HOST = 'your_smtp_server'
-# EMAIL_PORT = your_smtp_port
-# EMAIL_USE_TLS = True  # Or EMAIL_USE_SSL if your server requires SSL
-# EMAIL_HOST_USER = 'your_email_address'
-# EMAIL_HOST_PASSWORD = 'your_email_password'
 

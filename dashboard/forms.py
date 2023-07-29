@@ -6,5 +6,3 @@ class UserSettingsForm(forms.ModelForm):
         model = UserSettings
         fields = ['business_description', 'brand_color', 'logo', 'temperature']
 
-        from django import forms
-
