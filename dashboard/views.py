@@ -69,11 +69,20 @@ def post_creator(request):
 
     if request.method == 'POST':
         user_folder_path = f'user_folders/{user_id}/images/'
-        post, url = create_AI_post(user_settings.get('business_description'), settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, user_folder_path)
-        last_image_url = user_settings.get('next_image_url')
-        last_caption = user_settings.get('next_caption')
+        try:
+            biz = user_settings['business_description']
+        except (TypeError, KeyError):
+            biz = 'mansion'
+        post, url = create_AI_post(biz, settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, user_folder_path)
+        try:
+            last_image_url = user_settings['next_image_url']
+            last_caption = user_settings['next_caption']
+        except (TypeError, KeyError):
+            last_image_url = None
+            last_caption = None
         next_image_url = url
         next_caption = post
+    
 
         # Prepare the data to be saved in Firestore
         firestore_data = {
@@ -82,6 +91,7 @@ def post_creator(request):
             'next_image_url': next_image_url,
             'next_caption': next_caption,
         }
+
         # Save the data to Firestore
         user_settings_ref.set(firestore_data, merge=True)
         return render(request, 'post_creator.html', {'post': post, 'image_url': url})
@@ -181,6 +191,9 @@ def ad_manager(request):
         }
         # Save the data to Firestore
         user_settings_ref.set(firestore_data, merge=True)
+        # Update user_settings with the new values
+        user_settings['ad_image_url'] = ad_image_url
+        user_settings['ad_caption'] = ad_caption
     
     context = {
         'user_settings': user_settings,

@@ -42,7 +42,7 @@ def create_AI_post (business_description, bucket_name, bucket_credentials, user_
             prompt = f"If i was givin a word cloud and one of the words was {biz}, What are 3-5 other descriptive phrases? Give the response only in the form of an array and include {biz}."
             # Query OpenAI for a prompt 
             response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
+            model="gpt-4",
             messages=[
                     {"role": "user", "content": prompt},
                 ]
@@ -227,51 +227,6 @@ def create_stock_post (business_description, bucket_name, bucket_credentials, us
     post = response["choices"][0]["message"]["content"]
     # Print
     print("POST:", post)
-
-    ## GENERATE iMAGE
-    img = f"describe one image you would find on social media that relates to {business_description} and make it a prompt so that i can generate that image in my image generator"
-
-    # Query OpenAI for a caption
-    response = openai.ChatCompletion.create(
-    model="gpt-3.5-turbo",
-    messages=[
-            {"role": "user", "content": img},
-        ]
-    )
-    # Store Caption as CAP for use in the caption later
-    img = response["choices"][0]["message"]["content"]
-
-    # Query Open AI for an image description
-    response = openai.ChatCompletion.create(
-    model="gpt-3.5-turbo",
-    messages=[
-            {"role": "user", "content": img},
-        ]
-    )
-    # Store Value
-    img = "remove mention of family, people, and text from this prompt: " + response["choices"][0]["message"]["content"]
-    
-    # Query OpenAI to Remove Family Mention
-    response = openai.ChatCompletion.create(
-    model="gpt-3.5-turbo",
-    messages=[
-            {"role": "user", "content": img},
-        ]
-    )
-    # Store Value
-    img = "Simplify the following image prompt in under 150 characters: " + response["choices"][0]["message"]["content"]
-    # Query OpenAI to Remove Family Mention
-    response = openai.ChatCompletion.create(
-    model="gpt-3.5-turbo",
-    messages=[
-            {"role": "user", "content": img},
-        ]
-    )
-    # Store Value
-    img = response["choices"][0]["message"]["content"]
-    # Print
-    print("IMAGE DESCRIPTION:", img)
-
 
     ## CREATE IMAGE USING Unsplash
     base_url = 'https://api.unsplash.com/'
