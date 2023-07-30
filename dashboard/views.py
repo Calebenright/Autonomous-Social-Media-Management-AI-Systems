@@ -7,7 +7,7 @@ from django.conf import settings
 from google.cloud import storage
 from google.oauth2 import service_account
 import os
-from .post_creator import create_post
+from .post_creator import create_AI_post, create_stock_post
 from .upload_post import send_post
 from .generate_comment import generate_comment
 from django.http import JsonResponse
@@ -39,7 +39,7 @@ def apps_calendar(request):
 
 def comments(request):
     if request.method == 'POST':
-        recent_comment = 'The parallax is a little odd but O.o that house build is awesome!!'
+        recent_comment = 'The colors are on point O.o that house build is awesome!'
         comment = generate_comment(recent_comment)
         return render(request, 'comments.html', {'comment': comment}) 
     return render(request, 'comments.html')
@@ -59,7 +59,7 @@ def post_creator(request):
 
     if request.method == 'POST':
         user_folder_path = f'user_folders/{user_id}/images/'
-        post, url = create_post(user_settings.get('business_description'), settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, user_folder_path)
+        post, url = create_AI_post(user_settings.get('business_description'), settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, user_folder_path)
         last_image_url = user_settings.get('next_image_url')
         last_caption = user_settings.get('next_caption')
         next_image_url = url
@@ -146,5 +146,35 @@ def brand_settings(request):
     }
     return render(request, 'brand_settings.html', context)
 
-           
+def ad_manager(request):
+    # ----- Get the Firestore document reference for the user settings ----- #
+    db = firestore.client()
+    user_id = request.session.get('user_id')
+    user_settings_ref = db.collection('users').document(user_id)
+    try:
+        user_settings_doc = user_settings_ref.get()
+        user_settings = user_settings_doc.to_dict()
+    except firestore.NotFound:
+        user_settings = {}
+    # ---------------------------------------------------------------------- #
+
+    if request.method == 'POST':
+        user_folder_path = f'user_folders/{user_id}/images/'
+        post, url = create_stock_post(user_settings.get('business_description'), settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, user_folder_path)
+        ad_image_url = url
+        ad_caption = post
+
+        # Prepare the data to be saved in Firestore
+        firestore_data = {
+            'ad_image_url': ad_image_url,
+            'ad_caption': ad_caption,
+        }
+        # Save the data to Firestore
+        user_settings_ref.set(firestore_data, merge=True)
+    
+    context = {
+        'user_settings': user_settings,
+    }
+    return render(request, 'ad_manager.html', context)
+
 

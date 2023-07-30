@@ -44,7 +44,7 @@ SECRET_KEY = config('DJANGO_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'starter-web-app-389316.uc.r.appspot.com']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'starter-web-app-389316.uc.r.appspot.com', 'getfeed.info', 'www.getfeed.info']
 
 # DATABASES = {}
 
@@ -105,8 +105,11 @@ USE_I18N = True
 
 USE_TZ = True
 
-# Set the session timeout to 30 minutes (1800 seconds)
-SESSION_COOKIE_AGE = 1800
+# # Set the session timeout to 30 minutes (1800 seconds)
+# SESSION_COOKIE_AGE = 5
+
+# Set the session age to a very high value (e.g., 365 days)
+SESSION_COOKIE_AGE = 365 * 24 * 60 * 60  # 365 days in seconds
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/

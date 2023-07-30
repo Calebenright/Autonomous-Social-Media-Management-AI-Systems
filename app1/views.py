@@ -24,7 +24,7 @@ def signup(request):
         try:
             user = auth.create_user(email=email, password=password)
             # Your logic after successful user registration
-            return redirect(request, 'login.html')  # Redirect to a success page
+            return redirect('login')  # Redirect to a success page
         except Exception as e:
             # Handle registration error with a user-friendly message
             error_message = 'An error occurred during registration. Please try again later.'

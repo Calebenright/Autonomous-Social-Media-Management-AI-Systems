@@ -16,13 +16,26 @@
 </head>
 
 <body class="page page-onboarding preload">
-
   <main>
 
     <a href="{% url 'index' %}" class="button button-close" role="button"></a>
 
     <section class="row no-gutter reverse-order">
       <div class="col-one-half middle padding">
+      {% if error %}
+        <div class="error-message">
+          <span>{{ error }}</span>
+          <button class="close-button" onclick="closeErrorMessage()">&times;</button>
+        </div>
+      {% endif %}
+      
+      <script>
+        function closeErrorMessage() {
+          const errorDiv = document.querySelector('.error-message');
+          errorDiv.style.display = 'none';
+        }
+      </script>
+      
         <div class="max-width-s">
           <h1>FeedAI</h1>
           <p class="paragraph">More Sales. Less Effort.</p>

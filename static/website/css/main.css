@@ -2586,3 +2586,38 @@ table td {
     position: relative;
   }
 }
+
+.error-container {
+  display: flex;
+  justify-content: center;
+}
+
+.error-message {
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 4px;
+  padding: 10px;
+  margin: 10px 0;
+  color: #721c24;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+}
+
+.error-message span {
+  flex: 1;
+}
+
+.close-button {
+  border: none;
+  background: none;
+  color: #721c24;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 0;
+  margin-left: 10px;
+}
+
+
+
+
