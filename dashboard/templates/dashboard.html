@@ -415,10 +415,6 @@
                                                     <div id="prompt" contenteditable="true" class="text-box">{{ user_settings.last_caption }}</div>
                                                 </div>
                                             </div>
-                                            <button type="submit"
-                                                class="btn btn-purple rounded-pill w-md waves-effect waves-light mb-3"
-                                                onclick="showSpinner()">
-                                                <i class="mdi mdi-plus"></i> Post To Feed!</button>
                                     </form>
                             </div>
 
@@ -485,7 +481,7 @@
                                 box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .1);
                                 border-radius: .25rem">
                             <div class="toast-body">
-                                Hello, <strong>{{ user_settings.user.username }}</strong>!
+                                Hello, <strong>{{ user_email }}</strong>!
                                 <br>Let's generate a post to get started :)
                                 <div class="mt-2 pt-2 border-top">
                                     <a href="{% url 'post_creator' %}" type="button"

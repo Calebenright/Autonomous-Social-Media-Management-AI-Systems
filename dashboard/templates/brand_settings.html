@@ -425,8 +425,10 @@
                                                 <div class="mb-3">
                                                     <input type="file" id="logo" name="logo" class="form-control" accept=".png">
                                                 </div>
+                                                {% if user_settings.logo %}
                                                 <img src="{{ user_settings.logo }}" alt="Generated Image"
                                                     class="generated-image-small">
+                                                {% endif %}
                                                 <br>
                                                 <br>
                                                 <button type="submit"

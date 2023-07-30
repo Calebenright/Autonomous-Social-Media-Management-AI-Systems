@@ -23,6 +23,15 @@ def dashboard(request):
     user_id = request.session.get('user_id')
     user_settings_ref = db.collection('users').document(user_id)
     try:
+        # Get the user record from Firebase Authentication using the user_id
+        user = auth.get_user(user_id)
+
+        # Get the user's email address from the user record
+        user_email = user.email
+    except auth.AuthError as e:
+        user_email = ''
+
+    try:
         user_settings_doc = user_settings_ref.get()
         user_settings = user_settings_doc.to_dict()
     except firestore.NotFound:
@@ -31,6 +40,7 @@ def dashboard(request):
 
     context = {
         'user_settings': user_settings,  # Pass the user_settings to the template
+        'user_email': user_email
     }
     return render(request, 'dashboard.html', context)
 
