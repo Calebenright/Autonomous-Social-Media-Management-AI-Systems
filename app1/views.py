@@ -6,6 +6,7 @@ import firebase_admin
 from firebase_admin import auth
 from .login import user_login
 
+
 def index(request):
     return render(request, 'index.html')
 
@@ -33,11 +34,12 @@ def signup(request):
             return render(request, 'signup.html', {'error': error_message})
     else:
         return render(request, 'signup.html')
+    
 
 def login(request):
     if request.method == 'POST':
-        email = request.POST.get('email')
-        password = request.POST.get('password')
+        email = request.POST['email']
+        password = request.POST['password']
         try:
             user = auth.get_user_by_email(email)
             # # Sign in the user with the provided email and password

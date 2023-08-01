@@ -51,10 +51,10 @@ def create_AI_post (business_description, bucket_name, bucket_credentials, user_
             prompt = response["choices"][0]["message"]["content"]
             biz = random.choice(json.loads(prompt))
 
-    caption = f"create a social media caption about {biz} in under 150 characters"
+    caption = f"create a social media caption about {biz} in under 150 characters. add 1-3 relevent social-media hashtags related to this caption. "
     # Query OpenAI for a caption
     response = openai.ChatCompletion.create(
-    model="gpt-3.5-turbo",
+    model="gpt-4",
     messages=[
             {"role": "user", "content": caption},
         ]
@@ -62,26 +62,26 @@ def create_AI_post (business_description, bucket_name, bucket_credentials, user_
     # Store Caption as CAP for use in the caption later
     caption = response["choices"][0]["message"]["content"]
 
-    ## GENERATE HASHTAGS
-    hashtags = "generate 1-3 relevent social-media hashtags related to this caption: " + caption
-    # Query OpenAI to Generate Some Hashtags
-    response = openai.ChatCompletion.create(
-    model="gpt-3.5-turbo",
-    messages=[
-            {"role": "user", "content": hashtags},
-        ]
-    )
-    # Remove the numbers from the hashtags
-    hashtags = re.findall(r'#\w+', response["choices"][0]["message"]["content"])
-    hashtags = ' '.join(hashtags)
-    # Append to Create New Caption
-    print("CAPTION:", caption)
-    print("HASHTAGS:", hashtags)
+    # ## GENERATE HASHTAGS
+    # hashtags = "generate 1-3 relevent social-media hashtags related to this caption: " + caption
+    # # Query OpenAI to Generate Some Hashtags
+    # response = openai.ChatCompletion.create(
+    # model="gpt-3.5-turbo",
+    # messages=[
+    #         {"role": "user", "content": hashtags},
+    #     ]
+    # )
+    # # Remove the numbers from the hashtags
+    # hashtags = re.findall(r'#\w+', response["choices"][0]["message"]["content"])
+    # hashtags = ' '.join(hashtags)
+    # # Append to Create New Caption
+    # print("CAPTION:", caption)
+    # print("HASHTAGS:", hashtags)
 
-    post = "clean up the following social media caption by removing numbers, quotations, mention of AI language model, and word counts: " + caption + " " + hashtags
+    post = "clean up the following social media caption by removing numbers, quotations, mention of AI language model, and word counts: " + caption
     # Query OpenAI to Generate New Number-less prompt
     response = openai.ChatCompletion.create(
-    model="gpt-3.5-turbo",
+    model="gpt-4",
     messages=[
             {"role": "user", "content": post},
         ]
@@ -92,46 +92,46 @@ def create_AI_post (business_description, bucket_name, bucket_credentials, user_
     print("POST:", post)
 
     ## GENERATE iMAGE
-    img = f"describe one image you would find on social media that relates to {business_description} and make it a prompt so that i can generate that image in my image generator"
+    img = f"describe one image you would find on social media that relates to {business_description} and make it a prompt so that i can generate that image in my image generator. remove any mention of family, people, and text from this prompt. Simplify the following image prompt in under 150 characters."
 
     # Query OpenAI for a caption
     response = openai.ChatCompletion.create(
-    model="gpt-3.5-turbo",
+    model="gpt-4",
     messages=[
             {"role": "user", "content": img},
         ]
     )
-    # Store Caption as CAP for use in the caption later
+    # Store Caption as img for use in the caption later
     img = response["choices"][0]["message"]["content"]
 
-    # Query Open AI for an image description
-    response = openai.ChatCompletion.create(
-    model="gpt-3.5-turbo",
-    messages=[
-            {"role": "user", "content": img},
-        ]
-    )
-    # Store Value
-    img = "remove mention of family, people, and text from this prompt: " + response["choices"][0]["message"]["content"]
+    # # Query Open AI for an image description
+    # response = openai.ChatCompletion.create(
+    # model="gpt-3.5-turbo",
+    # messages=[
+    #         {"role": "user", "content": img},
+    #     ]
+    # )
+    # # Store Value
+    # img = "remove mention of family, people, and text from this prompt: " + response["choices"][0]["message"]["content"]
     
-    # Query OpenAI to Remove Family Mention
-    response = openai.ChatCompletion.create(
-    model="gpt-3.5-turbo",
-    messages=[
-            {"role": "user", "content": img},
-        ]
-    )
-    # Store Value
-    img = "Simplify the following image prompt in under 150 characters: " + response["choices"][0]["message"]["content"]
-    # Query OpenAI to Remove Family Mention
-    response = openai.ChatCompletion.create(
-    model="gpt-3.5-turbo",
-    messages=[
-            {"role": "user", "content": img},
-        ]
-    )
-    # Store Value
-    img = response["choices"][0]["message"]["content"]
+    # # Query OpenAI to Remove Family Mention
+    # response = openai.ChatCompletion.create(
+    # model="gpt-3.5-turbo",
+    # messages=[
+    #         {"role": "user", "content": img},
+    #     ]
+    # )
+    # # Store Value
+    # img = "Simplify the following image prompt in under 150 characters: " + response["choices"][0]["message"]["content"]
+    # # Query OpenAI to Remove Family Mention
+    # response = openai.ChatCompletion.create(
+    # model="gpt-3.5-turbo",
+    # messages=[
+    #         {"role": "user", "content": img},
+    #     ]
+    # )
+    # # Store Value
+    # img = response["choices"][0]["message"]["content"]
     # Print
     print("IMAGE DESCRIPTION:", img)
 

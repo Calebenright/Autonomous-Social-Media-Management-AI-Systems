@@ -24900,7 +24900,7 @@ File: Icons Css File
     transform: rotate(359deg);
   }
 }
-/*# sourceMappingURL=materialdesignicons.css.map */
+
 @font-face {
   font-family: "feather";
   src: url("../fonts/feather.eot?t=1525787366991");
@@ -36562,5 +36562,3 @@ readers do not read off random characters that represent icons */
 .wi-owm-night-957:before {
   content: "\f050";
 }
-
-/*# sourceMappingURL=weather-icons.css.map */

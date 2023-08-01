@@ -380,8 +380,18 @@
             <div class="content">
 
                 <!-- Start Content-->
-
                 <div class="container-fluid">
+
+                    <!-- ================== -->
+                    <!-- INSERT ERRORS HERE -->
+                    <!-- ================== -->
+                    {% if error %}
+                    <div class="error-message">
+                        <span>{{ error }}</span>
+                        <button class="close-button" onclick="closeErrorMessage()">&times;</button>
+                    </div>
+                    {% endif %}
+
                     <div class="row">
                         <div class="col-md-6">
                             <div class="card">
@@ -395,8 +405,6 @@
                                         <div class="col-lg-6">
                                             <form method="post" action="{% url 'brand_settings' %}"
                                                 enctype="multipart/form-data">
-                                                {% csrf_token %}
-
                                                 <div class="mb-3">
                                                     <label for="simpleinput" class="form-label">Business
                                                         Description</label>

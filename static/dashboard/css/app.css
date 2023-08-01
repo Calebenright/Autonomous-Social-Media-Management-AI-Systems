@@ -17260,7 +17260,7 @@ body[data-layout-color=dark] .text-blue {
 }
 
 body.authentication-bg {
-  background-image: url("../images/bg-auth3.png");
+  /* background-image: url(); */
   background-size: cover;
   background-position: center;
 }

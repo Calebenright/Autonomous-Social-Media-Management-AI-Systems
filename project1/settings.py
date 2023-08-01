@@ -44,9 +44,25 @@ SECRET_KEY = config('DJANGO_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'starter-web-app-389316.uc.r.appspot.com', 'getfeed.info', 'www.getfeed.info']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'starter-web-app-389316.uc.r.appspot.com', 'www.getfeed.info', 'getfeed.info']
 
 # DATABASES = {}
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.dummy',
+#     }
+# }
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'HOST': '/cloudsql/starter-web-app-389316:us-central1:feedai',
+#         'NAME': 'test',
+#         'USER': 'cje',
+#         'PASSWORD': config('DB_PASSWORD'),
+#     }
+# }
 
 # Application definition
 
@@ -65,10 +81,10 @@ MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
-    "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
 ]
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
@@ -111,13 +127,12 @@ USE_TZ = True
 # Set the session age to a very high value (e.g., 365 days)
 SESSION_COOKIE_AGE = 365 * 24 * 60 * 60  # 365 days in seconds
 
+# CSRF_COOKIE_DOMAIN = 'getfeed.info'
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = '/static/'
-
-# STATIC_ROOT = 'static'
-
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]

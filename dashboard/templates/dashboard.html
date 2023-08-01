@@ -380,6 +380,16 @@
                 <!-- Start Content-->
                 <div class="container-fluid">
 
+                    <!-- ================== -->
+                    <!-- INSERT ERRORS HERE -->
+                    <!-- ================== -->
+                    {% if error %}
+                    <div class="error-message">
+                      <span>{{ error }}</span>
+                      <button class="close-button" onclick="closeErrorMessage()">&times;</button>
+                    </div>
+                    {% endif %}
+
                     <div class="row">
                         {% if user_settings.last_image_url %}
                         <div class="col-xl-3 col-md-6">

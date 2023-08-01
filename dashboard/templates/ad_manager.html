@@ -379,6 +379,16 @@
 
                 <div class="container-fluid">
 
+                    <!-- ================== -->
+                    <!-- INSERT ERRORS HERE -->
+                    <!-- ================== -->
+                    {% if error %}
+                    <div class="error-message">
+                        <span>{{ error }}</span>
+                        <button class="close-button" onclick="closeErrorMessage()">&times;</button>
+                    </div>
+                    {% endif %}
+
                     <div class="row">
                         <div class="col-lg-6">
                             <div class="card">
@@ -400,7 +410,6 @@
                                         </div>
                                         <br>
                                         <form method="post" action="{% url 'upload_post' %}">
-                                            {% csrf_token %}
                                             <button type="submit"
                                                 class="btn btn-purple rounded-pill w-md waves-effect waves-light mb-3"
                                                 onclick="showSpinner()">
@@ -408,7 +417,6 @@
                                         </form>
                                         {% else %}
                                         <form method="post" action="{% url 'ad_manager' %}">
-                                            {% csrf_token %}
                                             <br>
                                             <button type="submit"
                                                 class="btn btn-purple rounded-pill w-md waves-effect waves-light mb-3"

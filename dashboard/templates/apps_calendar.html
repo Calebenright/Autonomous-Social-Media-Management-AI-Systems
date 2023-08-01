@@ -375,6 +375,16 @@
                     <!-- Start Content-->
                     <div class="container-fluid">
 
+                        <!-- ================== -->
+                        <!-- INSERT ERRORS HERE -->
+                        <!-- ================== -->
+                        {% if error %}
+                        <div class="error-message">
+                            <span>{{ error }}</span>
+                            <button class="close-button" onclick="closeErrorMessage()">&times;</button>
+                        </div>
+                        {% endif %}
+                        
                         <div class="row">
                             <div class="col-12">
                                 <div class="row">

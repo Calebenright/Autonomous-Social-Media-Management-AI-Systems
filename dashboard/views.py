@@ -20,7 +20,7 @@ import base64
 def dashboard(request):
     # ----- Get the Firestore document reference for the user settings ----- #
     db = firestore.client()
-    user_id = request.session.get('user_id')
+    user_id = request.session['user_id']
     user_settings_ref = db.collection('users').document(user_id)
     try:
         # Get the user record from Firebase Authentication using the user_id
@@ -58,7 +58,7 @@ def comments(request):
 def post_creator(request):
     # ----- Get the Firestore document reference for the user settings ----- #
     db = firestore.client()
-    user_id = request.session.get('user_id')
+    user_id = request.session['user_id']
     user_settings_ref = db.collection('users').document(user_id)
     try:
         user_settings_doc = user_settings_ref.get()
@@ -102,14 +102,23 @@ def post_creator(request):
     return render(request, 'post_creator.html', context)
 
 def upload_post(request):
+    # ----- Get the Firestore document reference for the user settings ----- #
+    db = firestore.client()
+    user_id = request.session.get('user_id')
+    user_settings_ref = db.collection('users').document(user_id)
+    try:
+        user_settings_doc = user_settings_ref.get()
+        user_settings = user_settings_doc.to_dict()
+    except firestore.NotFound:
+        user_settings = {} 
+    # ---------------------------------------------------------------------- #
     if request.method == 'POST':
-        user_settings = UserSettings.objects.get(user=request.user)
-        image_url = user_settings.next_image_url
-        caption = user_settings.next_caption
+        image_url = user_settings['next_image_url']
+        caption = user_settings['next_caption']
 
         # Call the function to post image to Instagram
         send_post(caption, image_url)
-        return render(request, 'dashboard.html')
+        return redirect(request, 'dashboard')
 
     return render(request, 'post_creator.html')
 
@@ -159,7 +168,7 @@ def brand_settings(request):
             # Save the data to Firestore
             user_settings_ref.set(firestore_data, merge=True)
 
-            return redirect('brand_settings')  # Redirect to the brand settings page after saving settings
+            return redirect('brand_settings')
 
     context = {
         'user_settings': user_settings,  # Pass the user_settings to the template
@@ -180,7 +189,14 @@ def ad_manager(request):
 
     if request.method == 'POST':
         user_folder_path = f'user_folders/{user_id}/images/'
-        post, url = create_stock_post(user_settings.get('business_description'), settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, user_folder_path)
+        try:
+            post, url = create_stock_post(user_settings.get('business_description'), settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, user_folder_path)
+        except (TypeError, KeyError):
+            context = {
+                'user_settings': user_settings,
+                'error': 'An error occurred. Please try again later.',
+            }
+            return render(request, 'ad_manager.html', context)
         ad_image_url = url
         ad_caption = post
 

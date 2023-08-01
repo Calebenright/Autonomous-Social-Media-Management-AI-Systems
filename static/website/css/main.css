@@ -1028,9 +1028,6 @@ p:last-child {
 }
 
 /* Images */
-.bg-image-01:after {
-  background: url(../media/bg/image-01@2x.jpg);
-}
 
 @media only screen and (max-width: 479px) {
   .bg-image-01:after {
@@ -2159,7 +2156,7 @@ form .form-help {
     user-select: none;
     cursor: pointer;
     display: inline-block;
-    /* float: right; */
+    float: right;
     height: 2.5rem;
     text-align: center;
     width: 1.5rem;
