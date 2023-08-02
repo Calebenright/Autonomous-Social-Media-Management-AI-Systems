@@ -7,7 +7,7 @@ from django.conf import settings
 from google.cloud import storage
 from google.oauth2 import service_account
 import os
-from .post_creator import create_AI_post, create_stock_post
+from .post_creator import create_dalle_post, create_stock_post, create_stable_dif_post, create_call_to_action
 from .upload_post import send_post
 from .generate_comment import generate_comment
 from django.http import JsonResponse
@@ -73,7 +73,17 @@ def post_creator(request):
             biz = user_settings['business_description']
         except (TypeError, KeyError):
             biz = 'mansion'
-        post, url = create_AI_post(biz, settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, user_folder_path)
+
+        selected_option = request.POST.get('flexRadioDefault')
+        print(selected_option)
+        if selected_option == 'dalle':
+            post, url = create_dalle_post(biz, settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, user_folder_path)
+        elif selected_option == 'stable-dif':
+            post, url = create_stable_dif_post(biz, settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, user_folder_path)
+        elif selected_option == 'stock':
+            post, url = create_stock_post(biz, settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, user_folder_path)
+        else:
+            post, url = create_dalle_post(biz, settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, user_folder_path)
         try:
             last_image_url = user_settings['next_image_url']
             last_caption = user_settings['next_caption']
