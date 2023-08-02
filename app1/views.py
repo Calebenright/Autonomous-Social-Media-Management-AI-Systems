@@ -12,8 +12,8 @@ def index(request):
 def pricing(request):
     return render(request, 'pricing.html')
 
-def about(request):
-    return render(request, 'about.html')
+def forgot_password(request):
+    return render(request, 'forgot_password.html')
 
 def signup(request):
     if request.method == 'POST':

@@ -452,6 +452,7 @@
                                         <br>
                                         <br>
                                         <h4 class="header-title">Caption</h4>
+                                        <br>
                                         <div class="mb-3">
                                             <div class="text-box-wrapper">
                                                 <div id="prompt" contenteditable="true" class="text-box">{{ post }}
@@ -459,11 +460,10 @@
                                             </div>
                                         </div>
                                         <br>
-                                        <form method="post" action="{% url 'upload_post' %}">
+                                        <form method="post" action="#">
                                             {% csrf_token %}
                                             <button type="submit"
-                                                class="btn btn-purple rounded-pill w-md waves-effect waves-light mb-3"
-                                                onclick="showSpinner()">
+                                                class="btn btn-purple rounded-pill w-md waves-effect waves-light mb-3">
                                                 <i class="mdi mdi-plus"></i> Post To Feed!</button>
                                         </form>
                                     </div>
