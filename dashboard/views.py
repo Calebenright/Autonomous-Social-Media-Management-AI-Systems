@@ -96,14 +96,14 @@ def ad_manager(request):
                 current_ad_image_url = ad_image_url
                 current_ad_copy = ad_copy
             elif form_name == 'formImg':
-                isLogo = request.POST.get('isLogo', 'false')
+                isLogo = request.POST.get('isLogo', None)
                 request.session['isLogo'] = isLogo
                 ad_image_url = create_ad(isLogo, logo_path, biz, settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, ads_folder_path, num_ad)
                 if num_ad <= 5:
                     num_ad += 1
                     
             else:
-                isLogo = request.POST.get('isLogo', False)
+                isLogo = request.POST.get('isLogo', None)
                 request.session['isLogo'] = isLogo
                 ad_copy = create_ad_copy(biz, settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, ads_folder_path)
                 ad_image_url = create_ad(isLogo, logo_path, biz, settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, ads_folder_path, num_ad)
@@ -140,7 +140,7 @@ def ad_manager(request):
         else:
             user_settings['deny'] = True
         
-    isLogo = request.session.get('isLogo', 'false')
+    isLogo = request.session.get('isLogo', None)
     context = {
         'user_settings': user_settings,
         'isLogo': isLogo,
@@ -188,13 +188,6 @@ def post_creator(request):
     if request.method == 'POST':
         form_name = request.POST.get('form')
         if num_post < 10:
-    # ------------------- Get Selected Post Type --------------------------- #
-            selected_option = request.POST.get('flexRadioDefault')
-            request.session['selected_radio'] = selected_option
-            print(selected_option)
-            isLogo = request.POST.get('isLogo', 'false')
-            request.session['isLogo'] = isLogo
-    # ---------------------------------------------------------------------- #
             if form_name == 'formImage1':
                 selected_option = request.session.get('selected_radio', None)
                 isLogo = request.session.get('isLogo', None)
@@ -208,12 +201,14 @@ def post_creator(request):
                 
             elif form_name == 'formCaption1':
                 selected_option = request.session.get('selected_radio', None)
-                isLogo = request.session.get('isLogo', 'false')
+                isLogo = request.session.get('isLogo', None)
                 post = create_caption(biz, settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, image_folder_path)
                 firestore_data = {'next_caption': post}
                 url = user_settings['next_image_url']
             
             elif form_name == 'formPostSchedule':
+                selected_option = request.session.get('selected_radio', None)
+                isLogo = request.session.get('isLogo', None)
                 next_image_url = user_settings['next_image_url']
                 post = user_settings['next_caption']
                 url = user_settings['next_image_url']
@@ -225,6 +220,12 @@ def post_creator(request):
                 }
 
             else:
+        # ------------------- Get Selected Post Type --------------------------- #
+                selected_option = request.POST.get('flexRadioDefault')
+                request.session['selected_radio'] = selected_option
+                isLogo = request.POST.get('isLogo', None)
+                request.session['isLogo'] = isLogo
+        # ---------------------------------------------------------------------- #
                 try:
                     last_image_url = user_settings['next_image_url']
                     last_caption = user_settings['next_caption']

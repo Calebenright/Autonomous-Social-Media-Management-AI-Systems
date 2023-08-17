@@ -42,8 +42,8 @@ AUTHENTICATION_BACKENDS = [
 SECRET_KEY = config('DJANGO_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-# DEBUG = False
+# DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'starter-web-app-389316.uc.r.appspot.com', 'getfeed.info', 'www.getfeed.info']
 
