@@ -40,9 +40,9 @@ def login(request):
         password = request.POST.get('password')
         try:
             user = auth.get_user_by_email(email)
-            # # Sign in the user with the provided email and password
-            # # id_token = user_login(email, password)
-            # # User login successful
+            # Sign in the user with the provided email and password
+            id_token = user_login(email, password)
+            # User login successful
 
             # Get the user ID
             user_id = user.uid
@@ -52,7 +52,7 @@ def login(request):
             return redirect('dashboard')  # Redirect to the 'dashboard' view
         except Exception as e:
             # Handle other exceptions (if any)
-            error_message = f'Error: {str(e)}'
+            error_message = f'Error: Credentials Invalid.'
             print(error_message)
             return render(request, 'login.html', {'error': error_message})
     return render(request, 'login.html')

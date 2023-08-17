@@ -43,6 +43,7 @@ SECRET_KEY = config('DJANGO_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+# DEBUG = False
 
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'starter-web-app-389316.uc.r.appspot.com', 'getfeed.info', 'www.getfeed.info']
 
@@ -115,9 +116,7 @@ SESSION_COOKIE_AGE = 365 * 24 * 60 * 60  # 365 days in seconds
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = '/static/'
-
-# STATIC_ROOT = 'static'
-
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
@@ -137,4 +136,5 @@ DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
 GS_BUCKET_NAME = config('GS_BUCKET_NAME')
 GS_PROJECT_ID = config('GS_PROJECT_ID')
 GS_CREDENTIALS = config('GS_CREDENTIALS')
+
 
