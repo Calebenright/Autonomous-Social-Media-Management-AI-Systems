@@ -4,7 +4,7 @@
 
 <head>
     <meta charset="utf-8" />
-    <title>Brand Settings | FeedAI</title>
+    <title>Settings | FeedAI</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta content="A automonomous social media managing app and ad agency" name="description" />
     <meta content="CJ Enright" name="author" />
@@ -168,19 +168,19 @@
 
                 <li class="dropdown notification-list topbar-dropdown">
                     <a class="nav-link dropdown-toggle nav-user me-0 waves-effect waves-light" data-bs-toggle="dropdown"
-                        href="#" role="button" aria-haspopup="false" aria-expanded="false">
-                        {% if user_settings.pfp %}
-                        <img src="{{ user_settings.pfp }}" alt="user-img" title="pfp" class="rounded-circle">
-                        {% else %}
-                        <img src="{% static 'dashboard/images/users/artVandelay.jpg' %}" alt="user-img" title="cj" class="rounded-circle">
-                        {% endif %}
-                        {% if user_settings.business_name %}
-                        <span class="pro-user-name ms-1">{{ user_settings.business_name }}<i class="mdi mdi-chevron-down"></i>
-                        {% else %}
-                        <span class="pro-user-name ms-1">Art Vandelay<i class="mdi mdi-chevron-down"></i>
-                        {% endif %}
-                        </span>
-                    </a>
+                    href="#" role="button" aria-haspopup="false" aria-expanded="false">
+                    {% if user_settings.pfp %}
+                    <img src="{{ user_settings.pfp }}" alt="user-img" title="pfp" class="rounded-circle">
+                    {% else %}
+                    <img src="{% static 'dashboard/images/users/default.png' %}" alt="user-img" title="cj" class="rounded-circle">
+                    {% endif %}
+                    {% if user_settings.business_name %}
+                    <span class="pro-user-name ms-1">{{ user_settings.business_name }}<i class="mdi mdi-chevron-down"></i>
+                    {% else %}
+                    <span class="pro-user-name ms-1">User Default<i class="mdi mdi-chevron-down"></i>
+                    {% endif %}
+                    </span>
+                </a>
 
                     <div class="dropdown-menu dropdown-menu-end profile-dropdown ">
                         <!-- item-->
@@ -252,12 +252,6 @@
                         </a>
 
                         <!-- item-->
-                        <a href="{% url 'ad_manager' %}" class="dropdown-item notify-item">
-                            <i class="far fa-chart-bar"></i>
-                            <span>Ad Manager</span>
-                        </a>
-
-                        <!-- item-->
                         <a href="{% url 'post_creator' %}" class="dropdown-item notify-item">
                             <i class="fas fa-edit"></i>
                             <span>Create Post</span>
@@ -267,12 +261,6 @@
                         <a href="{% url 'schedule' %}" class="dropdown-item notify-item">
                             <i class="mdi mdi-calendar-blank-outline"></i>
                             <span>Schedule</span>
-                        </a>
-
-                        <!-- item-->
-                        <a href="{% url 'comments' %}" class="dropdown-item notify-item">
-                            <i class="far fa-comments"></i>
-                            <span>Comments</span>
                         </a>
 
                         <!-- item-->
@@ -293,7 +281,7 @@
                 </li>
 
                 <li>
-                    <h4 class="page-title-main">Brand Settings</h4>
+                    <h4 class="page-title-main">Settings</h4>
                 </li>
 
             </ul>
@@ -313,21 +301,18 @@
                     {% if user_settings.pfp %}
                     <img src="{{ user_settings.pfp }}" alt="user-img" title="pfp" class="rounded-circle img-thumbnail avatar-md">
                     {% else %}
-                    <img src="{% static 'dashboard/images/users/artVandelay.jpg' %}" alt="user-img" title="cj" class="rounded-circle img-thumbnail avatar-md">
+                    <img src="{% static 'dashboard/images/users/default.png' %}" alt="user-img" title="cj" class="rounded-circle img-thumbnail avatar-md">
                     {% endif %}
                     <div class="dropdown">
                         {% if user_settings.business_name %}
                         <a href="#" class="user-name dropdown-toggle h5 mt-2 mb-1 d-block" data-bs-toggle="dropdown" aria-expanded="false">{{ user_settings.business_name }}</a>
                         {% else %}
-                        <a href="#" class="user-name dropdown-toggle h5 mt-2 mb-1 d-block" data-bs-toggle="dropdown" aria-expanded="false">Art Vandelay</a>
+                        <a href="#" class="user-name dropdown-toggle h5 mt-2 mb-1 d-block" data-bs-toggle="dropdown" aria-expanded="false">User Default</a>
                         {% endif %}
                     </div>
                     {% if user_settings.business_description %}
                     <p class="text-muted left-user-info">{{ user_settings.business_description }}</p>
-                    {% else %}
-                    <p class="text-muted left-user-info">Importer/Exporter</p>
                     {% endif %}
-                    
 
                     <ul class="list-inline">
                         <li class="list-inline-item">
@@ -349,24 +334,17 @@
 
                     <ul id="side-menu">
 
-                        <li class="menu-title">Dashboard</li>
+                        <li class="menu-title">Agents</li>
 
                         <li>
                             <a href="{% url 'dashboard' %}">
                                 <i class="mdi mdi-view-dashboard-outline"></i>
-                                <span class="badge bg-success rounded-pill float-end">9+</span>
-                                <span> My Feed </span>
+                                <!-- <span class="badge bg-success rounded-pill float-end">9+</span> -->
+                                <span> Elaine </span>
                             </a>
                         </li>
 
                         <li class="menu-title mt-2">Apps</li>
-
-                        <li>
-                            <a href="{% url 'ad_manager' %}">
-                                <i class="far fa-chart-bar"></i>
-                                <span> Ad Manager </span>
-                            </a>
-                        </li>
 
                         <li>
                             <a href="{% url 'post_creator' %}">
@@ -379,13 +357,6 @@
                             <a href="{% url 'schedule' %}">
                                 <i class="mdi mdi-calendar-blank-outline"></i>
                                 <span> Schedule </span>
-                            </a>
-                        </li>
-
-                        <li>
-                            <a href="{% url 'comments' %}">
-                                <i class="far fa-comments"></i>
-                                <span> Comments </span>
                             </a>
                         </li>
 
@@ -424,6 +395,7 @@
                         <div class="col-md-6">
                             <div class="card">
                                 <div class="card-body">
+                                    <h4 class="header-title">Brand Settings</h4>
                                     <p class="sub-header">
                                         Tell us about you and your business so we can generate content specifically
                                         tailored towards you.
@@ -431,21 +403,33 @@
 
                                     <div class="row">
                                         <div class="col-lg-6">
-                                            <form method="post" action="{% url 'brand_settings' %}"
+                                            <form id="tagForm" method="post" action="{% url 'brand_settings' %}"
                                                 enctype="multipart/form-data">
                                                 {% csrf_token %}
-                                                <div class="mb-3">
-                                                    <label for="simpleinput" class="form-label">Business Description<br>(1-3 Words Recommended | This is what we use to generate prompts | Please be as specific/niche as possible)</label>
-                                                    <input type="text" id="business_description" class="form-control"
-                                                        name="business_description"
-                                                        value="{{ user_settings.business_description }}">
-                                                </div>
+                                                <input type="hidden" name="form" value="brand-settings">
                                                 <div class="mb-3">
                                                     <label for="simpleinput" class="form-label">Business Name</label>
                                                     <input type="text" id="business_name" class="form-control"
                                                         name="business_name"
                                                         value="{{ user_settings.business_name }}">
                                                 </div>
+                                                <div class="mb-3">
+                                                    <label for="simpleinput" class="form-label">Business Description<br>(1-3 Words Recommended)</label>
+                                                    <input type="text" id="business_description" class="form-control"
+                                                        name="business_description"
+                                                        value="{{ user_settings.business_description }}">
+                                                </div>
+                                                {% if user_settings.business_description %}
+                                                <div class="mb-3">
+                                                    <h4 class="header-title">Tags</h4>
+                                                    <p></p> 
+                                                    <div class="tag-input-container">
+                                                        <input type="hidden" name="tags" value="">
+                                                        <input type="text" id="tagInput" class="form-control" placeholder="Enter tags separated by a comma...">
+                                                        <div class="tag-bubbles" id="tagBubbles"></div>
+                                                    </div>
+                                                </div>
+                                                {% endif %}
                                                 <div>
                                                     <label class="form-label">Brand Color</label>
                                                     <input type="text" class="form-control" id="colorpicker-showinput-intial" name="brand_color" value="{{ user_settings.brand_color }}">
@@ -472,14 +456,11 @@
                                                     <input type="file" id="logo" name="logo" class="form-control" accept=".png">
                                                 </div>
                                                 {% if user_settings.logo %}
-                                                <img src="{{ user_settings.logo }}" alt="Generated Image"
-                                                    class="generated-image-small rounded">
+                                                <div class="mb-3">
+                                                    <img src="{{ user_settings.logo }}" alt="Generated Image"
+                                                        class="generated-image-small rounded">
+                                                </div>
                                                 {% endif %}
-                                                <br>
-                                                <h4 class="header-title">Profile Image</h4>
-                                                <input type="file" id="pfp" name="pfp" class="form-control" accept=".jpg">
-                                                <br>
-                                                <br>
                                                 <button type="submit"
                                                     class="btn btn-primary waves-effect waves-light">Save</button>
                                                 <br>
@@ -518,12 +499,133 @@
                                     
                                 </div>
                             </div>
+                            <div class="card">
+                                <div class="card-body">
+                                    <h4 class="header-title">User Settings</h4>
+                                    <br>
+                                    <form method="post" action="{% url 'brand_settings' %}" enctype="multipart/form-data">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="form" value="user-settings">
+                                        <div class="mb-3">
+                                            <label for="simpleinput" class="form-label">Your Name</label>
+                                            <input type="text" id="user_name" class="form-control"
+                                                name="user_name"
+                                                value="{{ user_settings.user_name }}">
+                                        </div>
+                                        <label class="form-label">Profile Image</label>
+                                        <p class="sub-header">( .JPG Files Only )</p>
+                                        <input type="file" id="pfp" name="pfp" class="form-control" accept=".jpg">
+                                        {% if user_settings.pfp %}
+                                        <div class="mb-3">
+                                            <img src="{{ user_settings.pfp }}" alt="Generated Image"
+                                                class="generated-image-small rounded">
+                                        </div>
+                                        {% endif %}
+                                        <br>
+                                        <button type="submit"
+                                            class="btn btn-primary waves-effect waves-light">Save</button>
+                                        <br>
+                                    </form>
+                                </div>
+                            </div>
                             
                         </div><!-- end col -->
                     </div>
                     <!-- end row -->
 
+                    <script>
+                        const tagsArray = '{{ user_settings.tags|safe }}' !== '' ?
+                            JSON.parse('{{ user_settings.tags|safe }}') : [];
 
+                        const tagInput = document.getElementById('tagInput');
+                        const tagBubbles = document.getElementById('tagBubbles');
+                        const tags = tagsArray;
+
+                        tagInput.addEventListener('keydown', function(event) {
+                        if (event.key === 'Enter' || event.key === ',') {
+                            event.preventDefault();
+                            const tagValue = tagInput.value.trim();
+                            if (tagValue) {
+                            addTag(tagValue);
+                            tagInput.value = '';
+                            }
+                        }
+                        });
+
+                        function addTag(tagValue) {
+                        tags.push(tagValue);
+                        const tagBubble = document.createElement('div');
+                        tagBubble.classList.add('tag-bubble');
+                        tagBubble.textContent = tagValue;
+                        tagBubbles.appendChild(tagBubble);
+                        tagBubble.addEventListener('click', function() {
+                            removeTag(tagValue);
+                        });
+                        }
+
+                        function removeTag(tagValue) {
+                        const index = tags.indexOf(tagValue);
+                        if (index !== -1) {
+                            tags.splice(index, 1);
+                            updateTagBubbles();
+                        }
+                        }
+
+                        function updateTagBubbles() {
+                        tagBubbles.innerHTML = '';
+                        tags.forEach(tagValue => {
+                            const tagBubble = document.createElement('div');
+                            tagBubble.classList.add('tag-bubble');
+                            tagBubble.textContent = tagValue;
+                            tagBubbles.appendChild(tagBubble);
+                            tagBubble.addEventListener('click', function() {
+                            removeTag(tagValue);
+                            });
+                        });
+                        }
+
+                        function updateHiddenInput() {
+                        const tagsInput = document.querySelector('input[name="tags"]');
+                        tagsInput.value = tags.join(',');
+                        }
+
+                        const tagForm = document.getElementById('tagForm');
+                        tagForm.addEventListener('submit', function(event) {
+                            updateHiddenInput();
+                            tagForm.submit();
+                        });
+
+                        updateTagBubbles();
+
+                    </script>
+        
+                    <style>
+                        .tag-input-container {
+                            display: flex;
+                            flex-wrap: wrap;
+                            border: 1px solid #ccc;
+                            padding: 5px;
+                            align-items: center;
+                            width: 100%;
+                            border-radius: 5px;
+                        }
+    
+                        .tag-bubble {
+                            display: inline-block;
+                            background-color: #e0e0e0;
+                            color: #333;
+                            padding: 5px 10px;
+                            margin: 5px;
+                            border-radius: 5px;
+                            cursor: pointer;
+                            transition: background-color 0.3s, color 0.3s;
+                        }
+
+                        .tag-bubble:hover {
+                            background-color: #333;
+                            color: #fff;
+                        }
+                    </style>
                 </div> <!-- container-fluid -->
 
             </div> <!-- content -->

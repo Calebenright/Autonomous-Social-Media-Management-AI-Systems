@@ -16,6 +16,9 @@
     <!-- App css -->
     <link href="{% static 'dashboard/css/app.min.css' %}" rel="stylesheet" type="text/css" id="app-style" />
 
+    <!-- PLugins css -->
+    <link href="{% static 'dashboard/libs/mohithg-switchery/switchery.min.css' %}" rel="stylesheet" type="text/css" />
+
     <!-- icons -->
     <link href="{% static 'dashboard/css/icons.min.css' %}" rel="stylesheet" type="text/css" />
 
@@ -173,12 +176,12 @@
                         {% if user_settings.pfp %}
                         <img src="{{ user_settings.pfp }}" alt="user-img" title="pfp" class="rounded-circle">
                         {% else %}
-                        <img src="{% static 'dashboard/images/users/artVandelay.jpg' %}" alt="user-img" title="cj" class="rounded-circle">
+                        <img src="{% static 'dashboard/images/users/default.png' %}" alt="user-img" title="cj" class="rounded-circle">
                         {% endif %}
                         {% if user_settings.business_name %}
                         <span class="pro-user-name ms-1">{{ user_settings.business_name }}<i class="mdi mdi-chevron-down"></i>
                         {% else %}
-                        <span class="pro-user-name ms-1">Art Vandelay<i class="mdi mdi-chevron-down"></i>
+                        <span class="pro-user-name ms-1">User Default<i class="mdi mdi-chevron-down"></i>
                         {% endif %}
                         </span>
                     </a>
@@ -253,12 +256,6 @@
                         </a>
 
                         <!-- item-->
-                        <a href="{% url 'ad_manager' %}" class="dropdown-item notify-item">
-                            <i class="far fa-chart-bar"></i>
-                            <span>Ad Manager</span>
-                        </a>
-
-                        <!-- item-->
                         <a href="{% url 'post_creator' %}" class="dropdown-item notify-item">
                             <i class="fas fa-edit"></i>
                             <span>Create Post</span>
@@ -268,12 +265,6 @@
                         <a href="{% url 'schedule' %}" class="dropdown-item notify-item">
                             <i class="mdi mdi-calendar-blank-outline"></i>
                             <span>Schedule</span>
-                        </a>
-
-                        <!-- item-->
-                        <a href="{% url 'comments' %}" class="dropdown-item notify-item">
-                            <i class="far fa-comments"></i>
-                            <span>Comments</span>
                         </a>
 
                         <!-- item-->
@@ -314,19 +305,17 @@
                     {% if user_settings.pfp %}
                     <img src="{{ user_settings.pfp }}" alt="user-img" title="pfp" class="rounded-circle img-thumbnail avatar-md">
                     {% else %}
-                    <img src="{% static 'dashboard/images/users/artVandelay.jpg' %}" alt="user-img" title="cj" class="rounded-circle img-thumbnail avatar-md">
+                    <img src="{% static 'dashboard/images/users/default.png' %}" alt="user-img" title="cj" class="rounded-circle img-thumbnail avatar-md">
                     {% endif %}
                     <div class="dropdown">
                         {% if user_settings.business_name %}
                         <a href="#" class="user-name dropdown-toggle h5 mt-2 mb-1 d-block" data-bs-toggle="dropdown" aria-expanded="false">{{ user_settings.business_name }}</a>
                         {% else %}
-                        <a href="#" class="user-name dropdown-toggle h5 mt-2 mb-1 d-block" data-bs-toggle="dropdown" aria-expanded="false">Art Vandelay</a>
+                        <a href="#" class="user-name dropdown-toggle h5 mt-2 mb-1 d-block" data-bs-toggle="dropdown" aria-expanded="false">User Default</a>
                         {% endif %}
                     </div>
                     {% if user_settings.business_description %}
                     <p class="text-muted left-user-info">{{ user_settings.business_description }}</p>
-                    {% else %}
-                    <p class="text-muted left-user-info">Importer/Exporter</p>
                     {% endif %}
 
                     <ul class="list-inline">
@@ -349,24 +338,17 @@
 
                     <ul id="side-menu">
 
-                        <li class="menu-title">Dashboard</li>
+                        <li class="menu-title">Agents</li>
 
                         <li>
                             <a href="{% url 'dashboard' %}">
                                 <i class="mdi mdi-view-dashboard-outline"></i>
-                                <span class="badge bg-success rounded-pill float-end">9+</span>
-                                <span> My Feed </span>
+                                <!-- <span class="badge bg-success rounded-pill float-end">9+</span> -->
+                                <span> Elaine </span>
                             </a>
                         </li>
 
                         <li class="menu-title mt-2">Apps</li>
-
-                        <li>
-                            <a href="{% url 'ad_manager' %}">
-                                <i class="far fa-chart-bar"></i>
-                                <span> Ad Manager </span>
-                            </a>
-                        </li>
 
                         <li>
                             <a href="{% url 'post_creator' %}">
@@ -379,13 +361,6 @@
                             <a href="{% url 'schedule' %}">
                                 <i class="mdi mdi-calendar-blank-outline"></i>
                                 <span> Schedule </span>
-                            </a>
-                        </li>
-
-                        <li>
-                            <a href="{% url 'comments' %}">
-                                <i class="far fa-comments"></i>
-                                <span> Comments </span>
                             </a>
                         </li>
 
@@ -424,164 +399,449 @@
                           <span>{{ error }}</span>
                           <button class="close-button" onclick="closeErrorMessage()">&times;</button>
                         </div>
-                      {% endif %}
-                      
-                      <script>
+                        <script>
                         function closeErrorMessage() {
-                          const errorDiv = document.querySelector('.error-message');
-                          errorDiv.style.display = 'none';
+                            const errorDiv = document.querySelector('.error-message');
+                            errorDiv.style.display = 'none';
                         }
-                      </script>
-                        {% if user_settings.last_image_url %}
-                        <div class="col-xl-3 col-md-6">
-                            <div class="card">
-                                <div class="card-body">
-                                    <div class="generated-post">
-                                    <h4 class="header-title mt-0 mb-4">Previous Post</h4>
-                                    <form method="post" action="#">
-                                        {% csrf_token %}
-                                            <p class="sub-header">
-                                                Image
-                                            </p>
-                                            <img src="{{ user_settings.last_image_url }}" alt="Generated Image"
-                                                class="generated-image-lg rounded">
-                                            <br>
-                                            <br>
-                                            <p class="sub-header">
-                                                Caption
-                                            </p>
-                                            <div class="mb-3">
-                                                <div class="text-box-wrapper">
-                                                    <div id="prompt" contenteditable="false" class="text-box">{{ user_settings.last_caption }}</div>
+                        </script>
+                        {% endif %}
+                        <!-- FTUE Start -->
+                        {% if user_settings.ftue %}
+                        <div class="ftue-overlay" id="overlayContainer">
+                            <div class="ftue-modal" id="ftueOverlay">
+                                <img src="#" alt="Animated Character" id="animatedCharacter">
+                            </div>
+                        </div>
+                        <form method="post" action="{% url 'dashboard' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="form" value="formFtue">
+                            <div class="button-container">
+                                <button class="btn btn-custom btn-lg waves-effect waves-light rounded-pill centerButton" id="automate">Automate</button>
+                            </div>
+                        </form>
+                        {% endif %}
+                        
+                        {% if user_settings.ftue2 %}
+                        <div class="ftue-overlay" id="overlayContainer">
+                            <div class="ftue-modal" id="ftueOverlay">
+                                <img src="#" alt="Animated Character" id="animatedCharacter2">
+                            </div>
+                        </div>
+                        <form method="post" action="{% url 'dashboard' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="form" value="formFtue2">
+                            <div class="row">
+                                <div class="col-xl-3 col-md-6">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <div class="generated-post">
+                                                {% csrf_token %}
+                                                <p class="form-label">Image</p>
+                                                <img src="{% static 'ftue_animation/JalsCoffee1.png' %}" alt="Generated Image" class="generated-image-lg rounded">
+                                                <br>
+                                                <br>
+                                                <p class="form-label">Caption</p>
+                                                <div class="mb-3">
+                                                        <div class="text-box-wrapper">
+                                                        <div id="prompt" contenteditable="false" class="text-box">Pouring passion into every cup at Jal's Coffee. Join us for your daily brew of happiness! ☕️🌟 #JalsCoffeeJourney"</div>
+                                                        </div>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-check-label" for="ftueCheck" style="padding: 5%;">Add To Schedule</label>
+                                                    <br>
+                                                    <input type="checkbox" data-switchery="true" data-plugin="switchery" data-color="#039cfd" name="ftueCheck" value="ftueCheck1" id="ftueCheck"/>
                                                 </div>
                                             </div>
-                                    </form>
-                                    
-                            </div>
-
-                        </div>
-                    </div>
-                </div><!-- end col -->
-                <div class="col-xl-3 col-md-6">
-                    
-                    <div class="card">
-                        <div class="card-body widget-user">
-                            <div class="text-center">
-                                <h2 class="fw-normal text-info" data-plugin="counterup">345</h2>
-                                <h5>Likes</h5>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card">
-                        <div class="card-body widget-user">
-                            <div class="text-center">
-                                <h2 class="fw-normal text-warning" data-plugin="counterup">41</h2>
-                                <h5>Comments</h5>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card">
-                        <div class="card-body">
-
-                            <div class="widget-box-2">
-                                <div class="widget-detail-2 text-end">
-                                    <span class="badge bg-success rounded-pill float-start mt-3">32% <i
-                                            class="mdi mdi-trending-up"></i> </span>
-                                    <h2 class="fw-normal mb-1"> 2,345 </h2>
-                                    <p class="text-muted mb-3">New Followers</p>
-                                </div>
-                                <div class="progress progress-bar-alt-success progress-sm">
-                                    <div class="progress-bar bg-success" role="progressbar" aria-valuenow="32"
-                                        aria-valuemin="0" aria-valuemax="100" style="width: 32%;">
-                                        <span class="visually-hidden">32% Complete</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                </div><!-- end col -->
-                {% endif %}
-                {% if user_settings.next_image_url %}
-                <div class="col-xl-3 col-md-6">
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="generated-post">
-                                <h4 class="header-title mt-0 mb-4">Next Post</h4>
-                                <form method="post" action="#">
-                                    {% csrf_token %}
-                                    <p class="sub-header">
-                                        Image
-                                    </p>
-                                    <img src="{{ user_settings.next_image_url }}" alt="Generated Image"
-                                        class="generated-image-lg rounded">
-                                    <br>
-                                    <br>
-                                    <p class="sub-header">
-                                        Caption
-                                    </p>
-                                    <div class="mb-3">
-                                        <div class="text-box-wrapper">
-                                            <div id="prompt" contenteditable="false" class="text-box">{{ user_settings.next_caption }}</div>
                                         </div>
                                     </div>
-                                    <button type="submit"
-                                        class="btn btn-purple rounded-pill w-md waves-effect waves-light mb-3"
-                                        onclick="showSpinner()">
-                                        <i class="mdi mdi-plus"></i> Post To Feed!</button>
-                                </form>
-                            </div>
-
-                        </div>
-                    </div>
-                </div><!-- end col -->
-                {% else %}
-                <div class="p-3">
-                    <div class="d-flex justify-content-center align-items-center" style="height: 60vh;">
-                        <div class="mt-4" style="
-                                width: 350px;
-                                max-width: 100%;
-                                font-size: .875rem;
-                                pointer-events: auto;
-                                background-color: var(--ct-toast-background-color);
-                                background-clip: padding-box;
-                                border: 1px solid var(--ct-toast-border-color);
-                                box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .1);
-                                border-radius: .25rem">
-                            <div class="toast-body">
-                                Hello, <strong>{{ user_email }}</strong>!
-                                <br>Let's generate a post to get started :)
-                                <div class="mt-2 pt-2 border-top">
-                                    <a href="{% url 'post_creator' %}" type="button"
-                                        class="btn btn-primary btn-sm">Generate A Post</a>
+                                </div>
+                                <div class="col-xl-3 col-md-6">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <div class="generated-post">
+                                                {% csrf_token %}
+                                                <p class="form-label">Image</p>
+                                                <img src="{% static 'ftue_animation/JalsCoffee2.png' %}" alt="Generated Image" class="generated-image-lg rounded">
+                                                <br>
+                                                <br>
+                                                <p class="form-label">Caption</p>
+                                                <div class="mb-3">
+                                                        <div class="text-box-wrapper">
+                                                        <div id="prompt" contenteditable="false" class="text-box">Indulge in aromatic brews and cozy vibes at our Coffee Shop. Join us for your daily caffeine fix and experience true bliss! ☕️🤩 #CoffeeLovers #CafeLife #MorningRitual</div>
+                                                        </div>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-check-label" for="ftueCheck" style="padding: 5%;">Add To Schedule</label>
+                                                    <br>
+                                                    <input type="checkbox" data-switchery="true" data-plugin="switchery" data-color="#039cfd" name="ftueCheck" value="ftueCheck2" id="ftueCheck"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-xl-3 col-md-6">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <div class="generated-post">
+                                                {% csrf_token %}
+                                                <p class="form-label">Image</p>
+                                                <img src="{% static 'ftue_animation/JalsCoffee3.png' %}" alt="Generated Image" class="generated-image-lg rounded">
+                                                <br>
+                                                <br>
+                                                <p class="form-label">Caption</p>
+                                                <div class="mb-3">
+                                                    <div class="text-box-wrapper">
+                                                        <div id="prompt" contenteditable="false" class="text-box">Indulge in the most delectable pastries that will leave you craving for more. #PastryLove #SweetTreats #DeliciousDelights</div>
+                                                    </div>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-check-label" for="ftueCheck" style="padding: 5%;">Add To Schedule</label>
+                                                    <br>
+                                                    <input type="checkbox" data-switchery="true" data-plugin="switchery" data-color="#039cfd" name="ftueCheck" value="ftueCheck3" id="ftueCheck"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-xl-3 col-md-6">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <div class="generated-post">
+                                                {% csrf_token %}
+                                                <p class="form-label">Image</p>
+                                                <img src="{% static 'ftue_animation/JalsCoffee4.png' %}" alt="Generated Image" class="generated-image-lg rounded">
+                                                <br>
+                                                <br>
+                                                <p class="form-label">Caption</p>
+                                                <div class="mb-3">
+                                                    <div class="text-box-wrapper">
+                                                        <div id="prompt" contenteditable="false" class="text-box">Feeling the cozy vibes at our local coffee shop ☕✨ Come join us for your daily caffeine fix and let the aroma of freshly brewed coffee awaken your senses! #CoffeeLovers #LocalHangout #CozyVibes</div>
+                                                    </div>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-check-label" for="ftueCheck" style="padding: 5%;">Add To Schedule</label>
+                                                    <br>
+                                                    <input type="checkbox" data-switchery="true" data-plugin="switchery" data-color="#039cfd" name="ftueCheck" value="ftueCheck4" id="ftueCheck"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-xl-3 col-md-6">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <div class="generated-post">
+                                                {% csrf_token %}
+                                                <p class="form-label">Image</p>
+                                                <img src="{% static 'ftue_animation/JalsCoffee5.png' %}" alt="Generated Image" class="generated-image-lg rounded">
+                                                <br>
+                                                <br>
+                                                <p class="form-label">Caption</p>
+                                                <div class="mb-3">
+                                                    <div class="text-box-wrapper">
+                                                        <div id="prompt" contenteditable="false" class="text-box">Introducing the exquisite Barista Creations, where art meets coffee. Experience the perfect blend with rich flavors and velvety textures. #BaristaCreations #CoffeeArt #FlavorfulDelights</div>
+                                                    </div>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-check-label" for="ftueCheck" style="padding: 5%;">Add To Schedule</label>
+                                                    <br>
+                                                    <input type="checkbox" data-switchery="true" data-plugin="switchery" data-color="#039cfd" name="ftueCheck" value="ftueCheck4" id="ftueCheck"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-xl-3 col-md-6">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <div class="generated-post">
+                                                {% csrf_token %}
+                                                <p class="form-label">Image</p>
+                                                <img src="{% static 'ftue_animation/JalsCoffee6.jpg' %}" alt="Generated Image" class="generated-image-lg rounded">
+                                                <br>
+                                                <br>
+                                                <p class="form-label">Caption</p>
+                                                <div class="mb-3">
+                                                    <div class="text-box-wrapper">
+                                                        <div id="prompt" contenteditable="false" class="text-box">Steaming moments, brewed with love ☕️🌟 #JalsCoffeeDelights</div>
+                                                    </div>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-check-label" for="ftueCheck" style="padding: 5%;">Add To Schedule</label>
+                                                    <br>
+                                                    <input type="checkbox" data-switchery="true" data-plugin="switchery" data-color="#039cfd" name="ftueCheck" value="ftueCheck4" id="ftueCheck"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-xl-3 col-md-6">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <div class="generated-post">
+                                                {% csrf_token %}
+                                                <p class="form-label">Image</p>
+                                                <img src="{% static 'ftue_animation/JalsCoffee7.jpg' %}" alt="Generated Image" class="generated-image-lg rounded">
+                                                <br>
+                                                <br>
+                                                <p class="form-label">Caption</p>
+                                                <div class="mb-3">
+                                                    <div class="text-box-wrapper">
+                                                        <div id="prompt" contenteditable="false" class="text-box">Sip, savor, and share the warmth of Jal's Coffee ☕️✨ #BrewingConnections</div>
+                                                    </div>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-check-label" for="ftueCheck" style="padding: 5%;">Add To Schedule</label>
+                                                    <br>
+                                                    <input type="checkbox" data-switchery="true" data-plugin="switchery" data-color="#039cfd" name="ftueCheck" value="ftueCheck4" id="ftueCheck"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-xl-3 col-md-6">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <div class="generated-post">
+                                                {% csrf_token %}
+                                                <p class="form-label">Image</p>
+                                                <img src="{% static 'ftue_animation/JalsCoffee8.jpg' %}" alt="Generated Image" class="generated-image-lg rounded">
+                                                <br>
+                                                <br>
+                                                <p class="form-label">Caption</p>
+                                                <div class="mb-3">
+                                                    <div class="text-box-wrapper">
+                                                        <div id="prompt" contenteditable="false" class="text-box">Fueling your days, one cup of perfection at a time. Welcome to Jal's Coffee! ☕️🌟 #BrewingJoy</div>
+                                                    </div>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-check-label" for="ftueCheck" style="padding: 5%;">Add To Schedule</label>
+                                                    <br>
+                                                    <input type="checkbox" data-switchery="true" data-plugin="switchery" data-color="#039cfd" name="ftueCheck" value="ftueCheck4" id="ftueCheck"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                </div>
-                {% endif %}
-                {% if user_settings.ad_image_url %}
-                <div class="col-sm-3">
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="generated-post">
-                                <h4 class="header-title mt-0 mb-4">Current Ad</h4>
-                                <p class="sub-header"></p>
-                                <img src="{{ user_settings.ad_image_url }}" alt="Generated Image"
-                                    class="generated-image-lg rounded">
-                                <br>
+                            <button type="submit" class="btn btn-purple rounded-pill w-md waves-effect waves-light mb-3" onclick="showSpinner()">
+                                <i class="mdi mdi-plus"></i> Schedule</button>
+                        </form>
+                        {% endif %}
+                        {% if user_settings.ftue3 %}
+                        <div class="ftue-overlay" id="overlayContainer">
+                            <div class="ftue-modal" id="ftueOverlay">
+                                <img src="#" alt="Animated Character" id="animatedCharacter3">
                             </div>
                         </div>
+                        <form method="post" action="{% url 'dashboard' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="form" value="formFtue3">
+                            <div class="button-container">
+                                <button class="btn btn-custom btn-lg waves-effect waves-light rounded-pill centerButton" id="automate">Automate</button>
+                            </div>
+                        </form>
+                        {% endif %}
+                        <!-- FTUE Script -->
+                        <script>
+                            function ftue() {
+                                var overlayContainer = document.getElementById('overlayContainer');
+                                var submitButton = document.querySelector('#myForm button[type="submit"]');
+            
+                                overlayContainer.style.display = 'flex';
+                                submitButton.disabled = true;
+            
+                            }
+                            
+                            window.onload = function() {
+                                ftue();
+                            };
+            
+                            const isFtueEnabled = '{{ user_settings.ftue|lower }}' === 'true';
+                            const isFtue2Enabled = '{{ user_settings.ftue2|lower }}' === 'true';
+                            const isFtue3Enabled = '{{ user_settings.ftue3|lower }}' === 'true';
+
+                            const animatedCharacter = document.getElementById('animatedCharacter');
+                            const animationGifPaths = [
+                                "{% static 'ftue_animation/FeedAI_FTUE_Animation_1.gif' %}",
+                                "{% static 'ftue_animation/FeedAI_FTUE_Animation_2.png' %}",
+                                "{% static 'ftue_animation/FeedAI_FTUE_Animation_3.png' %}",
+                                "{% static 'ftue_animation/FeedAI_FTUE_Animation_4.png' %}",
+                                "{% static 'ftue_animation/FeedAI_FTUE_Animation_5.png' %}",
+                                "{% static 'ftue_animation/FeedAI_FTUE_Animation_6.png' %}",
+                                "{% static 'ftue_animation/FeedAI_FTUE_Animation_7.png' %}",
+                                "{% static 'ftue_animation/FeedAI_FTUE_Animation_8.png' %}",
+                            ];
+                            
+                            const animatedCharacter2 = document.getElementById('animatedCharacter2');
+                            const animationGifPaths2 = [
+                                "{% static 'ftue_animation/FeedAI_FTUE_Animation_9.png' %}",
+                                "{% static 'ftue_animation/FeedAI_FTUE_Animation_10.png' %}",
+                                "{% static 'ftue_animation/FeedAI_FTUE_Animation_11.png' %}",
+                            ];
+
+                            const animatedCharacter3 = document.getElementById('animatedCharacter3');
+                            const animationGifPaths3 = [
+                                "{% static 'ftue_animation/FeedAI_FTUE_Animation_3.png' %}",
+                                "{% static 'ftue_animation/FeedAI_FTUE_Animation_2.png' %}",
+                            ];
+
+                            let currentAnimationIndex = 0;
+                            let isLoading = false;
+            
+                            if (isFtueEnabled) {
+                                animatedCharacter.addEventListener('click', function() {
+                                    if (!isLoading) {
+                                        isLoading = true;
+                
+                                        if (currentAnimationIndex < animationGifPaths.length - 1) {
+                                            const newImage = new Image();
+                                            newImage.onload = function() {
+                                                animatedCharacter.src = newImage.src;
+                                                isLoading = false; // Reset the loading flag
+                                            };
+                                            currentAnimationIndex = (currentAnimationIndex + 1) % animationGifPaths.length;
+                                            newImage.src = animationGifPaths[currentAnimationIndex];
+                                        } else {
+                                            // Hide FTUE overlay
+                                            var overlayContainer = document.getElementById('overlayContainer');
+                                            overlayContainer.style.display = 'none';
+                
+                                            const elementsToDisable = document.querySelectorAll('a');
+                                            elementsToDisable.forEach(element => {
+                                                element.disabled = true;
+                                            });
+                                        }
+                                    }
+                                });
+                                const preloadImages = () => {
+                                const preloadImage = new Image();
+                                preloadImage.onload = function() {
+                                    animatedCharacter.src = animationGifPaths[currentAnimationIndex];
+                                };
+                                preloadImage.src = animationGifPaths[currentAnimationIndex];
+                                };
+                
+                                window.addEventListener('load', preloadImages);
+                            } else if (isFtue2Enabled) {
+                                animatedCharacter2.addEventListener('click', function() {
+                                    if (!isLoading) {
+                                        isLoading = true;
+                
+                                        if (currentAnimationIndex < animationGifPaths2.length - 1) {
+                                            const newImage = new Image();
+                                            newImage.onload = function() {
+                                                animatedCharacter2.src = newImage.src;
+                                                isLoading = false; // Reset the loading flag
+                                            };
+                                            currentAnimationIndex = (currentAnimationIndex + 1) % animationGifPaths2.length;
+                                            newImage.src = animationGifPaths2[currentAnimationIndex];
+                                        } else {
+                                            // Hide FTUE overlay
+                                            var overlayContainer = document.getElementById('overlayContainer');
+                                            overlayContainer.style.display = 'none';
+                
+                                            const elementsToDisable = document.querySelectorAll('a');
+                                            elementsToDisable.forEach(element => {
+                                                element.disabled = true;
+                                            });
+                                        }
+                                    }
+                                });
+                                const preloadImages = () => {
+                                const preloadImage = new Image();
+                                preloadImage.onload = function() {
+                                    animatedCharacter2.src = animationGifPaths2[currentAnimationIndex];
+                                };
+                                preloadImage.src = animationGifPaths2[currentAnimationIndex];
+                                };
+                
+                                window.addEventListener('load', preloadImages);
+                            } else if (isFtue3Enabled) {
+                                animatedCharacter3.addEventListener('click', function() {
+                                    if (!isLoading) {
+                                        isLoading = true;
+                
+                                        if (currentAnimationIndex < animationGifPaths3.length - 1) {
+                                            const newImage = new Image();
+                                            newImage.onload = function() {
+                                                animatedCharacter3.src = newImage.src;
+                                                isLoading = false; // Reset the loading flag
+                                            };
+                                            currentAnimationIndex = (currentAnimationIndex + 1) % animationGifPaths3.length;
+                                            newImage.src = animationGifPaths3[currentAnimationIndex];
+                                        } else {
+                                            // Hide FTUE overlay
+                                            var overlayContainer = document.getElementById('overlayContainer');
+                                            overlayContainer.style.display = 'none';
+                
+                                            const elementsToDisable = document.querySelectorAll('a');
+                                            elementsToDisable.forEach(element => {
+                                                element.disabled = true;
+                                            });
+                                        }
+                                    }
+                                });
+                                const preloadImages = () => {
+                                const preloadImage = new Image();
+                                preloadImage.onload = function() {
+                                    animatedCharacter3.src = animationGifPaths3[currentAnimationIndex];
+                                };
+                                preloadImage.src = animationGifPaths3[currentAnimationIndex];
+                                };
+                
+                                window.addEventListener('load', preloadImages);
+                            }
+                            
+                            </script>
+                            
+                            <!-- FTUE Style -->
+                            <style>
+                                #overlayContainer {
+                                    display: none;
+                                    position: fixed;
+                                    top: 0;
+                                    left: 0;
+                                    width: 100%;
+                                    height: 100%;
+                                    background-color: rgba(0, 0, 0, 0.1);
+                                    justify-content: center;
+                                    align-items: center;
+                                    z-index: 9999;
+                                }
+            
+                                #animatedCharacter {
+                                    width: 95%;
+                                    position: fixed;
+                                    bottom: 0;
+                                    left: 50%; 
+                                    transform: translateX(-50%);
+                                }
+                                @media (max-width: 767px) {
+                                    #animatedCharacter {
+                                        width: 175%; 
+                                    }
+                                }
+            
+                                .button-container {
+                                    position: relative;
+                                    height: 100vh; 
+                                }
+            
+                                .centerButton {
+                                    width: 200px; 
+                                    height: 60px; 
+                                    position: absolute;
+                                    left: 50%;
+                                    transform: translateX(-50%);
+                                    bottom: 50vh;
+                                }
+                            </style>
                     </div>
-                </div>
-                {% endif %}
-            </div>
-            <!-- end row -->
+                </div> <!-- container-fluid -->
 
-        </div> <!-- container-fluid -->
-
-
-    </div> <!-- content -->
+            </div> <!-- content -->
 
     <!-- Footer Start -->
     <footer class="footer">
@@ -636,6 +896,12 @@
 
     <!-- App js-->
     <script src="{% static 'dashboard/js/app.min.js' %}"></script>
+
+    <!-- Switchery js-->
+    <script src="{% static 'dashboard/libs/mohithg-switchery/switchery.min.js' %}"></script>
+
+    <!-- Init js-->
+    <script src="{% static 'dashboard/js/pages/form-advanced.init.js' %}"></script>
 
     <script src="https://www.gstatic.com/firebasejs/9.5.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.5.0/firebase-auth.js"></script>

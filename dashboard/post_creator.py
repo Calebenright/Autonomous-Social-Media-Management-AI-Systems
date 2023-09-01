@@ -62,7 +62,11 @@ def create_caption (business_description, bucket_name, bucket_credentials, user_
         ]
     )
     # Store Caption as CAP for use in the caption later
-    caption = response["choices"][0]["message"]["content"]
+    original_string = response["choices"][0]["message"]["content"]
+    if original_string.startswith('"') and original_string.endswith('"'):
+        caption = original_string.strip('"')
+    else:
+        caption = original_string
     # print("CAPTION:", caption)
 
     return caption
@@ -102,7 +106,7 @@ def create_dalle_post (business_description, bucket_name, bucket_credentials, us
 def create_stable_dif_post (business_description, bucket_name, bucket_credentials, user_folder_path):
 
     ## GENERATE iMAGE
-    img = f"describe one image you would find on social media that relates to {business_description} and make it a prompt so that i can generate that image in my image generator. Simplify the following image prompt in under 150 characters."
+    img = f"I want you to create an image description based on these tags: {business_description}. The response should be less than 300 characters."
 
     # Query OpenAI for a caption
     response = openai.ChatCompletion.create(
@@ -113,8 +117,7 @@ def create_stable_dif_post (business_description, bucket_name, bucket_credential
     )
     # Store Caption as CAP for use in the caption later
     img = response["choices"][0]["message"]["content"]
-    # print("IMAGE DESCRIPTION:", img)
-
+    print("IMAGE DESCRIPTION:", img)
 
     ## CREATE IMAGE USING STABLE DIFFUSION
     url = "https://api.stability.ai/v1/generation/stable-diffusion-xl-beta-v2-2-2/text-to-image"
@@ -213,18 +216,6 @@ def create_stock_post (business_description, bucket_name, bucket_credentials, us
 def create_call_to_action(website, background_color, logo_path, business_description, bucket_name, bucket_credentials, user_folder_path):
     # DEFINE IMAGE SIZE
     image_size = 1024
-    
-    # Generate IMG
-    middle_text = f"create a 2-4 word website call to action"
-    # Query OpenAI for a caption
-    response = openai.ChatCompletion.create(
-    model="gpt-4",
-    messages=[
-            {"role": "user", "content": middle_text},
-        ]
-    )
-    # Store Caption as CAP for use in the caption later
-    middle_text = response["choices"][0]["message"]["content"]
 
     middle_text = f"Create a 2-4 word business call to action about {business_description}. respond with only the call to action. remove quotations."
     # Query OpenAI for a caption
@@ -389,13 +380,13 @@ def upload_to_google (image, bucket_name, bucket_credentials, user_folder_path, 
 
 def create_image (website, color, selected_option, isLogo, logo_path, business_description, bucket_name, bucket_credentials, user_folder_path, num_post):
 
-    if selected_option == 'dalle':
-        img = create_dalle_post(business_description, bucket_name, bucket_credentials, user_folder_path)
-    elif selected_option == 'stable-dif':
+    if selected_option == 'stable-dif':
         img = create_stable_dif_post(business_description, bucket_name, bucket_credentials, user_folder_path)
     elif selected_option == 'stock':
         img = create_stock_post(business_description, bucket_name, bucket_credentials, user_folder_path)
     elif selected_option == 'cta':
+        img = create_call_to_action(website, color, logo_path, business_description, bucket_name, bucket_credentials, user_folder_path)
+    elif selected_option == 'up':
         img = create_call_to_action(website, color, logo_path, business_description, bucket_name, bucket_credentials, user_folder_path)
     else:
         img = create_dalle_post(business_description, bucket_name, bucket_credentials, user_folder_path)

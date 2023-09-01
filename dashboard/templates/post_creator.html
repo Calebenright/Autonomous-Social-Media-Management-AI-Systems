@@ -12,9 +12,13 @@
     <!-- App favicon -->
     <link rel="shortcut icon" href="{% static 'dashboard/images/favicon.ico' %}">
 
+    <!-- Plugins css -->
+    <link href="{% static 'dashboard/libs/dropzone/min/dropzone.min.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'dashboard/libs/dropify/css/dropify.min.css' %}" rel="stylesheet" type="text/css" />
+
     <!-- App css -->
     <link href="{% static 'dashboard/css/app.min.css' %}" rel="stylesheet" type="text/css" id="app-style" />
-
+    
     <!-- icons -->
     <link href="{% static 'dashboard/css/icons.min.css' %}" rel="stylesheet" type="text/css" />
 
@@ -171,12 +175,12 @@
                         {% if user_settings.pfp %}
                         <img src="{{ user_settings.pfp }}" alt="user-img" title="pfp" class="rounded-circle">
                         {% else %}
-                        <img src="{% static 'dashboard/images/users/artVandelay.jpg' %}" alt="user-img" title="cj" class="rounded-circle">
+                        <img src="{% static 'dashboard/images/users/default.png' %}" alt="user-img" title="cj" class="rounded-circle">
                         {% endif %}
                         {% if user_settings.business_name %}
                         <span class="pro-user-name ms-1">{{ user_settings.business_name }}<i class="mdi mdi-chevron-down"></i>
                         {% else %}
-                        <span class="pro-user-name ms-1">Art Vandelay<i class="mdi mdi-chevron-down"></i>
+                        <span class="pro-user-name ms-1">User Default<i class="mdi mdi-chevron-down"></i>
                         {% endif %}
                         </span>
                     </a>
@@ -250,12 +254,6 @@
                         </a>
 
                         <!-- item-->
-                        <a href="{% url 'ad_manager' %}" class="dropdown-item notify-item">
-                            <i class="far fa-chart-bar"></i>
-                            <span>Ad Manager</span>
-                        </a>
-
-                        <!-- item-->
                         <a href="{% url 'post_creator' %}" class="dropdown-item notify-item">
                             <i class="fas fa-edit"></i>
                             <span>Create Post</span>
@@ -265,12 +263,6 @@
                         <a href="{% url 'schedule' %}" class="dropdown-item notify-item">
                             <i class="mdi mdi-calendar-blank-outline"></i>
                             <span>Schedule</span>
-                        </a>
-
-                        <!-- item-->
-                        <a href="{% url 'comments' %}" class="dropdown-item notify-item">
-                            <i class="far fa-comments"></i>
-                            <span>Comments</span>
                         </a>
 
                         <!-- item-->
@@ -311,19 +303,17 @@
                     {% if user_settings.pfp %}
                     <img src="{{ user_settings.pfp }}" alt="user-img" title="pfp" class="rounded-circle img-thumbnail avatar-md">
                     {% else %}
-                    <img src="{% static 'dashboard/images/users/artVandelay.jpg' %}" alt="user-img" title="cj" class="rounded-circle img-thumbnail avatar-md">
+                    <img src="{% static 'dashboard/images/users/default.png' %}" alt="user-img" title="cj" class="rounded-circle img-thumbnail avatar-md">
                     {% endif %}
                     <div class="dropdown">
                         {% if user_settings.business_name %}
                         <a href="#" class="user-name dropdown-toggle h5 mt-2 mb-1 d-block" data-bs-toggle="dropdown" aria-expanded="false">{{ user_settings.business_name }}</a>
                         {% else %}
-                        <a href="#" class="user-name dropdown-toggle h5 mt-2 mb-1 d-block" data-bs-toggle="dropdown" aria-expanded="false">Art Vandelay</a>
+                        <a href="#" class="user-name dropdown-toggle h5 mt-2 mb-1 d-block" data-bs-toggle="dropdown" aria-expanded="false">User Default</a>
                         {% endif %}
                     </div>
                     {% if user_settings.business_description %}
                     <p class="text-muted left-user-info">{{ user_settings.business_description }}</p>
-                    {% else %}
-                    <p class="text-muted left-user-info">Importer/Exporter</p>
                     {% endif %}
 
                     <ul class="list-inline">
@@ -346,23 +336,17 @@
 
                     <ul id="side-menu">
 
-                        <li class="menu-title">Dashboard</li>
+                        <li class="menu-title">Agents</li>
 
                         <li>
                             <a href="{% url 'dashboard' %}">
                                 <i class="mdi mdi-view-dashboard-outline"></i>
-                                <span class="badge bg-success rounded-pill float-end">9+</span>
-                                <span> My Feed </span>
+                                <!-- <span class="badge bg-success rounded-pill float-end">9+</span> -->
+                                <span> Elaine </span>
                             </a>
                         </li>
 
                         <li class="menu-title mt-2">Apps</li>
-                        <li>
-                            <a href="{% url 'ad_manager' %}">
-                                <i class="far fa-chart-bar"></i>
-                                <span> Ad Manager </span>
-                            </a>
-                        </li>
 
                         <li>
                             <a href="{% url 'post_creator' %}">
@@ -375,13 +359,6 @@
                             <a href="{% url 'schedule' %}">
                                 <i class="mdi mdi-calendar-blank-outline"></i>
                                 <span> Schedule </span>
-                            </a>
-                        </li>
-
-                        <li>
-                            <a href="{% url 'comments' %}">
-                                <i class="far fa-comments"></i>
-                                <span> Comments </span>
                             </a>
                         </li>
 
@@ -420,45 +397,19 @@
                     <div class="row">
 
                         <div class="col-lg-6">
-                            {% if not user_settings.next_image_url and not image_url %}
-                            <div class="d-flex justify-content-center align-items-center">
-                                <div class="mt-4" style="
-                                        width: 350px;
-                                        max-width: 100%;
-                                        font-size: .875rem;
-                                        pointer-events: auto;
-                                        background-color: var(--ct-toast-background-color);
-                                        background-clip: padding-box;
-                                        border: 1px solid var(--ct-toast-border-color);
-                                        box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .1);
-                                        border-radius: .25rem">
-                                    <div class="toast-body">
-                                        A tip before you generate a post...
-                                        <br>The generated image is based on your 
-                                        <br><strong>Business Description.</strong>
-                                        <br>You can change it in the Brand Settings tab!
-                                        <div class="mt-2 pt-2 border-top">
-                                            <a href="{% url 'brand_settings' %}" type="button"
-                                                class="btn btn-primary btn-sm">Change Business Description</a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <br><br>
-                            {% endif %}
-                            <div class="card">
-                                <div class="card-body">
-                                    <form method="post" action="{% url 'post_creator' %}">
-                                        {% csrf_token %}
+                            <form enctype="multipart/form-data" id="tagForm" method="post" action="{% url 'post_creator' %}">
+                                {% csrf_token %}
+                                <div class="card">
+                                    <div class="card-body">
                                         <input type="hidden" name="form" value="formDetails">
-                                        <h4 class="header-title">Social Media Platform</h4>
+                                        <!-- <h4 class="header-title">Social Media Platform</h4>
                                         <p></p>
                                         <div class="mb-3">
                                             <select class="form-select" id="example-select">
                                                 <option>Instagram</option>
                                                 <option>Facebook</option>
                                             </select>
-                                        </div>
+                                        </div> -->
 
                                         <h4 class="header-title">Add Elements</h4>
                                         <p></p>
@@ -469,10 +420,6 @@
                                         <br>
                                         <h4 class="header-title">Post type</h4>
                                         <p></p>
-                                        <div class="form-check mb-2 form-check-success">
-                                            <input class="form-check-input" type="radio" name="flexRadioDefault" value="dalle" id="dalle" {% if selected_radio == 'dalle' %}checked{% endif %}>
-                                            <label class="form-check-label" for="dalle">Dall-E 2</label>
-                                        </div>
 
                                         <div class="form-check mb-2 form-check-success">
                                             <input class="form-check-input" type="radio" name="flexRadioDefault" value="stable-dif" id="stable-dif" {% if selected_radio != 'dalle' and selected_radio != 'cta' and selected_radio != 'stock' %}checked{% endif %} >
@@ -493,15 +440,53 @@
                                             <input class="form-check-input" type="radio" name="flexRadioDefault" value="up" id="up" {% if selected_radio == 'up' %}checked{% endif %}>
                                             <label class="form-check-label" for="up">Upload Photo (Coming Soon)</label>
                                         </div>
-
-                                        <br>
-                                        <button type="submit" class="btn btn-purple rounded-pill w-md waves-effect waves-light mb-3" onclick="showSpinner()">
-                                            <i class="mdi mdi-plus"></i> Generate Post</button>
-
-                                    </form>
-                                </div> <!-- end col -->
-                            </div> <!-- end card-body -->
-                        </div> <!-- end card -->
+                                    </div>
+                                </div> 
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div id="content-card-stable-dif" class="content-card">
+                                            <h4 class="header-title">Tags</h4>
+                                            <p></p> 
+                                            <div class="tag-input-container">
+                                                <input type="hidden" name="tags" value="">
+                                                <input type="text" id="tagInput" class="form-control" placeholder="Enter tags separated by a comma...">
+                                                <div class="tag-bubbles" id="tagBubbles"></div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div id="content-card-stock" class="content-card">
+                                            <h4 class="header-title">Search Keyword</h4>
+                                            <p></p> 
+                                            <div class="tag-input-container">
+                                                <input type="text" name="stock-description" class="form-control" value="{{ user_settings.business_description }}" placeholder="Enter Search Keyword...">
+                                            </div>
+                                        </div>
+                                        
+                                        <div id="content-card-cta" class="content-card">
+                                            <h4 class="header-title">Business Description</h4>
+                                            <p></p> 
+                                            <div class="tag-input-container">
+                                                <input type="text" name="cta-description" class="form-control" value="{{ user_settings.business_description }}" placeholder="Enter Business Description...">
+                                            </div>
+                                        </div>
+                                        
+                                        <div id="content-card-up" class="content-card">
+                                            <h4 class="header-title">File Upload</h4>
+                                            <p class="sub-header">
+                                                Upload an image and we will turn it into a post!
+                                            </p>
+                
+                                            <input type="file" data-plugins="dropify" data-height="300" />
+                                        </div>
+                                        
+                                    </div>
+                                </div>
+                                <div style="display: flex; justify-content: center; padding-top: 10px;">
+                                    <button type="submit" class="btn btn-purple rounded-pill w-md waves-effect waves-light mb-3" onclick="showSpinner()">
+                                        <i class="mdi mdi-plus"></i> Generate Post</button>
+                                </div>
+                            </form>
+                        </div>
                         {% if user_settings.next_image_url or image_url %}
                         <div class="col-lg-6">
                             <div class="card">
@@ -537,7 +522,7 @@
                                             {% csrf_token %}
                                             <input type="hidden" name="form" value="formPostSchedule">
                                             <textarea style="display: none;" name="hidden-content" id="hidden-content"></textarea>
-                                            <button type="submit" class="btn btn-soft-success rounded-pill waves-effect waves-light btn-sm" >Add To Schedular</button>
+                                            <button type="submit" class="btn btn-soft-success rounded-pill waves-effect waves-light btn-sm" >Add To Schedule</button>
                                         </form>
                                         <br>
                                         {% else %}
@@ -586,6 +571,95 @@
                     submitButton.disabled = true;
                 }
 
+                document.addEventListener('DOMContentLoaded', () => {
+                    const radioButtons = document.querySelectorAll('input[name="flexRadioDefault"]');
+                    const contentCards = document.querySelectorAll('.content-card');
+
+                    radioButtons.forEach(radioButton => {
+                        radioButton.addEventListener('change', () => {
+                            const selectedValue = radioButton.value;
+                            
+                            contentCards.forEach(card => {
+                                card.style.display = 'none';
+                            });
+
+                            const correspondingCard = document.getElementById(`content-card-${selectedValue}`);
+                            if (correspondingCard) {
+                                correspondingCard.style.display = 'block';
+                            }
+                        });
+
+                        if (radioButton.checked) {
+                            radioButton.dispatchEvent(new Event('change'));
+                        }
+                    });
+
+                    
+                });
+
+                const tagsArray = '{{ user_settings.tags|safe }}' !== '' ?
+                         JSON.parse('{{ user_settings.tags|safe }}') : [];
+
+                const tagInput = document.getElementById('tagInput');
+                const tagBubbles = document.getElementById('tagBubbles');
+                const tags = tagsArray;
+
+                tagInput.addEventListener('keydown', function(event) {
+                if (event.key === 'Enter' || event.key === ',') {
+                    event.preventDefault();
+                    const tagValue = tagInput.value.trim();
+                    if (tagValue) {
+                    addTag(tagValue);
+                    tagInput.value = '';
+                    }
+                }
+                });
+
+                function addTag(tagValue) {
+                tags.push(tagValue);
+                const tagBubble = document.createElement('div');
+                tagBubble.classList.add('tag-bubble');
+                tagBubble.textContent = tagValue;
+                tagBubbles.appendChild(tagBubble);
+                tagBubble.addEventListener('click', function() {
+                    removeTag(tagValue);
+                });
+                }
+
+                function removeTag(tagValue) {
+                const index = tags.indexOf(tagValue);
+                if (index !== -1) {
+                    tags.splice(index, 1);
+                    updateTagBubbles();
+                }
+                }
+
+                function updateTagBubbles() {
+                tagBubbles.innerHTML = '';
+                tags.forEach(tagValue => {
+                    const tagBubble = document.createElement('div');
+                    tagBubble.classList.add('tag-bubble');
+                    tagBubble.textContent = tagValue;
+                    tagBubbles.appendChild(tagBubble);
+                    tagBubble.addEventListener('click', function() {
+                    removeTag(tagValue);
+                    });
+                });
+                }
+
+                function updateHiddenInput() {
+                const tagsInput = document.querySelector('input[name="tags"]');
+                tagsInput.value = tags.join(',');
+                }
+
+                const tagForm = document.getElementById('tagForm');
+                tagForm.addEventListener('submit', function(event) {
+                    updateHiddenInput();
+                    tagForm.submit();
+                });
+
+                updateTagBubbles();
+                
             </script>
 
             <style>
@@ -605,6 +679,32 @@
                     justify-content: center;
                     align-items: center;
                     z-index: 9999;
+                }
+
+                .tag-input-container {
+                    display: flex;
+                    flex-wrap: wrap;
+                    border: 1px solid #ccc;
+                    padding: 5px;
+                    align-items: center;
+                    width: 100%;
+                    border-radius: 5px;
+                }
+
+                .tag-bubble {
+                    display: inline-block;
+                    background-color: #e0e0e0;
+                    color: #333;
+                    padding: 5px 10px;
+                    margin: 5px;
+                    border-radius: 5px;
+                    cursor: pointer;
+                    transition: background-color 0.3s, color 0.3s;
+                }
+
+                .tag-bubble:hover {
+                    background-color: #333;
+                    color: #fff;
                 }
             </style>
 
@@ -648,6 +748,12 @@
     <script src="{% static 'dashboard/libs/jquery.counterup/jquery.counterup.min.js' %}"></script>
     <script src="{% static 'dashboard/libs/feather-icons/feather.min.js' %}"></script>
 
+    <!-- Plugins js -->
+    <script src="{% static 'dashboard/libs/dropzone/min/dropzone.min.js' %}"></script>
+    <script src="{% static 'dashboard/libs/dropify/js/dropify.min.js' %}"></script>
+
+    <!-- Init js-->
+    <script src="{% static 'dashboard/js/pages/form-fileuploads.init.js' %}"></script>
 
     <!-- App js -->
     <script src="{% static 'dashboard/js/app.min.js' %}"></script>

@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from dashboard.views import dashboard
 from google.cloud import storage
-import firebase_admin
+from firebase_admin import firestore, auth, credentials
 from firebase_admin import auth
 from .login import user_login
 
@@ -23,8 +23,29 @@ def signup(request):
             return render(request, 'signup.html', {'error': 'Please fill in all fields.'})
         try:
             user = auth.create_user(email=email, password=password)
+            # Get the user ID
+            user_id = user.uid
+            # ----- Get the Firestore document reference for the user settings ----- #
+            db = firestore.client()
+            user_settings_ref = db.collection('users').document(user_id)
+            try:
+                user_settings_doc = user_settings_ref.get()
+                user_settings = user_settings_doc.to_dict()
+            except firestore.NotFound:
+                user_settings = {}
+            # ---------------------------------------------------------------------- #
+
+            # Prepare the data to be saved in Firestore
+            firestore_data = {
+                'ftue': True
+            }
+
+            # Save the data to Firestore
+            user_settings_ref.set(firestore_data, merge=True)
+
             # Your logic after successful user registration
             return redirect('login')  # Redirect to a success page
+        
         except Exception as e:
             # Handle registration error with a user-friendly message
             error_message = 'An error occurred during registration. Please try again later.'

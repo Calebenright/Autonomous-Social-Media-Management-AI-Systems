@@ -13,33 +13,83 @@ from .generate_comment import generate_comment
 from django.http import JsonResponse
 import time
 from .generate_unique_filename import generate_unique_filename
-import firebase_admin
+from .brand_settings import create_tags
 from firebase_admin import firestore, auth, credentials
 import base64
+import ast
+import json
 
 def dashboard(request):
-    # ----- Get the Firestore document reference for the user settings ----- #
-    db = firestore.client()
-    user_id = request.session.get('user_id')
-    user_settings_ref = db.collection('users').document(user_id)
     try:
-        # Get the user record from Firebase Authentication using the user_id
-        user = auth.get_user(user_id)
+        # ----- Get the Firestore document reference for the user settings ----- #
+        db = firestore.client()
+        user_id = request.session.get('user_id')
+        user_settings_ref = db.collection('users').document(user_id)
+        try:
+            user = auth.get_user(user_id)
+            user_email = user.email
+        except auth.AuthError as e:
+            user_email = ''
 
-        # Get the user's email address from the user record
-        user_email = user.email
-    except auth.AuthError as e:
-        user_email = ''
+        try:
+            user_settings_doc = user_settings_ref.get()
+            user_settings = user_settings_doc.to_dict()
+        except firestore.NotFound:
+            user_settings = {}
+        # ---------------------------------------------------------------------- #
+        pass
+    
+    except AttributeError as e:
+        if "AuthError" in str(e):
+            return redirect('login')
+    
+        return render(request, 'error.html', {'error_message': 'Please Try Logging in Again.'})
+    
+    if request.method == 'POST':
+        form_name = request.POST.get('form')
+        print(form_name)
+        if form_name == 'formFtue':
+            # Prepare the data to be saved in Firestore
+            firestore_data = {
+                'ftue': False,
+                'ftue2': True,
+            }
+        elif form_name == 'formFtue2':
+            check_name = request.POST.get('formCheck')
+            print(form_name)
+            if check_name == 'formCheck1':
+                print('wooooo')
+            # Prepare the data to be saved in Firestore
+            firestore_data = {
+                'ftue2': False,
+                'ftue3': True,
+            }
+        elif form_name == 'formFtue3':
+            check_name = request.POST.get('formCheck')
+            print(form_name)
+            if check_name == 'formCheck1':
+                print('wooooo')
+            # Prepare the data to be saved in Firestore
+            firestore_data = {
+                'ftue3': False,
+            }
 
-    try:
-        user_settings_doc = user_settings_ref.get()
-        user_settings = user_settings_doc.to_dict()
-    except firestore.NotFound:
-        user_settings = {}
-    # ---------------------------------------------------------------------- #
+        # Save the data to Firestore
+        user_settings_ref.set(firestore_data, merge=True)
+
+# ----- Get the Firestore document reference for the user settings ----- #
+        db = firestore.client()
+        user_id = request.session.get('user_id')
+        user_settings_ref = db.collection('users').document(user_id)
+        try:
+            user_settings_doc = user_settings_ref.get()
+            user_settings = user_settings_doc.to_dict()
+        except firestore.NotFound:
+            user_settings = {}
+# ---------------------------------------------------------------------- #
 
     context = {
-        'user_settings': user_settings,  # Pass the user_settings to the template
+        'user_settings': user_settings,
         'user_email': user_email
     }
     return render(request, 'dashboard.html', context)
@@ -101,7 +151,6 @@ def ad_manager(request):
                 ad_image_url = create_ad(isLogo, logo_path, biz, settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, ads_folder_path, num_ad)
                 if num_ad <= 5:
                     num_ad += 1
-                    
             else:
                 isLogo = request.POST.get('isLogo', None)
                 request.session['isLogo'] = isLogo
@@ -109,10 +158,6 @@ def ad_manager(request):
                 ad_image_url = create_ad(isLogo, logo_path, biz, settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, ads_folder_path, num_ad)
                 if num_ad <= 5:
                     num_ad += 1
-                # if num_ad >= 5:
-                #     num_ad = 1
-                # else:
-                #     num_ad += 1
 
             # Prepare the data to be saved in Firestore
             firestore_data = {
@@ -148,22 +193,29 @@ def ad_manager(request):
     return render(request, 'ad_manager.html', context)
 
 def post_creator(request):
-    # ----- Get the Firestore document reference for the user settings ----- #
-    db = firestore.client()
-    user_id = request.session.get('user_id')
-    user_settings_ref = db.collection('users').document(user_id)
-    
     try:
-        user_settings_doc = user_settings_ref.get()
-        user_settings = user_settings_doc.to_dict()
-    except firestore.NotFound:
-        return render(request, 'post_creator.html', {"Error": error})
+        # ----- Get the Firestore document reference for the user settings ----- #
+        db = firestore.client()
+        user_id = request.session.get('user_id')
+        user_settings_ref = db.collection('users').document(user_id)
+        try:
+            user_settings_doc = user_settings_ref.get()
+            user_settings = user_settings_doc.to_dict()
+        except firestore.NotFound:
+            user_settings = {}
+        # ---------------------------------------------------------------------- #
+        pass
+    
+    except AttributeError as e:
+        if "AuthError" in str(e):
+            return redirect('login') 
+        return render(request, 'error.html', {'error_message': 'Please Try Logging in Again.'})
     # ---------------------------------------------------------------------- #
     image_folder_path = f'user_folders/{user_id}/images/'
     try:
         biz = user_settings['business_description']
     except (TypeError, KeyError):
-        biz = 'mansion'
+        biz = '[Random Business Description Here]'
     try:
         color = user_settings['brand_color']
     except (TypeError, KeyError):
@@ -184,6 +236,13 @@ def post_creator(request):
         num_schedule = int(user_settings['num_schedule'])
     except (TypeError, KeyError):
         num_schedule = 1
+    if request.session.get('tags') != ['']:
+        tags = request.session.get('tags')
+    else:
+        try:
+            tags = ast.literal_eval(user_settings['tags'])
+        except (TypeError, KeyError):
+            tags = ''
 
     if request.method == 'POST':
         form_name = request.POST.get('form')
@@ -226,13 +285,30 @@ def post_creator(request):
                 isLogo = request.POST.get('isLogo', None)
                 request.session['isLogo'] = isLogo
         # ---------------------------------------------------------------------- #
+                
+                if selected_option == 'up':
+                    key = request.FILES.get('file')
+                    print(key)
+                elif selected_option == 'stable-dif':
+                    entered_tags = request.POST.get('tags')
+                    tags = entered_tags.split(',')
+                    request.session['tags'] = tags
+                    key = tags
+                elif selected_option == 'cta':
+                    key = biz
+                elif selected_option == 'stock':
+                    key = biz
+                else:
+                    key = biz
+
                 try:
                     last_image_url = user_settings['next_image_url']
                     last_caption = user_settings['next_caption']
                 except (TypeError, KeyError):
                     last_image_url = None
                     last_caption = None
-                url = create_image(website, color, selected_option, isLogo, logo_path, biz, settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, image_folder_path, num_post)
+                
+                url = create_image(website, color, selected_option, isLogo, logo_path, key, settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, image_folder_path, num_post)
                 post = create_caption(biz, settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, image_folder_path)
 
                 if num_post >= 10:
@@ -256,12 +332,16 @@ def post_creator(request):
 
             # Save the data to Firestore
             user_settings_ref.set(firestore_data, merge=True)
+
+            user_settings['tags'] = json.dumps(tags)
+
             return render(request, 'post_creator.html', {'post': post, 'image_url': url, 'selected_radio': selected_option, 'isLogo': isLogo, 'user_settings': user_settings})
         else:
             user_settings['deny'] = True
     context = {
         'user_settings': user_settings,
     }
+    
     return render(request, 'post_creator.html', context)
 
 def upload_post(request):
@@ -291,7 +371,7 @@ def schedule(request):
     }
     return render(request, 'schedule.html', context)
 
-def comments(request):
+def calendar(request):
     # ----- Get the Firestore document reference for the user settings ----- #
     db = firestore.client()
     user_id = request.session.get('user_id')
@@ -299,101 +379,141 @@ def comments(request):
     try:
         user_settings_doc = user_settings_ref.get()
         user_settings = user_settings_doc.to_dict()
-    except Exception as e:
+    except firestore.NotFound:
         user_settings = {}
-    
     # ---------------------------------------------------------------------- #
+    
     if request.method == 'POST':
-        recent_comment = 'The colors are on point O.o that house build is awesome!'
-        comment = generate_comment(recent_comment)
-        return render(request, 'comments.html', {'comment': comment, 'user_settings': user_settings}) 
+        form_name = request.POST.get('form')
+        
+
     context = {
-        'user_settings': user_settings,  
+        'user_settings': user_settings,
     }
-    return render(request, 'comments.html', context)
+    return render(request, 'calendar.html', context)
 
 def brand_settings(request):
-    # ----- Get the Firestore document reference for the user settings ----- #
-    db = firestore.client()
-    user_id = request.session.get('user_id')
-    user_settings_ref = db.collection('users').document(user_id)
     try:
-        user_settings_doc = user_settings_ref.get()
-        user_settings = user_settings_doc.to_dict()
-    except Exception as e:
-        user_settings = {}
+        # ----- Get the Firestore document reference for the user settings ----- #
+        db = firestore.client()
+        user_id = request.session.get('user_id')
+        user_settings_ref = db.collection('users').document(user_id)
+        try:
+            user_settings_doc = user_settings_ref.get()
+            user_settings = user_settings_doc.to_dict()
+        except firestore.NotFound:
+            user_settings = {}
+        # ---------------------------------------------------------------------- #
+        pass
+    
+    except AttributeError as e:
+        if "AuthError" in str(e):
+            return redirect('login') 
+        return render(request, 'error.html', {'error_message': 'Please Try Logging in Again.'})
     # ---------------------------------------------------------------------- #
 
+    print(user_id)
+
     if request.method == 'POST':
-        logo = request.FILES.get('logo')
-        if logo:
-            try:
-                num_logo = int(user_settings['num_logo'])
-            except (TypeError, KeyError):
-                num_logo = 1
-            credentials = service_account.Credentials.from_service_account_file(settings.GS_CREDENTIALS)
-            client = storage.Client(project=credentials.project_id, credentials=credentials)
-            bucket = client.bucket(settings.GS_BUCKET_NAME)
-            
-            # Specify the user's folder path within the bucket
-            logo_folder_path = f'user_folders/{user_id}/logo/'  
-            blob = bucket.blob(logo_folder_path + 'logo' + str(num_logo) + '.png')
-            blob.upload_from_file(logo)
-            blob.make_public()
-            logo_url = blob.public_url
-            if num_logo >= 2:
-                num_logo = 1
+        form_name = request.POST.get('form')
+        if form_name == 'brand-settings':
+            logo = request.FILES.get('logo')
+            if logo:
+                try:
+                    num_logo = int(user_settings['num_logo'])
+                except (TypeError, KeyError):
+                    num_logo = 1
+                credentials = service_account.Credentials.from_service_account_file(settings.GS_CREDENTIALS)
+                client = storage.Client(project=credentials.project_id, credentials=credentials)
+                bucket = client.bucket(settings.GS_BUCKET_NAME)
+                
+                # Specify the user's folder path within the bucket
+                logo_folder_path = f'user_folders/{user_id}/logo/'  
+                blob = bucket.blob(logo_folder_path + 'logo' + str(num_logo) + '.png')
+                blob.upload_from_file(logo)
+                blob.make_public()
+                logo_url = blob.public_url
+                if num_logo >= 2:
+                    num_logo = 1
+                else:
+                    num_logo += 1
             else:
-                num_logo += 1
-        else:
-            try:
-                logo_url = user_settings['logo']
-            except (TypeError, KeyError):
-                logo_url = None
-
-        pfp = request.FILES.get('pfp')
-        if pfp:
-            try:
-                num_pfp = int(user_settings['num_pfp'])
-            except (TypeError, KeyError):
-                num_pfp = 1
-            credentials = service_account.Credentials.from_service_account_file(settings.GS_CREDENTIALS)
-            client = storage.Client(project=credentials.project_id, credentials=credentials)
-            bucket = client.bucket(settings.GS_BUCKET_NAME)
+                try:
+                    logo_url = user_settings['logo']
+                except (TypeError, KeyError):
+                    logo_url = None
             
-            # Specify the user's folder path within the bucket
-            pfp_folder_path = f'user_folders/{user_id}/pfp/' 
-            blob = bucket.blob(pfp_folder_path + 'pfp' + str(num_pfp) + '.jpg')
-            blob.upload_from_file(pfp)
-            blob.make_public()
-            pfp_url = blob.public_url
-            if num_pfp >= 2:
-                num_pfp = 1
+            print(request.POST.get('tags'))
+            if request.POST.get('tags'):
+                input_string = request.POST.get('tags')
+                output_list = [item.strip() for item in input_string.split(',')]
+                output_string = json.dumps(output_list)
+                tags = output_string
             else:
-                num_pfp += 1
-        else:
-            try:
-                pfp_url = user_settings['pfp']
-            except (TypeError, KeyError):
-                pfp_url = ''
+                if request.POST.get('business_description'):
+                    tags = create_tags(request.POST.get('business_description'))
+                else:
+                    tags = ''
+            print(tags)
 
-        # Prepare the data to be saved in Firestore
-        firestore_data = {
-            'business_name': request.POST.get('business_name'),
-            'business_description': request.POST.get('business_description'),
-            'brand_color': request.POST.get('brand_color'),
-            'temperature': request.POST.get('temperature'),
-            'website': request.POST.get('website'),
-            'logo': logo_url,
-            'pfp': pfp_url
-        }
+            firestore_data = {
+                'business_name': request.POST.get('business_name'),
+                'business_description': request.POST.get('business_description'),
+                'brand_color': request.POST.get('brand_color'),
+                'temperature': request.POST.get('temperature'),
+                'website': request.POST.get('website'),
+                'logo': logo_url,
+                'tags': tags
+            }
+
+        elif form_name == 'user-settings':
+            pfp = request.FILES.get('pfp')
+            if pfp:
+                try:
+                    num_pfp = int(user_settings['num_pfp'])
+                except (TypeError, KeyError):
+                    num_pfp = 1
+                credentials = service_account.Credentials.from_service_account_file(settings.GS_CREDENTIALS)
+                client = storage.Client(project=credentials.project_id, credentials=credentials)
+                bucket = client.bucket(settings.GS_BUCKET_NAME)
+                
+                # Specify the user's folder path within the bucket
+                pfp_folder_path = f'user_folders/{user_id}/pfp/' 
+                blob = bucket.blob(pfp_folder_path + 'pfp' + str(num_pfp) + '.jpg')
+                blob.upload_from_file(pfp)
+                blob.make_public()
+                pfp_url = blob.public_url
+                if num_pfp >= 2:
+                    num_pfp = 1
+                else:
+                    num_pfp += 1
+            else:
+                try:
+                    pfp_url = user_settings['pfp']
+                except (TypeError, KeyError):
+                    pfp_url = ''
+            
+            firestore_data = {
+                'user_name': request.POST.get('user_name'),
+                'pfp': pfp_url,
+            }
+
         # Save the data to Firestore
         user_settings_ref.set(firestore_data, merge=True)
 
-        return redirect('brand_settings')  # Redirect to the brand settings page after saving settings
+         # ----- Get the Firestore document reference for the user settings ----- #
+        db = firestore.client()
+        user_id = request.session.get('user_id')
+        user_settings_ref = db.collection('users').document(user_id)
+        try:
+            user_settings_doc = user_settings_ref.get()
+            user_settings = user_settings_doc.to_dict()
+        except firestore.NotFound:
+            user_settings = {}
+        # ---------------------------------------------------------------------- #
 
     context = {
-        'user_settings': user_settings,  # Pass the user_settings to the template
+        'user_settings': user_settings,
     }
     return render(request, 'brand_settings.html', context)
 

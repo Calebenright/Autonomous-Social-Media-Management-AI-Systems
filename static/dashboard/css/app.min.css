@@ -3672,6 +3672,36 @@ fieldset:disabled .btn {
     border-color: #6c757d
 }
 
+.btn-custom {
+    background-color: #47c906;
+    color: #ffffff;
+    border-color: #10c469;
+  }
+  .btn-custom:hover {
+    color: #fff;
+    background-color: #139211;
+    border-color: #0d9d54;
+  }
+  .btn-check:focus + .btn-custom, .btn-custom:focus {
+    color: #fff;
+    background-color: #139211;
+    border-color: #0d9d54;
+    box-shadow: 0 0 0 0.15rem rgba(52, 205, 128, 0.5);
+  }
+  .btn-check:checked + .btn-custom, .btn-check:active + .btn-custom, .btn-custom:active, .btn-custom.active, .show > .btn-custom.dropdown-toggle {
+    color: #fff;
+    background-color: #139211;
+    border-color: #028600;
+  }
+  .btn-check:checked + .btn-custom:focus, .btn-check:active + .btn-custom:focus, .btn-custom:active:focus, .btn-custom.active:focus, .show > .btn-custom.dropdown-toggle:focus {
+    box-shadow: 0 0 0 0.15rem rgba(52, 205, 128, 0.5);
+  }
+  .btn-custom:disabled, .btn-custom.disabled {
+    color: #fff;
+    background-color: #139211;
+    border-color: #028600;
+  }
+
 .btn-success {
     color: #fff;
     background-color: #10c469;
@@ -24620,4 +24650,22 @@ body[data-layout-color=dark] .datepicker tfoot tr th:hover {
     flex-grow: 1;
 }
 
-/*# sourceMappingURL=app.min.css.map */
+#ftueOverlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Dimming overlay color */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.ftue-modal {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.2);
+}

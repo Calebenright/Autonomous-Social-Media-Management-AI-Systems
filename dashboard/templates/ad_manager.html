@@ -171,12 +171,12 @@
                         {% if user_settings.pfp %}
                         <img src="{{ user_settings.pfp }}" alt="user-img" title="pfp" class="rounded-circle">
                         {% else %}
-                        <img src="{% static 'dashboard/images/users/artVandelay.jpg' %}" alt="user-img" title="cj" class="rounded-circle">
+                        <img src="{% static 'dashboard/images/users/default.png' %}" alt="user-img" title="cj" class="rounded-circle">
                         {% endif %}
                         {% if user_settings.business_name %}
                         <span class="pro-user-name ms-1">{{ user_settings.business_name }}<i class="mdi mdi-chevron-down"></i>
                         {% else %}
-                        <span class="pro-user-name ms-1">Art Vandelay<i class="mdi mdi-chevron-down"></i>
+                        <span class="pro-user-name ms-1">User Default<i class="mdi mdi-chevron-down"></i>
                         {% endif %}
                         </span>
                     </a>
@@ -311,21 +311,19 @@
                     {% if user_settings.pfp %}
                     <img src="{{ user_settings.pfp }}" alt="user-img" title="pfp" class="rounded-circle img-thumbnail avatar-md">
                     {% else %}
-                    <img src="{% static 'dashboard/images/users/artVandelay.jpg' %}" alt="user-img" title="cj" class="rounded-circle img-thumbnail avatar-md">
+                    <img src="{% static 'dashboard/images/users/default.png' %}" alt="user-img" title="cj" class="rounded-circle img-thumbnail avatar-md">
                     {% endif %}
                     <div class="dropdown">
                         {% if user_settings.business_name %}
                         <a href="#" class="user-name dropdown-toggle h5 mt-2 mb-1 d-block" data-bs-toggle="dropdown" aria-expanded="false">{{ user_settings.business_name }}</a>
                         {% else %}
-                        <a href="#" class="user-name dropdown-toggle h5 mt-2 mb-1 d-block" data-bs-toggle="dropdown" aria-expanded="false">Art Vandelay</a>
+                        <a href="#" class="user-name dropdown-toggle h5 mt-2 mb-1 d-block" data-bs-toggle="dropdown" aria-expanded="false">User Default</a>
                         {% endif %}
                     </div>
                     {% if user_settings.business_description %}
                     <p class="text-muted left-user-info">{{ user_settings.business_description }}</p>
-                    {% else %}
-                    <p class="text-muted left-user-info">Importer/Exporter</p>
                     {% endif %}
-                    
+
                     <ul class="list-inline">
                         <li class="list-inline-item">
                             <a href="{% url 'brand_settings' %}" class="text-muted left-user-info">
@@ -351,19 +349,12 @@
                         <li>
                             <a href="{% url 'dashboard' %}">
                                 <i class="mdi mdi-view-dashboard-outline"></i>
-                                <span class="badge bg-success rounded-pill float-end">9+</span>
-                                <span> My Feed </span>
+                                <!-- <span class="badge bg-success rounded-pill float-end">9+</span> -->
+                                <span> Dashboard </span>
                             </a>
                         </li>
 
-                        <li class="menu-title mt-2">Apps</li>
-
-                        <li>
-                            <a href="{% url 'ad_manager' %}">
-                                <i class="far fa-chart-bar"></i>
-                                <span> Ad Manager </span>
-                            </a>
-                        </li>
+                        <li class="menu-title mt-2">Social Media Manager</li>
 
                         <li>
                             <a href="{% url 'post_creator' %}">
@@ -378,20 +369,22 @@
                                 <span> Schedule </span>
                             </a>
                         </li>
+                        
+                        <li class="menu-title mt-2">Ad Manager</li>
 
                         <li>
-                            <a href="{% url 'comments' %}">
-                                <i class="far fa-comments"></i>
-                                <span> Comments </span>
+                            <a href="{% url 'ad_manager' %}">
+                                <i class="far fa-chart-bar"></i>
+                                <span> Create Ad </span>
                             </a>
                         </li>
 
-                        <li class="menu-title mt-2">Settings</li>
+                        <li class="menu-title mt-2">Brand Settings</li>
 
                         <li>
                             <a href="{% url 'brand_settings' %}">
                                 <i class="fe-settings"></i>
-                                <span> Brand Settings </span>
+                                <span> Settings </span>
                             </a>
                         </li>
                     </ul>
