@@ -327,6 +327,40 @@
                     <div class="container-fluid">
 
                         <div class="row">
+                            {% if error %}
+                            <div class="error-message">
+                            <span>{{ error }}</span>
+                            <button class="close-button" onclick="closeErrorMessage()">&times;</button>
+                            </div>
+                            <script>
+                            function closeErrorMessage() {
+                                const errorDiv = document.querySelector('.error-message');
+                                errorDiv.style.display = 'none';
+                            }
+                            </script>
+                            <style>
+                                .error-message {
+                                    background-color: #ff5733; /* Background color */
+                                    color: #ffffff; /* Text color */
+                                    padding: 10px; /* Padding around the content */
+                                    border: 1px solid #d9534f; /* Border color */
+                                    border-radius: 5px; /* Rounded corners */
+                                    margin-bottom: 10px; /* Space below the error message */
+                                    position: relative; /* Required for the close button positioning */
+                                }
+                            
+                                .close-button {
+                                    position: absolute;
+                                    top: 5px;
+                                    right: 5px;
+                                    background: none;
+                                    border: none;
+                                    font-size: 18px;
+                                    color: #ffffff;
+                                    cursor: pointer;
+                                }
+                            </style>                        
+                            {% endif %}
                             <div class="col-12">
                                 <div class="row">
                                     <div class="col-lg-3">
@@ -431,7 +465,7 @@
                     <div class="container-fluid">
                         <div class="row">
                             <div class="col-md-6">
-                                <script>document.write(new Date().getFullYear())</script> &copy; Adminto theme by <a href="">Coderthemes</a> 
+                                <script>document.write(new Date().getFullYear())</script> &copy; Copyright <a href="">FeedAI</a> 
                             </div>
                             <div class="col-md-6">
                                 <div class="text-md-end footer-links d-none d-sm-block">

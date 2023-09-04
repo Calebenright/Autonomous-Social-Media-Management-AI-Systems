@@ -5,11 +5,12 @@
 <head>
 
     <meta charset="utf-8" />
-    <title>Dashboard |FeedAI</title>
+    <title>Dashboard | FeedAI</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta content="A automonomous social media managing app and ad agency" name="description" />
     <meta content="CJ Enright" name="author" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
     <!-- App favicon -->
     <link rel="shortcut icon" href="{% static 'dashboard/images/favicon.ico' %}">
 
@@ -24,6 +25,9 @@
 
     <!-- images -->
     <link href="{% static 'dashboard/css/image-style.css' %}" rel="stylesheet" type="text/css" />
+    
+    <!-- Plugins css -->
+    <link href="{% static 'dashboard/css/spectrum.min.css' %}" rel="stylesheet" type="text/css">
 
 </head>
 
@@ -405,6 +409,28 @@
                             errorDiv.style.display = 'none';
                         }
                         </script>
+                        <style>
+                            .error-message {
+                                background-color: #ff5733; /* Background color */
+                                color: #ffffff; /* Text color */
+                                padding: 10px; /* Padding around the content */
+                                border: 1px solid #d9534f; /* Border color */
+                                border-radius: 5px; /* Rounded corners */
+                                margin-bottom: 10px; /* Space below the error message */
+                                position: relative; /* Required for the close button positioning */
+                            }
+                        
+                            .close-button {
+                                position: absolute;
+                                top: 5px;
+                                right: 5px;
+                                background: none;
+                                border: none;
+                                font-size: 18px;
+                                color: #ffffff;
+                                cursor: pointer;
+                            }
+                        </style>                        
                         {% endif %}
                         <!-- FTUE Start -->
                         {% if user_settings.ftue %}
@@ -412,16 +438,24 @@
                             <div class="ftue-modal" id="ftueOverlay">
                                 <img src="#" alt="Animated Character" id="animatedCharacter">
                             </div>
-                        </div>
-                        <form method="post" action="{% url 'dashboard' %}">
-                            {% csrf_token %}
-                            <input type="hidden" name="form" value="formFtue">
-                            <div class="button-container">
-                                <button class="btn btn-custom btn-lg waves-effect waves-light rounded-pill centerButton" id="automate">Automate</button>
+                            <div class="card" id="ftueFormContainer"  style="width: 20%;">
+                                <div class="card-body">
+                                    <form method="post" action="{% url 'dashboard' %}">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="form" value="formFtue">
+                                        <div class="button-container">
+                                            <br>
+                                            <img src="{% static 'dashboard/images/elaineButton.png' %}" alt="Generated Image" class="rounded" style="width: 50%;">
+                                            <br><br>
+                                            <button class="btn btn-custom btn-lg waves-effect waves-light rounded-pill centerButton"
+                                                id="automate">Automate</button>
+                                            <br><br>
+                                        </div>
+                                    </form>
+                                </div>
                             </div>
-                        </form>
+                        </div>
                         {% endif %}
-                        
                         {% if user_settings.ftue2 %}
                         <div class="ftue-overlay" id="overlayContainer">
                             <div class="ftue-modal" id="ftueOverlay">
@@ -430,7 +464,7 @@
                         </div>
                         <form method="post" action="{% url 'dashboard' %}">
                             {% csrf_token %}
-                            <input type="hidden" name="form" value="formFtue2">
+                            <input type="hidden" name="form" value="formFtue">
                             <div class="row">
                                 <div class="col-xl-3 col-md-6">
                                     <div class="card">
@@ -634,15 +668,89 @@
                             <div class="ftue-modal" id="ftueOverlay">
                                 <img src="#" alt="Animated Character" id="animatedCharacter3">
                             </div>
-                        </div>
-                        <form method="post" action="{% url 'dashboard' %}">
-                            {% csrf_token %}
-                            <input type="hidden" name="form" value="formFtue3">
-                            <div class="button-container">
-                                <button class="btn btn-custom btn-lg waves-effect waves-light rounded-pill centerButton" id="automate">Automate</button>
+                            <div class="card" id="ftueFormContainer"  style="width: 20%;">
+                                <div class="card-body">
+                                    <form method="post" action="{% url 'dashboard' %}">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="form" value="formFtue">
+                                        <div class="mb-3">
+                                            <label for="simpleinput" class="form-label">Business Name</label>
+                                            <input type="text" id="business_name" class="form-control" name="business_name" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="simpleinput" class="form-label">Business Description<br>(1-3 Words Recommended)</label>
+                                            <input type="text" id="business_description" class="form-control" name="business_description" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Brand Color</label>
+                                            <input type="text" class="form-control" id="colorpicker-showinput-intial" name="brand_color" required>
+                                        </div>
+                                        <button type="submit" class="btn btn-success waves-effect waves-light">Save</button>
+                                    </form>
+                                </div>
                             </div>
-                        </form>
+                        </div>
                         {% endif %}
+                        {% if user_settings.ftue4 %}
+                        <div class="ftue-overlay" id="overlayContainer">
+                            <div class="ftue-modal" id="ftueOverlay">
+                                <img src="#" alt="Animated Character" id="animatedCharacter4">
+                            </div>
+                            <div class="card" id="ftueFormContainer"  style="width: 20%;">
+                                <div class="card-body">
+                                    <form method="post" action="{% url 'dashboard' %}">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="form" value="formFtue">
+                                        <input type="hidden" name="link" value="post_creator">
+                                        <div class="button-container">
+                                            <img src="{% static 'dashboard/images/elaineButton.png' %}" alt="Generated Image" class="rounded" style="width: 60%;">
+                                            <br><br>
+                                            <button class="btn btn-custom btn-small waves-effect waves-light rounded-pill centerButton"
+                                                id="automate">Create A Post</button>
+                                            <br>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                            <div class="card" id="ftueFormContainer2"  style="width: 20%; translate: 50%;">
+                                <div class="card-body">
+                                    <form method="post" action="{% url 'dashboard' %}">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="form" value="formFtue">
+                                        <input type="hidden" name="link" value="brand_settings">
+                                        <div class="button-container">
+                                            <img src="{% static 'dashboard/images/elaineButton.png' %}" alt="Generated Image" class="rounded" style="width: 60%;">
+                                            <br><br>
+                                            <button class="btn btn-custom btn-small waves-effect waves-light rounded-pill centerButton"
+                                                id="automate">Finalize Settings</button>
+                                            <br>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% if user_settings.endFtue %}
+                        <div class="col-lg-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <form method="post" action="{% url 'dashboard' %}">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="form" value="formFtue">
+                                        <div class="button-container">
+                                            <br>
+                                            <img src="{% static 'dashboard/images/elaineButton.png' %}" alt="Generated Image" class="rounded" style="width: 55%;">
+                                            <br><br>
+                                            <button class="btn btn-custom btn-lg waves-effect waves-light rounded-pill centerButton"
+                                                id="automate">Automate</button>
+                                            <br><br>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+
                         <!-- FTUE Script -->
                         <script>
                             function ftue() {
@@ -658,9 +766,13 @@
                                 ftue();
                             };
             
+                            
+                            var ftueFormContainer = document.getElementById('ftueFormContainer');
+
                             const isFtueEnabled = '{{ user_settings.ftue|lower }}' === 'true';
                             const isFtue2Enabled = '{{ user_settings.ftue2|lower }}' === 'true';
                             const isFtue3Enabled = '{{ user_settings.ftue3|lower }}' === 'true';
+                            const isFtue4Enabled = '{{ user_settings.ftue4|lower }}' === 'true';
 
                             const animatedCharacter = document.getElementById('animatedCharacter');
                             const animationGifPaths = [
@@ -672,19 +784,28 @@
                                 "{% static 'ftue_animation/FeedAI_FTUE_Animation_6.png' %}",
                                 "{% static 'ftue_animation/FeedAI_FTUE_Animation_7.png' %}",
                                 "{% static 'ftue_animation/FeedAI_FTUE_Animation_8.png' %}",
+                                "{% static 'ftue_animation/FeedAI_FTUE_Animation_9.png' %}",
                             ];
                             
                             const animatedCharacter2 = document.getElementById('animatedCharacter2');
                             const animationGifPaths2 = [
-                                "{% static 'ftue_animation/FeedAI_FTUE_Animation_9.png' %}",
                                 "{% static 'ftue_animation/FeedAI_FTUE_Animation_10.png' %}",
                                 "{% static 'ftue_animation/FeedAI_FTUE_Animation_11.png' %}",
+                                "{% static 'ftue_animation/FeedAI_FTUE_Animation_12.png' %}",
                             ];
 
                             const animatedCharacter3 = document.getElementById('animatedCharacter3');
                             const animationGifPaths3 = [
-                                "{% static 'ftue_animation/FeedAI_FTUE_Animation_3.png' %}",
-                                "{% static 'ftue_animation/FeedAI_FTUE_Animation_2.png' %}",
+                                "{% static 'ftue_animation/FeedAI_FTUE_Animation_13.png' %}",
+                                "{% static 'ftue_animation/FeedAI_FTUE_Animation_14.png' %}",
+                                "{% static 'ftue_animation/FeedAI_FTUE_Animation_15.png' %}",
+                                "{% static 'ftue_animation/FeedAI_FTUE_Animation_16.png' %}",
+                                "{% static 'ftue_animation/FeedAI_FTUE_Animation_18.png' %}",
+                            ];
+                            const animatedCharacter4 = document.getElementById('animatedCharacter4');
+                            const animationGifPaths4 = [
+                                "{% static 'ftue_animation/FeedAI_FTUE_Animation_19.png' %}",
+                                "{% static 'ftue_animation/FeedAI_FTUE_Animation_17.png' %}",
                             ];
 
                             let currentAnimationIndex = 0;
@@ -704,14 +825,18 @@
                                             currentAnimationIndex = (currentAnimationIndex + 1) % animationGifPaths.length;
                                             newImage.src = animationGifPaths[currentAnimationIndex];
                                         } else {
-                                            // Hide FTUE overlay
-                                            var overlayContainer = document.getElementById('overlayContainer');
-                                            overlayContainer.style.display = 'none';
                 
                                             const elementsToDisable = document.querySelectorAll('a');
                                             elementsToDisable.forEach(element => {
                                                 element.disabled = true;
                                             });
+                                            
+                                            // Show FTUE overlay
+                                            ftueFormContainer.style.display = 'block';
+                                            
+                                            // Show FTUE overlay
+                                            var character = document.getElementById('animatedCharacter');
+                                            character.style.display = 'none';
                                         }
                                     }
                                 });
@@ -719,6 +844,9 @@
                                 const preloadImage = new Image();
                                 preloadImage.onload = function() {
                                     animatedCharacter.src = animationGifPaths[currentAnimationIndex];
+
+                                    // Hide Form
+                                    ftueFormContainer.style.display = 'none';
                                 };
                                 preloadImage.src = animationGifPaths[currentAnimationIndex];
                                 };
@@ -764,6 +892,7 @@
                                         isLoading = true;
                 
                                         if (currentAnimationIndex < animationGifPaths3.length - 1) {
+
                                             const newImage = new Image();
                                             newImage.onload = function() {
                                                 animatedCharacter3.src = newImage.src;
@@ -772,23 +901,69 @@
                                             currentAnimationIndex = (currentAnimationIndex + 1) % animationGifPaths3.length;
                                             newImage.src = animationGifPaths3[currentAnimationIndex];
                                         } else {
-                                            // Hide FTUE overlay
-                                            var overlayContainer = document.getElementById('overlayContainer');
-                                            overlayContainer.style.display = 'none';
-                
-                                            const elementsToDisable = document.querySelectorAll('a');
-                                            elementsToDisable.forEach(element => {
-                                                element.disabled = true;
-                                            });
+                                            // Show FTUE overlay
+                                            ftueFormContainer.style.display = 'block';
+                                            
+                                            // Show FTUE overlay
+                                            var character = document.getElementById('animatedCharacter3');
+                                            character.style.display = 'none';
                                         }
+                                        
                                     }
                                 });
                                 const preloadImages = () => {
                                 const preloadImage = new Image();
                                 preloadImage.onload = function() {
                                     animatedCharacter3.src = animationGifPaths3[currentAnimationIndex];
+                                    
+                                    // Hide Form
+                                    ftueFormContainer.style.display = 'none';
+
                                 };
                                 preloadImage.src = animationGifPaths3[currentAnimationIndex];
+                                };
+                
+                                window.addEventListener('load', preloadImages);
+                            } else if (isFtue4Enabled) {
+                                animatedCharacter4.addEventListener('click', function() {
+                                    if (!isLoading) {
+                                        isLoading = true;
+                
+                                        if (currentAnimationIndex < animationGifPaths4.length - 1) {
+                                            const newImage = new Image();
+                                            newImage.onload = function() {
+                                                animatedCharacter4.src = newImage.src;
+                                                isLoading = false; // Reset the loading flag
+                                            };
+                                            currentAnimationIndex = (currentAnimationIndex + 1) % animationGifPaths4.length;
+                                            newImage.src = animationGifPaths4[currentAnimationIndex];
+                                        } else {
+                
+                                            const elementsToDisable = document.querySelectorAll('a');
+                                            elementsToDisable.forEach(element => {
+                                                element.disabled = true;
+                                            });
+
+                                            // Show FTUE overlay
+                                            ftueFormContainer.style.display = 'block';
+                                            ftueFormContainer2.style.display = 'block';
+                                            
+                                            // Show FTUE overlay
+                                            var character = document.getElementById('animatedCharacter4');
+                                            character.style.display = 'none';
+                                        }
+                                    }
+                                });
+                                const preloadImages = () => {
+                                const preloadImage = new Image();
+                                preloadImage.onload = function() {
+                                    animatedCharacter4.src = animationGifPaths4[currentAnimationIndex];
+                                    
+                                    // Hide Form
+                                    ftueFormContainer.style.display = 'none';
+                                    ftueFormContainer2.style.display = 'none';
+                                };
+                                preloadImage.src = animationGifPaths4[currentAnimationIndex];
                                 };
                 
                                 window.addEventListener('load', preloadImages);
@@ -812,31 +987,47 @@
                                 }
             
                                 #animatedCharacter {
-                                    width: 95%;
+                                    width: 31%;
                                     position: fixed;
                                     bottom: 0;
                                     left: 50%; 
                                     transform: translateX(-50%);
                                 }
-                                @media (max-width: 767px) {
-                                    #animatedCharacter {
-                                        width: 175%; 
-                                    }
+
+                                #animatedCharacter2 {
+                                    width: 31%;
+                                    position: fixed;
+                                    bottom: 0;
+                                    left: 50%; 
+                                    transform: translateX(-50%);
+                                }
+
+                                #animatedCharacter3 {
+                                    width: 31%;
+                                    position: fixed;
+                                    bottom: 0;
+                                    left: 50%; 
+                                    transform: translateX(-50%);
+                                }
+                                
+                                #animatedCharacter4 {
+                                    width: 31%;
+                                    position: fixed;
+                                    bottom: 0;
+                                    left: 50%; 
+                                    transform: translateX(-50%);
                                 }
             
                                 .button-container {
-                                    position: relative;
-                                    height: 100vh; 
+                                    flex-direction: column;
+                                    align-items: center;
+                                    text-align: center;
                                 }
             
                                 .centerButton {
-                                    width: 200px; 
-                                    height: 60px; 
-                                    position: absolute;
-                                    left: 50%;
-                                    transform: translateX(-50%);
-                                    bottom: 50vh;
+                                    width: 60%; 
                                 }
+
                             </style>
                     </div>
                 </div> <!-- container-fluid -->
@@ -848,8 +1039,8 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-md-6">
-                    <script>document.write(new Date().getFullYear())</script> &copy; FeedAI Proof of Concept by
-                    <a href="">CJ Enright</a>
+                    <script>document.write(new Date().getFullYear())</script> &copy; Copyright
+                    <a href="">FeedAI</a>
                 </div>
                 <div class="col-md-6">
                     <div class="text-md-end footer-links d-none d-sm-block">
@@ -880,6 +1071,13 @@
     <script src="{% static 'dashboard/libs/waypoints/lib/jquery.waypoints.min.js' %}"></script>
     <script src="{% static 'dashboard/libs/jquery.counterup/jquery.counterup.min.js' %}"></script>
     <script src="{% static 'dashboard/libs/feather-icons/feather.min.js' %}"></script>
+    
+    <!-- Plugins js-->
+    <script src="{% static 'dashboard/libs/spectrum-colorpicker2/spectrum.min.js' %}"></script>
+    <script src="{% static 'dashboard/libs/flatpickr/flatpickr.min.js' %}"></script>
+    
+    <!-- Init js-->
+    <script src="{% static 'dashboard/js/pages/form-pickers.init.js' %}"></script>
 
     <!-- knob plugin -->
     <script src="{% static 'dashboard/libs/jquery-knob/jquery.knob.min.js' %}"></script>

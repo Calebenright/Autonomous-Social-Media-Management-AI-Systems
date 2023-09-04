@@ -392,6 +392,74 @@
 
                 <div class="container-fluid">
                     <div class="row">
+                        {% if error %}
+                        <div class="error-message">
+                          <span>{{ error }}</span>
+                          <button class="close-button" onclick="closeErrorMessage()">&times;</button>
+                        </div>
+                        <script>
+                        function closeErrorMessage() {
+                            const errorDiv = document.querySelector('.error-message');
+                            errorDiv.style.display = 'none';
+                        }
+                        </script>
+                        <style>
+                            .error-message {
+                                background-color: #ff5733; /* Background color */
+                                color: #ffffff; /* Text color */
+                                padding: 10px; /* Padding around the content */
+                                border: 1px solid #d9534f; /* Border color */
+                                border-radius: 5px; /* Rounded corners */
+                                margin-bottom: 10px; /* Space below the error message */
+                                position: relative; /* Required for the close button positioning */
+                            }
+                        
+                            .close-button {
+                                position: absolute;
+                                top: 5px;
+                                right: 5px;
+                                background: none;
+                                border: none;
+                                font-size: 18px;
+                                color: #ffffff;
+                                cursor: pointer;
+                            }
+                        </style>                        
+                        {% endif %}
+                        {% if success %}
+                        <div class="success-message">
+                            <span>{{ success }}</span>
+                            <button class="close-button" onclick="closeSuccessMessage()">&times;</button>
+                        </div>
+                        <script>
+                        function closeSuccessMessage() {
+                            const successDiv = document.querySelector('.success-message');
+                            successDiv.style.display = 'none';
+                        }
+                        </script>
+                        <style>
+                            .success-message {
+                                background-color: #4CAF50; /* Background color for success message */
+                                color: #ffffff; /* Text color */
+                                padding: 10px; /* Padding around the content */
+                                border: 1px solid #45a049; /* Border color */
+                                border-radius: 5px; /* Rounded corners */
+                                margin-bottom: 10px; /* Space below the success message */
+                                position: relative; /* Required for the close button positioning */
+                            }
+                    
+                            .close-button {
+                                position: absolute;
+                                top: 5px;
+                                right: 5px;
+                                background: none;
+                                border: none;
+                                font-size: 18px;
+                                color: #ffffff;
+                                cursor: pointer;
+                            }
+                        </style>
+                        {% endif %}                    
                         <div class="col-md-6">
                             <div class="card">
                                 <div class="card-body">
@@ -515,6 +583,7 @@
                                         <label class="form-label">Profile Image</label>
                                         <p class="sub-header">( .JPG Files Only )</p>
                                         <input type="file" id="pfp" name="pfp" class="form-control" accept=".jpg">
+                                        <br>
                                         {% if user_settings.pfp %}
                                         <div class="mb-3">
                                             <img src="{{ user_settings.pfp }}" alt="Generated Image"
@@ -635,8 +704,8 @@
                 <div class="container-fluid">
                     <div class="row">
                         <div class="col-md-6">
-                            <script>document.write(new Date().getFullYear())</script> &copy; FeedAI Proof of Concept by
-                            <a href="">CJ Enright</a>
+                            <script>document.write(new Date().getFullYear())</script> &copy; Copyright
+                            <a href="">FeedAI</a>
                         </div>
                         <div class="col-md-6">
                             <div class="text-md-end footer-links d-none d-sm-block">

@@ -3673,34 +3673,39 @@ fieldset:disabled .btn {
 }
 
 .btn-custom {
-    background-color: #47c906;
+    background-color: #B1C74C;
     color: #ffffff;
-    border-color: #10c469;
-  }
-  .btn-custom:hover {
-    color: #fff;
-    background-color: #139211;
-    border-color: #0d9d54;
-  }
-  .btn-check:focus + .btn-custom, .btn-custom:focus {
-    color: #fff;
-    background-color: #139211;
-    border-color: #0d9d54;
+    border-color: #B1C74C;
+}
+
+.btn-custom:hover {
+    color: #ffffff;
+    background-color: #6B8E23; /* A darker green */
+    border-color: #4A6D16; /* An even darker green */
+}
+
+.btn-check:focus + .btn-custom, .btn-custom:focus {
+    color: #ffffff;
+    background-color: #B1C74C;
+    border-color: #B1C74C;
     box-shadow: 0 0 0 0.15rem rgba(52, 205, 128, 0.5);
-  }
-  .btn-check:checked + .btn-custom, .btn-check:active + .btn-custom, .btn-custom:active, .btn-custom.active, .show > .btn-custom.dropdown-toggle {
-    color: #fff;
-    background-color: #139211;
-    border-color: #028600;
-  }
-  .btn-check:checked + .btn-custom:focus, .btn-check:active + .btn-custom:focus, .btn-custom:active:focus, .btn-custom.active:focus, .show > .btn-custom.dropdown-toggle:focus {
+}
+
+.btn-check:checked + .btn-custom, .btn-check:active + .btn-custom, .btn-custom:active, .btn-custom.active, .show > .btn-custom.dropdown-toggle {
+    color: #ffffff;
+    background-color: #6B8E23; /* A darker green */
+    border-color: #4A6D16; /* An even darker green */
+}
+
+.btn-check:checked + .btn-custom:focus, .btn-check:active + .btn-custom:focus, .btn-custom:active:focus, .btn-custom.active:focus, .show > .btn-custom.dropdown-toggle:focus {
     box-shadow: 0 0 0 0.15rem rgba(52, 205, 128, 0.5);
-  }
-  .btn-custom:disabled, .btn-custom.disabled {
-    color: #fff;
-    background-color: #139211;
-    border-color: #028600;
-  }
+}
+
+.btn-custom:disabled, .btn-custom.disabled {
+    color: #ffffff;
+    background-color: #6B8E23; /* A darker green */
+    border-color: #4A6D16; /* An even darker green */
+}
 
 .btn-success {
     color: #fff;

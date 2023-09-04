@@ -395,7 +395,40 @@
                 <div class="container-fluid">
 
                     <div class="row">
-
+                        {% if error %}
+                        <div class="error-message">
+                          <span>{{ error }}</span>
+                          <button class="close-button" onclick="closeErrorMessage()">&times;</button>
+                        </div>
+                        <script>
+                        function closeErrorMessage() {
+                            const errorDiv = document.querySelector('.error-message');
+                            errorDiv.style.display = 'none';
+                        }
+                        </script>
+                        <style>
+                            .error-message {
+                                background-color: #ff5733; /* Background color */
+                                color: #ffffff; /* Text color */
+                                padding: 10px; /* Padding around the content */
+                                border: 1px solid #d9534f; /* Border color */
+                                border-radius: 5px; /* Rounded corners */
+                                margin-bottom: 10px; /* Space below the error message */
+                                position: relative; /* Required for the close button positioning */
+                            }
+                        
+                            .close-button {
+                                position: absolute;
+                                top: 5px;
+                                right: 5px;
+                                background: none;
+                                border: none;
+                                font-size: 18px;
+                                color: #ffffff;
+                                cursor: pointer;
+                            }
+                        </style>                        
+                        {% endif %}
                         <div class="col-lg-6">
                             <form enctype="multipart/form-data" id="tagForm" method="post" action="{% url 'post_creator' %}">
                                 {% csrf_token %}
@@ -423,22 +456,22 @@
 
                                         <div class="form-check mb-2 form-check-success">
                                             <input class="form-check-input" type="radio" name="flexRadioDefault" value="stable-dif" id="stable-dif" {% if selected_radio != 'dalle' and selected_radio != 'cta' and selected_radio != 'stock' %}checked{% endif %} >
-                                            <label class="form-check-label" for="stable-dif">Stable Diffusion (Recommended)</label>
+                                            <label class="form-check-label" for="stable-dif">Stable Diffusion (AI Post)</label>
                                         </div>
 
                                         <div class="form-check mb-2 form-check-success">
                                             <input class="form-check-input" type="radio" name="flexRadioDefault" value="stock" id="stock" {% if selected_radio == 'stock' %}checked{% endif %}>
-                                            <label class="form-check-label" for="stock">Stock Photo (Beta)</label>
+                                            <label class="form-check-label" for="stock">Stock Photo</label>
                                         </div>
 
                                         <div class="form-check mb-2 form-check-success">
                                             <input class="form-check-input" type="radio" name="flexRadioDefault" value="cta" id="cta" {% if selected_radio == 'cta' %}checked{% endif %}>
-                                            <label class="form-check-label" for="cta">Call-To-Action (Beta)</label>
+                                            <label class="form-check-label" for="cta">Call-To-Action</label>
                                         </div>
 
                                         <div class="form-check mb-2 form-check-success">
                                             <input class="form-check-input" type="radio" name="flexRadioDefault" value="up" id="up" {% if selected_radio == 'up' %}checked{% endif %}>
-                                            <label class="form-check-label" for="up">Upload Photo (Coming Soon)</label>
+                                            <label class="form-check-label" for="up">Upload Photo</label>
                                         </div>
                                     </div>
                                 </div> 
@@ -476,7 +509,7 @@
                                                 Upload an image and we will turn it into a post!
                                             </p>
                 
-                                            <input type="file" data-plugins="dropify" data-height="300" />
+                                            <input type="file" name="file" data-plugins="dropify" data-height="300" accept=".jpg, .png" />
                                         </div>
                                         
                                     </div>
@@ -487,45 +520,13 @@
                                 </div>
                             </form>
                         </div>
-                        {% if user_settings.next_image_url or image_url %}
+                        {% if user_settings.next_image_url %}
                         <div class="col-lg-6">
                             <div class="card">
                                 <div class="card-body">
                                     <div class="generated-post">
                                         <h4 class="header-title">Generated Post</h4>
                                         <br>
-                                        {% if image_url %}
-                                        <form method="post" action="{% url 'post_creator' %}">
-                                            {% csrf_token %}
-                                            <input type="hidden" name="form" value="formImage1">
-                                            <img src="{{ image_url }}" alt="Generated Image" class="generated-image-small rounded">
-                                            <br>
-                                            <br>
-                                            <button type="submit" class="btn btn-soft-secondary rounded-pill waves-effect btn-xs" onclick="showSpinner()">Re-Generate</button>
-                                            <br>
-                                            <br>
-                                        </form>
-                                        <div class="mb-3">
-                                            <div class="text-box-wrapper">
-                                                <div id="prompt" contenteditable="false" class="text-box">{{ post }}</div>
-                                                <!-- <textarea type='hidden' id="cap" name="cap" class="text-box">{{ post }}</textarea> -->
-                                            </div>
-                                        </div>
-                                        <form method="post" action="{% url 'post_creator' %}">
-                                            {% csrf_token %}
-                                            <input type="hidden" name="form" value="formCaption1">
-                                            <button type="submit" class="btn btn-soft-secondary rounded-pill waves-effect btn-xs" onclick="showSpinner()">Re-Generate</button>
-                                            <br>
-                                            <br>
-                                        </form>
-                                        <form method="post" action="{% url 'post_creator' %}">
-                                            {% csrf_token %}
-                                            <input type="hidden" name="form" value="formPostSchedule">
-                                            <textarea style="display: none;" name="hidden-content" id="hidden-content"></textarea>
-                                            <button type="submit" class="btn btn-soft-success rounded-pill waves-effect waves-light btn-sm" >Add To Schedule</button>
-                                        </form>
-                                        <br>
-                                        {% else %}
                                         {% if user_settings.deny %}
                                         <img src="{% static 'dashboard/images/deny.jpg' %}" alt="Generated Image" class="generated-image-small rounded">
                                         {% else %}
@@ -538,15 +539,21 @@
                                                 <div id="prompt" contenteditable="false" class="text-box">{{ user_settings.next_caption }}</div>
                                             </div>
                                         </div>
-                                        <br>
-                                        {% endif %}
-                                        <form method="post" action="#">
+                                        <form method="post" action="{% url 'post_creator' %}">
                                             {% csrf_token %}
-                                            <input type="hidden" name="form" value="formPost">
-                                            <textarea style="display: none;" name="hidden-content2" id="hidden-content2"></textarea>
+                                            <input type="hidden" name="form" value="formCaption1">
+                                            <button type="submit" class="btn btn-soft-secondary rounded-pill waves-effect btn-xs" onclick="showSpinner()">Re-Generate Caption</button>
+                                            <br>
+                                            <br>
+                                        </form>
+                                        <form method="post" action="{% url 'post_creator' %}">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="form" value="formPostSchedule">
+                                            <input type="hidden" name="caption" value="{{ user_settings.next_caption }}">
+                                            <input type="hidden" name="url" value="{{ user_settings.next_image_url }}">
                                             <button type="submit" class="btn btn-purple rounded-pill w-md waves-effect waves-light mb-3">
-                                                <i class="mdi mdi-plus"></i> Post To Feed!</button>
-                                        </form>                                        
+                                                <i class="mdi mdi-plus"></i> Add To Schedule!</button>
+                                        </form>                                  
                                     </div>
                                 </div> <!-- end card-body -->
                             </div> <!-- end card -->
@@ -716,7 +723,7 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-md-6">
-                    <script>document.write(new Date().getFullYear())</script> &copy; FeedAI Proof of Concept by <a href="">CJ Enright</a>
+                    <script>document.write(new Date().getFullYear())</script> &copy; Copyright <a href="">FeedAI</a>
                 </div>
                 <div class="col-md-6">
                     <div class="text-md-end footer-links d-none d-sm-block">

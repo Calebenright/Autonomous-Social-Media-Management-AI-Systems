@@ -31,34 +31,21 @@ STABILITY_API_KEY = config('STABILITY_API_KEY')
 # openai.api_key = get_secret_value('OPENAI_API_KEY')
 # UNSPLASH_API_KEY = get_secret_value('UNSPLASH_API_KEY')
 
-def create_caption (business_description, bucket_name, bucket_credentials, user_folder_path):
+def create_caption (business_description, business_name):
     # Define the Business We Are Creating Media For
-    # biz = input("WHAT TYPE OF BUSINESS ARE WE MAKING CONTENT FOR? ENTER RESPONSE: ")
-
-    biz = business_description
-
-    # Generate a random number between 0 and 1 (inclusive)
-    random_number = random.random()
-
-    if random_number < 0.5:
-            prompt = f"If i was givin a word cloud and one of the words was {biz}, What are 3-5 other descriptive phrases? Give the response only in the form of an array and include {biz}."
-            # Query OpenAI for a prompt 
-            response = openai.ChatCompletion.create(
-            model="gpt-4",
-            messages=[
-                    {"role": "user", "content": prompt},
-                ]
-            )
-
-            prompt = response["choices"][0]["message"]["content"]
-            biz = random.choice(json.loads(prompt))
-
-    caption = f"Create a social media caption about {biz} in under 150 characters. Add 1-3 relevent social-media hashtags related to the caption. Clean up the social media caption by removing numbers, mention of AI language model, and word counts. remove quotations."
+    prompts = [
+    f"Create a short social media caption for ([BUSINESS NAME] = [{business_name}]) and ([BUSINESS DESCRIPTION] = [{business_description}]) | Remove quotations.",
+    f"Create a short social media caption for ([BUSINESS DESCRIPTION] = [{business_description}]) | Remove quotations.",
+    ]
+    prompt = random.choice(prompts)
+    
+    print(prompt)
+    print(business_name)
     # Query OpenAI for a caption
     response = openai.ChatCompletion.create(
     model="gpt-3.5-turbo",
     messages=[
-            {"role": "user", "content": caption},
+            {"role": "user", "content": prompt},
         ]
     )
     # Store Caption as CAP for use in the caption later
@@ -279,6 +266,39 @@ def create_call_to_action(website, background_color, logo_path, business_descrip
 
     return image_io
 
+def create_upload(image_name):
+    image_data = image_name.read()
+
+    # Open the image using PIL
+    img = Image.open(BytesIO(image_data))
+
+    # Check if the image is not already in JPEG format
+    if img.format != 'JPEG':
+        # Convert the image to JPEG format
+        img = img.convert('RGB')
+
+    # Get the dimensions of the image
+    width, height = img.size
+
+    # Calculate the size of the square to crop (using the smaller dimension)
+    size = min(width, height)
+
+    # Calculate the cropping box (centered)
+    left = (width - size) / 2
+    top = (height - size) / 2
+    right = (width + size) / 2
+    bottom = (height + size) / 2
+
+    # Crop the image to the calculated square
+    cropped_img = img.crop((left, top, right, bottom))
+    resized_img = cropped_img.resize((1024, 1024))
+
+    image_io = BytesIO()
+    resized_img.save(image_io, format='JPEG')
+    image_io.seek(0) 
+
+    return image_io
+
 def create_placeholder(business_description, bucket_name, bucket_credentials, user_folder_path):
     image_url = 'https://th.bing.com/th/id/OIG.CO2sHWK_IEYIwzXsC2hX'
     image_size = 1024
@@ -387,7 +407,7 @@ def create_image (website, color, selected_option, isLogo, logo_path, business_d
     elif selected_option == 'cta':
         img = create_call_to_action(website, color, logo_path, business_description, bucket_name, bucket_credentials, user_folder_path)
     elif selected_option == 'up':
-        img = create_call_to_action(website, color, logo_path, business_description, bucket_name, bucket_credentials, user_folder_path)
+        img = create_upload(business_description)
     else:
         img = create_dalle_post(business_description, bucket_name, bucket_credentials, user_folder_path)
 

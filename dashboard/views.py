@@ -45,34 +45,67 @@ def dashboard(request):
     
         return render(request, 'error.html', {'error_message': 'Please Try Logging in Again.'})
     
+    
+    try:
+        ftue = user_settings['ftue']
+    except (TypeError, KeyError):
+        return render(request, 'error.html', {'error_message': 'Please Try Logging in Again.'})
+
+
     if request.method == 'POST':
         form_name = request.POST.get('form')
         print(form_name)
         if form_name == 'formFtue':
-            # Prepare the data to be saved in Firestore
-            firestore_data = {
-                'ftue': False,
-                'ftue2': True,
-            }
-        elif form_name == 'formFtue2':
-            check_name = request.POST.get('formCheck')
-            print(form_name)
-            if check_name == 'formCheck1':
-                print('wooooo')
-            # Prepare the data to be saved in Firestore
-            firestore_data = {
-                'ftue2': False,
-                'ftue3': True,
-            }
-        elif form_name == 'formFtue3':
-            check_name = request.POST.get('formCheck')
-            print(form_name)
-            if check_name == 'formCheck1':
-                print('wooooo')
-            # Prepare the data to be saved in Firestore
-            firestore_data = {
-                'ftue3': False,
-            }
+            if ftue:
+                # Prepare the data to be saved in Firestore
+                firestore_data = {
+                    'ftue': False,
+                    'ftue2': True,
+                    'ftue3': False,
+                    'ftue4': False,
+                    'endFtue': False
+                }
+            else:
+                ftue2 = user_settings['ftue2']
+                ftue3 = user_settings['ftue3']
+                ftue4 = user_settings['ftue4']
+                if ftue2:
+                    # Prepare the data to be saved in Firestore
+                    firestore_data = {
+                        'ftue2': False,
+                        'ftue3': True
+                    }
+                elif ftue3:
+                    business_name = request.POST.get('business_name')
+                    business_description = request.POST.get('business_description')
+                    brand_color = request.POST.get('brand_color')
+                    # tags = create_tags(business_description)
+
+                    print('woo tags')
+                    print(business_name)
+                    print(business_description)
+                    print(brand_color)
+
+                    # Prepare the data to be saved in Firestore
+                    firestore_data = {
+                        'ftue3': False,
+                        'ftue4': True,
+                        # 'tags': tags,
+                        # 'business_description': business_description,
+                        # 'business_name': business_name
+
+                    }
+                elif ftue4:
+                    link = request.POST.get('link')
+
+                    # Prepare the data to be saved in Firestore
+                    firestore_data = {
+                        'ftue4': False,
+                        'endFtue': True
+                    }
+                    user_settings_ref.set(firestore_data, merge=True)
+                    return redirect(link)
+        
 
         # Save the data to Firestore
         user_settings_ref.set(firestore_data, merge=True)
@@ -94,104 +127,6 @@ def dashboard(request):
     }
     return render(request, 'dashboard.html', context)
 
-def ad_manager(request):
-    # ----- Get the Firestore document reference for the user settings ----- #
-    db = firestore.client()
-    user_id = request.session.get('user_id')
-    user_settings_ref = db.collection('users').document(user_id)
-    try:
-        user_settings_doc = user_settings_ref.get()
-        user_settings = user_settings_doc.to_dict()
-    except firestore.NotFound:
-        user_settings = {}
-    # ---------------------------------------------------------------------- #
-    ads_folder_path = f'user_folders/{user_id}/ads/'
-    try:
-        biz = user_settings['business_description']
-    except (TypeError, KeyError):
-        biz = 'mansion'
-    try:
-        logo_path = user_settings['logo']
-    except (TypeError, KeyError):
-        logo_path = None
-    try:
-        num_ad = int(user_settings['num_ad'])
-    except (TypeError, KeyError):
-        num_ad = 1
-    try:
-        current_ad_image_url = user_settings['current_ad_image']
-    except (TypeError, KeyError):
-        current_ad_image_url = None
-    try:
-        current_ad_copy = user_settings['current_ad_copy']
-    except (TypeError, KeyError):
-        current_ad_copy = None
-    try:
-        ad_image_url = user_settings['ad_image_url']
-    except (TypeError, KeyError):
-        ad_image_url = None
-    try:
-        ad_copy = user_settings['ad_copy']
-    except (TypeError, KeyError):
-        ad_copy = None
-
-    if request.method == 'POST':
-        form_name = request.POST.get('form')
-        if num_ad < 5 :
-            if form_name == 'formCopy':
-                ad_copy = create_ad_copy(biz, settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, ads_folder_path)
-            elif form_name == 'formCopySave':
-                ad_copy = request.POST.get('ad_copy_content')
-            elif form_name == 'formRunAd':
-                current_ad_image_url = ad_image_url
-                current_ad_copy = ad_copy
-            elif form_name == 'formImg':
-                isLogo = request.POST.get('isLogo', None)
-                request.session['isLogo'] = isLogo
-                ad_image_url = create_ad(isLogo, logo_path, biz, settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, ads_folder_path, num_ad)
-                if num_ad <= 5:
-                    num_ad += 1
-            else:
-                isLogo = request.POST.get('isLogo', None)
-                request.session['isLogo'] = isLogo
-                ad_copy = create_ad_copy(biz, settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, ads_folder_path)
-                ad_image_url = create_ad(isLogo, logo_path, biz, settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, ads_folder_path, num_ad)
-                if num_ad <= 5:
-                    num_ad += 1
-
-            # Prepare the data to be saved in Firestore
-            firestore_data = {
-                'ad_image_url': ad_image_url,
-                'ad_copy': ad_copy,
-                'num_ad': num_ad,
-                'current_ad_copy': current_ad_copy,
-                'current_ad_image_url': current_ad_image_url
-            }
-
-            # Save the data to Firestore
-            user_settings_ref.set(firestore_data, merge=True)
-
-            # ----- Get the Firestore document reference for the user settings ----- #
-            db = firestore.client()
-            user_id = request.session.get('user_id')
-            user_settings_ref = db.collection('users').document(user_id)
-            try:
-                user_settings_doc = user_settings_ref.get()
-                user_settings = user_settings_doc.to_dict()
-            except firestore.NotFound:
-                user_settings = {}
-            # ---------------------------------------------------------------------- #
-
-        else:
-            user_settings['deny'] = True
-        
-    isLogo = request.session.get('isLogo', None)
-    context = {
-        'user_settings': user_settings,
-        'isLogo': isLogo,
-    }
-    return render(request, 'ad_manager.html', context)
-
 def post_creator(request):
     try:
         # ----- Get the Firestore document reference for the user settings ----- #
@@ -202,24 +137,21 @@ def post_creator(request):
             user_settings_doc = user_settings_ref.get()
             user_settings = user_settings_doc.to_dict()
         except firestore.NotFound:
-            user_settings = {}
+            return redirect('login') 
         # ---------------------------------------------------------------------- #
         pass
     
-    except AttributeError as e:
-        if "AuthError" in str(e):
-            return redirect('login') 
-        return render(request, 'error.html', {'error_message': 'Please Try Logging in Again.'})
+    except:
+        return redirect('login') 
     # ---------------------------------------------------------------------- #
+
     image_folder_path = f'user_folders/{user_id}/images/'
     try:
         biz = user_settings['business_description']
-    except (TypeError, KeyError):
-        biz = '[Random Business Description Here]'
-    try:
+        biz_name = user_settings['business_name']
         color = user_settings['brand_color']
     except (TypeError, KeyError):
-        color = '#AAAAAA'
+        return redirect('login') 
     try:
         website = user_settings['website']
     except (TypeError, KeyError):
@@ -247,32 +179,28 @@ def post_creator(request):
     if request.method == 'POST':
         form_name = request.POST.get('form')
         if num_post < 10:
-            if form_name == 'formImage1':
+            if form_name == 'formCaption1':
                 selected_option = request.session.get('selected_radio', None)
                 isLogo = request.session.get('isLogo', None)
-                url = create_image(website, color, selected_option, isLogo, logo_path, biz, settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, image_folder_path, num_post)
-                post = user_settings['next_caption']
-                if num_post >= 10:
-                    num_post = 1
-                else:
-                    num_post += 1
-                firestore_data = {'next_image_url': url, 'num_post': num_post}
-                
-            elif form_name == 'formCaption1':
-                selected_option = request.session.get('selected_radio', None)
-                isLogo = request.session.get('isLogo', None)
-                post = create_caption(biz, settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, image_folder_path)
+                post = create_caption(biz, biz_name)
                 firestore_data = {'next_caption': post}
                 url = user_settings['next_image_url']
             
             elif form_name == 'formPostSchedule':
+                post = request.POST.get('caption')
+                url = request.POST.get('url')
                 selected_option = request.session.get('selected_radio', None)
                 isLogo = request.session.get('isLogo', None)
-                next_image_url = user_settings['next_image_url']
-                post = user_settings['next_caption']
-                url = user_settings['next_image_url']
+                print(post)
+                print(url)
+                
+                if num_schedule >= 8:
+                    num_schedule = 1
+                else:
+                    num_schedule += 1
+
                 firestore_data = {
-                    'schedule_img_' + str(num_schedule): next_image_url,
+                    'schedule_img_' + str(num_schedule): url,
                     'schedule_cap_' + str(num_schedule): post,
                     'next_caption': post,
                     'num_schedule': num_schedule
@@ -288,7 +216,21 @@ def post_creator(request):
                 
                 if selected_option == 'up':
                     key = request.FILES.get('file')
+                    print('file')
                     print(key)
+
+                    # Get the file extension
+                    file_extension = key.name.split('.')[-1].lower()
+
+                    # Check if the file extension is not allowed
+                    if file_extension not in ['jpg', 'jpeg', 'png']:
+                        context = {
+                            'user_settings': user_settings,
+                            'error': 'ONLY ACCEPTED FILE FORMATS: .jpg, .jpeg, .png'
+                        }
+                        
+                        return render(request, 'post_creator.html', context)
+
                 elif selected_option == 'stable-dif':
                     entered_tags = request.POST.get('tags')
                     tags = entered_tags.split(',')
@@ -316,26 +258,23 @@ def post_creator(request):
                 else:
                     num_post += 1
                     
-                if num_schedule >= 8:
-                    num_schedule = 1
-                else:
-                    num_schedule += 1
 
                 firestore_data = {
                     'last_image_url': last_image_url,
                     'last_caption': last_caption,
                     'next_image_url': url,
                     'next_caption': post,
-                    'num_post': num_post,
-                    'num_schedule': num_schedule
+                    'num_post': num_post
                 }
 
             # Save the data to Firestore
             user_settings_ref.set(firestore_data, merge=True)
+            user_settings_doc = user_settings_ref.get()
+            user_settings = user_settings_doc.to_dict()
 
             user_settings['tags'] = json.dumps(tags)
 
-            return render(request, 'post_creator.html', {'post': post, 'image_url': url, 'selected_radio': selected_option, 'isLogo': isLogo, 'user_settings': user_settings})
+            return render(request, 'post_creator.html', {'selected_radio': selected_option, 'isLogo': isLogo, 'user_settings': user_settings})
         else:
             user_settings['deny'] = True
     context = {
@@ -344,43 +283,24 @@ def post_creator(request):
     
     return render(request, 'post_creator.html', context)
 
-def upload_post(request):
-    return render(request, 'dashboard.html')
 
 def schedule(request):
-    # ----- Get the Firestore document reference for the user settings ----- #
-    db = firestore.client()
-    user_id = request.session.get('user_id')
-    user_settings_ref = db.collection('users').document(user_id)
-    try:
-        user_settings_doc = user_settings_ref.get()
-        user_settings = user_settings_doc.to_dict()
-    except firestore.NotFound:
-        user_settings = {}
-    # ---------------------------------------------------------------------- #
     
-    if request.method == 'POST':
-        form_name = request.POST.get('form')
-        try:
-            schedule_ad = int(user_settings['schedule_ad'])
-        except (TypeError, KeyError):
-            schedule_ad = 1
-
-    context = {
-        'user_settings': user_settings,
-    }
-    return render(request, 'schedule.html', context)
-
-def calendar(request):
-    # ----- Get the Firestore document reference for the user settings ----- #
-    db = firestore.client()
-    user_id = request.session.get('user_id')
-    user_settings_ref = db.collection('users').document(user_id)
     try:
-        user_settings_doc = user_settings_ref.get()
-        user_settings = user_settings_doc.to_dict()
-    except firestore.NotFound:
-        user_settings = {}
+        # ----- Get the Firestore document reference for the user settings ----- #
+        db = firestore.client()
+        user_id = request.session.get('user_id')
+        user_settings_ref = db.collection('users').document(user_id)
+        try:
+            user_settings_doc = user_settings_ref.get()
+            user_settings = user_settings_doc.to_dict()
+        except firestore.NotFound:
+            return redirect('login') 
+        # ---------------------------------------------------------------------- #
+        pass
+    
+    except:
+        return redirect('login') 
     # ---------------------------------------------------------------------- #
     
     if request.method == 'POST':
@@ -402,14 +322,12 @@ def brand_settings(request):
             user_settings_doc = user_settings_ref.get()
             user_settings = user_settings_doc.to_dict()
         except firestore.NotFound:
-            user_settings = {}
+            return redirect('login') 
         # ---------------------------------------------------------------------- #
         pass
     
-    except AttributeError as e:
-        if "AuthError" in str(e):
-            return redirect('login') 
-        return render(request, 'error.html', {'error_message': 'Please Try Logging in Again.'})
+    except:
+        return redirect('login') 
     # ---------------------------------------------------------------------- #
 
     print(user_id)
@@ -511,6 +429,11 @@ def brand_settings(request):
         except firestore.NotFound:
             user_settings = {}
         # ---------------------------------------------------------------------- #
+        context = {
+        'user_settings': user_settings,
+        'success': 'Settings Updated'
+        }
+        return render(request, 'brand_settings.html', context)
 
     context = {
         'user_settings': user_settings,
