@@ -29,6 +29,8 @@
     <!-- Plugins css -->
     <link href="{% static 'dashboard/css/spectrum.min.css' %}" rel="stylesheet" type="text/css">
 
+    
+
 </head>
 
 <!-- body start -->
@@ -440,7 +442,7 @@
                             </div>
                             <div class="card" id="ftueFormContainer"  style="width: 20%;">
                                 <div class="card-body">
-                                    <form method="post" action="{% url 'dashboard' %}">
+                                    <form id="formFtue" method="post" action="{% url 'dashboard' %}">
                                         {% csrf_token %}
                                         <input type="hidden" name="form" value="formFtue">
                                         <div class="button-container">
@@ -448,7 +450,7 @@
                                             <img src="{% static 'dashboard/images/elaineButton.png' %}" alt="Generated Image" class="rounded" style="width: 50%;">
                                             <br><br>
                                             <button class="btn btn-custom btn-lg waves-effect waves-light rounded-pill centerButton"
-                                                id="automate">Automate</button>
+                                                id="automate" onclick="showSpinner()">Automate</button>
                                             <br><br>
                                         </div>
                                     </form>
@@ -470,10 +472,8 @@
                                     <div class="card">
                                         <div class="card-body">
                                             <div class="generated-post">
-                                                {% csrf_token %}
                                                 <p class="form-label">Image</p>
                                                 <img src="{% static 'ftue_animation/JalsCoffee1.png' %}" alt="Generated Image" class="generated-image-lg rounded">
-                                                <br>
                                                 <br>
                                                 <p class="form-label">Caption</p>
                                                 <div class="mb-3">
@@ -482,7 +482,7 @@
                                                         </div>
                                                 </div>
                                                 <div class="mb-3">
-                                                    <label class="form-check-label" for="ftueCheck" style="padding: 5%;">Add To Schedule</label>
+                                                    <label class="form-check-label" for="ftueCheck" style="margin-bottom: 7%;">Add To Schedule</label>
                                                     <br>
                                                     <input type="checkbox" data-switchery="true" data-plugin="switchery" data-color="#039cfd" name="ftueCheck" value="ftueCheck1" id="ftueCheck"/>
                                                 </div>
@@ -494,10 +494,8 @@
                                     <div class="card">
                                         <div class="card-body">
                                             <div class="generated-post">
-                                                {% csrf_token %}
                                                 <p class="form-label">Image</p>
                                                 <img src="{% static 'ftue_animation/JalsCoffee2.png' %}" alt="Generated Image" class="generated-image-lg rounded">
-                                                <br>
                                                 <br>
                                                 <p class="form-label">Caption</p>
                                                 <div class="mb-3">
@@ -506,7 +504,7 @@
                                                         </div>
                                                 </div>
                                                 <div class="mb-3">
-                                                    <label class="form-check-label" for="ftueCheck" style="padding: 5%;">Add To Schedule</label>
+                                                    <label class="form-check-label" for="ftueCheck" style="margin-bottom: 7%;">Add To Schedule</label>
                                                     <br>
                                                     <input type="checkbox" data-switchery="true" data-plugin="switchery" data-color="#039cfd" name="ftueCheck" value="ftueCheck2" id="ftueCheck"/>
                                                 </div>
@@ -518,10 +516,8 @@
                                     <div class="card">
                                         <div class="card-body">
                                             <div class="generated-post">
-                                                {% csrf_token %}
                                                 <p class="form-label">Image</p>
                                                 <img src="{% static 'ftue_animation/JalsCoffee3.png' %}" alt="Generated Image" class="generated-image-lg rounded">
-                                                <br>
                                                 <br>
                                                 <p class="form-label">Caption</p>
                                                 <div class="mb-3">
@@ -530,7 +526,7 @@
                                                     </div>
                                                 </div>
                                                 <div class="mb-3">
-                                                    <label class="form-check-label" for="ftueCheck" style="padding: 5%;">Add To Schedule</label>
+                                                    <label class="form-check-label" for="ftueCheck" style="margin-bottom: 7%;">Add To Schedule</label>
                                                     <br>
                                                     <input type="checkbox" data-switchery="true" data-plugin="switchery" data-color="#039cfd" name="ftueCheck" value="ftueCheck3" id="ftueCheck"/>
                                                 </div>
@@ -542,10 +538,8 @@
                                     <div class="card">
                                         <div class="card-body">
                                             <div class="generated-post">
-                                                {% csrf_token %}
                                                 <p class="form-label">Image</p>
                                                 <img src="{% static 'ftue_animation/JalsCoffee4.png' %}" alt="Generated Image" class="generated-image-lg rounded">
-                                                <br>
                                                 <br>
                                                 <p class="form-label">Caption</p>
                                                 <div class="mb-3">
@@ -554,7 +548,7 @@
                                                     </div>
                                                 </div>
                                                 <div class="mb-3">
-                                                    <label class="form-check-label" for="ftueCheck" style="padding: 5%;">Add To Schedule</label>
+                                                    <label class="form-check-label" for="ftueCheck" style="margin-bottom: 7%;">Add To Schedule</label>
                                                     <br>
                                                     <input type="checkbox" data-switchery="true" data-plugin="switchery" data-color="#039cfd" name="ftueCheck" value="ftueCheck4" id="ftueCheck"/>
                                                 </div>
@@ -566,10 +560,8 @@
                                     <div class="card">
                                         <div class="card-body">
                                             <div class="generated-post">
-                                                {% csrf_token %}
                                                 <p class="form-label">Image</p>
                                                 <img src="{% static 'ftue_animation/JalsCoffee5.png' %}" alt="Generated Image" class="generated-image-lg rounded">
-                                                <br>
                                                 <br>
                                                 <p class="form-label">Caption</p>
                                                 <div class="mb-3">
@@ -578,7 +570,7 @@
                                                     </div>
                                                 </div>
                                                 <div class="mb-3">
-                                                    <label class="form-check-label" for="ftueCheck" style="padding: 5%;">Add To Schedule</label>
+                                                    <label class="form-check-label" for="ftueCheck" style="margin-bottom: 7%;">Add To Schedule</label>
                                                     <br>
                                                     <input type="checkbox" data-switchery="true" data-plugin="switchery" data-color="#039cfd" name="ftueCheck" value="ftueCheck4" id="ftueCheck"/>
                                                 </div>
@@ -590,10 +582,8 @@
                                     <div class="card">
                                         <div class="card-body">
                                             <div class="generated-post">
-                                                {% csrf_token %}
                                                 <p class="form-label">Image</p>
                                                 <img src="{% static 'ftue_animation/JalsCoffee6.jpg' %}" alt="Generated Image" class="generated-image-lg rounded">
-                                                <br>
                                                 <br>
                                                 <p class="form-label">Caption</p>
                                                 <div class="mb-3">
@@ -602,7 +592,7 @@
                                                     </div>
                                                 </div>
                                                 <div class="mb-3">
-                                                    <label class="form-check-label" for="ftueCheck" style="padding: 5%;">Add To Schedule</label>
+                                                    <label class="form-check-label" for="ftueCheck" style="margin-bottom: 7%;">Add To Schedule</label>
                                                     <br>
                                                     <input type="checkbox" data-switchery="true" data-plugin="switchery" data-color="#039cfd" name="ftueCheck" value="ftueCheck4" id="ftueCheck"/>
                                                 </div>
@@ -614,10 +604,8 @@
                                     <div class="card">
                                         <div class="card-body">
                                             <div class="generated-post">
-                                                {% csrf_token %}
                                                 <p class="form-label">Image</p>
                                                 <img src="{% static 'ftue_animation/JalsCoffee7.jpg' %}" alt="Generated Image" class="generated-image-lg rounded">
-                                                <br>
                                                 <br>
                                                 <p class="form-label">Caption</p>
                                                 <div class="mb-3">
@@ -626,7 +614,7 @@
                                                     </div>
                                                 </div>
                                                 <div class="mb-3">
-                                                    <label class="form-check-label" for="ftueCheck" style="padding: 5%;">Add To Schedule</label>
+                                                    <label class="form-check-label" for="ftueCheck" style="margin-bottom: 7%;">Add To Schedule</label>
                                                     <br>
                                                     <input type="checkbox" data-switchery="true" data-plugin="switchery" data-color="#039cfd" name="ftueCheck" value="ftueCheck4" id="ftueCheck"/>
                                                 </div>
@@ -638,10 +626,8 @@
                                     <div class="card">
                                         <div class="card-body">
                                             <div class="generated-post">
-                                                {% csrf_token %}
                                                 <p class="form-label">Image</p>
                                                 <img src="{% static 'ftue_animation/JalsCoffee8.jpg' %}" alt="Generated Image" class="generated-image-lg rounded">
-                                                <br>
                                                 <br>
                                                 <p class="form-label">Caption</p>
                                                 <div class="mb-3">
@@ -650,7 +636,7 @@
                                                     </div>
                                                 </div>
                                                 <div class="mb-3">
-                                                    <label class="form-check-label" for="ftueCheck" style="padding: 5%;">Add To Schedule</label>
+                                                    <label class="form-check-label" for="ftueCheck" style="margin-bottom: 7%;">Add To Schedule</label>
                                                     <br>
                                                     <input type="checkbox" data-switchery="true" data-plugin="switchery" data-color="#039cfd" name="ftueCheck" value="ftueCheck4" id="ftueCheck"/>
                                                 </div>
@@ -685,7 +671,7 @@
                                             <label class="form-label">Brand Color</label>
                                             <input type="text" class="form-control" id="colorpicker-showinput-intial" name="brand_color" required>
                                         </div>
-                                        <button type="submit" class="btn btn-success waves-effect waves-light">Save</button>
+                                        <button type="submit" class="btn btn-success waves-effect waves-light" onclick="showSpinner()">Save</button>
                                     </form>
                                 </div>
                             </div>
@@ -703,9 +689,9 @@
                                         <input type="hidden" name="form" value="formFtue">
                                         <input type="hidden" name="link" value="post_creator">
                                         <div class="button-container">
-                                            <img src="{% static 'dashboard/images/elaineButton.png' %}" alt="Generated Image" class="rounded" style="width: 60%;">
+                                            <img src="{% static 'dashboard/images/createButton.png' %}" alt="Generated Image" class="rounded" style="width: 60%;">
                                             <br><br>
-                                            <button class="btn btn-custom btn-small waves-effect waves-light rounded-pill centerButton"
+                                            <button class="btn btn-warning btn-small waves-effect waves-light rounded-pill centerButton"
                                                 id="automate">Create A Post</button>
                                             <br>
                                         </div>
@@ -719,9 +705,9 @@
                                         <input type="hidden" name="form" value="formFtue">
                                         <input type="hidden" name="link" value="brand_settings">
                                         <div class="button-container">
-                                            <img src="{% static 'dashboard/images/elaineButton.png' %}" alt="Generated Image" class="rounded" style="width: 60%;">
+                                            <img src="{% static 'dashboard/images/settingsButton.png' %}" alt="Generated Image" class="rounded" style="width: 60%;">
                                             <br><br>
-                                            <button class="btn btn-custom btn-small waves-effect waves-light rounded-pill centerButton"
+                                            <button class="btn btn-primary btn-small waves-effect waves-light rounded-pill centerButton"
                                                 id="automate">Finalize Settings</button>
                                             <br>
                                         </div>
@@ -731,12 +717,13 @@
                         </div>
                         {% endif %}
                         {% if user_settings.endFtue %}
+                        {% if user_settings.noAuto %}
                         <div class="col-lg-3">
                             <div class="card">
                                 <div class="card-body">
                                     <form method="post" action="{% url 'dashboard' %}">
                                         {% csrf_token %}
-                                        <input type="hidden" name="form" value="formFtue">
+                                        <input type="hidden" name="form" value="formAutomate">
                                         <div class="button-container">
                                             <br>
                                             <img src="{% static 'dashboard/images/elaineButton.png' %}" alt="Generated Image" class="rounded" style="width: 55%;">
@@ -749,10 +736,268 @@
                                 </div>
                             </div>
                         </div>
+                        {% else %}
+                        <div id="load-start">
+                            <div class="col-lg-2">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="generated-post">
+                                            <img id="loading-gif" src="" alt="Loaded Image">
+                                            <div class="progress-bar">
+                                                <div class="progress" id="progress"></div>
+                                            </div>
+                                            <p id="status-display">Status: Loading...</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="load-done">
+                            <form method="post" action="{% url 'dashboard' %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="form" value="formSchedule">
+                                <div class="row">
+                                    <div class="col-xl-3 col-md-6">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <div class="generated-post">
+                                                    {% csrf_token %}
+                                                    <p class="form-label">Image</p>
+                                                    <img class="loaded-image" id="loaded-image" src="" alt="Loaded Image">
+                                                    <br>
+                                                    <p class="form-label">Caption</p>
+                                                    <div class="mb-3">
+                                                        <div class="text-box-wrapper">
+                                                            <div id="caption" contenteditable="false" class="text-box"></div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-check-label" for="ftueCheck" style="margin-bottom: 7%;">Add To Schedule</label>
+                                                        <br>
+                                                        <input type="checkbox" data-switchery="true" data-plugin="switchery" data-color="#039cfd" name="ftueCheck" value="ftueCheck4" id="ftueCheck"/>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xl-3 col-md-6">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <div class="generated-post">
+                                                    {% csrf_token %}
+                                                    <p class="form-label">Image</p>
+                                                    <img class="loaded-image" id="loaded-image2" src="" alt="Loaded Image">
+                                                    <br>
+                                                    <p class="form-label">Caption</p>
+                                                    <div class="mb-3">
+                                                        <div class="text-box-wrapper">
+                                                            <div id="caption2" contenteditable="false" class="text-box"></div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-check-label" for="ftueCheck" style="margin-bottom: 7%;">Add To Schedule</label>
+                                                        <br>
+                                                        <input type="checkbox" data-switchery="true" data-plugin="switchery" data-color="#039cfd" name="ftueCheck" value="ftueCheck4" id="ftueCheck"/>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xl-3 col-md-6">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <div class="generated-post">
+                                                    {% csrf_token %}
+                                                    <p class="form-label">Image</p>
+                                                    <img class="loaded-image" id="loaded-image3" src="" alt="Loaded Image">
+                                                    <br>
+                                                    <p class="form-label">Caption</p>
+                                                    <div class="mb-3">
+                                                        <div class="text-box-wrapper">
+                                                            <div id="caption3" contenteditable="false" class="text-box"></div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-check-label" for="ftueCheck" style="margin-bottom: 7%;">Add To Schedule</label>
+                                                        <br>
+                                                        <input type="checkbox" data-switchery="true" data-plugin="switchery" data-color="#039cfd" name="ftueCheck" value="ftueCheck4" id="ftueCheck"/>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xl-3 col-md-6">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <div class="generated-post">
+                                                    {% csrf_token %}
+                                                    <p class="form-label">Image</p>
+                                                    <img class="loaded-image" id="loaded-image4" src="" alt="Loaded Image">
+                                                    <br>
+                                                    <p class="form-label">Caption</p>
+                                                    <div class="mb-3">
+                                                        <div class="text-box-wrapper">
+                                                            <div id="caption4" contenteditable="false" class="text-box"></div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-check-label" for="ftueCheck" style="margin-bottom: 7%;">Add To Schedule</label>
+                                                        <br>
+                                                        <input type="checkbox" data-switchery="true" data-plugin="switchery" data-color="#039cfd" name="ftueCheck" value="ftueCheck4" id="ftueCheck"/>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-purple rounded-pill w-md waves-effect waves-light mb-3" onclick="showSpinner()">
+                                    <i class="mdi mdi-plus"></i> Schedule</button>
+                            </form>
+                        </div>
+                        <script type="module">
+                            import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.6.6/firebase-app.js';
+                            import { getFirestore, collection, doc, setDoc, getDoc, onSnapshot } from 'https://www.gstatic.com/firebasejs/9.6.6/firebase-firestore.js';
+                          
+                            var firebaseConfig = {
+                            apiKey: "AIzaSyCJTdpRMOwfhDosa6MTPbsh38kxxiqllc4",
+                            authDomain: "feed-ai-c379d.firebaseapp.com",
+                            projectId: "feed-ai-c379d",
+                            storageBucket: "feed-ai-c379d.appspot.com",
+                            messagingSenderId: "825164430085",
+                            appId: "1:825164430085:web:a41ec57b7c3c0d92c5156c",
+                            measurementId: "G-0K43VDRKJP"
+                            };
+
+                            // Initialize Firebase
+                            const firebaseApp = initializeApp(firebaseConfig);
+
+                            // Get a Firestore instance
+                            const db = getFirestore(firebaseApp);
+
+                            // Reference to the Firestore document where you store status
+                            const statusDocRef = doc(collection(db, 'users'), 'Z9uk1rgXd0SQBobhs7g6vRDwPdM2');
+
+                            const progressBar = document.getElementById('progress');
+                            const statusDisplay = document.getElementById('status-display');
+                            const imageContainer = document.getElementById('image-container');
+                            const loadingGif = document.getElementById('loading-gif');
+                            const loadedImage = document.getElementById('loaded-image');
+                            const loadedImage2 = document.getElementById('loaded-image2');
+                            const loadedImage3 = document.getElementById('loaded-image3');
+                            const loadedImage4 = document.getElementById('loaded-image4');
+                            const caption = document.getElementById('caption');
+                            const caption2 = document.getElementById('caption2');
+                            const caption3 = document.getElementById('caption3');
+                            const caption4 = document.getElementById('caption4');
+                            const loadDone = document.getElementById('load-done');
+                            const loadStart = document.getElementById('load-start');
+
+                            // Replace this with your Firestore onSnapshot listener
+                            const unsubscribe = onSnapshot(statusDocRef, (docSnapshot) => {
+                                if (docSnapshot.exists()) {
+                                    const status = docSnapshot.data().status;
+                                    const schedule_image_1 = docSnapshot.data().schedule_image_1;
+                                    const schedule_image_2 = docSnapshot.data().schedule_image_2;
+                                    const schedule_image_3 = docSnapshot.data().schedule_image_3;
+                                    const schedule_image_4 = docSnapshot.data().schedule_image_4;
+                                    const schedule_cap_1 = docSnapshot.data().schedule_cap_1;
+                                    const schedule_cap_2 = docSnapshot.data().schedule_cap_2;
+                                    const schedule_cap_3 = docSnapshot.data().schedule_cap_3;
+                                    const schedule_cap_4 = docSnapshot.data().schedule_cap_4;
+
+                                    progressBar.style.width = `${status}%`;
+                                    statusDisplay.textContent = `Status: ${status}%`;
+                                    
+                                    if (status === '100') {
+                                        loadDone.style.display = 'block';
+                                        loadStart.style.display = 'none';
+                                        caption.textContent = `${schedule_cap_1}`;
+                                        caption2.textContent = `${schedule_cap_2}`;
+                                        caption3.textContent = `${schedule_cap_3}`;
+                                        caption4.textContent = `${schedule_cap_4}`;
+                                        loadedImage.src = `${schedule_image_1}`;
+                                        loadedImage2.src = `${schedule_image_2}`;
+                                        loadedImage3.src = `${schedule_image_3}`;
+                                        loadedImage4.src = `${schedule_image_4}`;
+                                    }
+                                    else {
+                                        loadDone.style.display = 'none';
+                                        loadStart.style.display = 'block';
+                                        loadingGif.src = "{% static 'dashboard/gifs/load-start.gif' %}";
+                                    }
+                                } else {
+                                    statusDisplay.textContent = 'Document does not exist';
+                                }
+                            }, (error) => {
+                                console.error('Error in realtime listener:', error);
+                            });
+
+                            // To stop listening to changes (e.g., when you no longer need the listener):
+                            // unsubscribe();
+                        </script>
+                        <style>
+                            #result {
+                                font-size: 18px;
+                                color: #28A745;
+                                font-weight: bold;
+                            }               
+
+                            .progress-bar {
+                                width: 100%;
+                                height: 20px;
+                                background-color: #f0f0f0;
+                                position: relative;
+                            }
+
+                            .progress {
+                                width: 0;
+                                height: 100%;
+                                background-color: #D99B46;
+                                transition: width 1s ease-in-out;
+                            }
+                            
+                            .loaded-image {
+                                max-width: 85%;
+                                height: auto;
+                            }
+
+                            #status-display {
+                                margin-top: 10px;
+                            }
+
+                            #loading-gif {
+                                max-width: 70%;
+                                height: auto;
+                            }
+
+                            
+                        </style>
                         {% endif %}
+                        {% endif %}
+
+                        <div id="loading-overlay">
+                            <div class="spinner-grow text-info" role="status"></div>
+                        </div>
 
                         <!-- FTUE Script -->
                         <script>
+                            function showSpinner() {
+                                var loadingOverlay = document.getElementById('loading-overlay');
+                                var submitButton = document.querySelector('#myForm button[type="submit"]');
+
+                                loadingOverlay.style.display = 'flex';
+                                submitButton.disabled = true;
+
+                                // Set the duration (in milliseconds) for which the spinner should be displayed
+                                var spinnerDuration = 5000; // 5 seconds (adjust as needed)
+
+                                // After the specified duration, hide the spinner
+                                setTimeout(function() {
+                                    loadingOverlay.style.display = 'none';
+                                    submitButton.disabled = false;
+                                }, spinnerDuration);
+                            }
+
                             function ftue() {
                                 var overlayContainer = document.getElementById('overlayContainer');
                                 var submitButton = document.querySelector('#myForm button[type="submit"]');
@@ -973,6 +1218,19 @@
                             
                             <!-- FTUE Style -->
                             <style>
+                                #loading-overlay {
+                                    display: none;
+                                    position: fixed;
+                                    top: 0;
+                                    left: 0;
+                                    width: 100%;
+                                    height: 100%;
+                                    background-color: rgba(255, 255, 255, 0.8);
+                                    justify-content: center;
+                                    align-items: center;
+                                    z-index: 9999;
+                                }
+
                                 #overlayContainer {
                                     display: none;
                                     position: fixed;
@@ -1101,26 +1359,7 @@
     <!-- Init js-->
     <script src="{% static 'dashboard/js/pages/form-advanced.init.js' %}"></script>
 
-    <script src="https://www.gstatic.com/firebasejs/9.5.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.5.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.5.0/firebase-firestore.js"></script>
-    
-    <script>
-      // Paste your Firebase configuration code here
-        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-        const firebaseConfig = {
-        apiKey: "AIzaSyCJTdpRMOwfhDosa6MTPbsh38kxxiqllc4",
-        authDomain: "feed-ai-c379d.firebaseapp.com",
-        projectId: "feed-ai-c379d",
-        storageBucket: "feed-ai-c379d.appspot.com",
-        messagingSenderId: "825164430085",
-        appId: "1:825164430085:web:a41ec57b7c3c0d92c5156c",
-        measurementId: "G-0K43VDRKJP"
-        };
-    
-      // Initialize Firebase
-      firebase.initializeApp(firebaseConfig);
-    </script>
+
 
 </body>
 

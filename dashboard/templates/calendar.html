@@ -367,16 +367,20 @@
                                         <div id="external-events">
                                             <p class="text-muted">Drop your posts into the calendar to schedule</p>
                                             <div class="row">
-                                                <div class="col-lg-6">
-                                                    <div class="external-event bg-success" data-class="bg-success" data-image-url="https://play-lh.googleusercontent.com/IeNJWoKYx1waOhfWF6TiuSiWBLfqLb18lmZYXSgsH1fvb8v1IYiZr5aYWe0Gxu-pVZX3">
-                                                        <img src="https://play-lh.googleusercontent.com/IeNJWoKYx1waOhfWF6TiuSiWBLfqLb18lmZYXSgsH1fvb8v1IYiZr5aYWe0Gxu-pVZX3" class="mdi mdi-checkbox-blank-circle me-2 vertical-middle" alt="Event Image" style="width: 100%; border-radius: 5px;">
+                                                {% if user_settings.schedule_img_1 %}
+                                                <div class="col-lg-3">
+                                                    <div class="external-event bg-success" data-class="bg-success" data-image-url="{{ user_settings.schedule_img_1 }}">
+                                                        <img src="{{ user_settings.schedule_img_1 }}" class="mdi mdi-checkbox-blank-circle me-2 vertical-middle" alt="Event Image" style="width: 100%; border-radius: 5px;">
+                                                    </div>
+                                                </div>                 
+                                                {% endif %}
+                                                {% if user_settings.schedule_img_2 %}
+                                                <div class="col-lg-3">
+                                                    <div class="external-event bg-success" data-class="bg-success" data-image-url="{{ user_settings.schedule_img_2 }}">
+                                                        <img src="{{ user_settings.schedule_img_2 }}" class="mdi mdi-checkbox-blank-circle me-2 vertical-middle" alt="Event Image" style="width: 100%; border-radius: 5px;">
                                                     </div>
                                                 </div>
-                                                <div class="col-lg-6">
-                                                    <div class="external-event bg-success" data-class="bg-success" data-image-url="https://play-lh.googleusercontent.com/IeNJWoKYx1waOhfWF6TiuSiWBLfqLb18lmZYXSgsH1fvb8v1IYiZr5aYWe0Gxu-pVZX3">
-                                                        <img src="https://play-lh.googleusercontent.com/IeNJWoKYx1waOhfWF6TiuSiWBLfqLb18lmZYXSgsH1fvb8v1IYiZr5aYWe0Gxu-pVZX3" class="mdi mdi-checkbox-blank-circle me-2 vertical-middle" alt="Event Image" style="width: 100%; border-radius: 5px;">
-                                                    </div>
-                                                </div>
+                                                {% endif %}
                                             </div>
                                             <!-- checkbox -->
                                             <div class="form-check mt-3">

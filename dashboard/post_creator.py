@@ -39,8 +39,6 @@ def create_caption (business_description, business_name):
     ]
     prompt = random.choice(prompts)
     
-    print(prompt)
-    print(business_name)
     # Query OpenAI for a caption
     response = openai.ChatCompletion.create(
     model="gpt-3.5-turbo",

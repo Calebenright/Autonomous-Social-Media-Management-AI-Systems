@@ -7,7 +7,7 @@ from django.conf import settings
 from google.cloud import storage
 from google.oauth2 import service_account
 import os
-from .post_creator import create_image, create_stock_post, create_call_to_action, create_caption, create_dalle_post, create_stable_dif_post, create_ad_copy, create_ad
+from .post_creator import create_image, create_stock_post, create_call_to_action, create_caption, create_dalle_post, create_stable_dif_post, create_ad_copy, create_ad, create_placeholder
 from .upload_post import send_post
 from .generate_comment import generate_comment
 from django.http import JsonResponse
@@ -18,6 +18,7 @@ from firebase_admin import firestore, auth, credentials
 import base64
 import ast
 import json
+from .tasks import enqueue_task
 
 def dashboard(request):
     try:
@@ -50,11 +51,14 @@ def dashboard(request):
         ftue = user_settings['ftue']
     except (TypeError, KeyError):
         return render(request, 'error.html', {'error_message': 'Please Try Logging in Again.'})
+    try:
+        endFtue = user_settings['endFtue']
+    except (TypeError, KeyError):
+        endFtue = False
 
 
     if request.method == 'POST':
         form_name = request.POST.get('form')
-        print(form_name)
         if form_name == 'formFtue':
             if ftue:
                 # Prepare the data to be saved in Firestore
@@ -65,6 +69,7 @@ def dashboard(request):
                     'ftue4': False,
                     'endFtue': False
                 }
+            
             else:
                 ftue2 = user_settings['ftue2']
                 ftue3 = user_settings['ftue3']
@@ -79,21 +84,16 @@ def dashboard(request):
                     business_name = request.POST.get('business_name')
                     business_description = request.POST.get('business_description')
                     brand_color = request.POST.get('brand_color')
-                    # tags = create_tags(business_description)
-
-                    print('woo tags')
-                    print(business_name)
-                    print(business_description)
-                    print(brand_color)
+                    tags = create_tags(business_description)
 
                     # Prepare the data to be saved in Firestore
                     firestore_data = {
                         'ftue3': False,
                         'ftue4': True,
-                        # 'tags': tags,
-                        # 'business_description': business_description,
-                        # 'business_name': business_name
-
+                        'tags': tags,
+                        'business_description': business_description,
+                        'business_name': business_name,
+                        'brand_color': brand_color
                     }
                 elif ftue4:
                     link = request.POST.get('link')
@@ -105,8 +105,54 @@ def dashboard(request):
                     }
                     user_settings_ref.set(firestore_data, merge=True)
                     return redirect(link)
-        
+                
+        elif form_name == 'formAutomate':
+            image_folder_path = f'user_folders/{user_id}/images/'
+            tags = user_settings['tags']
+            key = user_settings['business_description']
 
+            # Enqueue the task with the required payload
+            payload = {
+                'user_id': user_id
+            }
+
+            enqueue_task(payload)
+
+             # Prepare the data to be saved in Firestore
+            firestore_data = {
+                'status': '10',
+                'noAuto': False
+            }
+                
+            # Save the data to Firestore
+            user_settings_ref.set(firestore_data, merge=True)
+            user_settings_doc = user_settings_ref.get()
+            user_settings = user_settings_doc.to_dict()
+
+            context = {
+                'user_settings': user_settings,
+                'user_id' : user_id
+            }
+            return render(request, 'dashboard.html', context)
+        
+        elif form_name == 'formSchedule':
+
+            # Prepare the data to be saved in Firestore
+            firestore_data = {
+                'noAuto': True
+            }
+                
+            # Save the data to Firestore
+            user_settings_ref.set(firestore_data, merge=True)
+            user_settings_doc = user_settings_ref.get()
+            user_settings = user_settings_doc.to_dict()
+
+            context = {
+                'user_settings': user_settings,
+                'user_id' : user_id
+            }
+            return render(request, 'dashboard.html', context)
+        
         # Save the data to Firestore
         user_settings_ref.set(firestore_data, merge=True)
 
@@ -118,12 +164,12 @@ def dashboard(request):
             user_settings_doc = user_settings_ref.get()
             user_settings = user_settings_doc.to_dict()
         except firestore.NotFound:
-            user_settings = {}
+            return redirect('login') 
 # ---------------------------------------------------------------------- #
 
     context = {
         'user_settings': user_settings,
-        'user_email': user_email
+        'user_id' : user_id
     }
     return render(request, 'dashboard.html', context)
 
@@ -146,6 +192,7 @@ def post_creator(request):
     # ---------------------------------------------------------------------- #
 
     image_folder_path = f'user_folders/{user_id}/images/'
+
     try:
         biz = user_settings['business_description']
         biz_name = user_settings['business_name']
@@ -191,9 +238,6 @@ def post_creator(request):
                 url = request.POST.get('url')
                 selected_option = request.session.get('selected_radio', None)
                 isLogo = request.session.get('isLogo', None)
-                print(post)
-                print(url)
-                
                 if num_schedule >= 8:
                     num_schedule = 1
                 else:
@@ -216,8 +260,6 @@ def post_creator(request):
                 
                 if selected_option == 'up':
                     key = request.FILES.get('file')
-                    print('file')
-                    print(key)
 
                     # Get the file extension
                     file_extension = key.name.split('.')[-1].lower()
@@ -328,9 +370,7 @@ def brand_settings(request):
     
     except:
         return redirect('login') 
-    # ---------------------------------------------------------------------- #
-
-    print(user_id)
+    # ---------------------------------------------------------------------- #s
 
     if request.method == 'POST':
         form_name = request.POST.get('form')
@@ -361,7 +401,6 @@ def brand_settings(request):
                 except (TypeError, KeyError):
                     logo_url = None
             
-            print(request.POST.get('tags'))
             if request.POST.get('tags'):
                 input_string = request.POST.get('tags')
                 output_list = [item.strip() for item in input_string.split(',')]
@@ -372,7 +411,6 @@ def brand_settings(request):
                     tags = create_tags(request.POST.get('business_description'))
                 else:
                     tags = ''
-            print(tags)
 
             firestore_data = {
                 'business_name': request.POST.get('business_name'),

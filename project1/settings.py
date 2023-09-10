@@ -136,5 +136,14 @@ DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
 GS_BUCKET_NAME = config('GS_BUCKET_NAME')
 GS_PROJECT_ID = config('GS_PROJECT_ID')
 GS_CREDENTIALS = config('GS_CREDENTIALS')
+GS_QUEUE_NAME = 'create'
+GS_QUEUE_REGION = 'us-central1'
+
+# GS_TASK_HANDLER_URL = 'https://getfeed.info/task_handler/'
+GS_TASK_HANDLER_URL = 'https://us-central1-starter-web-app-389316.cloudfunctions.net/task_handler'
+GS_SERVICE_EMAIL = "611051344563-compute@developer.gserviceaccount.com"
+GCLOUD_AUTH = config('GCLOUD_AUTH')
+
+
 
 
