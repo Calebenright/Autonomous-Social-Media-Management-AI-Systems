@@ -110,7 +110,7 @@ USE_TZ = True
 # SESSION_COOKIE_AGE = 5
 
 # Set the session age to a very high value (e.g., 365 days)
-SESSION_COOKIE_AGE = 30 * 60
+SESSION_COOKIE_AGE = 30 * 60 * 60
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
@@ -136,12 +136,10 @@ DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
 GS_BUCKET_NAME = config('GS_BUCKET_NAME')
 GS_PROJECT_ID = config('GS_PROJECT_ID')
 GS_CREDENTIALS = config('GS_CREDENTIALS')
-GS_QUEUE_NAME = 'create'
-GS_QUEUE_REGION = 'us-central1'
-
-# GS_TASK_HANDLER_URL = 'https://getfeed.info/task_handler/'
-GS_TASK_HANDLER_URL = 'https://us-central1-starter-web-app-389316.cloudfunctions.net/task_handler'
-GS_SERVICE_EMAIL = "611051344563-compute@developer.gserviceaccount.com"
+GS_QUEUE_NAME = config('GS_QUEUE_NAME')
+GS_QUEUE_REGION = config('GS_QUEUE_REGION')
+GS_TASK_HANDLER_URL = config('GS_TASK_HANDLER_URL')
+GS_SERVICE_EMAIL = config('GS_SERVICE_EMAIL')
 GCLOUD_AUTH = config('GCLOUD_AUTH')
 
 

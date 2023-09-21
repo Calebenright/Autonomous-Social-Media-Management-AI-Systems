@@ -465,6 +465,7 @@ body[data-layout-color=dark] {
   --ct-gray-800: #343a40;
   --ct-gray-900: #323a46;
   --ct-primary: #71b6f9;
+  --ct-elaine: #B1C74C;
   --ct-secondary: #6c757d;
   --ct-success: #10c469;
   --ct-info: #35b8e0;
@@ -476,6 +477,7 @@ body[data-layout-color=dark] {
   --ct-purple: #5b69bc;
   --ct-blue: #71b6f9;
   --ct-primary-rgb: 13, 110, 253;
+  --ct-elaine-rgb: 177, 199, 76;
   --ct-secondary-rgb: 108, 117, 125;
   --ct-success-rgb: 25, 135, 84;
   --ct-info-rgb: 13, 202, 240;
@@ -8505,6 +8507,11 @@ textarea.form-control-lg {
 .bg-primary {
   --ct-bg-opacity: 1;
   background-color: rgba(var(--ct-primary-rgb), var(--ct-bg-opacity)) !important;
+}
+
+.bg-elaine {
+  --ct-bg-opacity: 1;
+  background-color: rgba(var(--ct-elaine-rgb), var(--ct-bg-opacity)) !important;
 }
 
 .bg-secondary {
@@ -17051,6 +17058,10 @@ body[data-layout-color=dark] h6 {
 
 .bg-primary {
   background-color: #71b6f9 !important;
+}
+
+.bg-elaine {
+  background-color: #B1C74C !important;
 }
 
 .bg-soft-primary {

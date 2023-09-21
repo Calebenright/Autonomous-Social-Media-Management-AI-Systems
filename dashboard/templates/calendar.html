@@ -28,6 +28,11 @@
 
         <!-- Begin page -->
         <div id="wrapper">
+            
+        <script>
+            // Render the user_id as a JavaScript variable
+            const user_id = '{{ user_id }}';
+        </script>
 
         <!-- Topbar Start -->
         <div class="navbar-custom">
@@ -362,50 +367,16 @@
                             </style>                        
                             {% endif %}
                             <div class="col-12">
-                                <div class="row">
-                                    <div class="col-lg-3">
-                                        <div id="external-events">
-                                            <p class="text-muted">Drop your posts into the calendar to schedule</p>
-                                            <div class="row">
-                                                {% if user_settings.schedule_img_1 %}
-                                                <div class="col-lg-3">
-                                                    <div class="external-event bg-success" data-class="bg-success" data-image-url="{{ user_settings.schedule_img_1 }}">
-                                                        <img src="{{ user_settings.schedule_img_1 }}" class="mdi mdi-checkbox-blank-circle me-2 vertical-middle" alt="Event Image" style="width: 100%; border-radius: 5px;">
-                                                    </div>
-                                                </div>                 
-                                                {% endif %}
-                                                {% if user_settings.schedule_img_2 %}
-                                                <div class="col-lg-3">
-                                                    <div class="external-event bg-success" data-class="bg-success" data-image-url="{{ user_settings.schedule_img_2 }}">
-                                                        <img src="{{ user_settings.schedule_img_2 }}" class="mdi mdi-checkbox-blank-circle me-2 vertical-middle" alt="Event Image" style="width: 100%; border-radius: 5px;">
-                                                    </div>
-                                                </div>
-                                                {% endif %}
-                                            </div>
-                                            <!-- checkbox -->
-                                            <div class="form-check mt-3">
-                                                <input type="checkbox" class="form-check-input" id="drop-remove">
-                                                <label class="form-check-label" for="drop-remove">Remove after drop</label>
-                                            </div>
-                                        </div>
-                                    </div>
-
-
-                                        
-
-
-                                    <div class="col-lg-9">
-                                        <div class="card">
-                                            <div class="card-body">
-
-                                                <div id="calendar"></div>
-
-                                            </div> <!-- end card body-->
-                                        </div> <!-- end card -->
-                                    </div> <!-- end col -->
-
-                                </div>  <!-- end row -->
-                                   
+                                <div class="row"></div>
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <div id="calendar"></div>
+                                        </div> <!-- end card body-->
+                                    </div> <!-- end card -->
+                                </div>
+                                
+                                <div id="external-events"></div>
+                                    
 
                                 <!-- Add New Event MODAL -->
                                 <div class="modal fade" id="event-modal" tabindex="-1">
@@ -413,31 +384,22 @@
                                         <div class="modal-content">
                                             <div class="modal-header py-3 px-4 border-bottom-0 d-block">
                                                 <button type="button" class="btn-close float-end" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                <h5 class="modal-title" id="modal-title">Event</h5>
+                                                <h5 class="modal-title" id="modal-title">Post</h5>
                                             </div>
                                             <div class="modal-body px-4 pb-4 pt-0">
                                                 <form class="needs-validation" name="event-form" id="form-event" novalidate>
                                                     <div class="row">
                                                         <div class="col-12">
                                                             <div class="mb-3">
-                                                                <label class="form-label">Event Name</label>
-                                                                <input class="form-control" placeholder="Insert Event Name"
-                                                                    type="text" name="title" id="event-title" required />
-                                                                <div class="invalid-feedback">Please provide a valid event name</div>
+                                                                <label class="form-label">Image</label>
+                                                                <img src="" style="max-width: 100%; display: block; height: auto; border-radius: 10px;" id="event-image">
                                                             </div>
                                                         </div>
                                                         <div class="col-12">
                                                             <div class="mb-3">
-                                                                <label class="form-label">Category</label>
-                                                                <select class="form-select" name="category" id="event-category" required>
-                                                                    <option value="bg-danger" selected>Danger</option>
-                                                                    <option value="bg-success">Success</option>
-                                                                    <option value="bg-primary">Primary</option>
-                                                                    <option value="bg-info">Info</option>
-                                                                    <option value="bg-dark">Dark</option>
-                                                                    <option value="bg-warning">Warning</option>
-                                                                </select>
-                                                                <div class="invalid-feedback">Please select a valid event category</div>
+                                                                <label class="form-label">Post Caption</label>
+                                                                <input class="form-control" type="text" name="title" id="event-caption" required />
+                                                                <div class="invalid-feedback">Please provide a valid caption</div>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -507,10 +469,11 @@
         <script src="{% static 'dashboard/libs/fullcalendar/main.min.js' %}"></script>
         
         <!-- Calendar init -->
-        <script src="{% static 'dashboard/js/pages/calendar.init.js' %}"></script>
+        <script type="module" src="{% static 'dashboard/js/pages/calendar.init.js' %}"></script>
         
         <!-- App js -->
         <script src="{% static 'dashboard/js/app.min.js' %}"></script>
+    
         
     </body>
 </html>

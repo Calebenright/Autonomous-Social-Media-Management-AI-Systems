@@ -29,16 +29,33 @@
           <span>{{ error }}</span>
           <button class="close-button" onclick="closeErrorMessage()">&times;</button>
         </div>
+        <script>
+          function closeErrorMessage() {
+            const errorDiv = document.querySelector('.error-message');
+            errorDiv.style.display = 'none';
+          }
+        </script>
       {% endif %}
-      
-      <script>
-        function closeErrorMessage() {
-          const errorDiv = document.querySelector('.error-message');
-          errorDiv.style.display = 'none';
-        }
-      </script>
+      {% if messages %}
+      <ul class="messages">
+          {% for message in messages %}
+              <li class="success-message">{{ message }}</li>
+          {% endfor %}
+      </ul>
+      <style>
+        .success-message {
+          background-color: #4CAF50;
+          color: white; 
+          padding: 10px;
+          margin-bottom: 10px; 
+          border-radius: 5px;
+      }
+      </style>
+      {% endif %}
+
       
         <div class="max-width-s">
+
           <h1>FeedAI</h1>
           <p class="paragraph">Welcome back to your FeedAI!</p>
           <form method="POST" action="{% url 'login' %}">

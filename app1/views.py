@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+from django.contrib import messages
 from django.http import HttpResponse
 from dashboard.views import dashboard
 from google.cloud import storage
@@ -42,9 +43,9 @@ def signup(request):
 
             # Save the data to Firestore
             user_settings_ref.set(firestore_data, merge=True)
-
+            messages.success(request, f'Account created. You can now log in.')
             # Your logic after successful user registration
-            return redirect('login')  # Redirect to a success page
+            return redirect('login')
         
         except Exception as e:
             # Handle registration error with a user-friendly message

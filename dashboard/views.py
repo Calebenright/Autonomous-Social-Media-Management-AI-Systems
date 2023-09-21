@@ -9,16 +9,19 @@ from google.oauth2 import service_account
 import os
 from .post_creator import create_image, create_stock_post, create_call_to_action, create_caption, create_dalle_post, create_stable_dif_post, create_ad_copy, create_ad, create_placeholder
 from .upload_post import send_post
-from .generate_comment import generate_comment
 from django.http import JsonResponse
 import time
-from .generate_unique_filename import generate_unique_filename
+from .functions import generate_unique_filename, generate_random_date
 from .brand_settings import create_tags
 from firebase_admin import firestore, auth, credentials
 import base64
 import ast
 import json
 from .tasks import enqueue_task
+from datetime import datetime
+import uuid
+import random
+
 
 def dashboard(request):
     try:
@@ -55,6 +58,11 @@ def dashboard(request):
         endFtue = user_settings['endFtue']
     except (TypeError, KeyError):
         endFtue = False
+    try:
+        website = user_settings['business_description']
+    except (TypeError, KeyError):
+        website = ''
+
 
 
     if request.method == 'POST':
@@ -101,7 +109,8 @@ def dashboard(request):
                     # Prepare the data to be saved in Firestore
                     firestore_data = {
                         'ftue4': False,
-                        'endFtue': True
+                        'endFtue': True,
+                        'noAuto': True
                     }
                     user_settings_ref.set(firestore_data, merge=True)
                     return redirect(link)
@@ -110,21 +119,29 @@ def dashboard(request):
             image_folder_path = f'user_folders/{user_id}/images/'
             tags = user_settings['tags']
             key = user_settings['business_description']
+            biz_name = user_settings['business_name']
+            color = user_settings['brand_color']
+            selected_option = 'cta'
+            isLogo = False
+            logo_path = ''
+            num_post = 1
 
-            # Enqueue the task with the required payload
             payload = {
                 'user_id': user_id
             }
 
             enqueue_task(payload)
 
-             # Prepare the data to be saved in Firestore
+            schedule_img_7 = create_image(website, color, selected_option, isLogo, logo_path, key, settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, image_folder_path, num_post)
+            schedule_img_8 = create_image(website, color, selected_option, isLogo, logo_path, key, settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, image_folder_path, num_post)
+
             firestore_data = {
                 'status': '10',
-                'noAuto': False
+                'noAuto': False,
+                'schedule_image_7': schedule_img_7,
+                'schedule_image_8': schedule_img_8
             }
                 
-            # Save the data to Firestore
             user_settings_ref.set(firestore_data, merge=True)
             user_settings_doc = user_settings_ref.get()
             user_settings = user_settings_doc.to_dict()
@@ -136,6 +153,88 @@ def dashboard(request):
             return render(request, 'dashboard.html', context)
         
         elif form_name == 'formSchedule':
+            checkboxes = [
+                'ftueCheck',
+                'ftueCheck2',
+                'ftueCheck3',
+                'ftueCheck4',
+                'ftueCheck5',
+                'ftueCheck6',
+                'ftueCheck7',
+                'ftueCheck8'
+            ]
+            timestamps = [
+                "T12:00:00",
+                "T12:15:00",
+                "T12:30:00",
+                "T12:45:00",
+                "T13:00:00",
+                "T13:15:00",
+                "T13:30:00",
+                "T13:45:00",
+                "T14:00:00",
+                "T14:15:00",
+                "T14:30:00",
+                "T14:45:00",
+                "T15:00:00",
+                "T15:15:00",
+                "T15:30:00",
+                "T15:45:00",
+                "T16:00:00",
+                "T16:15:00",
+                "T16:30:00",
+                "T16:45:00",
+                "T17:00:00"
+            ]
+
+            # Calculate the number of events to distribute
+            total_events = sum(1 for checkbox in checkboxes if request.POST.get(checkbox) == 'on')
+
+            # Retrieve existing events from the collection and sort them by start time
+            existing_events = user_settings_ref.collection('events').order_by('start').stream()
+
+            existing_event_times = []
+            for event in existing_events:
+                event_data = event.to_dict()
+                if 'start' in event_data:
+                    existing_event_times.append(event_data['start'])
+
+
+            # Determine the last event's date if there are existing events, otherwise use the current date
+            if existing_event_times:
+                last_event_date = max(existing_event_times)
+            else:
+                last_event_date = datetime.now()
+
+            # Create a list to store generated event dates
+            generated_dates = []
+
+            # Generate new event dates
+            for _ in range(total_events):
+                new_date = generate_random_date(last_event_date, existing_event_times)
+                generated_dates.append(new_date)
+                last_event_date = datetime.strptime(new_date, '%Y-%m-%d')
+
+            check_num = 1
+            time_num = 0
+            for checkbox in checkboxes:
+                checkbox_value = request.POST.get(checkbox, 'off')
+                if checkbox_value == 'on':
+                    event_id = uuid.uuid4()
+                    eid = str(event_id)
+                    eventDocRef = user_settings_ref.collection('events').document(eid)
+                    timestamp = generated_dates[time_num] + random.choice(timestamps)
+                    start_time = datetime.fromisoformat(timestamp)
+                    event_data = {
+                        'eid': eid,
+                        'start': start_time,
+                        'image_url': user_settings[f'schedule_image_{str(check_num)}' ],
+                        'caption': user_settings[f'schedule_cap_{str(check_num)}'],
+                        'className': 'bg-elaine'
+                    }
+                    eventDocRef.set(event_data, merge=True)
+                    time_num += 1
+                check_num += 1
 
             # Prepare the data to be saved in Firestore
             firestore_data = {
@@ -234,21 +333,72 @@ def post_creator(request):
                 url = user_settings['next_image_url']
             
             elif form_name == 'formPostSchedule':
+                timestamps = [
+                    "T12:00:00",
+                    "T12:15:00",
+                    "T12:30:00",
+                    "T12:45:00",
+                    "T13:00:00",
+                    "T13:15:00",
+                    "T13:30:00",
+                    "T13:45:00",
+                    "T14:00:00",
+                    "T14:15:00",
+                    "T14:30:00",
+                    "T14:45:00",
+                    "T15:00:00",
+                    "T15:15:00",
+                    "T15:30:00",
+                    "T15:45:00",
+                    "T16:00:00",
+                    "T16:15:00",
+                    "T16:30:00",
+                    "T16:45:00",
+                    "T17:00:00"
+                ]
+
+                # Retrieve existing events from the collection and sort them by start time
+                existing_events = user_settings_ref.collection('events').order_by('start').stream()
+
+                existing_event_times = []
+                for event in existing_events:
+                    event_data = event.to_dict()
+                    if 'start' in event_data:
+                        existing_event_times.append(event_data['start'])
+
+                # Determine the last event's date if there are existing events, otherwise use the current date
+                if existing_event_times:
+                    last_event_date = max(existing_event_times)
+                    print('yes', last_event_date)
+                else:
+                    last_event_date = datetime.now()
+                    print('no', last_event_date)
+
+                new_date = generate_random_date(last_event_date, existing_event_times)
+
+                print(new_date)
+
                 post = request.POST.get('caption')
                 url = request.POST.get('url')
                 selected_option = request.session.get('selected_radio', None)
                 isLogo = request.session.get('isLogo', None)
-                if num_schedule >= 8:
-                    num_schedule = 1
-                else:
-                    num_schedule += 1
-
-                firestore_data = {
-                    'schedule_img_' + str(num_schedule): url,
-                    'schedule_cap_' + str(num_schedule): post,
-                    'next_caption': post,
-                    'num_schedule': num_schedule
+                event_id = uuid.uuid4()
+                eid = str(event_id)
+                eventDocRef = user_settings_ref.collection('events').document(eid)
+                timestamp = new_date + random.choice(timestamps)
+                start_time = datetime.fromisoformat(timestamp)
+                print(start_time)
+                event_data = {
+                    'eid': eid,
+                    'start': start_time,
+                    'image_url': url,
+                    'caption': post,
+                    'className': 'bg-warning'
                 }
+                eventDocRef.set(event_data, merge=True)
+                context = { 'user_settings': user_settings, 'success': 'Post has been successfully uploaded to the schedule!'}
+
+                return render(request, 'post_creator.html', context)
 
             else:
         # ------------------- Get Selected Post Type --------------------------- #
@@ -293,7 +443,7 @@ def post_creator(request):
                     last_caption = None
                 
                 url = create_image(website, color, selected_option, isLogo, logo_path, key, settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, image_folder_path, num_post)
-                post = create_caption(biz, settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, image_folder_path)
+                post = create_caption(biz, biz_name)
 
                 if num_post >= 10:
                     num_post = 1
@@ -319,6 +469,7 @@ def post_creator(request):
             return render(request, 'post_creator.html', {'selected_radio': selected_option, 'isLogo': isLogo, 'user_settings': user_settings})
         else:
             user_settings['deny'] = True
+
     context = {
         'user_settings': user_settings,
     }
@@ -327,7 +478,6 @@ def post_creator(request):
 
 
 def schedule(request):
-    
     try:
         # ----- Get the Firestore document reference for the user settings ----- #
         db = firestore.client()
@@ -351,6 +501,7 @@ def schedule(request):
 
     context = {
         'user_settings': user_settings,
+        'user_id': user_id
     }
     return render(request, 'calendar.html', context)
 
@@ -465,7 +616,7 @@ def brand_settings(request):
             user_settings_doc = user_settings_ref.get()
             user_settings = user_settings_doc.to_dict()
         except firestore.NotFound:
-            user_settings = {}
+            return redirect('login') 
         # ---------------------------------------------------------------------- #
         context = {
         'user_settings': user_settings,

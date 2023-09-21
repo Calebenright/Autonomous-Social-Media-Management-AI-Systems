@@ -4,10 +4,6 @@
     function e() {}
 
     e.prototype.init = function() {
-        t("#basic-datepicker").flatpickr(),
-        t("#inline-datepicker").flatpickr({
-            inline: !0
-        }),
         t("#colorpicker-showinput-intial").spectrum({
             showInitial: !0,
             showInput: !0

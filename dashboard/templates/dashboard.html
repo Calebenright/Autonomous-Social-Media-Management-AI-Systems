@@ -439,21 +439,21 @@
                         <div class="ftue-overlay" id="overlayContainer">
                             <div class="ftue-modal" id="ftueOverlay">
                                 <img src="#" alt="Animated Character" id="animatedCharacter">
-                            </div>
-                            <div class="card" id="ftueFormContainer"  style="width: 20%;">
-                                <div class="card-body">
-                                    <form id="formFtue" method="post" action="{% url 'dashboard' %}">
-                                        {% csrf_token %}
-                                        <input type="hidden" name="form" value="formFtue">
-                                        <div class="button-container">
-                                            <br>
-                                            <img src="{% static 'dashboard/images/elaineButton.png' %}" alt="Generated Image" class="rounded" style="width: 50%;">
-                                            <br><br>
-                                            <button class="btn btn-custom btn-lg waves-effect waves-light rounded-pill centerButton"
-                                                id="automate" onclick="showSpinner()">Automate</button>
-                                            <br><br>
-                                        </div>
-                                    </form>
+                                <div class="card" id="ftueFormContainer"  style="width: 20%;">
+                                    <div class="card-body">
+                                        <form id="formFtue" method="post" action="{% url 'dashboard' %}">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="form" value="formFtue">
+                                            <div class="button-container">
+                                                <br>
+                                                <img src="{% static 'dashboard/images/elaineButton.png' %}" alt="Generated Image" class="rounded" style="width: 50%;">
+                                                <br><br>
+                                                <button class="btn btn-custom btn-lg waves-effect waves-light rounded-pill centerButton"
+                                                    id="automate" onclick="showSpinner()">Automate</button>
+                                                <br><br>
+                                            </div>
+                                        </form>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -650,11 +650,9 @@
                         </form>
                         {% endif %}
                         {% if user_settings.ftue3 %}
-                        <div class="ftue-overlay" id="overlayContainer">
-                            <div class="ftue-modal" id="ftueOverlay">
-                                <img src="#" alt="Animated Character" id="animatedCharacter3">
-                            </div>
-                            <div class="card" id="ftueFormContainer"  style="width: 20%;">
+                        <div class="ftue-modal" id="ftueOverlay">
+                            <img src="#" alt="Animated Character" id="animatedCharacter3">
+                            <div class="card" id="ftueFormContainer" style="width: 20%;">
                                 <div class="card-body">
                                     <form method="post" action="{% url 'dashboard' %}">
                                         {% csrf_token %}
@@ -671,7 +669,7 @@
                                             <label class="form-label">Brand Color</label>
                                             <input type="text" class="form-control" id="colorpicker-showinput-intial" name="brand_color" required>
                                         </div>
-                                        <button type="submit" class="btn btn-success waves-effect waves-light" onclick="showSpinner()">Save</button>
+                                        <button type="submit" class="btn btn-success waves-effect waves-light" >Save</button>
                                     </form>
                                 </div>
                             </div>
@@ -681,39 +679,38 @@
                         <div class="ftue-overlay" id="overlayContainer">
                             <div class="ftue-modal" id="ftueOverlay">
                                 <img src="#" alt="Animated Character" id="animatedCharacter4">
-                            </div>
-                            <div class="card" id="ftueFormContainer"  style="width: 20%;">
-                                <div class="card-body">
-                                    <form method="post" action="{% url 'dashboard' %}">
-                                        {% csrf_token %}
-                                        <input type="hidden" name="form" value="formFtue">
-                                        <input type="hidden" name="link" value="post_creator">
-                                        <div class="button-container">
-                                            <img src="{% static 'dashboard/images/createButton.png' %}" alt="Generated Image" class="rounded" style="width: 60%;">
-                                            <br><br>
-                                            <button class="btn btn-warning btn-small waves-effect waves-light rounded-pill centerButton"
-                                                id="automate">Create A Post</button>
-                                            <br>
-                                        </div>
-                                    </form>
+                                <div class="card" id="ftueFormContainer"  style="width: 20%;">
+                                    <div class="card-body">
+                                        <form method="post" action="{% url 'dashboard' %}">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="form" value="formFtue">
+                                            <input type="hidden" name="link" value="post_creator">
+                                            <div class="button-container">
+                                                <img src="{% static 'dashboard/images/createButton.png' %}" alt="Generated Image" class="rounded" style="width: 60%;">
+                                                <br><br>
+                                                <button class="btn btn-warning btn-small waves-effect waves-light rounded-pill centerButton" >Create A Post</button>
+                                                <br>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                                <div class="card" id="ftueFormContainer2"  style="width: 20%; translate: 50%;">
+                                    <div class="card-body">
+                                        <form method="post" action="{% url 'dashboard' %}">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="form" value="formFtue">
+                                            <input type="hidden" name="link" value="brand_settings">
+                                            <div class="button-container">
+                                                <img src="{% static 'dashboard/images/settingsButton.png' %}" alt="Generated Image" class="rounded" style="width: 60%;">
+                                                <br><br>
+                                                <button class="btn btn-primary btn-small waves-effect waves-light rounded-pill centerButton" >Finalize Settings</button>
+                                                <br>
+                                            </div>
+                                        </form>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="card" id="ftueFormContainer2"  style="width: 20%; translate: 50%;">
-                                <div class="card-body">
-                                    <form method="post" action="{% url 'dashboard' %}">
-                                        {% csrf_token %}
-                                        <input type="hidden" name="form" value="formFtue">
-                                        <input type="hidden" name="link" value="brand_settings">
-                                        <div class="button-container">
-                                            <img src="{% static 'dashboard/images/settingsButton.png' %}" alt="Generated Image" class="rounded" style="width: 60%;">
-                                            <br><br>
-                                            <button class="btn btn-primary btn-small waves-effect waves-light rounded-pill centerButton"
-                                                id="automate">Finalize Settings</button>
-                                            <br>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
+                            
                         </div>
                         {% endif %}
                         {% if user_settings.endFtue %}
@@ -728,8 +725,7 @@
                                             <br>
                                             <img src="{% static 'dashboard/images/elaineButton.png' %}" alt="Generated Image" class="rounded" style="width: 55%;">
                                             <br><br>
-                                            <button class="btn btn-custom btn-lg waves-effect waves-light rounded-pill centerButton"
-                                                id="automate">Automate</button>
+                                            <button class="btn btn-custom btn-lg waves-effect waves-light rounded-pill centerButton" id="automate">Automate</button>
                                             <br><br>
                                         </div>
                                     </form>
@@ -738,8 +734,8 @@
                         </div>
                         {% else %}
                         <div id="load-start">
-                            <div class="col-lg-2">
-                                <div class="card">
+                            <div class="center-content">
+                                <div class="card" style="width: 25%">
                                     <div class="card-body">
                                         <div class="generated-post">
                                             <img id="loading-gif" src="" alt="Loaded Image">
@@ -761,7 +757,6 @@
                                         <div class="card">
                                             <div class="card-body">
                                                 <div class="generated-post">
-                                                    {% csrf_token %}
                                                     <p class="form-label">Image</p>
                                                     <img class="loaded-image" id="loaded-image" src="" alt="Loaded Image">
                                                     <br>
@@ -774,7 +769,7 @@
                                                     <div class="mb-3">
                                                         <label class="form-check-label" for="ftueCheck" style="margin-bottom: 7%;">Add To Schedule</label>
                                                         <br>
-                                                        <input type="checkbox" data-switchery="true" data-plugin="switchery" data-color="#039cfd" name="ftueCheck" value="ftueCheck4" id="ftueCheck"/>
+                                                        <input type="checkbox" data-switchery="true" data-plugin="switchery" data-color="#039cfd" name="ftueCheck" id="ftueCheck"/>
                                                     </div>
                                                 </div>
                                             </div>
@@ -784,7 +779,6 @@
                                         <div class="card">
                                             <div class="card-body">
                                                 <div class="generated-post">
-                                                    {% csrf_token %}
                                                     <p class="form-label">Image</p>
                                                     <img class="loaded-image" id="loaded-image2" src="" alt="Loaded Image">
                                                     <br>
@@ -797,7 +791,7 @@
                                                     <div class="mb-3">
                                                         <label class="form-check-label" for="ftueCheck" style="margin-bottom: 7%;">Add To Schedule</label>
                                                         <br>
-                                                        <input type="checkbox" data-switchery="true" data-plugin="switchery" data-color="#039cfd" name="ftueCheck" value="ftueCheck4" id="ftueCheck"/>
+                                                        <input type="checkbox" data-switchery="true" data-plugin="switchery" data-color="#039cfd" name="ftueCheck2" id="ftueCheck"/>
                                                     </div>
                                                 </div>
                                             </div>
@@ -807,7 +801,6 @@
                                         <div class="card">
                                             <div class="card-body">
                                                 <div class="generated-post">
-                                                    {% csrf_token %}
                                                     <p class="form-label">Image</p>
                                                     <img class="loaded-image" id="loaded-image3" src="" alt="Loaded Image">
                                                     <br>
@@ -820,7 +813,7 @@
                                                     <div class="mb-3">
                                                         <label class="form-check-label" for="ftueCheck" style="margin-bottom: 7%;">Add To Schedule</label>
                                                         <br>
-                                                        <input type="checkbox" data-switchery="true" data-plugin="switchery" data-color="#039cfd" name="ftueCheck" value="ftueCheck4" id="ftueCheck"/>
+                                                        <input type="checkbox" data-switchery="true" data-plugin="switchery" data-color="#039cfd" name="ftueCheck3" id="ftueCheck"/>
                                                     </div>
                                                 </div>
                                             </div>
@@ -830,7 +823,6 @@
                                         <div class="card">
                                             <div class="card-body">
                                                 <div class="generated-post">
-                                                    {% csrf_token %}
                                                     <p class="form-label">Image</p>
                                                     <img class="loaded-image" id="loaded-image4" src="" alt="Loaded Image">
                                                     <br>
@@ -843,7 +835,97 @@
                                                     <div class="mb-3">
                                                         <label class="form-check-label" for="ftueCheck" style="margin-bottom: 7%;">Add To Schedule</label>
                                                         <br>
-                                                        <input type="checkbox" data-switchery="true" data-plugin="switchery" data-color="#039cfd" name="ftueCheck" value="ftueCheck4" id="ftueCheck"/>
+                                                        <input type="checkbox" data-switchery="true" data-plugin="switchery" data-color="#039cfd" name="ftueCheck4" id="ftueCheck"/>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xl-3 col-md-6">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <div class="generated-post">
+                                                    <p class="form-label">Image</p>
+                                                    <img class="loaded-image" id="loaded-image5" src="" alt="Loaded Image">
+                                                    <br>
+                                                    <p class="form-label">Caption</p>
+                                                    <div class="mb-3">
+                                                        <div class="text-box-wrapper">
+                                                            <div id="caption5" contenteditable="false" class="text-box"></div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-check-label" for="ftueCheck" style="margin-bottom: 7%;">Add To Schedule</label>
+                                                        <br>
+                                                        <input type="checkbox" data-switchery="true" data-plugin="switchery" data-color="#039cfd" name="ftueCheck5" id="ftueCheck"/>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xl-3 col-md-6">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <div class="generated-post">
+                                                    <p class="form-label">Image</p>
+                                                    <img class="loaded-image" id="loaded-image6" src="" alt="Loaded Image">
+                                                    <br>
+                                                    <p class="form-label">Caption</p>
+                                                    <div class="mb-3">
+                                                        <div class="text-box-wrapper">
+                                                            <div id="caption6" contenteditable="false" class="text-box"></div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-check-label" for="ftueCheck" style="margin-bottom: 7%;">Add To Schedule</label>
+                                                        <br>
+                                                        <input type="checkbox" data-switchery="true" data-plugin="switchery" data-color="#039cfd" name="ftueCheck6" id="ftueCheck"/>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xl-3 col-md-6">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <div class="generated-post">
+                                                    <p class="form-label">Image</p>
+                                                    <img class="loaded-image" id="loaded-image7" src="" alt="Loaded Image">
+                                                    <br>
+                                                    <p class="form-label">Caption</p>
+                                                    <div class="mb-3">
+                                                        <div class="text-box-wrapper">
+                                                            <div id="caption7" contenteditable="false" class="text-box"></div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-check-label" for="ftueCheck" style="margin-bottom: 7%;">Add To Schedule</label>
+                                                        <br>
+                                                        <input type="checkbox" data-switchery="true" data-plugin="switchery" data-color="#039cfd" name="ftueCheck7" id="ftueCheck"/>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xl-3 col-md-6">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <div class="generated-post">
+                                                    <p class="form-label">Image</p>
+                                                    <img class="loaded-image" id="loaded-image8" src="" alt="Loaded Image">
+                                                    <br>
+                                                    <p class="form-label">Caption</p>
+                                                    <div class="mb-3">
+                                                        <div class="text-box-wrapper">
+                                                            <div id="caption8" contenteditable="false" class="text-box"></div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-check-label" for="ftueCheck" style="margin-bottom: 7%;">Add To Schedule</label>
+                                                        <br>
+                                                        <input type="checkbox" data-switchery="true" data-plugin="switchery" data-color="#039cfd" name="ftueCheck8" id="ftueCheck"/>
                                                     </div>
                                                 </div>
                                             </div>
@@ -875,7 +957,7 @@
                             const db = getFirestore(firebaseApp);
 
                             // Reference to the Firestore document where you store status
-                            const statusDocRef = doc(collection(db, 'users'), 'Z9uk1rgXd0SQBobhs7g6vRDwPdM2');
+                            const statusDocRef = doc(collection(db, 'users'), '{{ user_id }}');
 
                             const progressBar = document.getElementById('progress');
                             const statusDisplay = document.getElementById('status-display');
@@ -885,12 +967,21 @@
                             const loadedImage2 = document.getElementById('loaded-image2');
                             const loadedImage3 = document.getElementById('loaded-image3');
                             const loadedImage4 = document.getElementById('loaded-image4');
+                            const loadedImage5 = document.getElementById('loaded-image5');
+                            const loadedImage6 = document.getElementById('loaded-image6');
+                            const loadedImage7 = document.getElementById('loaded-image7');
+                            const loadedImage8 = document.getElementById('loaded-image8');
                             const caption = document.getElementById('caption');
                             const caption2 = document.getElementById('caption2');
                             const caption3 = document.getElementById('caption3');
                             const caption4 = document.getElementById('caption4');
+                            const caption5 = document.getElementById('caption5');
+                            const caption6 = document.getElementById('caption6');
+                            const caption7 = document.getElementById('caption7');
+                            const caption8 = document.getElementById('caption8');
                             const loadDone = document.getElementById('load-done');
                             const loadStart = document.getElementById('load-start');
+                            loadDone.style.display = 'none';
 
                             // Replace this with your Firestore onSnapshot listener
                             const unsubscribe = onSnapshot(statusDocRef, (docSnapshot) => {
@@ -900,10 +991,18 @@
                                     const schedule_image_2 = docSnapshot.data().schedule_image_2;
                                     const schedule_image_3 = docSnapshot.data().schedule_image_3;
                                     const schedule_image_4 = docSnapshot.data().schedule_image_4;
+                                    const schedule_image_5 = docSnapshot.data().schedule_image_5;
+                                    const schedule_image_6 = docSnapshot.data().schedule_image_6;
+                                    const schedule_image_7 = docSnapshot.data().schedule_image_7;
+                                    const schedule_image_8 = docSnapshot.data().schedule_image_8;
                                     const schedule_cap_1 = docSnapshot.data().schedule_cap_1;
                                     const schedule_cap_2 = docSnapshot.data().schedule_cap_2;
                                     const schedule_cap_3 = docSnapshot.data().schedule_cap_3;
                                     const schedule_cap_4 = docSnapshot.data().schedule_cap_4;
+                                    const schedule_cap_5 = docSnapshot.data().schedule_cap_5;
+                                    const schedule_cap_6 = docSnapshot.data().schedule_cap_6;
+                                    const schedule_cap_7 = docSnapshot.data().schedule_cap_7;
+                                    const schedule_cap_8 = docSnapshot.data().schedule_cap_8;
 
                                     progressBar.style.width = `${status}%`;
                                     statusDisplay.textContent = `Status: ${status}%`;
@@ -915,10 +1014,18 @@
                                         caption2.textContent = `${schedule_cap_2}`;
                                         caption3.textContent = `${schedule_cap_3}`;
                                         caption4.textContent = `${schedule_cap_4}`;
+                                        caption5.textContent = `${schedule_cap_5}`;
+                                        caption6.textContent = `${schedule_cap_6}`;
+                                        caption7.textContent = `${schedule_cap_7}`;
+                                        caption8.textContent = `${schedule_cap_8}`;
                                         loadedImage.src = `${schedule_image_1}`;
                                         loadedImage2.src = `${schedule_image_2}`;
                                         loadedImage3.src = `${schedule_image_3}`;
                                         loadedImage4.src = `${schedule_image_4}`;
+                                        loadedImage5.src = `${schedule_image_5}`;
+                                        loadedImage6.src = `${schedule_image_6}`;
+                                        loadedImage7.src = `${schedule_image_7}`;
+                                        loadedImage8.src = `${schedule_image_8}`;
                                     }
                                     else {
                                         loadDone.style.display = 'none';
@@ -1233,19 +1340,13 @@
 
                                 #overlayContainer {
                                     display: none;
-                                    position: fixed;
-                                    top: 0;
-                                    left: 0;
-                                    width: 100%;
-                                    height: 100%;
-                                    background-color: rgba(0, 0, 0, 0.1);
                                     justify-content: center;
                                     align-items: center;
                                     z-index: 9999;
                                 }
             
                                 #animatedCharacter {
-                                    width: 31%;
+                                    width: 30%;
                                     position: fixed;
                                     bottom: 0;
                                     left: 50%; 
@@ -1253,7 +1354,7 @@
                                 }
 
                                 #animatedCharacter2 {
-                                    width: 31%;
+                                    width: 30%;
                                     position: fixed;
                                     bottom: 0;
                                     left: 50%; 
@@ -1261,7 +1362,7 @@
                                 }
 
                                 #animatedCharacter3 {
-                                    width: 31%;
+                                    width: 30%;
                                     position: fixed;
                                     bottom: 0;
                                     left: 50%; 
@@ -1269,7 +1370,7 @@
                                 }
                                 
                                 #animatedCharacter4 {
-                                    width: 31%;
+                                    width: 30%;
                                     position: fixed;
                                     bottom: 0;
                                     left: 50%; 
@@ -1329,23 +1430,9 @@
     <script src="{% static 'dashboard/libs/waypoints/lib/jquery.waypoints.min.js' %}"></script>
     <script src="{% static 'dashboard/libs/jquery.counterup/jquery.counterup.min.js' %}"></script>
     <script src="{% static 'dashboard/libs/feather-icons/feather.min.js' %}"></script>
-    
-    <!-- Plugins js-->
-    <script src="{% static 'dashboard/libs/spectrum-colorpicker2/spectrum.min.js' %}"></script>
-    <script src="{% static 'dashboard/libs/flatpickr/flatpickr.min.js' %}"></script>
-    
-    <!-- Init js-->
-    <script src="{% static 'dashboard/js/pages/form-pickers.init.js' %}"></script>
 
     <!-- knob plugin -->
     <script src="{% static 'dashboard/libs/jquery-knob/jquery.knob.min.js' %}"></script>
-
-    <!--Morris Chart-->
-    <script src="{% static 'dashboard/libs/morris.js06/morris.min.js' %}"></script>
-    <script src="{% static 'dashboard/libs/raphael/raphael.min.js' %}"></script>
-
-    <!-- Dashboar init js-->
-    <script src="{% static 'dashboard/js/pages/dashboard.init.js' %}"></script>
 
     <!-- Toast-->
     <script src="{% static 'dashboard/libs/jquery-toast-plugin/jquery.toast.min.js' %}"></script>
@@ -1358,6 +1445,13 @@
 
     <!-- Init js-->
     <script src="{% static 'dashboard/js/pages/form-advanced.init.js' %}"></script>
+
+    <!-- Plugins js-->
+    <script src="{% static 'dashboard/libs/spectrum-colorpicker2/spectrum.min.js' %}"></script>
+    <script src="{% static 'dashboard/libs/flatpickr/flatpickr.min.js' %}"></script>
+    
+    <!-- Init js-->
+    <script src="{% static 'dashboard/js/pages/form-pickers.init.js' %}"></script>
 
 
 

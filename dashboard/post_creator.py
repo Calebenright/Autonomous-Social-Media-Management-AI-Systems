@@ -8,18 +8,18 @@ import openai
 import os
 import re
 import requests
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont, ImageEnhance, ImageFilter
 from io import BytesIO
 from google.cloud import storage
 from google.oauth2 import service_account
 from django.conf import settings
 from django.templatetags.static import static 
 from django.contrib.staticfiles.storage import staticfiles_storage
-from .generate_unique_filename import generate_unique_filename
+from .functions import generate_unique_filename, tint_image, getPixabayImg
 import random
 import json
 import base64
-
+import uuid
 
 # FOR DEVELOPMENT
 from decouple import config
@@ -164,7 +164,7 @@ def create_stock_post (business_description, bucket_name, bucket_credentials, us
     }
 
     response = requests.get(f'{base_url}photos/random', headers=headers, params=params)
-    response.raise_for_status()  # Raise an exception for 4xx and 5xx status codes
+    response.raise_for_status()  
     data = response.json()
     for photo in data:
         image_url = photo['urls']['regular']
@@ -199,8 +199,41 @@ def create_stock_post (business_description, bucket_name, bucket_credentials, us
     return image_io
 
 def create_call_to_action(website, background_color, logo_path, business_description, bucket_name, bucket_credentials, user_folder_path):
+
     # DEFINE IMAGE SIZE
     image_size = 1024
+    font_path_extrabold = 'static/dashboard/fonts/Poppins-ExtraBold.ttf'
+    font_path_bold = 'static/dashboard/fonts/Poppins-Bold.ttf'
+    font_path_semibold = 'static/dashboard/fonts/Poppins-SemiBold.ttf'
+    font_path_regular = 'static/dashboard/fonts/Poppins-Regular.ttf'
+    font_path_thin = 'static/dashboard/fonts/Poppins-Thin.ttf'
+    image_nums = [
+        800,
+        600,
+        830,
+        170
+    ]
+
+    ## CREATE IMAGE USING Unsplash
+    base_url = 'https://api.unsplash.com/'
+    headers = {
+        'Authorization': f'Client-ID {UNSPLASH_API_KEY}',
+    }
+    params = {
+        'query': business_description,
+        'count': 1,
+    }
+
+    response = requests.get(f'{base_url}photos/random', headers=headers, params=params)
+    response.raise_for_status()  
+    data = response.json()
+    for photo in data:
+        image_url = photo['urls']['regular']
+
+    # Download the image from the URL
+    image_response = requests.get(image_url)
+    image_data = BytesIO(image_response.content)
+    bg = Image.open(image_data)
 
     middle_text = f"Create a 2-4 word business call to action about {business_description}. respond with only the call to action. remove quotations."
     # Query OpenAI for a caption
@@ -212,54 +245,52 @@ def create_call_to_action(website, background_color, logo_path, business_descrip
     )
     # Store Caption as CAP for use in the caption later
     middle_text = response["choices"][0]["message"]["content"]
-    
-    # Prompt the user for a Dalle prompt
-    myPrompt = "Create a texture that is black and white so that i can overlay it on a background image"
-    # Generate an image based on the Dalle prompt
-    response = openai.Image.create(
-        prompt= myPrompt,
-        n=1,
-        size="1024x1024",
-    )
 
-    # Retrieve the URL of the generated image from the API response
-    image_url = response['data'][0]['url']
+    # Get the dimensions of the image
+    width, height = bg.size
 
-    # Download the image from the URL
-    image_response = requests.get(image_url)
-    image_data = BytesIO(image_response.content)
+    # Calculate the size of the square to crop (using the smaller dimension)
+    size = min(width, height)
 
-    # Create an image object with dimensions image_size x image_size
-    img = Image.new('RGB', (image_size, image_size), color=background_color)
+    # Calculate the cropping box (centered)
+    left = (width - size) / 2
+    top = (height - size) / 2
+    right = (width + size) / 2
+    bottom = (height + size) / 2
 
-    # Open the black and white texture image and resize it to match the dimensions of the final image
-    texture = Image.open(image_data)
-    texture = texture.resize((image_size, image_size))
+    # Crop the image to the calculated square
+    cropped_img = bg.crop((left, top, right, bottom))
+    bg = cropped_img.resize((1024, 1024))
 
-    # Apply the texture overlay onto the background image using blend mode
-    img = Image.blend(img, texture, alpha=0.07)  # Adjust alpha as needed
+    bg = bg.filter(ImageFilter.GaussianBlur(radius=3))
 
     # Create a Draw object for the image
-    d = ImageDraw.Draw(img)
+    d = ImageDraw.Draw(bg)
 
-    font_path_semibold = 'static/dashboard/fonts/Poppins-SemiBold.ttf'
-    font_path_regular = 'static/dashboard/fonts/Poppins-Regular.ttf'
-
-    fnt = ImageFont.truetype(font_path_semibold, int(image_size * 1 / 14))
+    fnt = ImageFont.truetype(font_path_semibold, 50)
     fnt_smaller = ImageFont.truetype(font_path_regular, int(image_size * 1 / 30))
 
     # Calculate text dimensions for call to action and website
     text_dim = d.textbbox((0, 0), middle_text, font=fnt)
     text_dim_website = d.textbbox((0, 0), website, font=fnt_smaller)
 
-    # Write call to action in the middle of the image in white
-    d.text(((img.width - text_dim[2]) / 2, (img.height - text_dim[3]) / 2), middle_text, font=fnt, fill=(255, 255, 255))
+    # Load the PNG image you want to add
+    png_num = random.randint(1, 4)
+    png_image = Image.open(f'static/posts/1/{png_num}/1.png')
+    bg.paste(png_image, (0, 0), png_image)
 
-    # Write the website at the bottom of the image
-    d.text(((img.width - text_dim_website[2]) / 2, img.height - (text_dim_website[3] * 3/2)), website, font=fnt_smaller, fill=(255, 255, 255))
+    png_to_color_change = f'static/posts/1/{png_num}/2.png'
+    png_color_change = tint_image(png_to_color_change, background_color)
+    bg.paste(png_color_change, (0, 0), png_color_change)
+
+    # Write call to action in the middle of the image in white
+    d.text(((image_size - text_dim[2]) / 2, image_nums[png_num - 1]), middle_text, font=fnt, fill=(255, 255, 255))
+
+    # # Write the website at the bottom of the image
+    # d.text(((image_size - text_dim_website[2]) / 2, image_size - (text_dim_website[3] * 3/2)), website, font=fnt_smaller, fill=(255, 255, 255))
 
     image_io = BytesIO()
-    img.save(image_io, format='JPEG')
+    bg.save(image_io, format='JPEG')
     image_io.seek(0)
 
     return image_io
@@ -387,7 +418,7 @@ def upload_to_google (image, bucket_name, bucket_credentials, user_folder_path, 
     bucket = client.bucket(bucket_name)
 
     # Generate a unique filename for the image
-    filename = str(num_post) + ".jpg"
+    filename = str(uuid.uuid4()) + ".jpg"
 
     # Upload the image file to the GCS bucket
     blob = bucket.blob(user_folder_path + filename)

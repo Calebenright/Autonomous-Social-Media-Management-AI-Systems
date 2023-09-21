@@ -1,6 +1,50 @@
 "use strict";
 
+
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.6.6/firebase-app.js';
+import { getFirestore, collection, doc, setDoc, updateDoc, getDocs, onSnapshot, deleteDoc } from 'https://www.gstatic.com/firebasejs/9.6.6/firebase-firestore.js';
+
+var firebaseConfig = {
+    apiKey: "AIzaSyCJTdpRMOwfhDosa6MTPbsh38kxxiqllc4",
+    authDomain: "feed-ai-c379d.firebaseapp.com",
+    projectId: "feed-ai-c379d",
+    storageBucket: "feed-ai-c379d.appspot.com",
+    messagingSenderId: "825164430085",
+    appId: "1:825164430085:web:a41ec57b7c3c0d92c5156c",
+    measurementId: "G-0K43VDRKJP"
+    };
+
+const firebaseApp = initializeApp(firebaseConfig);
+const db = getFirestore(firebaseApp);
+const userDocRef = doc(collection(db, 'users'), user_id);
+
+const ev = [];
+const eventsCollectionRef = collection(userDocRef, "events");
+
+// new Date('2023-12-02T14:30:00')
+
+await getDocs(eventsCollectionRef)
+.then((querySnapshot) => {
+      querySnapshot.forEach((doc) => {
+        var eventData = doc.data();
+
+        var eventObject = {
+            eid: eventData.eid,
+            start: eventData.start.toDate(),
+            image_url: eventData.image_url,
+            caption: eventData.caption,
+            className: eventData.className
+        };
+
+        ev.push(eventObject);
+      });
+    })
+    .catch((error) => {
+      console.error("Error getting documents from Firestore:", error);
+});
+
 !function(l) {
+    
     function e() {
         this.$body = l("body"),
         this.$modal = l("#event-modal"),
@@ -16,31 +60,35 @@
     }
     
     e.prototype.onEventClick = function(e) {
-        this.$formEvent[0].reset(),
-        this.$formEvent.removeClass("was-validated"),
-        this.$newEventData = null,
-        this.$btnDeleteEvent.show(),
-        this.$modalTitle.text("Edit Event"),
-        this.$modal.show(),
-        this.$selectedEvent = e.event,
-        l("#event-title").val(this.$selectedEvent.title),
-        l("#event-category").val(this.$selectedEvent.classNames[0])
+        this.$formEvent[0].reset();
+        this.$formEvent.removeClass("was-validated");
+        this.$newEventData = null;
+        this.$btnDeleteEvent.show();
+        this.$modalTitle.text("Edit Post");
+        this.$eventCaption = l("#event-caption");
+        this.$eventImg = l("#event-image");
+        this.$selectedEvent = e.event;
+        const caption = e.event.extendedProps.caption || "";
+        const img = e.event.extendedProps.image_url || "https://user-images.githubusercontent.com/101482/29592647-40da86ca-875a-11e7-8bc3-941700b0a323.png";
+        this.$eventCaption.val(caption);
+        this.$eventImg.attr("src", img);
+        this.$modal.show();
     };
     
-    e.prototype.onSelect = function(e) {
-        this.$formEvent[0].reset(),
-        this.$formEvent.removeClass("was-validated"),
-        this.$selectedEvent = null,
-        this.$newEventData = e,
-        this.$btnDeleteEvent.hide(),
-        this.$modalTitle.text("Add New Event"),
-        this.$modal.show(),
-        this.$calendarObj.unselect()
-    };
+    // e.prototype.onSelect = function(e) {
+    //     this.$formEvent[0].reset(),
+    //     this.$formEvent.removeClass("was-validated"),
+    //     this.$selectedEvent = null,
+    //     this.$newEventData = e,
+    //     this.$btnDeleteEvent.hide(),
+    //     this.$modalTitle.text("Add New Event"),
+    //     this.$modal.show(),
+    //     this.$calendarObj.unselect()
+    // };
     
     e.prototype.init = function() {
+
         this.$modal = new bootstrap.Modal(document.getElementById("event-modal"), { keyboard: !1 });
-        var e = new Date(l.now());
         
         new FullCalendar.Draggable(document.getElementById("external-events"), {
             itemSelector: ".external-event",
@@ -48,19 +96,13 @@
                 return {
                     title: eventEl.innerText,
                     className: l(eventEl).data("class"),
-                    image_url: l(eventEl).data("image-url") // Add the image_url attribute
+                    image_url: l(eventEl).data("image-url")
                 };
             }
         });
         
-        var e = [
-            {
-                start: new Date(l.now() + 158e6),
-                image_url: "https://play-lh.googleusercontent.com/IeNJWoKYx1waOhfWF6TiuSiWBLfqLb18lmZYXSgsH1fvb8v1IYiZr5aYWe0Gxu-pVZX3",
-                className: "bg-primary"
-            },
-        ];
-        
+        console.log("Events from Firestore:", ev);
+
         var a = this;
         
         a.$calendarObj = new FullCalendar.Calendar(a.$calendar[0], {
@@ -83,12 +125,12 @@
                 center: "title",
                 right: ""
             },
-            initialEvents: e,
+            initialEvents: ev,
             editable: !0,
             droppable: !0,
             selectable: !0,
             dateClick: function(e) {
-                a.onSelect(e)
+                // a.onSelect(e)
             },
             eventClick: function(e) {
                 a.onEventClick(e)
@@ -96,24 +138,74 @@
             eventContent: function (arg) {
                 let arrayOfDomNodes = [];
             
-                // title event
-                let titleEvent = document.createElement('div');
-                if (arg.event._def.title) {
-                    titleEvent.innerHTML = arg.event._def.title;
-                    titleEvent.classList = "fc-event-title fc-sticky";
-                }
-            
                 // image event
                 let imgEventWrap = document.createElement('div');
                 if (arg.event.extendedProps.image_url) {
-                    let imgEvent = '<img src="' + arg.event.extendedProps.image_url + '" style="max-width: 80%; height: auto; border-radius: 5px;">'; // Adjust max-width and height as needed
+                    let imgEvent = '<img src="' + arg.event.extendedProps.image_url + '" style="max-width: 95%; height: auto; border-radius: 5px;">';
                     imgEventWrap.classList = "fc-event-img";
+                    imgEventWrap.style.padding = "5%";
                     imgEventWrap.innerHTML = imgEvent;
                 }
+
+                // // title event (caption)
+                // let titleEvent = document.createElement('div');
+                // if (arg.event.extendedProps.caption) {
+                //     const words = arg.event.extendedProps.caption.split(' ');
             
-                arrayOfDomNodes = [titleEvent, imgEventWrap];
+                //     // Take the first few words (e.g., the first two words)
+                //     const numberOfWordsToDisplay = 5;
+                //     const caption = words.slice(0, numberOfWordsToDisplay).join(' ');
             
+                //     // Create a square element for the caption
+                //     const captionSquare = document.createElement('div');
+                //     captionSquare.textContent = caption;
+                //     captionSquare.classList = "fc-event-caption";
+                //     captionSquare.style.fontWeight = "bold";
+                //     captionSquare.style.fontSize = "10px";  
+                //     captionSquare.style.color = "#000000";  
+                //     captionSquare.style.padding = "5px";   
+                //     captionSquare.style.backgroundColor = "#ffffff"; 
+                //     captionSquare.style.borderRadius = "5px";
+                //     captionSquare.style.whiteSpace = "normal";
+                //     captionSquare.style.margin = "10px";   
+
+                //     titleEvent.appendChild(captionSquare);
+        
+                // }
+            
+                // arrayOfDomNodes = [imgEventWrap, titleEvent];
+            
+                // return { domNodes: arrayOfDomNodes };
+
+                arrayOfDomNodes = [imgEventWrap];
+
                 return { domNodes: arrayOfDomNodes };
+            },
+
+            eventDrop: function (info) {
+        
+                var eid = info.event.extendedProps.eid;
+                var image_url = info.event.extendedProps.image_url;
+                var updatedStartTime = info.event.start;
+                var caption = info.event.extendedProps.caption;
+
+                const eventDocRef = doc(collection(userDocRef, 'events'), eid);
+
+                const eventData = {
+                    eid: eid,
+                    start: updatedStartTime,
+                    image_url: image_url,
+                    caption: caption
+                };
+
+                setDoc(eventDocRef, eventData, { merge: true })
+                    .then(() => {
+                        console.log("Event updated or set in Firestore");
+                    })
+                    .catch(error => {
+                        console.error("Error updating or setting event in Firestore: ", error);
+                    });
+                
             },
         });
         
@@ -128,16 +220,21 @@
             var t, n = a.$formEvent[0];
             if (n.checkValidity()) {
                 if (a.$selectedEvent) {
-                    a.$selectedEvent.setProp("title", l("#event-title").val());
-                    a.$selectedEvent.setProp("classNames", [l("#event-category").val()]);
-                } else {
-                    t = {
-                        title: l("#event-title").val(),
-                        start: a.$newEventData.date,
-                        allDay: a.$newEventData.allDay,
-                        className: l("#event-category").val()
+                    const eid = a.$selectedEvent.extendedProps.eid;
+                    const eventDocRef = doc(collection(userDocRef, 'events'), eid);
+                    const caption = l("#event-caption").val();
+                    console.log(caption)
+                    const eventData = {
+                        caption: caption
                     };
-                    a.$calendarObj.addEvent(t);
+                    setDoc(eventDocRef, eventData, { merge: true })
+                        .then(() => {
+                            console.log('Event updated');
+                        })
+                        .catch((error) => {
+                            console.error('Error updating event to Firestore:', error);
+                        });
+                    a.$selectedEvent.setExtendedProp("caption", l("#event-caption").val());
                 }
                 a.$modal.hide();
             } else {
@@ -148,12 +245,21 @@
         
         l(a.$btnDeleteEvent.on("click", function(e) {
             if (a.$selectedEvent) {
+                const eid = a.$selectedEvent.extendedProps.eid;
+                const eventDocRef = doc(collection(userDocRef, 'events'), eid);
+                deleteDoc(eventDocRef)
+                    .then(() => {
+                        console.log('Event removed from Firestore');
+                    })
+                    .catch((error) => {
+                        console.error('Error removing event from Firestore:', error);
+                    });
                 a.$selectedEvent.remove();
                 a.$selectedEvent = null;
                 a.$modal.hide();
             }
         }));
-    };
+    };    
     
     l.CalendarApp = new e,
     l.CalendarApp.Constructor = e
