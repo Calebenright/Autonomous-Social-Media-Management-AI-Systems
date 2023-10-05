@@ -41,11 +41,7 @@ AUTHENTICATION_BACKENDS = [
 # FOR DEVELOPMENT
 SECRET_KEY = config('DJANGO_KEY')
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-# DEBUG = False
-
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'starter-web-app-389316.uc.r.appspot.com', 'getfeed.info', 'www.getfeed.info']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'starter-web-app-389316.uc.r.appspot.com', 'getfeed.info', 'www.getfeed.info', 'feadl.io', 'www.feadl.io']
 
 # DATABASES = {}
 
@@ -92,8 +88,8 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "project1.wsgi.application"
 
+WSGI_APPLICATION = "project1.wsgi.application"
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
@@ -131,8 +127,17 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # Configure the default storage class
 DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
 
+APPEND_SLASH = False
+
+# # DEPLOY SECURITY #
+# SECURE_SSL_REDIRECT = True
+# SECURE_HSTS_SECONDS = 31536000
+# SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+# SECURE_HSTS_PRELOAD = True
+# SECURE_CONTENT_TYPE_NOSNIFF = True
+# X_FRAME_OPTIONS = 'DENY'
+
 # Google Cloud Storage settings
-# GOOGLE_CLOUD_STORAGE_BUCKET = config('GS_BUCKET_NAME')
 GS_BUCKET_NAME = config('GS_BUCKET_NAME')
 GS_PROJECT_ID = config('GS_PROJECT_ID')
 GS_CREDENTIALS = config('GS_CREDENTIALS')
@@ -142,6 +147,37 @@ GS_TASK_HANDLER_URL = config('GS_TASK_HANDLER_URL')
 GS_SERVICE_EMAIL = config('GS_SERVICE_EMAIL')
 GCLOUD_AUTH = config('GCLOUD_AUTH')
 
+EMAIL_BACKEND = config('EMAIL_BACKEND')
+EMAIL_HOST = config('EMAIL_HOST')
+EMAIL_PORT = config('EMAIL_PORT')
+EMAIL_USE_SSL = config('EMAIL_USE_SSL')
+EMAIL_HOST_USER = config('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
+INTERNAL_RECIPIENTS = config('INTERNAL_RECIPIENTS')
 
+STRIPE_PUBLIC_KEY = config('STRIPE_PUBLIC_KEY')
+STRIPE_SECRET_KEY = config('STRIPE_SECRET_KEY')
+STRIPE_PRICE_ID = config('STRIPE_PRICE_ID')
 
+LINKEDIN_CLIENT_ID = config('LINKEDIN_CLIENT_ID')
+LINKEDIN_CLIENT_SECRET = config('LINKEDIN_CLIENT_SECRET')
 
+GOOGLE_APP_ID = config('GOOGLE_APP_ID')
+GOOGLE_APP_SECRET = config('GOOGLE_APP_SECRET')
+
+FACEBOOK_APP_ID = config('FACEBOOK_APP_ID')
+FACEBOOK_APP_SECRET = config('FACEBOOK_APP_SECRET')
+
+# ##------------ DEPLOY -------------##
+# DEBUG = False
+# STRIPE_CANCEL_URL = config('STRIPE_CANCEL_URL')
+# STRIPE_SUCCESS_URL = config('STRIPE_SUCCESS_URL')
+# STRIPE_WEBHOOK_URL = config('STRIPE_WEBHOOK_URL')
+# REDIRECT_URI = config('REDIRECT_URI')
+
+##------------ DEV -------------##
+DEBUG = True
+STRIPE_CANCEL_URL = config('STRIPE_DEV_CANCEL_URL')
+STRIPE_SUCCESS_URL = config('STRIPE_DEV_SUCCESS_URL')
+STRIPE_WEBHOOK_URL = config('STRIPE_DEV_WEBHOOK_URL')
+REDIRECT_URI = config('DEV_REDIRECT_URI')

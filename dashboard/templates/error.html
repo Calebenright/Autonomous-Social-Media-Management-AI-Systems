@@ -1,8 +1,9 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
     <head>
         <meta charset="utf-8" />
-        <title>Error Page | 500 </title>
+        <title>Error | Feadl.io </title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta content="A automonomous social media managing app and ad agency" name="description" />
         <meta content="CJ Enright" name="author" />
@@ -29,7 +30,7 @@
                             <a href="{% url 'dashboard' %}" class="logo">
                                 <img src="{% static 'dashboard/images/logo-dark.png' %}" alt="" height="22" class="logo-light mx-auto">
                             </a>
-                            <p class="text-muted mt-2 mb-4">FeedAI</p>
+                            <br>
                         </div>
                         <div class="card">
 
@@ -38,7 +39,8 @@
                                 <div class="text-center">
                                     <h1 class="text-error">500</h1>
                                     <h3 class="mt-3 mb-2">Oops! Something happened.</h3>
-                                    <p class="text-muted mb-3">Why not try refreshing your page? or if it persists you can contact <a href="" class="text-dark"><b>Support</b></a></p>
+                                    <h3 class="mt-3 mb-2">{{ error }}</h3>
+                                    <p class="text-muted mb-3">If the problem persists, please can contact <a href="{% url 'contact' %}" class="text-dark"><b>Support</b></a></p>
 
                                     <a href="{% url 'dashboard' %}" class="btn btn-danger waves-effect waves-light"><i class="fas fa-home me-1"></i> Back to Dashboard</a>
                                 </div>

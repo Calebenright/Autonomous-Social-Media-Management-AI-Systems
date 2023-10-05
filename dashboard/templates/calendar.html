@@ -3,7 +3,7 @@
 <html lang="en">
     <head>
         <meta charset="utf-8" />
-        <title>Calendar | FeedAI</title>
+        <title>Calendar | Feadl.io</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta content="A fully featured admin theme which can be used to build CRM, CMS, etc." name="description" />
         <meta content="Coderthemes" name="author" />
@@ -30,7 +30,6 @@
         <div id="wrapper">
             
         <script>
-            // Render the user_id as a JavaScript variable
             const user_id = '{{ user_id }}';
         </script>
 
@@ -38,37 +37,31 @@
         <div class="navbar-custom">
             <ul class="list-unstyled topnav-menu float-end mb-0">
 
-                <li class="d-none d-lg-block">
-                    <form class="app-search">
-                        <div class="app-search-box">
-                            <div class="input-group">
-                                <input type="text" class="form-control" placeholder="Search..." id="top-search">
-                                <button class="btn input-group-text" type="submit">
-                                    <i class="fe-search"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-                </li>
-
-                <li class="dropdown d-inline-block d-lg-none">
-                    <a class="nav-link dropdown-toggle arrow-none waves-effect waves-light" data-bs-toggle="dropdown"
-                        href="#" role="button" aria-haspopup="false" aria-expanded="false">
-                        <i class="fe-search noti-icon"></i>
-                    </a>
-                    <div class="dropdown-menu dropdown-lg dropdown-menu-end p-0">
-                        <form class="p-3">
-                            <input type="text" class="form-control" placeholder="Search ..."
-                                aria-label="Recipient's username">
-                        </form>
+                <!-- WEB -->
+                {% if not user_settings.isSubscriber %}
+                <li class="d-none d-lg-block sub-margin">
+                    <div class="subscribe-btn">
+                        <a class="btn btn-gold subscribe rounded-pill dropdown-toggle arrow-none waves-effect waves-light mb-3" href="{% url 'checkout' %}">
+                            <span><i class="mdi mdi-star-plus-outline"></i> Upgrade <i class="mdi mdi-star-plus-outline"></i></span>
+                        </a>
                     </div>
                 </li>
+
+                <!-- MOBILE -->
+                <li class="dropdown d-inline-block d-lg-none sub-margin">
+                    <div class="subscribe-btn">
+                        <a class="btn btn-gold subscribe rounded-pill dropdown-toggle arrow-none waves-effect waves-light mb-3" href="{% url 'checkout' %}">
+                            <span><i class="mdi mdi-star-plus-outline"></i> Upgrade <i class="mdi mdi-star-plus-outline"></i></span>
+                        </a>
+                    </div>
+                </li>
+                {% endif %}
 
                 <li class="dropdown notification-list topbar-dropdown">
                     <a class="nav-link dropdown-toggle waves-effect waves-light" data-bs-toggle="dropdown" href="#"
                         role="button" aria-haspopup="false" aria-expanded="false">
                         <i class="fe-bell noti-icon"></i>
-                        <span class="badge bg-danger rounded-circle noti-icon-badge">1</span>
+                        <!-- <span class="badge bg-danger rounded-circle noti-icon-badge">1</span> -->
                     </a>
                     <div class="dropdown-menu dropdown-menu-end dropdown-lg">
 
@@ -99,9 +92,7 @@
 
                             <!-- All-->
                             <a href="javascript:void(0);"
-                                class="dropdown-item text-center text-primary notify-item notify-all">
-                                View all
-                                <i class="fe-arrow-right"></i>
+                                class="dropdown-item text-center text-primary notify-item notify-all">View all<i class="fe-arrow-right"></i>
                             </a>
 
                         </div>
@@ -251,7 +242,21 @@
                         {% endif %}
                     </div>
                     {% if user_settings.business_description %}
-                    <p class="text-muted left-user-info">{{ user_settings.business_description }}</p>
+                    <p class="text-muted left-user-info" id="businessDescription">
+                        {{ user_settings.business_description }}
+                    </p>
+                    
+                    <script>
+                        document.addEventListener("DOMContentLoaded", function() {
+                            var businessDescriptionElement = document.getElementById("businessDescription");
+                            var businessDescription = businessDescriptionElement.textContent.trim();
+                    
+                            if (businessDescription.length > 25) {
+                                var truncatedDescription = businessDescription.slice(0, 25) + "...";
+                                businessDescriptionElement.textContent = truncatedDescription;
+                            }
+                        });
+                    </script>                    
                     {% endif %}
 
                     <ul class="list-inline">
@@ -305,7 +310,7 @@
                         <li>
                             <a href="{% url 'brand_settings' %}">
                                 <i class="fe-settings"></i>
-                                <span> Brand Settings </span>
+                                <span> Settings </span>
                             </a>
                         </li>
                     </ul>
@@ -342,30 +347,20 @@
                                 const errorDiv = document.querySelector('.error-message');
                                 errorDiv.style.display = 'none';
                             }
-                            </script>
-                            <style>
-                                .error-message {
-                                    background-color: #ff5733; /* Background color */
-                                    color: #ffffff; /* Text color */
-                                    padding: 10px; /* Padding around the content */
-                                    border: 1px solid #d9534f; /* Border color */
-                                    border-radius: 5px; /* Rounded corners */
-                                    margin-bottom: 10px; /* Space below the error message */
-                                    position: relative; /* Required for the close button positioning */
-                                }
-                            
-                                .close-button {
-                                    position: absolute;
-                                    top: 5px;
-                                    right: 5px;
-                                    background: none;
-                                    border: none;
-                                    font-size: 18px;
-                                    color: #ffffff;
-                                    cursor: pointer;
-                                }
-                            </style>                        
+                            </script>                   
                             {% endif %}
+                            {% if success %}
+                            <div class="success-message">
+                                <span>{{ success }}</span>
+                                <button class="close-button" onclick="closeSuccessMessage()">&times;</button>
+                            </div>
+                            <script>
+                            function closeSuccessMessage() {
+                                const successDiv = document.querySelector('.success-message');
+                                successDiv.style.display = 'none';
+                            }
+                            </script>
+                            {% endif %}    
                             <div class="col-12">
                                 <div class="row"></div>
                                     <div class="card">
@@ -395,10 +390,20 @@
                                                                 <img src="" style="max-width: 100%; display: block; height: auto; border-radius: 10px;" id="event-image">
                                                             </div>
                                                         </div>
+                                                        <!-- <div class="col-12">
+                                                            <div class="mb-3">
+                                                                <label class="form-label">Post Caption</label>
+                                                                <input class="form-control-constrain" type="text" name="title" id="event-caption" required />
+                                                                <div class="invalid-feedback">Please provide a valid caption</div>
+                                                            </div>
+                                                        </div> -->
                                                         <div class="col-12">
                                                             <div class="mb-3">
                                                                 <label class="form-label">Post Caption</label>
-                                                                <input class="form-control" type="text" name="title" id="event-caption" required />
+                                                                <input type="hidden" id="edited-caption"/>
+                                                                <div class="text-box-wrapper">
+                                                                    <div id="event-caption" contenteditable="true" class="form-control-constrain"></div>
+                                                                </div>
                                                                 <div class="invalid-feedback">Please provide a valid caption</div>
                                                             </div>
                                                         </div>
@@ -431,13 +436,11 @@
                     <div class="container-fluid">
                         <div class="row">
                             <div class="col-md-6">
-                                <script>document.write(new Date().getFullYear())</script> &copy; Copyright <a href="">FeedAI</a> 
+                                <script>document.write(new Date().getFullYear())</script> &copy; Copyright <a href="">Feadl.io</a> 
                             </div>
                             <div class="col-md-6">
                                 <div class="text-md-end footer-links d-none d-sm-block">
-                                    <a href="javascript:void(0);">About Us</a>
-                                    <a href="javascript:void(0);">Help</a>
-                                    <a href="javascript:void(0);">Contact Us</a>
+                                    <a href="{% url 'contact' %}">Contact Us</a>
                                 </div>
                             </div>
                         </div>

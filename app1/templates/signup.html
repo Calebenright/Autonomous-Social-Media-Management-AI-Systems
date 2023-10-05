@@ -3,7 +3,7 @@
 <html lang="en">
 
 <head>
-  <title>FeedAI - Sign Up</title>
+  <title>Sign Up | Feadl.io</title>
   <meta charset="utf-8">
   <meta name="description"
    content="An Autonomous, AI driven, marketing and social media web based application.">
@@ -22,28 +22,41 @@
 
     <section class="row no-gutter reverse-order">
       <div class="col-one-half middle padding">
-      {% if error %}
+        {% if error %}
         <div class="error-message">
           <span>{{ error }}</span>
           <button class="close-button" onclick="closeErrorMessage()">&times;</button>
         </div>
       {% endif %}
-      
-      <script>
-        function closeErrorMessage() {
-          const errorDiv = document.querySelector('.error-message');
-          errorDiv.style.display = 'none';
-        }
-      </script>
+      {% if success %}
+      <div class="success-message">
+        <span>{{ success }}</span>
+        <button class="close-button" onclick="closeSuccessMessage()">&times;</button>
+      </div>
+      {% endif %}
+        <script>
+          function closeErrorMessage() {
+            const errorDiv = document.querySelector('.error-message');
+            errorDiv.style.display = 'none';
+          }
+          function closeSuccessMessage() {
+            const successDiv = document.querySelector('.success-message');
+            successDiv.style.display = 'none';
+          }
+        </script>
       
         <div class="max-width-s">
-          <h1>FeedAI</h1>
+          <h1>Feadl.io</h1>
           <p class="paragraph">More Sales. Less Effort.</p>
-          <form method="POST" action="#">
+          <form method="POST" action="{% url 'signup' %}">
             {% csrf_token %}
             <div class="form-group">
               <label for="email">Email:</label>
               <input id="email" type="email" name="email" required>
+            </div>
+            <div class="form-group">
+              <label for="email">Confirm Email:</label>
+              <input id="email" type="email" name="confirm_email" required>
             </div>
             <div class="form-group">
               <label for="password">Password:</label>

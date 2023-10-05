@@ -1,6 +1,5 @@
 "use strict";
 
-
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.6.6/firebase-app.js';
 import { getFirestore, collection, doc, setDoc, updateDoc, getDocs, onSnapshot, deleteDoc } from 'https://www.gstatic.com/firebasejs/9.6.6/firebase-firestore.js';
 
@@ -17,7 +16,6 @@ var firebaseConfig = {
 const firebaseApp = initializeApp(firebaseConfig);
 const db = getFirestore(firebaseApp);
 const userDocRef = doc(collection(db, 'users'), user_id);
-
 const ev = [];
 const eventsCollectionRef = collection(userDocRef, "events");
 
@@ -70,7 +68,7 @@ await getDocs(eventsCollectionRef)
         this.$selectedEvent = e.event;
         const caption = e.event.extendedProps.caption || "";
         const img = e.event.extendedProps.image_url || "https://user-images.githubusercontent.com/101482/29592647-40da86ca-875a-11e7-8bc3-941700b0a323.png";
-        this.$eventCaption.val(caption);
+        this.$eventCaption.text(caption);
         this.$eventImg.attr("src", img);
         this.$modal.show();
     };
@@ -234,7 +232,7 @@ await getDocs(eventsCollectionRef)
                         .catch((error) => {
                             console.error('Error updating event to Firestore:', error);
                         });
-                    a.$selectedEvent.setExtendedProp("caption", l("#event-caption").val());
+                    a.$selectedEvent.setExtendedProp("caption", l("#event-caption").text());
                 }
                 a.$modal.hide();
             } else {

@@ -2608,10 +2608,26 @@ table td {
   flex: 1;
 }
 
+.success-message {
+  background-color: #d8f8d7;
+  border: 1px solid #c6f5cd;
+  border-radius: 4px;
+  padding: 10px;
+  margin: 10px 0;
+  color: #1c722d;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+}
+
+.success-message span {
+  flex: 1;
+}
+
 .close-button {
   border: none;
   background: none;
-  color: #721c24;
+  color: #626262;
   font-size: 20px;
   cursor: pointer;
   padding: 0;

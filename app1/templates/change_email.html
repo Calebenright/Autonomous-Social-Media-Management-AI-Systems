@@ -1,0 +1,74 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+  <title>Change Email | Feadl.io</title>
+  <meta charset="utf-8">
+  <meta name="description" content="An Autonomous, AI driven, marketing and social media web based application.">
+  <meta name="viewport" content="width=device-width">
+  <link rel="apple-touch-icon-precomposed" href="{% static 'website/media/favicon.png' %}">
+  <link rel="icon" href="{% static 'website/media/favicon.png' %}">
+  <link rel="mask-icon" href="{% static 'website/media/favicon.svg' %}" color="rgb(36,38,58)">
+  <link rel="shortcut icon" href="{% static 'website/media/favicon.png' %}">
+  <link rel="stylesheet" href="{% static 'website/css/main.css' %}">
+</head>
+<body class="page page-onboarding preload">
+
+  <main>
+
+    <a href="{% url 'brand_settings' %}" class="button button-close" role="button"></a>
+
+    <section class="row no-gutter reverse-order">
+      <div class="col-one-half middle padding">
+        {% if error %}
+          <div class="error-message">
+            <span>{{ error }}</span>
+            <button class="close-button" onclick="closeErrorMessage()">&times;</button>
+          </div>
+        {% endif %}
+        {% if success %}
+        <div class="success-message">
+          <span>{{ success }}</span>
+          <button class="close-button" onclick="closeSuccessMessage()">&times;</button>
+        </div>
+        {% endif %}
+          <script>
+            function closeErrorMessage() {
+              const errorDiv = document.querySelector('.error-message');
+              errorDiv.style.display = 'none';
+            }
+            function closeSuccessMessage() {
+              const successDiv = document.querySelector('.success-message');
+              successDiv.style.display = 'none';
+            }
+          </script>
+        <div class="max-width-s">
+          <h1>Feadl.io</h1>
+          <h5>New Email?</h5>
+          <p class="paragraph">No Problem! We Can Fix That.</p>
+          <form method="post" id="changeEmailForm">
+            {% csrf_token %}
+            <div class="form-group">
+              <label for="email">Old Email:</label>
+              <input id="email" type="email" name="old_email">
+            </div>
+            <div class="form-group">
+              <label for="email">New Email:</label>
+              <input id="email" type="email" name="new_email">
+            </div>
+            <div class="form-group">
+              <label for="email">Confirm New Email:</label>
+              <input id="email" type="email" name="confirm_email">
+            </div>
+            <button type="submit" class="button button-primary full-width space-top">Change Email</button>
+          </form>
+        </div>
+      </div>
+      <div class="col-one-half bg-image-06 featured-image"></div>
+    </section>
+
+  </main>
+
+  <script src="{% static 'website/css/main.css' %}"></script>
+</body>
+</html>
