@@ -294,6 +294,14 @@
                             </a>
                         </li>
 
+                        <li>
+                            <a href="{% url 'ad_manager' %}">
+                                <i class="mdi mdi-view-dashboard-outline"></i>
+                                <!-- <span class="badge bg-success rounded-pill float-end">9+</span> -->
+                                <span> Jerry </span>
+                            </a>
+                        </li>
+
                         <li class="menu-title mt-2">Apps</li>
 
                         <li>
@@ -447,6 +455,19 @@
                                         </div>
                                         
                                         <div id="content-card-up" class="content-card">
+                                            <h4 class="header-title">Add Elements</h4>
+                                            <p></p>
+                                            <div class="form-check mb-2 form-check-success">
+                                                <input class="form-check-input" type="checkbox" name="isGraphic" value="true">
+                                                <label class="form-check-label">Graphic</label>
+                                            </div>
+                                            <br>
+                                            <h4 class="header-title">Photo Attribution</h4>
+                                            <p></p> 
+                                            <div class="tag-input-container">
+                                                <input type="text" name="photo-attribution" class="form-control" value="{{ user_settings.business_name }}" placeholder="Enter Attribution...">
+                                            </div>
+                                            <br>
                                             <h4 class="header-title">File Upload</h4>
                                             <p class="sub-header">
                                                 Upload an image and we will turn it into a post!
@@ -485,6 +506,11 @@
                                             <br>
                                             <br>
                                         </form>
+                                        <form method="post" action="{% url 'download' %}">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-soft-warning rounded-pill waves-effect btn-xs" >Download Image</button>
+                                            <br>
+                                            <br>
                                         </form>
                                         <form method="post" action="{% url 'post_creator' %}">
                                             {% csrf_token %}

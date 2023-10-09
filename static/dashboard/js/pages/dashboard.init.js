@@ -42,33 +42,53 @@ if (isEndFtueEnabled){
     if (isAutoState2){
         const progress = document.getElementById('progress');
         const progressBar = document.getElementById('progress-bar');
-        const statusDisplay = document.getElementById('status-display');
+        const progress2 = document.getElementById('progress2');
+        const progressBar2 = document.getElementById('progress-bar2');
+        const progress3 = document.getElementById('progress3');
+        const progressBar3 = document.getElementById('progress-bar3');
         const imageContainer = document.getElementById('image-container');
         const loadingGif = document.getElementById('loading-gif');
         const loadDone = document.getElementById('load-done');
         const loadStart = document.getElementById('load-start');
+        const resetButton = document.getElementById('resetButton');
         loadStart.style.display = 'block';
+        
 
         const unsubscribe = onSnapshot(statusDocRef, (docSnapshot) => {
             if (docSnapshot.exists()) {
                 const status = docSnapshot.data().status;
-                progress.style.width = `${status}%`;
-                
+                const status2 = docSnapshot.data().status2;
+                const status3 = docSnapshot.data().status3;
+                let totalPercentageIncrease = 0;
+
                 if (status === '100') {
+                    totalPercentageIncrease += 4;
+                }
+                
+                if (status2 === '100') {
+                    totalPercentageIncrease += 55;
+                }
+                
+                if (status3 === '100') {
+                    totalPercentageIncrease += 30;
+                }
+                
+                progress.style.width = `${totalPercentageIncrease}%`;
+                
+                
+                
+                if (status === '100' && status2 === '100' && status3 === '100') {
                     loadDone.style.display = 'block';
                     loadingGif.src = gifDone;
-                    statusDisplay.style.display = 'none';
                     progressBar.style.display = 'none';
+                    resetButton.style.display = 'none';
                 }
                 else {
                     loadDone.style.display = 'none';
                     loadingGif.src = gifStart;
-                    statusDisplay.textContent = `Loading: ${status}%`;
-                    statusDisplay.style.display = 'block';
                     progressBar.style.display = 'block';
+                    resetButton.style.display = 'block';
                 }
-            } else {
-                statusDisplay.textContent = 'Document does not exist';
             }
         }, (error) => {
             console.error('Error in realtime listener:', error);

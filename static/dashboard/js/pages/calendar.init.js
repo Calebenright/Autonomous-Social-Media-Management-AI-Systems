@@ -31,7 +31,9 @@ await getDocs(eventsCollectionRef)
             start: eventData.start.toDate(),
             image_url: eventData.image_url,
             caption: eventData.caption,
-            className: eventData.className
+            className: eventData.className,
+            socials: eventData.socials,
+            
         };
 
         ev.push(eventObject);
@@ -52,6 +54,13 @@ await getDocs(eventsCollectionRef)
         this.$btnDeleteEvent = l("#btn-delete-event"),
         this.$btnSaveEvent = l("#btn-save-event"),
         this.$modalTitle = l("#modal-title"),
+        this.$facebook = l("#facebook"),
+        this.$linkedin = l("#linkedin"),
+        this.$instagram = l("#instagram"),
+        this.$googleBusiness = l("#google_business"),
+        this.$socialReset = l("#social_reset"),
+        this.$darkButton = l("#dark-button"),
+        this.$downloadForm = l("#downloadForm"),
         this.$calendarObj = null,
         this.$selectedEvent = null,
         this.$newEventData = null
@@ -68,21 +77,29 @@ await getDocs(eventsCollectionRef)
         this.$selectedEvent = e.event;
         const caption = e.event.extendedProps.caption || "";
         const img = e.event.extendedProps.image_url || "https://user-images.githubusercontent.com/101482/29592647-40da86ca-875a-11e7-8bc3-941700b0a323.png";
+        const socialElements = {
+            'facebook': this.$facebook,
+            'instagram': this.$instagram,
+            'linkedin': this.$linkedin,
+            'google_business': this.$googleBusiness
+        };
+        this.$facebook.hide();
+        this.$instagram.hide();
+        this.$linkedin.hide();
+        this.$googleBusiness.hide();
+        
+        const socials = e.event.extendedProps.socials || [];
+        for (let social of socials) {
+            const element = socialElements[social];
+            if (element) {
+                element.show();
+                console.log("Showing:", element);
+            }
+        }
         this.$eventCaption.text(caption);
         this.$eventImg.attr("src", img);
         this.$modal.show();
     };
-    
-    // e.prototype.onSelect = function(e) {
-    //     this.$formEvent[0].reset(),
-    //     this.$formEvent.removeClass("was-validated"),
-    //     this.$selectedEvent = null,
-    //     this.$newEventData = e,
-    //     this.$btnDeleteEvent.hide(),
-    //     this.$modalTitle.text("Add New Event"),
-    //     this.$modal.show(),
-    //     this.$calendarObj.unselect()
-    // };
     
     e.prototype.init = function() {
 
@@ -94,7 +111,8 @@ await getDocs(eventsCollectionRef)
                 return {
                     title: eventEl.innerText,
                     className: l(eventEl).data("class"),
-                    image_url: l(eventEl).data("image-url")
+                    image_url: l(eventEl).data("image-url"),
+                    socials: l(eventEl).data("socials")
                 };
             }
         });
@@ -186,6 +204,7 @@ await getDocs(eventsCollectionRef)
                 var image_url = info.event.extendedProps.image_url;
                 var updatedStartTime = info.event.start;
                 var caption = info.event.extendedProps.caption;
+                var  socials = info.event.extendedProps. socials;
 
                 const eventDocRef = doc(collection(userDocRef, 'events'), eid);
 
@@ -193,7 +212,8 @@ await getDocs(eventsCollectionRef)
                     eid: eid,
                     start: updatedStartTime,
                     image_url: image_url,
-                    caption: caption
+                    caption: caption,
+                    socials:  socials,
                 };
 
                 setDoc(eventDocRef, eventData, { merge: true })
@@ -212,6 +232,44 @@ await getDocs(eventsCollectionRef)
         a.$btnNewEvent.on("click", function(e) {
             a.onSelect({ date: new Date, allDay: !0 })
         });
+
+        a.$facebook.on("click", function(e) {
+            if (a.$selectedEvent) {
+                a.$facebook.hide();
+            }
+        });
+        
+        a.$instagram.on("click", function(e) {
+            if (a.$selectedEvent) {
+                a.$instagram.hide();
+            }
+        });
+        
+        a.$linkedin.on("click", function(e) {
+            if (a.$selectedEvent) {
+                a.$linkedin.hide();
+            }
+        });
+
+        a.$googleBusiness.on("click", function(e) {
+            if (a.$selectedEvent) {
+                a.$googleBusiness.hide();
+            }
+        });
+
+        a.$socialReset.on("click", function(e) {
+            if (a.$selectedEvent) {
+                a.$instagram.show();
+                a.$facebook.show();
+                a.$linkedin.show();
+                a.$googleBusiness.show();
+            }
+        });
+        
+        a.$darkButton.on("click", function(e) {
+            e.preventDefault();
+            window.location.href = downloadUrl;
+        });
         
         a.$formEvent.on("submit", function(e) {
             e.preventDefault();
@@ -220,11 +278,25 @@ await getDocs(eventsCollectionRef)
                 if (a.$selectedEvent) {
                     const eid = a.$selectedEvent.extendedProps.eid;
                     const eventDocRef = doc(collection(userDocRef, 'events'), eid);
-                    const caption = l("#event-caption").val();
-                    console.log(caption)
-                    const eventData = {
-                        caption: caption
+                    const caption = l("#event-caption").text();
+                    const socialElements = {
+                        'facebook': a.$facebook,
+                        'linkedin': a.$linkedin,
+                        'instagram': a.$instagram,
+                        'google_business': a.$googleBusiness
                     };
+                    
+                    const socials = [];
+                    for (const [social, element] of Object.entries(socialElements)) {
+                        if (!element.is(":hidden")) {
+                            socials.push(social);
+                        }
+                    }
+                    const eventData = {
+                        caption: caption,
+                        socials: socials
+                    };
+                    console.log(socials);
                     setDoc(eventDocRef, eventData, { merge: true })
                         .then(() => {
                             console.log('Event updated');
@@ -233,6 +305,7 @@ await getDocs(eventsCollectionRef)
                             console.error('Error updating event to Firestore:', error);
                         });
                     a.$selectedEvent.setExtendedProp("caption", l("#event-caption").text());
+                    a.$selectedEvent.setExtendedProp("socials", socials);
                 }
                 a.$modal.hide();
             } else {

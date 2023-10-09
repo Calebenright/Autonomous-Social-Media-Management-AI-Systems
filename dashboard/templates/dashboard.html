@@ -301,6 +301,14 @@
                             </a>
                         </li>
 
+                        <li>
+                            <a href="{% url 'ad_manager' %}">
+                                <i class="mdi mdi-view-dashboard-outline"></i>
+                                <!-- <span class="badge bg-success rounded-pill float-end">9+</span> -->
+                                <span> Jerry </span>
+                            </a>
+                        </li>
+
                         <li class="menu-title mt-2">Apps</li>
 
                         <li>
@@ -649,7 +657,7 @@
                                             <br>
                                             <img src="{% static 'dashboard/images/elaineButton.png' %}" alt="Generated Image" class="rounded" style="width: 55%;">
                                             <br><br>
-                                            <button class="btn btn-custom btn-lg waves-effect waves-light rounded-pill centerButton" id="automate">Automate</button>
+                                            <button class="btn btn-custom btn-lg waves-effect waves-light rounded-pill centerButton" id="automate" onclick="showSpinner()">Automate</button>
                                             <br><br>
                                         </div>
                                     </form>
@@ -695,10 +703,18 @@
                                     <div class="card-body">
                                         <div class="center-card-content">
                                             <img id="loading-gif" src="" alt="Loaded Image">
-                                            <div class="progress-bar" id="progress-bar">
+                                            <div id="progress-bar">
                                                 <div class="progress" id="progress"></div>
                                             </div>
-                                            <p id="status-display"></p>
+                                            <br>
+                                            <div id="resetButton">
+                                                <form method="post" action="{% url 'dashboard' %}">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="form" value="formReset">
+                                                        <p>Taking Too Long?</p>
+                                                        <button class="btn btn-coffee btn-xs waves-effect waves-light rounded-pill" onclick="showSpinner()">Reset By Clicking Here</button>
+                                                </form>
+                                            </div>
                                             <div id="load-done">
                                                 <form method="post" action="{% url 'dashboard' %}">
                                                     {% csrf_token %}

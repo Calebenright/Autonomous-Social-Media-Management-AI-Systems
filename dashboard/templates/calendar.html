@@ -31,6 +31,7 @@
             
         <script>
             const user_id = '{{ user_id }}';
+            const downloadUrl = "{% url 'download' %}";
         </script>
 
         <!-- Topbar Start -->
@@ -289,6 +290,14 @@
                             </a>
                         </li>
 
+                        <li>
+                            <a href="{% url 'ad_manager' %}">
+                                <i class="mdi mdi-view-dashboard-outline"></i>
+                                <!-- <span class="badge bg-success rounded-pill float-end">9+</span> -->
+                                <span> Jerry </span>
+                            </a>
+                        </li>
+
                         <li class="menu-title mt-2">Apps</li>
 
                         <li>
@@ -388,15 +397,24 @@
                                                             <div class="mb-3">
                                                                 <label class="form-label">Image</label>
                                                                 <img src="" style="max-width: 100%; display: block; height: auto; border-radius: 10px;" id="event-image">
+                                                                <br>
+                                                                <div class="generated-post">
+                                                                    <button type="button" class="btn btn-soft-dark rounded-pill waves-effect btn-xs" id="dark-button">Download Image</button>
+                                                                </div>
                                                             </div>
                                                         </div>
-                                                        <!-- <div class="col-12">
+                                                        <div class="col-12">
                                                             <div class="mb-3">
-                                                                <label class="form-label">Post Caption</label>
-                                                                <input class="form-control-constrain" type="text" name="title" id="event-caption" required />
-                                                                <div class="invalid-feedback">Please provide a valid caption</div>
+                                                                <label class="form-label">Pages</label>
+                                                                <div style="display: inline-block;">
+                                                                    <img src="https://cdn-icons-png.flaticon.com/512/4400/4400507.png" style="max-width: 10%; border-radius: 10px; margin: 10px;" id="social_reset">
+                                                                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/fb/Facebook_icon_2013.svg/800px-Facebook_icon_2013.svg.png" style="max-width: 10%; border-radius: 10px; margin: 10px;" id="facebook">
+                                                                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Instagram_logo_2016.svg/768px-Instagram_logo_2016.svg.png" style="max-width: 10%; border-radius: 10px; margin: 10px;" id="instagram">
+                                                                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/LinkedIn_icon.svg/1200px-LinkedIn_icon.svg.png" style="max-width: 10%; border-radius: 10px; margin: 10px;" id="linkedin">
+                                                                    <img src="https://seeklogo.com/images/G/google-my-bussines-logo-554E98BE88-seeklogo.com.png" style="max-width: 10%; border-radius: 10px; margin: 10px;" id="google_business">
+                                                                </div>
                                                             </div>
-                                                        </div> -->
+                                                        </div>
                                                         <div class="col-12">
                                                             <div class="mb-3">
                                                                 <label class="form-label">Post Caption</label>

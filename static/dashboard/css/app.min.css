@@ -25094,9 +25094,9 @@ body[data-layout-color=dark] .datepicker tfoot tr th:hover {
 
 .progress {
     width: 0;
-    height: 100%;
+    height: 20px;
     background-color: #D99B46;
-    transition: width 1s ease-in-out;
+    transition: width 8s ease-in-out;
 }
 
 .loaded-image {

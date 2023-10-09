@@ -15,8 +15,8 @@
     <!-- App css -->
     <link href="{% static 'dashboard/css/app.min.css' %}" rel="stylesheet" type="text/css" id="app-style" />
 
-    <!-- Sweet Alert-->
-    <link href="{% static 'dashboard/libs/sweetalert2/sweetalert2.min.css' %}" rel="stylesheet" type="text/css" />
+    <!-- PLugins css -->
+    <link href="{% static 'dashboard/libs/mohithg-switchery/switchery.min.css' %}" rel="stylesheet" type="text/css" />
 
     <!-- icons -->
     <link href="{% static 'dashboard/css/icons.min.css' %}" rel="stylesheet" type="text/css" />
@@ -297,6 +297,14 @@
                             </a>
                         </li>
 
+                        <li>
+                            <a href="{% url 'ad_manager' %}">
+                                <i class="mdi mdi-view-dashboard-outline"></i>
+                                <!-- <span class="badge bg-success rounded-pill float-end">9+</span> -->
+                                <span> Jerry </span>
+                            </a>
+                        </li>
+                        
                         <li class="menu-title mt-2">Apps</li>
 
                         <li>
@@ -447,10 +455,10 @@
                                 <div class="card-body widget-user">
                                     <h4 class="header-title">Link Social Accounts</h4>
                                     <br>
-                                    <form method="post" action="{% url 'all_auth' %}" enctype="multipart/form-data">
+                                    <form id="facebook" method="post" action="{% url 'all_auth' %}" enctype="multipart/form-data">
                                         {% csrf_token %}
-                                        <button type="submit" class="social-button">
-                                            <input type="hidden" name="form" value="formFacebook">
+                                        <input type="hidden" name="form" value="formFacebook">
+                                        <button class="social-button">
                                             <div class="d-flex align-items-center">
                                                 <div class="avatar-sm me-3 flex-shrink-0">
                                                     <img src="{% static 'dashboard/images/users/facebook_logo.png' %}" class="img-fluid rounded-circle" alt="Facebook">
@@ -463,14 +471,29 @@
                                                     <small class="text-primary"><b>Not Linked</b></small>
                                                     {% endif %}
                                                 </div>
+                                                {% if user_settings.facebook_token %}
+                                                <input id="facebook_switch" type="checkbox" {% if user_settings.isFacebook %}checked{% endif %} data-plugin="switchery" data-color="#039cfd"/>
+                                                {% endif %}
                                             </div>
                                         </button>
+                                        <script>
+                                            var form = document.getElementById('facebook');
+                                            var switcheryInput = document.getElementById('facebook_switch');
+
+                                            switcheryInput.addEventListener('click', function(event) {
+                                                event.stopPropagation();
+                                            });
+
+                                            form.addEventListener('submit', function(event) {
+                                                event.preventDefault();
+                                            });
+                                        </script>
                                     </form>
                                     <br>
-                                    <form method="post" action="{% url 'all_auth' %}" enctype="multipart/form-data">
+                                    <form id="instagram" method="post" action="{% url 'all_auth' %}" enctype="multipart/form-data">
                                         {% csrf_token %}
-                                        <button type="submit" class="social-button">
-                                            <input type="hidden" name="form" value="formInstagram">
+                                        <input type="hidden" name="form" value="formInstagram">
+                                        <button class="social-button">
                                             <div class="d-flex align-items-center">
                                                 <div class="avatar-sm me-3 flex-shrink-0">
                                                     <img src="{% static 'dashboard/images/users/instagram_logo.png' %}" class="img-fluid rounded-circle" alt="Instagram">
@@ -483,17 +506,32 @@
                                                     <small class="text-pink"><b>Not Linked</b></small>
                                                     {% endif %}
                                                 </div>
+                                                {% if user_settings.instagram_token %}
+                                                <input id="instagram_switch" type="checkbox" {% if user_settings.isInstagram %}checked{% endif %} data-plugin="switchery" data-color="#ff7aa3"/>
+                                                {% endif %}
                                             </div>
                                         </button>
+                                        <script>
+                                            var form = document.getElementById('instagram');
+                                            var switcheryInput = document.getElementById('instagram_switch');
+
+                                            switcheryInput.addEventListener('click', function(event) {
+                                                event.stopPropagation();
+                                            });
+
+                                            form.addEventListener('submit', function(event) {
+                                                event.preventDefault();
+                                            });
+                                        </script>
                                     </form>
                                     <br>
-                                    <form method="post" action="{% url 'all_auth' %}" enctype="multipart/form-data">
+                                    <form id="google_business" method="post" action="{% url 'all_auth' %}" enctype="multipart/form-data">
                                         {% csrf_token %}
-                                        <button type="submit" class="social-button">
-                                            <input type="hidden" name="form" value="formGoogle">
+                                        <input type="hidden" name="form" value="formGoogle">
+                                        <button class="social-button">
                                             <div class="d-flex align-items-center">
                                                 <div class="avatar-sm me-3 flex-shrink-0">
-                                                    <img src="{% static 'dashboard/images/users/google_business_logo.png' %}" class="img-fluid rounded-circle" alt="Google">
+                                                    <img src="{% static 'dashboard/images/users/google_business_logo.png' %}" class="img-fluid rounded-circle" alt="Google Business">
                                                 </div>
                                                 <div class="flex-grow-1 overflow-hidden">
                                                     <h5 class="mt-0 mb-1"> Google Business</h5>
@@ -503,14 +541,29 @@
                                                     <small class="text-warning"><b>Not Linked</b></small>
                                                     {% endif %}
                                                 </div>
+                                                {% if user_settings.google_business_token %}
+                                                <input id="google_business_switch" type="checkbox" {% if user_settings.isGoogle %}checked{% endif %} data-plugin="switchery" data-color="#f1b53d"/>
+                                                {% endif %}
                                             </div>
                                         </button>
+                                        <script>
+                                            var form = document.getElementById('google_business');
+                                            var switcheryInput = document.getElementById('google_business_switch');
+
+                                            switcheryInput.addEventListener('click', function(event) {
+                                                event.stopPropagation();
+                                            });
+
+                                            form.addEventListener('submit', function(event) {
+                                                event.preventDefault();
+                                            });
+                                        </script>
                                     </form>
                                     <br>
-                                    <form method="post" action="{% url 'all_auth' %}" enctype="multipart/form-data">
+                                    <form id="linkedin" method="post" action="{% url 'all_auth' %}" enctype="multipart/form-data">
                                         {% csrf_token %}
                                         <input type="hidden" name="form" value="formLinkedin">
-                                        <button type="submit" class="social-button">
+                                        <button class="social-button">
                                             <div class="d-flex align-items-center">
                                                 <div class="avatar-sm me-3 flex-shrink-0">
                                                     <img src="{% static 'dashboard/images/users/linkedin_logo.png' %}" class="img-fluid rounded-circle" alt="LinkedIn">
@@ -523,8 +576,23 @@
                                                     <small class="text-primary"><b>Not Linked</b></small>
                                                     {% endif %}
                                                 </div>
+                                                {% if user_settings.linkedin_token %}
+                                                <input id="linkedin_switch" type="checkbox" {% if user_settings.isLinkedin %}checked{% endif %} data-plugin="switchery" data-color="#039cfd"/>
+                                                {% endif %}
                                             </div>
                                         </button>
+                                        <script>
+                                            var form = document.getElementById('linkedin');
+                                            var switcheryInput = document.getElementById('linkedin_switch');
+
+                                            switcheryInput.addEventListener('click', function(event) {
+                                                event.stopPropagation(); //
+                                            });
+
+                                            form.addEventListener('submit', function(event) {
+                                                event.preventDefault();
+                                            });
+                                        </script>
                                     </form>
                                     <br>
                                     <form method="post" action="{% url 'all_auth' %}" enctype="multipart/form-data">
@@ -642,6 +710,7 @@
                     <!-- end row -->
 
                     <script>
+                        
                         const tagsArray = '{{ user_settings.tags|safe }}' !== '' ?
                             JSON.parse('{{ user_settings.tags|safe }}') : [];
 
@@ -746,33 +815,21 @@
     <script src="{% static 'dashboard/libs/jquery.counterup/jquery.counterup.min.js' %}"></script>
     <script src="{% static 'dashboard/libs/feather-icons/feather.min.js' %}"></script>
     <script src="{% static 'dashboard/libs/morris.js06/morris.min.js' %}"></script>
-    
-    <!-- Plugins js-->
     <script src="{% static 'dashboard/libs/spectrum-colorpicker2/spectrum.min.js' %}"></script>
     <script src="{% static 'dashboard/libs/flatpickr/flatpickr.min.js' %}"></script>
-    <!-- jquery knob -->
+    <script src="{% static 'dashboard/libs/mohithg-switchery/switchery.min.js' %}"></script>
     <script src="{% static 'dashboard/libs/jquery-knob/jquery.knob.min.js' %}"></script>
-
-    <!-- Sparkline charts -->
-    <script src="{% static 'dashboard/libs/jquery-sparkline/jquery.sparkline.min.js' %}"></script>
-
-    <!-- peity charts -->
-    <script src="{% static 'dashboard/libs/peity/jquery.peity.min.js' %}"></script>
-
-
     <script src="{% static 'dashboard/js/pages/chart-sparkline.init.js' %}"></script>
-
-    <!-- Sweet Alerts js -->
-    <script src="{% static 'dashboard/libs/sweetalert2/sweetalert2.all.min.js' %}"></script>
-
-    <!-- Sweet alert init js-->
-    <script src="{% static 'dashboard/js/pages/sweet-alerts.init.js' %}"></script>
-
-    <!-- Init js-->
     <script src="{% static 'dashboard/js/pages/form-pickers.init.js' %}"></script>
-
-    <!-- App js -->
     <script src="{% static 'dashboard/js/app.min.js' %}"></script>
+    <script src="{% static 'dashboard/js/pages/form-advanced.init.js' %}"></script>
+    <script type="module" src="{% static 'dashboard/js/pages/brand-settings.init.js' %}"></script>
+    <script>
+    var userSettings = JSON.parse('{{ user_settings_json|escapejs }}');
+    var jsonDump = {
+        userId: '{{ user_id }}',
+    };
+    </script>
 
 </body>
 

@@ -34,36 +34,30 @@ def create_caption (business_description, business_name):
     f"Create a short social media caption for (BUSINESS DESCRIPTION = {business_description}) | Remove quotations.",
     ]
     prompt = random.choice(prompts)
-
-    # Make a request to the OpenAI API
     response = openai.Completion.create(
         model="gpt-3.5-turbo-instruct",
         prompt=prompt,
         max_tokens=300,
         temperature=1
     )
-
-    # Extract the generated description from the response
     original_string = response.choices[0].text.strip()
-
     if original_string.startswith('"') or original_string.endswith('"'):
         caption = original_string.strip('"')
     else:
         caption = original_string
-    # print("CAPTION:", caption)
 
     return caption
 
-def create_dalle_post (business_description, bucket_name, bucket_credentials, user_folder_path):
+def create_dalle_post (key):
 
     ## GENERATE iMAGE
-    prompt = f"describe one image you would find on social media that relates to {business_description} and make it a prompt so that i can generate that image in my image generator."
+    prompt = f"describe one image you would find on social media that relates to {key} and make it a prompt so that i can generate that image in my image generator."
 
     # Make a request to the OpenAI API
     response = openai.Completion.create(
         model="gpt-3.5-turbo-instruct",
         prompt=prompt,
-        max_tokens=500,
+        max_tokens=300,
         temperature=1
     )
 
@@ -87,9 +81,9 @@ def create_dalle_post (business_description, bucket_name, bucket_credentials, us
 
     return image_data
 
-def create_stable_dif_post (business_description, bucket_name, bucket_credentials, user_folder_path):
+def create_stable_dif_post (key):
     ## GENERATE iMAGE
-    prompt = f"I want you to create an image description based on these tags: {business_description}. The response should be less than 300 characters."
+    prompt = f"I want you to create an image description based on these tags: {key}. The response should be less than 300 characters."
 
     # Make a request to the OpenAI API
     response = openai.Completion.create(
@@ -151,7 +145,7 @@ def create_stable_dif_post (business_description, bucket_name, bucket_credential
 
     return image_io
 
-def create_stock_post (business_description, bucket_name, bucket_credentials, user_folder_path):
+def create_stock_post (key):
 
     ## CREATE IMAGE USING Unsplash
     base_url = 'https://api.unsplash.com/'
@@ -159,7 +153,7 @@ def create_stock_post (business_description, bucket_name, bucket_credentials, us
         'Authorization': f'Client-ID {UNSPLASH_API_KEY}',
     }
     params = {
-        'query': business_description,
+        'query': key,
         'count': 1,
     }
 
@@ -198,18 +192,18 @@ def create_stock_post (business_description, bucket_name, bucket_credentials, us
 
     return image_io
 
-def create_call_to_action(website, background_color, business_description, post_num):
+def create_call_to_action(website, background_color, key, random_int):
 
     # DEFINE IMAGE SIZE
     image_size = 1024
 
-    if post_num <= 3:
+    if random_int <= 3:
         base_url = 'https://api.unsplash.com/'
         headers = {
             'Authorization': f'Client-ID {UNSPLASH_API_KEY}',
         }
         params = {
-            'query': business_description,
+            'query': key,
             'count': 1,
         }
 
@@ -236,10 +230,10 @@ def create_call_to_action(website, background_color, business_description, post_
         bg = cropped_img.resize((image_size, image_size))
         bg = bg.filter(ImageFilter.GaussianBlur(radius=3))
 
-        png_image = Image.open(f'static/posts/1/{post_num}/1.png')
+        png_image = Image.open(f'static/posts/1/{random_int}/1.png')
         bg.paste(png_image, (0, 0), png_image)
 
-        png_to_color_change = f'static/posts/1/{post_num}/2.png'
+        png_to_color_change = f'static/posts/1/{random_int}/2.png'
         png_color_change = tint_image(png_to_color_change, background_color)
         bg.paste(png_color_change, (0, 0), png_color_change)
     else:
@@ -255,7 +249,7 @@ def create_call_to_action(website, background_color, business_description, post_
 
     return image_io
 
-def add_text(image_url, key, post_num, website):
+def add_text(image_url, key, random_int, website):
     image_size = 1024
     font_path_extrabold = 'static/dashboard/fonts/Poppins-ExtraBold.ttf'
     font_path_bold = 'static/dashboard/fonts/Poppins-Bold.ttf'
@@ -288,7 +282,7 @@ def add_text(image_url, key, post_num, website):
 
     fnt = ImageFont.truetype(font_path_semibold, 50)
     text_dim = d.textbbox((0, 0), middle_text, font=fnt)
-    d.text(((image_size - text_dim[2]) / 2, post_nums[post_num - 1]), middle_text, font=fnt, fill=(255, 255, 255))
+    d.text(((image_size - text_dim[2]) / 2, post_nums[random_int - 1]), middle_text, font=fnt, fill=(255, 255, 255))
 
     image_io = BytesIO()
     image.save(image_io, format='JPEG')
@@ -296,7 +290,7 @@ def add_text(image_url, key, post_num, website):
 
     return image_io
 
-def create_upload(image_name):
+def create_upload(image_name, isGraphic):
     image_data = image_name.read()
     img = Image.open(BytesIO(image_data))
     if img.format != 'JPEG':
@@ -309,6 +303,9 @@ def create_upload(image_name):
     bottom = (height + size) / 2
     cropped_img = img.crop((left, top, right, bottom))
     resized_img = cropped_img.resize((1024, 1024))
+
+        # if isGraphic:
+        #     pass
 
     image_io = BytesIO()
     resized_img.save(image_io, format='JPEG')
@@ -327,13 +324,13 @@ def create_placeholder(business_description, bucket_name, bucket_credentials, us
     image_io.seek(0)
     return image_io
 
-def create_ad_copy (business_description, bucket_name, bucket_credentials, user_folder_path):
+def create_ad_copy (business_description, biz_name):
     # Define the Business We Are Creating Media For
     # biz = input("WHAT TYPE OF BUSINESS ARE WE MAKING CONTENT FOR? ENTER RESPONSE: ")
 
     biz = business_description
 
-    ad_copy_prompt = f"Write me a persuasive PAS-based Facebook Ad that promotes [Your Product/Service].\
+    ad_copy_prompt = f"Write me a persuasive PAS-based Facebook Ad that promotes [Your Product/Service]. The name of my business is [Your Business Name]\
     \
     Start by calling out the main problem, outlining the market's pain points, and providing details on the impacts that the [Main Problem] has on their life or business. Write this first part in 1 to 2 sentences max.\
     \
@@ -350,6 +347,7 @@ def create_ad_copy (business_description, bucket_name, bucket_credentials, user_
     Make sure this ad is less than [Max # of words in ad] words and is written at a Grade 4 readability level.\
     \
     [Your Product/Service] = {biz}\
+    [Your Business Name] = {biz_name}\
     [Main Problem or Pain Point] = Create a Main Problem or Pain Point based on {biz}\
     [Benefit 1] = Create a Benefit based on this business description, {biz}\
     [Benefit 2] = Create another Benefit based on this business description, {biz}\
@@ -361,7 +359,7 @@ def create_ad_copy (business_description, bucket_name, bucket_credentials, user_
     response = openai.Completion.create(
         model="gpt-3.5-turbo-instruct",
         prompt=ad_copy_prompt,
-        max_tokens=300,
+        max_tokens=500,
         temperature=1
     )
 
@@ -416,21 +414,11 @@ def upload_to_google (image, bucket_name, bucket_credentials, user_folder_path):
 
 def create_image (website, color, selected_option, isLogo, logo_path, business_description, bucket_name, bucket_credentials, user_folder_path, post_num):
 
-    if selected_option == 'stable-dif':
-        img = create_stable_dif_post(business_description, bucket_name, bucket_credentials, user_folder_path)
-    elif selected_option == 'stock':
-        img = create_stock_post(business_description, bucket_name, bucket_credentials, user_folder_path)
-    elif selected_option == 'cta':
+    if selected_option == 'cta':
         img = create_call_to_action(website, color, business_description, post_num)
-    elif selected_option == 'graphic':
-        img = create_graphic(website, color, business_description, post_num)
-    elif selected_option == 'up':
-        img = create_upload(business_description)
     elif selected_option == 'text':
         img = add_text(logo_path, business_description, post_num, website)
         isLogo = False
-    else:
-        img = create_dalle_post(business_description, bucket_name, bucket_credentials, user_folder_path)
 
     if isLogo == 'true':
        if logo_path is not None:
@@ -440,22 +428,20 @@ def create_image (website, color, selected_option, isLogo, logo_path, business_d
 
     return url
 
-def create_ad (isLogo, logo_path, business_description, bucket_name, bucket_credentials, user_folder_path, num_ad):
+def create_ad (isLogo, logo_path, key, bucket_name, bucket_credentials, user_folder_path, num_ad):
 
     options = ['stable-dif', 'stock']
     selected_option = random.choice(options)
     if selected_option == 'stable-dif':
-        img = create_stable_dif_post(business_description, bucket_name, bucket_credentials, user_folder_path)
+        img = create_stable_dif_post(key)
     elif selected_option == 'stock':
-        img = create_stock_post(business_description, bucket_name, bucket_credentials, user_folder_path)
-    else:
-        img = create_stable_dif_post(business_description, bucket_name, bucket_credentials, user_folder_path)
+        img = create_stock_post(key)
 
     if isLogo == 'true':
         if logo_path is not None:
                 img = add_watermark(img, logo_path)
 
-    url = upload_to_google(img, bucket_name, bucket_credentials, user_folder_path, num_ad)
+    url = upload_to_google(img, bucket_name, bucket_credentials, user_folder_path)
 
     return url
 
