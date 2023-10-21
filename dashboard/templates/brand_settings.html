@@ -299,12 +299,12 @@
 
                         <li>
                             <a href="{% url 'ad_manager' %}">
-                                <i class="mdi mdi-view-dashboard-outline"></i>
+                                <i class="mdi mdi-tag-text-outline"></i>
                                 <!-- <span class="badge bg-success rounded-pill float-end">9+</span> -->
                                 <span> Jerry </span>
                             </a>
                         </li>
-                        
+
                         <li class="menu-title mt-2">Apps</li>
 
                         <li>
@@ -399,7 +399,7 @@
                                                         value="{{ user_settings.business_name }}">
                                                 </div>
                                                 <div class="mb-3">
-                                                    <label for="simpleinput" class="form-label">Business Description<br>(1-3 Words Recommended)</label>
+                                                    <label for="simpleinput" class="form-label">Business Description</label>
                                                     <input type="text" id="business_description" class="form-control"
                                                         name="business_description"
                                                         value="{{ user_settings.business_description }}">
@@ -416,9 +416,39 @@
                                                 </div>
                                                 {% endif %}
                                                 <div class="mb-3">
-                                                    <label class="form-label">Brand Color</label>
+                                                    <label class="form-label">Primary Brand Color</label>
                                                     <input type="text" class="form-control" id="colorpicker-showinput-intial" name="brand_color" value="{{ user_settings.brand_color }}">
                                                 </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Secondary Brand Colors</label>
+                                                    <input type="text" name="color2" class="form-control" id="colorpicker-showinput-intial2">
+                                                    <br>
+                                                    <input type="text" name="color3" class="form-control" id="colorpicker-showinput-intial3">
+                                                    <br>
+                                                    <input type="text" name="color4" class="form-control" id="colorpicker-showinput-intial4">
+                                                    <br>
+                                                    <input type="text" name="color5" class="form-control" id="colorpicker-showinput-intial5">
+                                                </div>
+                                                <script>
+                                                    let colorsArray = {{ user_settings.secondary_colors|safe }};
+
+                                                    if(colorsArray.length > 0) {
+                                                        document.getElementById("colorpicker-showinput-intial2").value = colorsArray[0];
+                                                    }
+
+                                                    if(colorsArray.length > 1) {
+                                                        document.getElementById("colorpicker-showinput-intial3").value = colorsArray[1];
+                                                    }
+
+                                                    if(colorsArray.length > 2) {
+                                                        document.getElementById("colorpicker-showinput-intial4").value = colorsArray[2];
+                                                    }
+
+                                                    if(colorsArray.length > 3) {
+                                                        document.getElementById("colorpicker-showinput-intial5").value = colorsArray[3];
+                                                    }
+
+                                                </script>
                                                 <div class="mb-3">
                                                     <label for="simpleinput" class="form-label">Website</label>
                                                     <input type="text" id="website" class="form-control"

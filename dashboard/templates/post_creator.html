@@ -296,7 +296,7 @@
 
                         <li>
                             <a href="{% url 'ad_manager' %}">
-                                <i class="mdi mdi-view-dashboard-outline"></i>
+                                <i class="mdi mdi-tag-text-outline"></i>
                                 <!-- <span class="badge bg-success rounded-pill float-end">9+</span> -->
                                 <span> Jerry </span>
                             </a>
@@ -390,15 +390,13 @@
                                             </select>
                                         </div> -->
 
-                                        <h4 class="header-title">Add Elements</h4>
-                                        <p></p>
-                                        <div class="form-check mb-2 form-check-success">
-                                            <input class="form-check-input" type="checkbox" name="isLogo" value="true" id="logo" {% if isLogo == 'true' %}checked{% endif %}>
-                                            <label class="form-check-label" for="logo">Logo</label>
-                                        </div>
-                                        <br>
                                         <h4 class="header-title">Post type</h4>
                                         <p></p>
+                                        
+                                        <div class="form-check mb-2 form-check-warning">
+                                            <input class="form-check-input" type="radio" name="flexRadioDefault" value="text" id="text" {% if selected_radio == 'text' %}checked{% endif %} >
+                                            <label class="form-check-label" for="text">Text Post</label>
+                                        </div>
 
                                         <!-- <div class="form-check mb-2 form-check-warning">
                                             <input class="form-check-input" type="radio" name="flexRadioDefault" value="dalle" id="dalle" {% if selected_radio == 'dalle' %}checked{% endif %} >
@@ -406,7 +404,7 @@
                                         </div> -->
 
                                         <div class="form-check mb-2 form-check-warning">
-                                            <input class="form-check-input" type="radio" name="flexRadioDefault" value="stable-dif" id="stable-dif" {% if selected_radio != 'dalle' and selected_radio != 'graphic' and selected_radio != 'stock' %}checked{% endif %} >
+                                            <input class="form-check-input" type="radio" name="flexRadioDefault" value="stable-dif" id="stable-dif" {% if selected_radio != 'dalle' and selected_radio != 'text' and selected_radio != 'graphic' and selected_radio != 'stock' %}checked{% endif %} >
                                             <label class="form-check-label" for="stable-dif">AI Image</label>
                                         </div>
 
@@ -428,7 +426,27 @@
                                 </div> 
                                 <div class="card">
                                     <div class="card-body">
+                                        <div id="content-card-text" class="content-card">
+                                            <h4 class="header-title">Platform</h4>
+                                            <p></p> 
+                                            <div class="mb-3">
+                                                <select class="form-select" id="text-platform" name="text-platform">
+                                                    <option>Facebook</option>
+                                                    <option>Twitter</option>
+                                                    <option>LinkedIn</option>
+                                                    <option>Google My Business</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
                                         <div id="content-card-stable-dif" class="content-card">
+                                            <h4 class="header-title">Add Elements</h4>
+                                            <p></p>
+                                            <div class="form-check mb-2 form-check-success">
+                                                <input class="form-check-input" type="checkbox" name="isLogo" value="true" id="logo" >
+                                                <label class="form-check-label" for="logo">Logo</label>
+                                            </div>
+                                            <br>
                                             <h4 class="header-title">Tags</h4>
                                             <p></p> 
                                             <div class="tag-input-container">
@@ -436,21 +454,30 @@
                                                 <input type="text" id="tagInput" class="form-control" placeholder="Enter tags separated by a comma...">
                                                 <div class="tag-bubbles" id="tagBubbles"></div>
                                             </div>
+                                            <br>
                                         </div>
                                         
                                         <div id="content-card-stock" class="content-card">
+                                            <h4 class="header-title">Add Elements</h4>
+                                            <p></p>
+                                            <div class="form-check mb-2 form-check-success">
+                                                <input class="form-check-input" type="checkbox" name="isLogo" value="true" id="logo">
+                                                <label class="form-check-label" for="logo">Logo</label>
+                                            </div>
+                                            <br>
                                             <h4 class="header-title">Search Keyword</h4>
                                             <p></p> 
-                                            <div class="tag-input-container">
-                                                <input type="text" name="stock-description" class="form-control" value="{{ user_settings.business_description }}" placeholder="Enter Search Keyword...">
+                                            <div class="mb-3">
+                                                <input type="text" name="stock-description" class="form-control" placeholder="Enter Search Keyword...">
                                             </div>
+                                            <br>
                                         </div>
                                         
                                         <div id="content-card-graphic" class="content-card">
                                             <h4 class="header-title">Background Image Keyword</h4>
                                             <p></p> 
-                                            <div class="tag-input-container">
-                                                <input type="text" name="graphic-description" class="form-control" value="{{ user_settings.business_description }}" placeholder="Enter Background Image Keyword...">
+                                            <div class="mb-3">
+                                                <input type="text" name="graphic-description" class="form-control" placeholder="Enter Background Image Keyword...">
                                             </div>
                                         </div>
                                         
@@ -458,13 +485,17 @@
                                             <h4 class="header-title">Add Elements</h4>
                                             <p></p>
                                             <div class="form-check mb-2 form-check-success">
+                                                <input class="form-check-input" type="checkbox" name="isLogo" value="true" id="logo">
+                                                <label class="form-check-label" for="logo">Logo</label>
+                                            </div>
+                                            <div class="form-check mb-2 form-check-success">
                                                 <input class="form-check-input" type="checkbox" name="isGraphic" value="true">
                                                 <label class="form-check-label">Graphic</label>
                                             </div>
                                             <br>
                                             <h4 class="header-title">Photo Attribution</h4>
                                             <p></p> 
-                                            <div class="tag-input-container">
+                                            <div class="mb-3">
                                                 <input type="text" name="photo-attribution" class="form-control" value="{{ user_settings.business_name }}" placeholder="Enter Attribution...">
                                             </div>
                                             <br>
@@ -482,6 +513,7 @@
                                     <button type="submit" class="btn btn-purple rounded-pill w-md waves-effect waves-light mb-3" onclick="showSpinner()">
                                         <i class="mdi mdi-plus"></i> Generate Post</button>
                                 </div>
+                                <br>
                             </form>
                         </div>
                         {% if user_settings.next_image_url %}
@@ -508,7 +540,7 @@
                                         </form>
                                         <form method="post" action="{% url 'download' %}">
                                             {% csrf_token %}
-                                            <button type="submit" class="btn btn-soft-warning rounded-pill waves-effect btn-xs" >Download Image</button>
+                                            <button type="submit" class="btn btn-soft-warning rounded-pill waves-effect btn-xs">Download Image</button>
                                             <br>
                                             <br>
                                         </form>

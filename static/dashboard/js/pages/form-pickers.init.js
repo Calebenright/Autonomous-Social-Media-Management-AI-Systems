@@ -8,6 +8,26 @@
             showInitial: !0,
             showInput: !0
         });
+
+        t("#colorpicker-showinput-intial2").spectrum({
+            showInitial: !0,
+            showInput: !0
+        });
+
+        t("#colorpicker-showinput-intial3").spectrum({
+            showInitial: !0,
+            showInput: !0
+        });
+
+        t("#colorpicker-showinput-intial4").spectrum({
+            showInitial: !0,
+            showInput: !0
+        });
+
+        t("#colorpicker-showinput-intial5").spectrum({
+            showInitial: !0,
+            showInput: !0
+        });
     },
 
     t.FormPickers = new e,

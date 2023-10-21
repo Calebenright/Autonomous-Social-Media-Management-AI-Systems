@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, FileResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.core.mail import EmailMessage
 from .forms import UserSettingsForm
 from .models import UserSettings
 from django.conf import settings
@@ -12,12 +13,11 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport import requests
 from urllib.parse import urlparse
 import os
-from .post_creator import create_image, create_stock_post, create_call_to_action, create_caption, create_dalle_post, create_stable_dif_post, create_ad_copy, create_ad, create_placeholder, add_text, upload_to_google, add_watermark, create_upload
+from .post_creator import create_image, create_stock_post, create_call_to_action, create_caption, create_dalle_post, create_stable_dif_post, create_ad_copy, create_ad_headline, create_ad, create_placeholder, upload_to_google, add_watermark, create_upload
 from .upload_post import send_post
 from django.http import JsonResponse
 import time
-from .functions import generate_unique_filename, generate_random_date
-from .brand_settings import create_tags
+from .functions import generate_unique_filename, generate_random_date, create_tags, generate_secondary_colors, create_text_post
 from firebase_admin import firestore, auth, credentials
 import base64
 import ast
@@ -106,6 +106,7 @@ def dashboard(request):
                     business_name = request.POST.get('business_name')
                     business_description = request.POST.get('business_description')
                     brand_color = request.POST.get('brand_color')
+                    colors = generate_secondary_colors(brand_color)
                     tags = create_tags(business_description)
 
                     # Prepare the data to be saved in Firestore
@@ -115,7 +116,8 @@ def dashboard(request):
                         'tags': tags,
                         'business_description': business_description,
                         'business_name': business_name,
-                        'brand_color': brand_color
+                        'brand_color': brand_color,
+                        'secondary_colors' : colors
                     }
                 elif ftue4:
                     link = request.POST.get('link')
@@ -173,6 +175,7 @@ def dashboard(request):
                     key = user_settings['business_description']
                     biz_name = user_settings['business_name']
                     color = user_settings['brand_color']
+                    secondary_colors = user_settings['secondary_colors']
                     selected_option = 'cta'
                     isLogo = False
                     logo_path = ''
@@ -183,8 +186,6 @@ def dashboard(request):
                         enqueue_task(payload, settings.GS_IMAGE_QUEUE_NAME, settings.GS_GENERATE_AI_IMAGE_URL)
                         enqueue_task(payload, settings.GS_IMAGE_QUEUE_NAME, settings.GS_GENERATE_STOCK_URL)
                         enqueue_task(payload, settings.GS_IMAGE_QUEUE_NAME, settings.GS_GENERATE_CAPTIONS_URL)
-                        schedule_img_7 = create_image(website, color, selected_option, isLogo, logo_path, key, settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, image_folder_path, post_num1)
-                        schedule_img_8 = create_image(website, color, selected_option, isLogo, logo_path, key, settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, image_folder_path, post_num2)
                     except:
                         context = {
                             'user_settings_json': json.dumps(user_settings_strings),
@@ -195,9 +196,9 @@ def dashboard(request):
                         return render(request, 'dashboard.html', context)
                     firestore_data = {
                         'status': '10',
+                        'status2': '0',
+                        'status3': '0',
                         'autoState': 2,
-                        'schedule_image_7': schedule_img_7,
-                        'schedule_image_8': schedule_img_8,
                         'post_num1': post_num1,
                         'post_num2': post_num2,
                         'cooldown_expiry': cooldown_expiry,
@@ -262,15 +263,27 @@ def dashboard(request):
         elif form_name == 'formView':
             image_folder_path = f'user_folders/ai_image_library/'
             tags = user_settings['tags']
-            key = user_settings['business_description']
+            tags_list = ast.literal_eval(tags)
+            key = random.choice(tags_list)
+            business_description = user_settings['business_description']
             biz_name = user_settings['business_name']
             color = user_settings['brand_color']
+            secondary_colors = ast.literal_eval(user_settings['secondary_colors'])
             post_num1 = user_settings['post_num1']
             post_num2 = user_settings['post_num2']
-            selected_option = 'text'
+            selected_option = 'cta'
             isLogo = False
-            schedule_img_7 = create_image(website, color, selected_option, isLogo, user_settings['schedule_image_7'], key, settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, image_folder_path, post_num1)
-            schedule_img_8 = create_image(website, color, selected_option, isLogo, user_settings['schedule_image_8'], key, settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, image_folder_path, post_num2)
+            logo_path = ''
+            random_int = random.randint(1, 4)
+            random_int2 = random.randint(1, 4)
+            try:
+                image_list = [user_settings['schedule_image_1'], user_settings['schedule_image_2'], user_settings['schedule_image_3'], user_settings['schedule_image_4'], user_settings['schedule_image_5'], user_settings['schedule_image_6']]
+                img_url = random.choice(image_list)
+            except:
+                img = create_stock_post(key)
+                img_url = upload_to_google(img, settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, image_folder_path)
+            schedule_img_7 = create_image(biz_name, business_description, website, key, img_url, color, secondary_colors, selected_option, isLogo, logo_path, settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, image_folder_path, random_int)
+            schedule_img_8 = create_image(biz_name, business_description, website, key, img_url, color, secondary_colors, selected_option, isLogo, logo_path, settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, image_folder_path, random_int2)
 
             firestore_data = {
                 'schedule_image_7': schedule_img_7,
@@ -375,7 +388,8 @@ def dashboard(request):
                         'image_url': user_settings[f'schedule_image_{str(check_num)}' ],
                         'caption': user_settings[f'schedule_cap_{str(check_num)}'],
                         'className': 'bg-elaine',
-                        'socials': socials
+                        'socials': socials,
+                        'type' : 'image'
                     }
                     eventDocRef.set(event_data, merge=True)
                     time_num += 1
@@ -490,14 +504,6 @@ def ad_manager(request):
     except (TypeError, KeyError):
         num_ad = 1
     try:
-        current_ad_image_url = user_settings['current_ad_image']
-    except (TypeError, KeyError):
-        current_ad_image_url = None
-    try:
-        current_ad_copy = user_settings['current_ad_copy']
-    except (TypeError, KeyError):
-        current_ad_copy = None
-    try:
         ad_image_url = user_settings['ad_image_url']
     except (TypeError, KeyError):
         ad_image_url = None
@@ -505,51 +511,90 @@ def ad_manager(request):
         ad_copy = user_settings['ad_copy']
     except (TypeError, KeyError):
         ad_copy = None
+    try:
+        ad_headline = user_settings['ad_headline']
+    except (TypeError, KeyError):
+        ad_headline = None
 
     if request.method == 'POST':
         form_name = request.POST.get('form')
-        if num_ad < 5 :
-            if form_name == 'formCopy':
-                ad_copy = create_ad_copy(biz, user_settings['business_name'])
-            elif form_name == 'formCopySave':
-                ad_copy = request.POST.get('ad_copy_content')
-            elif form_name == 'formRunAd':
-                current_ad_image_url = ad_image_url
-                current_ad_copy = ad_copy
-            elif form_name == 'formImg':
-                isLogo = request.POST.get('isLogo', None)
-                request.session['isLogo'] = isLogo
-                ad_image_url = create_ad(isLogo, logo_path, biz, settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, ads_folder_path, num_ad)
-                if num_ad <= 5:
-                    num_ad += 1
-            else:
-                isLogo = request.POST.get('isLogo', None)
-                request.session['isLogo'] = isLogo
-                ad_image_url = create_ad(isLogo, logo_path, biz, settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, ads_folder_path, num_ad)
-                ad_copy = create_ad_copy(biz, user_settings['business_name'])
-                if num_ad <= 5:
-                    num_ad += 1
+        if form_name == 'formCopy':
+            ad_copy = create_ad_copy(biz, user_settings['business_name'])
+            ad_headline = create_ad_headline(biz, user_settings['business_name'])
+        elif form_name == 'formCopySave':
+            ad_copy = request.POST.get('ad_copy_content')
+            ad_headline = request.POST.get('ad_headline_content')
+        elif form_name == 'formAdRequest':
+            user = auth.get_user(user_id)
+            user_email = user.email
+            subject = 'Feadl.io Ad Request'
+            message = 'USER EMAIL: {}\nUSER ID: {}\nBUSINESS_NAME: {}\n\nAD COST: {}\n\nCAMPAIGN NAME: {}\nAD IMAGE: {}\nAD_COPY: {}'.format(
+                user_email,
+                request.POST.get('user_id'),
+                request.POST.get('business_name'),
+                request.POST.get('ad_cost'),
+                request.POST.get('name'),
+                request.POST.get('ad_image_url'),
+                request.POST.get('ad_copy')
+            )
+            from_email = settings.EMAIL_HOST_USER
+            recipient_list = [settings.INTERNAL_RECIPIENTS]
+            email = EmailMessage(subject, message, from_email, recipient_list)
+            try:
+                email.send()
+                firestore_data = {'isAdRequested': True, 'isAdRun': False}
+                user_settings_ref.set(firestore_data, merge=True)
+                user_settings_doc = user_settings_ref.get()
+                user_settings = user_settings_doc.to_dict()
+                isLogo = request.session.get('isLogo', None)
+                context = {
+                    'user_settings': user_settings,
+                    'user_id': user_id,
+                    'isLogo': isLogo,
+                    'success': "You're request was sent! We will get back to you with an email shortly.",
+                }
+            except Exception as e:
+                isLogo = request.session.get('isLogo', None)
+                context = {
+                    'user_settings': user_settings,
+                    'user_id': user_id,
+                    'isLogo': isLogo,
+                    'error': "There was an error with your request. Please wait a moment and try again.",
+                }
+            
+            return render(request, 'ad_manager.html', context)
 
-            # Prepare the data to be saved in Firestore
-            firestore_data = {
-                'ad_image_url': ad_image_url,
-                'ad_copy': ad_copy,
-                'num_ad': num_ad,
-                'current_ad_copy': current_ad_copy,
-                'current_ad_image_url': current_ad_image_url
-            }
-
-            # Save the data to Firestore
-            user_settings_ref.set(firestore_data, merge=True)
-            user_settings_doc = user_settings_ref.get()
-            user_settings = user_settings_doc.to_dict()
-
+        elif form_name == 'formImg':
+            isLogo = request.POST.get('isLogo', None)
+            request.session['isLogo'] = isLogo
+            ad_image_url = create_ad(isLogo, logo_path, biz, settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, ads_folder_path, num_ad)
+            if num_ad <= 5:
+                num_ad += 1
         else:
-            user_settings['deny'] = True
+            isLogo = request.POST.get('isLogo', None)
+            request.session['isLogo'] = isLogo
+            ad_image_url = create_ad(isLogo, logo_path, biz, settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, ads_folder_path, num_ad)
+            ad_copy = create_ad_copy(biz, user_settings['business_name'])
+            if num_ad <= 5:
+                num_ad += 1
+
+        # Prepare the data to be saved in Firestore
+        firestore_data = {
+            'ad_image_url': ad_image_url,
+            'ad_copy': ad_copy,
+            'ad_headline': ad_headline,
+            'num_ad': num_ad
+        }
+
+        # Save the data to Firestore
+        user_settings_ref.set(firestore_data, merge=True)
+        user_settings_doc = user_settings_ref.get()
+        user_settings = user_settings_doc.to_dict()
         
     isLogo = request.session.get('isLogo', None)
     context = {
         'user_settings': user_settings,
+        'user_id': user_id,
         'isLogo': isLogo,
     }
     return render(request, 'ad_manager.html', context)
@@ -607,14 +652,24 @@ def post_creator(request):
     if request.method == 'POST':
         form_name = request.POST.get('form')
         if user_settings['isSubscriber']:
+            print(form_name)
             if form_name == 'formCaption1':
-                selected_option = request.session.get('selected_radio', 'stable-dif')
+                selected_option = request.session.get('selected_radio')
                 isLogo = request.session.get('isLogo', None)
-                post = create_caption(biz, biz_name)
+                if selected_option == "text":
+                    post = create_text_post('facebook', biz, biz_name)
+                else:
+                    post = create_caption(biz, biz_name)
                 firestore_data = {'next_caption': post}
                 url = user_settings['next_image_url']
+                print(post)
+                user_settings_ref.set(firestore_data, merge=True)
+                user_settings_doc = user_settings_ref.get()
+                user_settings = user_settings_doc.to_dict()
+
+                return render(request, 'post_creator.html', {'selected_radio': selected_option, 'isLogo': isLogo, 'user_settings': user_settings})
             if form_name == 'formDownload':
-                selected_option = request.session.get('selected_radio', 'stable-dif')
+                selected_option = request.session.get('selected_radio')
                 isLogo = request.session.get('isLogo', None)
                 url = user_settings['next_image_url']
                 parsed_url = urlparse(url)
@@ -631,6 +686,11 @@ def post_creator(request):
                 bucket = storage_client.bucket(bucket_name)
                 blob = bucket.blob(blob_name)
                 blob.download_to_filename("downloaded_image.jpg")
+                user_settings_ref.set(firestore_data, merge=True)
+                user_settings_doc = user_settings_ref.get()
+                user_settings = user_settings_doc.to_dict()
+
+                return render(request, 'post_creator.html', {'selected_radio': selected_option, 'isLogo': isLogo, 'user_settings': user_settings})
             elif form_name == 'formPostSchedule':
                 timestamps = [
                     "T12:00:00",
@@ -673,6 +733,10 @@ def post_creator(request):
                 post = request.POST.get('edited_caption', '')
                 url = request.POST.get('url')
                 selected_option = request.session.get('selected_radio', 'stable-dif')
+                if selected_option == "text":
+                    post_type = "text"
+                else:
+                    post_type = "image"
                 isLogo = request.session.get('isLogo', None)
                 event_id = uuid.uuid4()
                 eid = str(event_id)
@@ -701,7 +765,8 @@ def post_creator(request):
                     'image_url': url,
                     'caption': post,
                     'className': 'bg-warning',
-                    'socials': socials
+                    'socials': socials,
+                    'type' : post_type
                 }
                 eventDocRef.set(event_data, merge=True)
                 firestore_data = {'next_caption': post}
@@ -736,9 +801,12 @@ def post_creator(request):
                 tz = pytz.UTC
                 current_time = datetime.now(tz)
 
-                if current_time > cooldown_expiry:
+                if current_time.astimezone(tz) > cooldown_expiry.astimezone(tz):
                     images_generated = 0
+                    cooldown_duration = timedelta(days=1)
+                    cooldown_expiry = datetime.now() + cooldown_duration
                     user_settings_ref.update({
+                        'cooldown_expiry': cooldown_expiry,
                         'images_generated': images_generated
                     })
 
@@ -753,9 +821,11 @@ def post_creator(request):
                         cooldown_expiry = datetime.now() + cooldown_duration
 
                     if selected_option == 'up':
-                        key = request.FILES.get('file')
+                        image = request.FILES.get('file')
                         isGraphic = request.POST.get('isGraphic')
-                        file_extension = key.name.split('.')[-1].lower()
+                        isLogo = request.POST.get('isLogo')
+                        name = request.POST.get('photo-attribution')
+                        file_extension = image.name.split('.')[-1].lower()
                         if file_extension not in ['jpg', 'jpeg', 'png']:
                             context = {
                                 'user_settings': user_settings,
@@ -763,16 +833,23 @@ def post_creator(request):
                             }
                             return render(request, 'post_creator.html', context)
                         try:
-                            img = create_upload(key, isGraphic)
-                            if isLogo == 'true':
-                                if logo_path is not None:
-                                        img = add_watermark(img, logo_path)
-
+                            img = create_upload(image, logo_path, isLogo, isGraphic, color, name)
                             url = upload_to_google(img, settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, image_folder_path)
                         except requests.exceptions.HTTPError:
                             return render(request, 'post_creator.html', {'selected_radio': selected_option, 'isLogo': isLogo, 'user_settings': user_settings, 'error': 'Image failed to generate. Your input may be too specific. Please try again.'})
                         except:
                             return render(request, 'post_creator.html', {'selected_radio': selected_option, 'isLogo': isLogo, 'user_settings': user_settings, 'error': 'Image failed to generate. If the problem persists, please contact us at https://feadl.io/contact/'})
+                    elif selected_option == 'text':
+                        platform = request.POST.get('text-platfrom')
+                        print(platform)
+                        try:
+                            post = create_text_post(platform, biz, biz_name)
+                            url = "https://storage.googleapis.com/starter_web_app_bucket/user_folders/assets/textPost.png"
+                        except requests.exceptions.HTTPError:
+                            return render(request, 'post_creator.html', {'selected_radio': selected_option, 'isLogo': isLogo, 'user_settings': user_settings, 'error': 'Image failed to generate. Your input may be too specific. Please try again.'})
+                        except:
+                            return render(request, 'post_creator.html', {'selected_radio': selected_option, 'isLogo': isLogo, 'user_settings': user_settings, 'error': 'Image failed to generate. If the problem persists, please contact us at https://feadl.io/contact/'})
+                    
                     elif selected_option == 'stable-dif':
                         entered_tags = request.POST.get('tags')
                         tags = entered_tags.split(',')
@@ -791,8 +868,18 @@ def post_creator(request):
                     elif selected_option == 'graphic':
                         key = request.POST.get('graphic-description')
                         random_int = random.randint(1, 4)
+                        image_folder_path = f'user_folders/ai_image_library/'
+                        color = user_settings['brand_color']
+                        secondary_colors = ast.literal_eval(user_settings['secondary_colors'])
+                        random_int = random.randint(1, 4)
                         try:
-                            img = create_call_to_action(website, color, key, random_int)
+                            image_list = [user_settings['schedule_image_1'], user_settings['schedule_image_2'], user_settings['schedule_image_3'], user_settings['schedule_image_4'], user_settings['schedule_image_5'], user_settings['schedule_image_6']]
+                            img_url = random.choice(image_list)
+                        except:
+                            img = create_stock_post(key)
+                            img_url = upload_to_google(img, settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, image_folder_path)
+                        try:
+                            img = create_call_to_action(biz, biz_name, color, secondary_colors, key, img_url, random_int)
                             if isLogo == 'true':
                                 if logo_path is not None:
                                         img = add_watermark(img, logo_path)
@@ -822,7 +909,9 @@ def post_creator(request):
                     except (TypeError, KeyError):
                         last_image_url = None
                         last_caption = None
-
+                    if selected_option != "text":
+                        post = create_caption(biz, biz_name)
+                    print(isLogo)
                 else:
                     return render(request, 'post_creator.html', {'selected_radio': selected_option, 'isLogo': isLogo, 'user_settings': user_settings, 'error': 'Our generators need time to cooldown. You can check the progress in the brand settings tab.'})
                 
@@ -839,7 +928,6 @@ def post_creator(request):
             user_settings_ref.set(firestore_data, merge=True)
             user_settings_doc = user_settings_ref.get()
             user_settings = user_settings_doc.to_dict()
-            user_settings['tags'] = json.dumps(tags)
 
             return render(request, 'post_creator.html', {'selected_radio': selected_option, 'isLogo': isLogo, 'user_settings': user_settings})
         else:
@@ -955,13 +1043,40 @@ def brand_settings(request):
                 else:
                     tags = ''
 
+# ------------------ COLORS ---------------#
+            colors = user_settings['secondary_colors']
+            color_array = ast.literal_eval(colors)
+            color2 = color_array[0]
+            color3 = color_array[1]
+            color4 = color_array[2]
+            color5 = color_array[3]
+
+            if request.POST.get('brand_color') != user_settings['brand_color']:
+                print('COLOR : ', request.POST.get('brand_color'))
+                colors = generate_secondary_colors(request.POST.get('brand_color'))
+                color_array = ast.literal_eval(colors)
+                print(colors)
+            
+            if request.POST.get('color2') != color2:
+                color_array[0] = request.POST.get('color2')
+            if request.POST.get('color3') != color3:
+                color_array[1] = request.POST.get('color3')
+            if request.POST.get('color4') != color4:
+                color_array[2] = request.POST.get('color4')
+            if request.POST.get('color5') != color5:
+                color_array[3] = request.POST.get('color5')
+            
+            colors = str(color_array)
+# ------------------ COLORS ---------------#
+
             firestore_data = {
                 'business_name': request.POST.get('business_name'),
                 'business_description': request.POST.get('business_description'),
                 'brand_color': request.POST.get('brand_color'),
                 'website': request.POST.get('website'),
                 'logo': logo_url,
-                'tags': tags
+                'tags': tags,
+                'secondary_colors': colors
             }
 
         elif form_name == 'user-settings':

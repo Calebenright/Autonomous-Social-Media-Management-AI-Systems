@@ -25316,3 +25316,46 @@ body[data-layout-color=dark] .datepicker tfoot tr th:hover {
     cursor: pointer;
     width: 100%;
 }
+
+#min-value,
+#max-value {
+    position: absolute;
+}
+
+#min-value {
+    left: 20px;
+}
+
+#max-value {
+    right: 20px;
+}
+
+.output-container {
+    display: flex;
+    justify-content: space-between;
+    margin: 5px;
+}
+
+.output-box {
+    width: 32%;
+    background-color: transparent; 
+    display: block;
+    text-align: center; 
+    border: 3px solid var(--ct-input-color); 
+    border-radius: 10px; 
+    padding: 10px;
+}
+
+.adSpendNumber {
+    padding: 5px;
+    font-size: 40px;
+    color: #10c469;
+    font-weight: bold;
+}
+
+.adSpendTitle {
+    padding: 5px;
+    font-size: 15px;
+    color: var(--ct-input-color);
+    font-weight: bold;
+}

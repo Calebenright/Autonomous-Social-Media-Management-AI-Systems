@@ -85,6 +85,8 @@
             </div>
             <button type="submit" class="button button-primary full-width" role="button">Log In</button>
           </form>
+          <!-- <button id="google-sign-in">Sign in with Google</button>
+          <button id="facebook-sign-in">Sign in with Facebook</button> -->
         </div>
         <div class="center max-width-s space-top">
           <span class="muted">Don't have an account?   </span><a href="{% url 'signup' %}">Sign Up</a>
@@ -96,8 +98,8 @@
     </section>
 
   </main>
-
-  <script src="{% static 'website/js/main.js' %}"></script>
+    <!-- <script type="module" src="{% static 'dashboard/js/pages/login.init.js' %}"></script> -->
+    <script src="{% static 'website/js/main.js' %}"></script>
 </body>
 
 </html>

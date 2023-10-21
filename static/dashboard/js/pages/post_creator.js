@@ -1,6 +1,14 @@
+
+const tagInput = document.getElementById('tagInput');
+const tagBubbles = document.getElementById('tagBubbles');
+const tags = tagsArray;
+const randomTag = tags[Math.floor(Math.random() * tags.length)];
+
 document.addEventListener('DOMContentLoaded', () => {
     const radioButtons = document.querySelectorAll('input[name="flexRadioDefault"]');
     const contentCards = document.querySelectorAll('.content-card');
+    const stockDescription = document.querySelector('input[name="stock-description"]');
+    const graphicDescription = document.querySelector('input[name="graphic-description"]');
 
     radioButtons.forEach(radioButton => {
         radioButton.addEventListener('change', () => {
@@ -12,6 +20,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const correspondingCard = document.getElementById(`content-card-${selectedValue}`);
             if (correspondingCard) {
+                if (selectedValue == "stock") {
+                    stockDescription.value = randomTag;
+                } else if (selectedValue == "graphic") {
+                    graphicDescription.value = randomTag;
+                }
                 correspondingCard.style.display = 'block';
             }
         });
@@ -23,10 +36,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     
 });
-
-const tagInput = document.getElementById('tagInput');
-const tagBubbles = document.getElementById('tagBubbles');
-const tags = tagsArray;
 
 tagInput.addEventListener('keydown', function(event) {
 if (event.key === 'Enter' || event.key === ',') {

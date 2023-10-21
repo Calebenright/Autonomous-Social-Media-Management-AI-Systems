@@ -303,7 +303,7 @@
 
                         <li>
                             <a href="{% url 'ad_manager' %}">
-                                <i class="mdi mdi-view-dashboard-outline"></i>
+                                <i class="mdi mdi-tag-text-outline"></i>
                                 <!-- <span class="badge bg-success rounded-pill float-end">9+</span> -->
                                 <span> Jerry </span>
                             </a>
@@ -382,7 +382,7 @@
                                                 <img src="{% static 'dashboard/images/elaineButton.png' %}" alt="Generated Image" class="rounded" style="width: 50%;">
                                                 <br><br>
                                                 <button class="btn btn-custom btn-lg waves-effect waves-light rounded-pill centerButton"
-                                                    id="automate" onclick="showSpinner()">Automate</button>
+                                                    id="automate" onclick="showSpinner()">Generate Feed</button>
                                                 <br><br>
                                             </div>
                                         </form>
@@ -657,7 +657,7 @@
                                             <br>
                                             <img src="{% static 'dashboard/images/elaineButton.png' %}" alt="Generated Image" class="rounded" style="width: 55%;">
                                             <br><br>
-                                            <button class="btn btn-custom btn-lg waves-effect waves-light rounded-pill centerButton" id="automate" onclick="showSpinner()">Automate</button>
+                                            <button class="btn btn-custom btn-lg waves-effect waves-light rounded-pill centerButton" id="automate" onclick="showSpinner()">Generate Feed</button>
                                             <br><br>
                                         </div>
                                     </form>
@@ -696,6 +696,20 @@
                             </div>
                         </div>
                         {% endif %}
+                        <div class="row">
+                            <div class="col-lg-3">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="generated-post">
+                                            <img src="{% static 'dashboard\images\JerryButton.png' %}" alt="Generated Image"
+                                                class="generated-image-lg rounded">
+                                            <br>
+                                            <a href="{% url 'ad_manager' %}" class="btn btn-dark btn-lg waves-effect waves-light rounded-pill centerButton">Create Ad</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         {% elif user_settings.autoState == 2 %}
                         <div id="load-start">
                             <div class="col-lg-3">

@@ -292,7 +292,7 @@
 
                         <li>
                             <a href="{% url 'ad_manager' %}">
-                                <i class="mdi mdi-view-dashboard-outline"></i>
+                                <i class="mdi mdi-tag-text-outline"></i>
                                 <!-- <span class="badge bg-success rounded-pill float-end">9+</span> -->
                                 <span> Jerry </span>
                             </a>
@@ -346,186 +346,360 @@
                 <div class="container-fluid">
                     <div class="row">
                         <div class="col-lg-6">
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <div class="generated-post">
+                                                <h4 class="header-title">Generated Ad Image</h4>
+                                                <br>
+                                                {% if user_settings.ad_image_url %}
+                                                <img src="{{ user_settings.ad_image_url }}" alt="Generated Image" class="generated-image-lg rounded">
+                                                {% else %}
+                                                <img src="{% static 'dashboard/images/generate.png' %}" alt="Generated Image" class="generated-image-lg rounded">
+                                                {% endif %}
+                                                <br>
+                                                <form method="post" action="{% url 'ad_manager' %}">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="form" value="formImg">
+                                                    <button type="submit" class="btn-sm btn-soft-success rounded-pill waves-effect waves-light btn-sm" onclick="showSpinner()">Re-Generate Ad Image</button>
+                                                </form>
+                                            </div>
+                                        </div> <!-- end card-body -->
+                                    </div> <!-- end card -->
+                                </div>
+                                <div class="col-lg-6">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <div class="generated-post">
+                                                <img src="{% static 'dashboard\images\JerryButton.png' %}" alt="Generated Image"
+                                                    class="generated-image-lg rounded" style="width: 95%;">
+                                                <br>
+                                                <a href="{% url 'ad_manager' %}" class="btn btn-dark btn-small waves-effect waves-light rounded-pill centerButton">Create Ad</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-12">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <div class="textarea-container">
+                                                <form method="post" action="{% url 'ad_manager' %}">
+                                                    {% csrf_token %}
+                                                    {% if user_settings.ad_headline %}
+                                                    <h4 class="header-title" style="text-align: center;">Generated Ad Headline</h4>
+                                                    <div class="generated-post">
+                                                        <textarea id="ad_copy_content" name="ad_headline_content" class="auto-resize-textarea" style="width: 60%; height: auto;">{{ user_settings.ad_headline }}</textarea>
+                                                    </div>
+                                                    <br>
+                                                    {% endif %}
+                                                    <h4 class="header-title" style="text-align: center;">Generated Ad Copy</h4>
+                                                    {% if user_settings.ad_copy %}
+                                                    <textarea id="ad_copy_content" name="ad_copy_content" class="auto-resize-textarea">{{ user_settings.ad_copy }}</textarea>
+                                                    {% else %}
+                                                    <textarea id="ad_copy_content" name="ad_copy_content" class="auto-resize-textarea">Generate Me! Make sure you fill out the Business Description in the Brand Settings tab to tailor the response to your business.</textarea>
+                                                    {% endif %}
+                                                    <input type="hidden" name="form" value="formCopySave">
+                                                    <div class="button-ad-save">
+                                                        <button type="submit" class="btn btn-success waves-effect waves-light">Save</button>
+                                                    </div>
+                                                    <br>
+                                                </form>
+                                                <div class="button-ad-save">
+                                                    <form method="post" action="{% url 'ad_manager' %}">
+                                                        {% csrf_token %}
+                                                        <input type="hidden" name="form" value="formCopy">
+                                                        <button type="submit" class="btn-sm btn-soft-success rounded-pill waves-effect waves-light btn-sm" onclick="showSpinner()">Re-Generate Ad Copy</button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div> <!-- end card-body -->
+                                    </div> <!-- end card -->
+                                </div>
+                            </div>
+                        </div>
+                        {% if not user_settings.isAdRun %}
+                        <div class="col-lg-6">
                             <div class="card">
                                 <div class="card-body">
                                     <div class="textarea-container">
-                                        <h4 class="header-title" style="text-align: center;">Generated Ad Copy</h4>
+                                        <h4 class="header-title" style="text-align: center;">Run Ad</h4>
                                         <br>
                                         <form method="post" action="{% url 'ad_manager' %}">
                                             {% csrf_token %}
-                                            {% if user_settings.ad_copy %}
-                                            <textarea id="ad_copy_content" name="ad_copy_content" class="auto-resize-textarea">{{ user_settings.ad_copy }}</textarea>
-                                            {% else %}
-                                            <textarea id="ad_copy_content" name="ad_copy_content" class="auto-resize-textarea">Generate Me! Make sure you fill out the Business Description in the Brand Settings tab to tailor the response to your business.</textarea>
-                                            {% endif %}
-                                            <input type="hidden" name="form" value="formCopySave">
-                                            <div class="button-ad-save">
-                                                <button type="submit" class="btn btn-success waves-effect waves-light">Save</button>
+                                            <div class="mb-3">
+                                                <label for="simpleinput" class="form-label">Campaign Name</label>
+                                                <input type="text" id="name" class="form-control" name="name" value="">
                                             </div>
-                                        </form>
-                                        <br>
-                                        <div class="button-ad-save">
-                                            <form method="post" action="{% url 'ad_manager' %}">
-                                                {% csrf_token %}
-                                                <input type="hidden" name="form" value="formCopy">
-                                                <button type="submit" class="btn-sm btn-soft-success rounded-pill waves-effect waves-light btn-sm" onclick="showSpinner()">Re-Generate Ad Copy</button>
-
-                                            </form>
-                                        </div>
-                                    </div>
-                                </div> <!-- end card-body -->
-                            </div> <!-- end card -->
-                            <div class="card">
-                                <div class="card-body">
-                                    <div class="generated-post">
-                                        <h4 class="header-title">Generated Ad Image</h4>
-                                        <br>
-                                        {% if user_settings.deny %}
-                                        <img src="{% static 'dashboard/images/deny.jpg' %}" alt="Generated Image" class="generated-image-small rounded">
-                                        {% else %}
-                                            {% if user_settings.ad_image_url %}
-                                            <img src="{{ user_settings.ad_image_url }}" alt="Generated Image" class="generated-image-small rounded">
-                                            {% else %}
-                                            <img src="{% static 'dashboard/images/generate.png' %}" alt="Generated Image" class="generated-image-small rounded">
-                                            {% endif %}
-                                        {% endif %}
-                                        <br>
-                                        <form method="post" action="{% url 'ad_manager' %}">
-                                            {% csrf_token %}
-                                            <input type="hidden" name="form" value="formImg">
-                                            <button type="submit" class="btn-sm btn-soft-success rounded-pill waves-effect waves-light btn-sm" onclick="showSpinner()">Re-Generate Ad Image</button>
-                                        </form>
-                                        <form method="post" action="{% url 'ad_manager' %}">
-                                            {% csrf_token %}
-                                            <input type="hidden" name="form" value="formRunAd">
+                                            <div class="mb-3">
+                                                <label for="example-range" class="form-label">Monthly Ad Spend</label>
+                                                <input class="form-range" id="ad_cost" type="range" name="ad_cost" min="100" max="5000">
+                                                <br>
+                                                <span id="min-value">$100</span>
+                                                <span id="max-value">$5,000</span>
+                                            </div>
                                             <br>
-                                            <button type="submit" class="btn btn-purple rounded-pill w-md waves-effect waves-light mb-3" onclick="showSpinner()">
-                                                <i class="mdi mdi-plus"></i> Run Ad</button>
+                                            <div class="output-container">
+                                                <div class="output-box">
+                                                    <div class="adSpendTitle">Estimated Total Spend:</div>
+                                                    <div class="adSpendNumber" id="slider-value">--</div>
+                                                </div>
+                                                <div class="output-box">
+                                                    <div class="adSpendTitle">Estimated Impressions:</div>
+                                                    <div class="adSpendNumber" id="estimated-impressions">--</div>
+                                                </div>
+                                                <div class="output-box">
+                                                    <div class="adSpendTitle">Estimated Leads:</div>
+                                                    <div class="adSpendNumber" id="estimated-leads">--</div>
+                                                </div>
+                                            </div>
+                                            <input type="hidden" name="form" value="formAdRequest">
+                                            <input type="hidden" name="user_id" value="{{ user_id }}">
+                                            <input type="hidden" name="business_name" value="{{ user_settings.business_name }}">
+                                            <input type="hidden" name="ad_copy" value="{{ user_settings.ad_copy }}">
+                                            <input type="hidden" name="ad_headline" value="{{ user_settings.ad_headline }}">
+                                            <input type="hidden" name="ad_image_url" value="{{ user_settings.ad_image_url }}">
+                                            <br>
+                                            <br>
+                                            {% if user_settings.isAdRequested %}
+                                            <div class="button-ad-save">
+                                                <button type="submit" class="btn btn-soft-warning rounded-pill w-md waves-effect waves-light mb-3 disabled" disabled>Ad Under Review</button>
+                                            </div>
+                                            {% else %}
+                                            <div class="button-ad-save">
+                                                <button type="submit" class="btn btn-gold rounded-pill w-md waves-effect waves-light mb-3" onclick="showSpinner()">Submit Ad For Review</button>
+                                            </div>
+                                            {% endif %}
                                         </form>
                                     </div>
-                                </div> <!-- end card-body -->
-                            </div> <!-- end card -->
-                        </div>
-                        {% if user_settings.current_ad_image_url %}
-                        <div class="col-sm-3">
-                            <div class="card">
-                                <div class="card-body">
-                                    <div class="generated-post">
-                                        <h4 class="header-title mt-0 mb-4">Current Ad</h4>
-                                        <p class="sub-header"></p>
-                                        <img src="{{ user_settings.current_ad_image_url }}" alt="Generated Image"
-                                            class="generated-image-lg rounded">
-                                        <br>
-                                    </div>
                                 </div>
-                            </div>
-                            <div class="card">
+                            </div> 
+                        </div> 
+                        {% else %}
+                        <div class="col-xl-6">
+                            <div class="card" style="background-color: #f7f7f7">
                                 <div class="card-body">
-                                    <h4 class="header-title mb-3">Inbox</h4>
-
-                                    <div class="inbox-widget">
-                                        
-                                        <div class="inbox-item">
-                                            <a href="#">
-                                                <div class="inbox-item-img"><img src="{% static 'dashboard/images/users/kramer.jpg' %}" class="rounded-circle" alt=""></div>
-                                                <h5 class="inbox-item-author mt-0 mb-1">kramer</h5>
-                                                <p class="inbox-item-text">These pretzels are making me thirsty..</p>
-                                                <p class="inbox-item-date">3:40 PM</p>
+                                    <ul class="nav nav-tabs nav-bordered">
+                                        <li class="nav-item" style="background-color: #e6e6e6">
+                                            <a href="#home-b1" data-bs-toggle="tab" aria-expanded="false" class="nav-link">
+                                                Ad Settings
                                             </a>
-                                        </div>
-                                        
-                                        <div class="inbox-item">
-                                            <a href="#">
-                                                <div class="inbox-item-img"><img src="{% static 'dashboard/images/users/elaine.jpg' %}" class="rounded-circle" alt=""></div>
-                                                <h5 class="inbox-item-author mt-0 mb-1">Elaine</h5>
-                                                <p class="inbox-item-text">Yada yada yada...</p>
-                                                <p class="inbox-item-date">3:34 PM</p>
+                                        </li>
+                                        <li class="nav-item" style="background-color: #e6e6e6">
+                                            <a href="#profile-b1" data-bs-toggle="tab" aria-expanded="true" class="nav-link active">
+                                                Analytics
                                             </a>
-                                        </div>
-
-                                        <div class="inbox-item">
-                                                <a href="#">
-                                                <div class="inbox-item-img"><img src="{% static 'dashboard/images/users/jerry.jpg' %}" class="rounded-circle" alt=""></div>
-                                                <h5 class="inbox-item-author mt-0 mb-1">Jerry</h5>
-                                                <p class="inbox-item-text">Why do my fingers look like little people!?!?</p>
-                                                <p class="inbox-item-date">3:17 PM</p>
+                                        </li>
+                                        <li class="nav-item" style="background-color: #e6e6e6">
+                                            <a href="#messages-b1" data-bs-toggle="tab" aria-expanded="false" class="nav-link">
+                                                New Ad Campaign
                                             </a>
-                                        </div>
-
-                                        <div class="inbox-item">
-                                            <a href="#">
-                                                <div class="inbox-item-img"><img src="{% static 'dashboard/images/users/newman.jpg' %}" class="rounded-circle" alt=""></div>
-                                                <h5 class="inbox-item-author mt-0 mb-1">Newman</h5>
-                                                <p class="inbox-item-text">Oh I'm not up to anything in particular ;)</p>
-                                                <p class="inbox-item-date">3:20 PM</p>
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-sm-3">
-                            <div class="card">
-                                <div class="card-body">
-                                    <h4 class="header-title mt-0 mb-3">Ad Analytics</h4>
-
-                                    <div class="widget-box-2">
-                                        <div class="widget-detail-2 text-end">
-                                            <span class="badge bg-success rounded-pill float-start mt-3">32% <i
-                                                    class="mdi mdi-trending-up"></i> </span>
-                                            <h2 class="fw-normal mb-1"> 2,345 </h2>
-                                            <p class="text-muted mb-3">Impressions</p>
-                                        </div>
-                                        <div class="progress progress-bar-alt-success progress-sm">
-                                            <div class="progress-bar bg-success" role="progressbar" aria-valuenow="77"
-                                                aria-valuemin="0" aria-valuemax="100" style="width: 77%;">
-                                                <span class="visually-hidden">77% Complete</span>
+                                        </li>
+                                    </ul>
+                                    <div class="tab-content">
+                                        <div class="tab-pane" id="home-b1">
+                                            <div class="row">
+                                                <div class="col-lg-6">
+                                                    <div class="card">
+                                                        <div class="card-body">
+                                                            <div class="generated-post">
+                                                                <h4 class="header-title" style="text-align: center;">Your Ads</h4>
+                                                                <br>
+                                                                <div id="carouselExampleIndicators" class="carousel slide" data-bs-ride="carousel">
+                                                                    <ol class="carousel-indicators">
+                                                                        <li data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" class="active"></li>
+                                                                        <li data-bs-target="#carouselExampleIndicators" data-bs-slide-to="1"></li>
+                                                                        <li data-bs-target="#carouselExampleIndicators" data-bs-slide-to="2"></li>
+                                                                    </ol>
+                                                                    <div class="carousel-inner" role="listbox">
+                                                                        <div class="carousel-item active">
+                                                                            <img class="d-block img-fluid" src="{{ user_settings.ad_image_url }}" alt="First slide" style="border-radius: 10px;">
+                                                                        </div>
+                                                                        <div class="carousel-item">
+                                                                            <img class="d-block img-fluid" src="{{ user_settings.ad_image_url }}" alt="Second slide" style="border-radius: 10px;">
+                                                                        </div>
+                                                                        <div class="carousel-item">
+                                                                            <img class="d-block img-fluid" src="{{ user_settings.ad_image_url }}" alt="Third slide" style="border-radius: 10px;">
+                                                                        </div>
+                                                                    </div>
+                                                                    <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-bs-slide="prev" >
+                                                                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                                                        <span class="visually-hidden">Previous</span>
+                                                                    </a>
+                                                                    <a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-bs-slide="next">
+                                                                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                                                        <span class="visually-hidden">Next</span>
+                                                                    </a>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-6">
+                                                    <div class="card">
+                                                        <div class="card-body">
+                                                            <div class="generated-post">
+                                                                <label for="simpleinput" class="form-label">Headline</label>
+                                                                <div class="mb-3">
+                                                                    <div class="text-box-wrapper">
+                                                                        <div id="prompt" contenteditable="false" class="text-box">{{ user_settings.ad_headline }}</div>
+                                                                    </div>
+                                                                </div>
+                                                                <label for="simpleinput" class="form-label">Ad Copy</label>
+                                                                <div class="mb-3">
+                                                                    <div class="text-box-wrapper" style=" max-height: 155px; overflow-y: auto;">
+                                                                        <div id="prompt" contenteditable="false" class="text-box">{{ user_settings.ad_copy }}</div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="card">
-                                <div class="card-body">
-
-                                    <h4 class="header-title mt-0 mb-3">Clicks</h4>
-
-                                    <div class="widget-box-2 text-end">
-                                        <div class="widget-detail-2">
-                                            <span class="badge bg-warning rounded-pill float-start mt-3">55% <i class="mdi mdi-trending-up"></i> </span>
-                                            <h2 class="fw-normal mb-1"> 125 </h2>
-                                            <p class="text-muted mb-3">Clicks Today</p>
-                                        </div>
-                                        <div class="progress progress-bar-alt-warning progress-sm">
-                                            <div class="progress-bar bg-warning" role="progressbar"
-                                                 aria-valuenow="55" aria-valuemin="0" aria-valuemax="100"
-                                                 style="width: 55%;">
-                                                <span class="visually-hidden">55% Complete</span>
+                                        <div class="tab-pane show active" id="profile-b1">
+                                            <div class="row">
+                                                <div class="col-lg-6">
+                                                    <div class="card">
+                                                        <div class="card-body">
+                                                            <h4 class="header-title mt-0 mb-3">Impressions</h4> 
+                                                            <div class="widget-box-2">
+                                                                <div class="widget-detail-2 text-end">
+                                                                    <span class="badge bg-success rounded-pill float-start mt-3">32% <i
+                                                                            class="mdi mdi-trending-up"></i> </span>
+                                                                    <h2 class="fw-normal mb-1"> 2,345 </h2>
+                                                                    <p class="text-muted mb-3">Impressions</p>
+                                                                </div>
+                                                                <div class="progress progress-bar-alt-success progress-sm">
+                                                                    <div class="progress-bar bg-success" role="progressbar" aria-valuenow="77"
+                                                                        aria-valuemin="0" aria-valuemax="100" style="width: 77%;">
+                                                                        <span class="visually-hidden">77% Complete</span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="card">
+                                                        <div class="card-body">
+                                                            <h4 class="header-title mt-0 mb-3">Clicks</h4>
+                                                            <div class="widget-box-2 text-end">
+                                                                <div class="widget-detail-2">
+                                                                    <span class="badge bg-warning rounded-pill float-start mt-3">55% <i class="mdi mdi-trending-up"></i> </span>
+                                                                    <h2 class="fw-normal mb-1"> 125 </h2>
+                                                                    <p class="text-muted mb-3">Clicks Today</p>
+                                                                </div>
+                                                                <div class="progress progress-bar-alt-warning progress-sm">
+                                                                    <div class="progress-bar bg-warning" role="progressbar"
+                                                                        aria-valuenow="55" aria-valuemin="0" aria-valuemax="100"
+                                                                        style="width: 55%;">
+                                                                        <span class="visually-hidden">55% Complete</span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <div class="card">
+                                                        <div class="card-body">
+                                                            <h6 class="header-title mt-0 mb-3">Money Spent</h6>
+                                                            <div class="widget-box-2">
+                                                                <div class="widget-detail-2 text-end">
+                                                                    <span class="badge bg-pink rounded-pill float-start mt-3">66% <i
+                                                                            class="mdi mdi-trending-up"></i> </span>
+                                                                    <h2 class="fw-normal mb-1"> $400 </h2>
+                                                                    <p class="text-muted mb-3">This Month</p>
+                                                                </div>
+                                                                <div class="progress progress-bar-alt-pink progress-sm">
+                                                                    <div class="progress-bar bg-pink" role="progressbar" aria-valuenow="77"
+                                                                        aria-valuemin="0" aria-valuemax="100" style="width: 92%;">
+                                                                        <span class="visually-hidden">92% Complete</span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="card">
+                                                        <div class="card-body">
+                                                            <h6 class="header-title mt-0 mb-3">CTR</h6>
+                                                            <div class="widget-box-2">
+                                                                <div class="widget-detail-2 text-end">
+                                                                    <span class="badge bg-pink rounded-pill float-start mt-3">67% <i
+                                                                            class="mdi mdi-trending-up"></i> </span>
+                                                                    <h2 class="fw-normal mb-1"> 3.6% </h2>
+                                                                    <p class="text-muted mb-3">Conversion Rate</p>
+                                                                </div>
+                                                                <div class="progress progress-bar-alt-pink progress-sm">
+                                                                    <div class="progress-bar bg-pink" role="progressbar" aria-valuenow="77"
+                                                                        aria-valuemin="0" aria-valuemax="100" style="width: 92%;">
+                                                                        <span class="visually-hidden">92% Complete</span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
+                                        <div class="tab-pane" id="messages-b1">
+                                            <div class="card">
+                                                <div class="card-body">
+                                                    <div class="textarea-container">
+                                                        <h4 class="header-title" style="text-align: center;">Run Ad</h4>
+                                                        <br>
+                                                        <form method="post" action="{% url 'ad_manager' %}">
+                                                            {% csrf_token %}
+                                                            <div class="mb-3">
+                                                                <label for="simpleinput" class="form-label">Campaign Name</label>
+                                                                <input type="text" id="name" class="form-control" name="name" value="">
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <label for="example-range" class="form-label">Monthly Ad Spend</label>
+                                                                <input class="form-range" id="ad_cost" type="range" name="ad_cost" min="100" max="5000">
+                                                                <br>
+                                                                <span id="min-value">$100</span>
+                                                                <span id="max-value">$5,000</span>
+                                                            </div>
+                                                            <br>
+                                                            <div class="output-container">
+                                                                <div class="output-box">
+                                                                    <div class="adSpendTitle">Estimated Total Spend:</div>
+                                                                    <div class="adSpendNumber" id="slider-value">--</div>
+                                                                </div>
+                                                                <div class="output-box">
+                                                                    <div class="adSpendTitle">Estimated Impressions:</div>
+                                                                    <div class="adSpendNumber" id="estimated-impressions">--</div>
+                                                                </div>
+                                                                <div class="output-box">
+                                                                    <div class="adSpendTitle">Estimated Leads:</div>
+                                                                    <div class="adSpendNumber" id="estimated-leads">--</div>
+                                                                </div>
+                                                            </div>
+                                                            <input type="hidden" name="form" value="formAdRequest">
+                                                            <input type="hidden" name="user_id" value="{{ user_id }}">
+                                                            <input type="hidden" name="business_name" value="{{ user_settings.business_name }}">
+                                                            <input type="hidden" name="ad_copy" value="{{ user_settings.ad_copy }}">
+                                                            <input type="hidden" name="ad_image_url" value="{{ user_settings.ad_image_url }}">
+                                                            <br>
+                                                            <br>
+                                                            {% if user_settings.isAdRequested %}
+                                                            <div class="button-ad-save">
+                                                                <button type="submit" class="btn btn-soft-warning rounded-pill w-md waves-effect waves-light mb-3 disabled" disabled>Ad Under Review</button>
+                                                            </div>
+                                                            {% else %}
+                                                            <div class="button-ad-save">
+                                                                <button type="submit" class="btn btn-gold rounded-pill w-md waves-effect waves-light mb-3" onclick="showSpinner()">Submit Ad For Review</button>
+                                                            </div>
+                                                            {% endif %}
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div> 
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="card">
-                                <div class="card-body">
-                                    <h6 class="header-title mt-0 mb-3">CTR</h6>
-                                    <div class="widget-box-2">
-                                        <div class="widget-detail-2 text-end">
-                                            <span class="badge bg-pink rounded-pill float-start mt-3">67% <i
-                                                    class="mdi mdi-trending-up"></i> </span>
-                                            <h2 class="fw-normal mb-1"> 3.6% </h2>
-                                            <p class="text-muted mb-3">Conversion Rate</p>
-                                        </div>
-                                        <div class="progress progress-bar-alt-pink progress-sm">
-                                            <div class="progress-bar bg-pink" role="progressbar" aria-valuenow="77"
-                                                aria-valuemin="0" aria-valuemax="100" style="width: 92%;">
-                                                <span class="visually-hidden">92% Complete</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                            </div> <!-- end card-->
+                        </div> <!-- end col -->
                         {% endif %}
                     </div><!-- end row -->
                 </div>
@@ -535,32 +709,6 @@
             <div id="loading-overlay">
                 <div class="spinner-grow text-success m-2" role="status"></div>
             </div>
-
-            <script>
-                function showSpinner() {
-                    var loadingOverlay = document.getElementById('loading-overlay');
-                    var submitButton = document.querySelector('#myForm button[type="submit"]');
-
-                    loadingOverlay.style.display = 'flex';
-                    submitButton.disabled = true;
-                }
-            
-                // Auto-resize the textarea based on content
-                function resizeTextarea(textarea) {
-                    textarea.style.height = 'auto';
-                    textarea.style.height = (textarea.scrollHeight) + 'px';
-                }
-                
-                document.addEventListener('DOMContentLoaded', function() {
-                    const textareas = document.querySelectorAll('.auto-resize-textarea');
-                    textareas.forEach(function(textarea) {
-                        resizeTextarea(textarea);
-                        textarea.addEventListener('input', function() {
-                            resizeTextarea(this);
-                        });
-                    });
-                });
-            </script>
 
             <style>
 
@@ -633,6 +781,7 @@
     <script src="{% static 'dashboard/libs/jquery.counterup/jquery.counterup.min.js' %}"></script>
     <script src="{% static 'dashboard/libs/feather-icons/feather.min.js' %}"></script>
 
+    <script src="{% static 'dashboard/js/pages/ad_manager.init.js' %}"></script>
 
     <!-- App js -->
     <script src="{% static 'dashboard/js/app.min.js' %}"></script>

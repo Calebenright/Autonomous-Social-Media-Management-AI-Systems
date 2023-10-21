@@ -33,7 +33,7 @@ await getDocs(eventsCollectionRef)
             caption: eventData.caption,
             className: eventData.className,
             socials: eventData.socials,
-            
+            type: eventData.type,
         };
 
         ev.push(eventObject);
@@ -112,7 +112,8 @@ await getDocs(eventsCollectionRef)
                     title: eventEl.innerText,
                     className: l(eventEl).data("class"),
                     image_url: l(eventEl).data("image-url"),
-                    socials: l(eventEl).data("socials")
+                    socials: l(eventEl).data("socials"),
+                    type: l(eventEl).data("type"),
                 };
             }
         });
@@ -204,7 +205,9 @@ await getDocs(eventsCollectionRef)
                 var image_url = info.event.extendedProps.image_url;
                 var updatedStartTime = info.event.start;
                 var caption = info.event.extendedProps.caption;
-                var  socials = info.event.extendedProps. socials;
+                var socials = info.event.extendedProps. socials;
+                var type = info.event.extendedProps. type;
+
 
                 const eventDocRef = doc(collection(userDocRef, 'events'), eid);
 
@@ -214,6 +217,7 @@ await getDocs(eventsCollectionRef)
                     image_url: image_url,
                     caption: caption,
                     socials:  socials,
+                    type: type,
                 };
 
                 setDoc(eventDocRef, eventData, { merge: true })
@@ -296,7 +300,6 @@ await getDocs(eventsCollectionRef)
                         caption: caption,
                         socials: socials
                     };
-                    console.log(socials);
                     setDoc(eventDocRef, eventData, { merge: true })
                         .then(() => {
                             console.log('Event updated');
