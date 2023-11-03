@@ -297,17 +297,16 @@
                             <a href="{% url 'dashboard' %}">
                                 <i class="mdi mdi-view-dashboard-outline"></i>
                                 <!-- <span class="badge bg-success rounded-pill float-end">9+</span> -->
-                                <span> Elaine </span>
+                                <span> Dashboard </span>
                             </a>
                         </li>
 
-                        <li>
+                        <!-- <li>
                             <a href="{% url 'ad_manager' %}">
                                 <i class="mdi mdi-tag-text-outline"></i>
-                                <!-- <span class="badge bg-success rounded-pill float-end">9+</span> -->
                                 <span> Jerry </span>
                             </a>
-                        </li>
+                        </li> -->
 
                         <li class="menu-title mt-2">Apps</li>
 
@@ -647,7 +646,7 @@
                         {% endif %}
                         {% if user_settings.endFtue %}
                         {% if user_settings.autoState == 1 %}
-                        <div class="col-lg-3">
+                        <!-- <div class="col-lg-3">
                             <div class="card">
                                 <div class="card-body">
                                     <form method="post" action="{% url 'dashboard' %}">
@@ -663,7 +662,7 @@
                                     </form>
                                 </div>
                             </div>
-                        </div>
+                        </div> -->
                         <div class="col-lg-3">
                             <div class="card">
                                 <div class="card-body">
@@ -673,7 +672,7 @@
                                             <img src="{% static 'dashboard/images/createButton.png' %}" alt="Generated Image" class="rounded" style="width: 55%;">
                                         </a>
                                         <br><br>
-                                        <a href="{% url 'post_creator' %}" class="btn btn-warning btn-lg waves-effect waves-light rounded-pill centerButton">Create A Post</a>
+                                        <a href="{% url 'post_creator' %}" class="btn btn-warning btn-small waves-effect waves-light rounded-pill centerButton">Create A Post</a>
                                         <br><br>
                                     </div>
                                 </div>
@@ -696,7 +695,7 @@
                             </div>
                         </div>
                         {% endif %}
-                        <div class="row">
+                        <!-- <div class="row">
                             <div class="col-lg-3">
                                 <div class="card">
                                     <div class="card-body">
@@ -709,7 +708,7 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </div> -->
                         {% elif user_settings.autoState == 2 %}
                         <div id="load-start">
                             <div class="col-lg-3">

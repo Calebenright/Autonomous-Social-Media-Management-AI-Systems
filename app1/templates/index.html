@@ -14,6 +14,7 @@
   <link rel="mask-icon" href="{% static 'website/media/favicon.svg' %}" color="rgb(36,38,58)">
   <link rel="shortcut icon" href="{% static 'website/media/favicon.png' %}">
   <link rel="stylesheet" href="{% static 'website/css/main.css' %}">
+
 </head>
 
 <body class="page page-home preload">
@@ -63,43 +64,62 @@
     <section class="bg-image-hero center-tablet dark overlay-hero">
       <div class="full-screen -margin-bottom middle padding padding-top-tablet">
         <div class="row max-width-l">
+          <!-- HTML Structure -->
+          
           <div class="col-one-half-img">
-            <img src="{% static 'website/media/content/LandingPageHero.png' %}"
-              srcset="{% static 'website/media/content/LandingPageHero.png' %} 1x, {% static 'website/media/content/LandingPageHero@2x.png' %} 2x"
-              alt="Hero Illustration">
+            <div class="container">
+              <div class="social-media-post">
+                  <!-- <div class="post-header">
+                      <img id="dynamicProfile" src="https://storage.googleapis.com/starter_web_app_bucket/user_folders/stock_image_library/0495ceee-1eb1-4887-84a1-1b23cf1d9adb.jpg" alt="Profile" class="profile-pic">
+                      <span class="username">Username</span>
+                  </div> -->
+                  <img id="dynamicImage" src="https://storage.googleapis.com/starter_web_app_bucket/user_folders/assets/index.png" alt="Dynamic Image" class="post-image">
+                  <!-- <p id="dynamicCaption" class="post-caption">Default caption</p>9 -->
+              </div>
+              <br>
+              <div class="toggle-container">
+                <button id="generateFeedBtn">Generate Creatives</button>
+            </div>
+            </div>
+
+            <script>
+              const generateFeedBtn = document.getElementById('generateFeedBtn');
+              const dynamicImage = document.getElementById('dynamicImage');
+              const dynamicCaption = document.getElementById('dynamicCaption');
+              const dynamicProfile = document.getElementById('dynamicProfile');
+
+              generateFeedBtn.addEventListener('click', function() {
+                  const businesses = ['business1', 'business2'];
+                  const selectedBusiness = businesses[Math.floor(Math.random() * businesses.length)];
+
+                  switch (selectedBusiness) {
+                      case 'business1':
+                          dynamicImage.src = 'https://storage.googleapis.com/starter_web_app_bucket/user_folders/assets/index1.png';
+                          // dynamicProfile.src = 'https://storage.googleapis.com/starter_web_app_bucket/user_folders/ai_image_library/49fbecf6-1a0d-4212-8aa5-f9fc684ff289.jpg';
+                          // dynamicCaption.innerText = 'Caption for business 1';
+                          break;
+                      case 'business2':
+                          dynamicImage.src = 'https://storage.googleapis.com/starter_web_app_bucket/user_folders/assets/index2.png';
+                          // dynamicProfile.src = 'https://storage.googleapis.com/starter_web_app_bucket/user_folders/stock_image_library/147af0ac-ab1a-464a-a61d-3b5243e023a0.jpg';
+                          // dynamicCaption.innerText = 'Caption for business 2';
+                          break;
+                      default:
+                          dynamicImage.src = 'https://storage.googleapis.com/starter_web_app_bucket/user_folders/assets/index.png';
+                          // dynamicProfile.src = 'https://storage.googleapis.com/starter_web_app_bucket/user_folders/stock_image_library/147af0ac-ab1a-464a-a61d-3b5243e023a0.jpg';
+                          // dynamicCaption.innerText = 'Default caption';
+                          break;
+                  }
+              });
+            </script>
           </div>
+
           <div class="col-one-half middle">
               <div>
-                <h1 class="hero">True AI Marketing</h1>
-                <p class="lead">AI driven software that generates social media posts, impressions, leads, sales, and eyeballs.</p>
-                <a href="{% url 'signup' %}" class="button button-primary space-top" role="button">Get Started</a>
+                <h1 class="hero">No Bad<br>Social Media</h1>
+                <p class="lead">AI driven software that generates graphics, advertisements, impressions, leads, sales, and eyeballs.</p>
+                <a href="{% url 'signup' %}" class="button button-primary space-top" role="button">Sign Up</a>
               </div>
           </div>
-        </div>
-      </div>
-      <div class="padding">
-        <div class="row margin-bottom max-width-l">
-          <!-- <div class="col-one-half middle">
-            <h3>Auto-Generate Posts</h3>
-            <p class="paragraph">Use AI to auto-generate AND auto-schedule images, graphics, videos, captions, stories.
-            </p>
-          </div>
-          <div class="col-one-half">
-            <img class="rounded shadow-l" src="{% static 'website/media/content/editor.png' %}"
-              srcset="{% static 'website/media/content/editor.png' %} 1x, {% static 'website/media/content/editor@2x.png' %} 2x"
-              alt="Editor">
-          </div>
-        </div>
-        <div class="row max-width-l reverse-order">
-          <div class="col-one-half">
-            <img class="rounded shadow-l" src="{% static 'website/media/content/sketch.png' %}"
-              srcset="{% static 'website/media/content/sketch.png' %} 1x, {% static 'website/media/content/sketch@2x.png' %} 2x"
-              alt="Sketch">
-          </div>
-          <div class="col-one-half middle">
-            <h3>Lead Generator</h3>
-            <p class="paragraph">Use AI to generate REAL leads that become REAL customers.</p>
-          </div> -->
         </div>
       </div>
     </section>
@@ -108,7 +128,7 @@
       <div class="center max-width-m">
         <h2>All-In-One Dashboard</h2>
         <p class="paragraph">Feadl.io unlocks the true potential of online marketing through generative intelligence. Our software is an all-in-one web based application that uses AI to promote your business online. Everything you need to create and maintain a brand presence,
-           market online, reach new customers, and generate more business. wrapped into a beautiful, user-friendly dashboard.
+           market online, reach new customers, and generate more business.<br>Wrapped into a beautiful, user-friendly dashboard.
         </p>
       </div>
       <div class="margin-top max-width-l">
@@ -118,77 +138,8 @@
       </div>
     </section>
 
-    <!-- <section class="padding">
-      <div class="margin-top max-width-l">
-        <div class="margin-bottom max-width-m">
-          <h3>Over 20,000 Paying Customers</h3>
-          <p class="opacity-m paragraph">Thousands of the most successful companies rely on our service.</p>
-        </div>
-        <div class="row min-two-columns">
-          <div class="col-one-fourth">
-            <img src="{% static 'website/media/content/trusted-company-dark.png' %}"
-              srcset="{% static 'website/media/content/trusted-company-dark.png' %} 1x, {% static 'website/media/content/trusted-company-dark@2x.png' %} 2x"
-              alt="Trusted Company">
-          </div>
-          <div class="col-one-fourth">
-            <img src="{% static 'website/media/content/trusted-company-dark.png' %}"
-              srcset="{% static 'website/media/content/trusted-company-dark.png' %} 1x, {% static 'website/media/content/trusted-company-dark@2x.png' %} 2x"
-              alt="Trusted Company">
-          </div>
-          <div class="col-one-fourth">
-            <img src="{% static 'website/media/content/trusted-company-dark.png' %}"
-              srcset="{% static 'website/media/content/trusted-company-dark.png' %} 1x, {% static 'website/media/content/trusted-company-dark@2x.png' %} 2x"
-              alt="Trusted Company">
-          </div>
-          <div class="col-one-fourth">
-            <img src="{% static 'website/media/content/trusted-company-dark.png' %}"
-              srcset="{% static 'website/media/content/trusted-company-dark.png' %} 1x, {% static 'website/media/content/trusted-company-dark@2x.png' %} 2x"
-              alt="Trusted Company">
-          </div>
-        </div>
-        <img class="margin-top rounded shadow-l" src="{% static 'website/media/content/customers.jpg' %}"
-          srcset="{% static 'website/media/content/customers.jpg' %} 1x, {% static 'website/media/content/customers@2x.jpg' %} 2x"
-          alt="Customers"> 
-      </div> 
-    </section> -->
 
     <section class="padding">
-      <!-- <div class="max-width-l">
-        <div class="center">
-          <h2>Algorithmic Creation</h2>
-          <p class="paragraph">Stop battling the algorithm and feed it what it wants!</p>
-        </div>
-        <div class="row margin-top timeline">
-          <div class="col-one-fourth">
-            <h5>Ideation</h5>
-            <p>Reverse engineering online content to ideate content based on social media algorithms.</p>
-          </div>
-          <div class="col-one-fourth">
-            <h5>Creation</h5>
-            <p>Creating branded content using niche data and AI.</p>
-          </div>
-          <div class="col-one-fourth">
-            <h5>Review</h5>
-            <p>Self-reviewed content based on a model trained by your behavior.</p>
-          </div>
-          <div class="col-one-fourth">
-            <h5>Upload</h5>
-            <p>Automatic scheduled uploads. Leaving you more time to focus on what really matters.</p>
-          </div>
-        </div>
-      </div>
-    </section> -->
-
-    <!-- <section class="bg-light center">
-      <div class="row no-gutter">
-        <div class="col-one-half middle padding padding-bottom padding-top">
-          <div class="max-width-m">
-            <h3>"The best online marketing tool for any and every small business! It gave me back time and energy while generating more leads and business."</h3>
-            <p class="paragraph">Michael Enright, H&W Alarm</p>
-          </div>
-        </div>
-        <div class="col-one-half bg-image-03 padding-bottom padding-top"></div>
-      </div> -->
     </section> 
     
     <section class="bg-gradient-light padding">
@@ -210,7 +161,7 @@
         <div class="col-one-fourth card card-content">
           <p class="muted">Step 3</p>
           <h4>Schedule</h4>
-          <p class="paragraph">We'll create a couple posts and you tell us what you like. Then choose the settings and frequency of each upload.</p>
+          <p class="paragraph">Tell us which posts you like and we'll learn as we go.</p>
         </div>
         <div class="col-one-fourth card card-content dark">
           <p class="muted">Step 4</p>
@@ -232,26 +183,6 @@
         <h3>Welcome to the new era of online marketing.</h3>
         <!-- <p class="paragraph">text</p> -->
       </div>
-      <!-- <div class="center margin-bottom max-width-l">
-        <div class="row margin-bottom min-two-columns">
-          <div class="col-one-fourth">
-            <i class="feature-icons material-icons bg-gradient-pink">format_shapes</i>
-            <h6>Minimal Design</h6>
-          </div>
-          <div class="col-one-fourth">
-            <i class="feature-icons material-icons bg-gradient-cyan">network_check</i>
-            <h6>Rocket Fast</h6>
-          </div>
-          <div class="col-one-fourth">
-            <i class="feature-icons material-icons bg-gradient-green">line_style</i>
-            <h6>Framework</h6>
-          </div>
-          <div class="col-one-fourth">
-            <i class="feature-icons material-icons bg-gradient-indigo">check</i>
-            <h6>HTML5 Valid</h6>
-          </div>
-        </div>
-      </div> -->
       <div class="card card-content dark margin-bottom max-width-l">
         <form class="row reduce-spacing">
           <div class="col-two-thirds center-tablet middle">
@@ -259,7 +190,7 @@
             <p class="paragraph">Love it or your money back!</p>
           </div>
           <div class="col-one-third middle">
-            <a href="{% url 'signup' %}" class="button button-primary" role="button">Create An Account</a>
+            <a href="{% url 'signup' %}" class="button button-primary" role="button">Sign Up</a>
           </div>
         </form>
       </div>
@@ -271,16 +202,15 @@
         <div class="col-one-fifth">
           <h6>Info</h6>
           <ul class="blank">
+            <li><a href="{% url 'privacy_policy' %}">Privacy Policy</a></li>
+            <li><a href="{% url 'terms_of_service' %}">Terms Of Service</a></li>
           </ul>
         </div>
         <div class="col-one-fifth">
           <h6>Support</h6>
           <ul class="blank">
-            <!-- <li><a href="#">Documentation</a></li>
-            <li><a href="#">Requirements</a></li>
-            <li><a href="#">License</a></li>
-            <li><a href="#">Updates</a></li> -->
             <li><a href="{% url 'contact' %}">Contact</a></li>
+            <li><a href="{% url 'graphic_builder' %}">Development</a></li>
           </ul>
         </div>
         <div class="col-one-fifth">
@@ -293,7 +223,7 @@
         </div>
       </div>
     </div>
-    <p class="copyright"><span>Copyright </span><a href="https://uiuxassets.com/" target="_blank">© KCE Services, LLC</a><span> - 2023, all rights reserved.</span></p>
+    <p class="copyright"><span>Copyright </span><a href="https://uiuxassets.com/" target="_blank">© Enright Group</a><span> - 2023, all rights reserved.</span></p>
   </footer>
 
   <script src="{% static 'website/js/main.js' %}"></script>

@@ -8,7 +8,6 @@ urlpatterns = [
     path('schedule/', views.schedule, name='schedule'),
     path('post_creator/', views.post_creator, name='post_creator'),
     path('brand_settings/', views.brand_settings, name='brand_settings'),
-    path('get-firebase-config/', views.get_firebase_config, name='get_firebase_config'),
     path('callback/', views.callback, name='callback'),
     path('all_auth/', views.all_auth, name='all_auth'),
     path('checkout/', views.checkout, name='checkout'),

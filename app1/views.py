@@ -13,6 +13,15 @@ from django.conf import settings
 def index(request):
     return render(request, 'index.html')
 
+def privacy_policy(request):
+    return render(request, 'privacy_policy.html')
+
+def terms_of_service(request):
+    return render(request, 'terms_of_service.html')
+
+def graphic_builder(request):
+    return render(request, 'graphic_builder.html')
+
 def forgot_password(request):
     if request.method == 'POST':
         try:
@@ -96,7 +105,6 @@ def contact(request):
             return render(request, 'contact.html', {'error': "There was an error sending your email. Please wait a moment and try again."})
 
     return render(request, 'contact.html')
-
 
 def signup(request):
     if request.method == 'POST':

@@ -34,6 +34,7 @@ await getDocs(eventsCollectionRef)
             className: eventData.className,
             socials: eventData.socials,
             type: eventData.type,
+            status: eventData.status,
         };
 
         ev.push(eventObject);
@@ -114,6 +115,7 @@ await getDocs(eventsCollectionRef)
                     image_url: l(eventEl).data("image-url"),
                     socials: l(eventEl).data("socials"),
                     type: l(eventEl).data("type"),
+                    status: l(eventEl).data("status"),
                 };
             }
         });
@@ -124,7 +126,7 @@ await getDocs(eventsCollectionRef)
         
         a.$calendarObj = new FullCalendar.Calendar(a.$calendar[0], {
             slotDuration: "00:15:00",
-            slotMinTime: "08:00:00",
+            slotMinTime: "15:00:00",
             slotMaxTime: "19:00:00",
             themeSystem: "bootstrap",
             bootstrapFontAwesome: !1,
@@ -205,9 +207,9 @@ await getDocs(eventsCollectionRef)
                 var image_url = info.event.extendedProps.image_url;
                 var updatedStartTime = info.event.start;
                 var caption = info.event.extendedProps.caption;
-                var socials = info.event.extendedProps. socials;
-                var type = info.event.extendedProps. type;
-
+                var socials = info.event.extendedProps.socials;
+                var type = info.event.extendedProps.type;
+                var status = info.event.extendedProps.status;
 
                 const eventDocRef = doc(collection(userDocRef, 'events'), eid);
 
@@ -218,6 +220,7 @@ await getDocs(eventsCollectionRef)
                     caption: caption,
                     socials:  socials,
                     type: type,
+                    status: status,
                 };
 
                 setDoc(eventDocRef, eventData, { merge: true })
@@ -298,7 +301,7 @@ await getDocs(eventsCollectionRef)
                     }
                     const eventData = {
                         caption: caption,
-                        socials: socials
+                        socials: socials,
                     };
                     setDoc(eventDocRef, eventData, { merge: true })
                         .then(() => {

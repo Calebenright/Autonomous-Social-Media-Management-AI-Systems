@@ -1,19 +1,32 @@
 import uuid
 import random
 from datetime import datetime, timedelta
-from PIL import Image, ImageOps
+from PIL import Image, ImageDraw, ImageFont, ImageEnhance, ImageFilter, ImageChops, ImageOps
+from io import BytesIO
 import openai
 import requests
 import re
 import json
+from django.conf import settings
+import ast
+from google.cloud import storage
+from google.oauth2 import service_account
 
 # FOR DEVELOPMENT
 from decouple import config
 pixabay_api_key = config('PIXABAY_API_KEY')
 openai.api_key = config('OPENAI_API_KEY')
+UNSPLASH_API_KEY = config('UNSPLASH_API_KEY')
+STABILITY_API_KEY = config('STABILITY_API_KEY')
 
 def create_text_post(platform, business_description, business_name):
-    prompt = f"I need a social media text post for the business named [BUSINESS NAME = {business_name}] and has a business description [BUSINESS DESCRIPTION = {business_description}] and is specific to the platform [PLATFORM = {platform}]."
+    prompts = [
+    f"Create a social media post for the business named [BUSINESS NAME = {business_name}] and has a business description [BUSINESS DESCRIPTION = {business_description}] and is specific to the social media platform [PLATFORM = {platform}].",
+    f"Create a business-toned social media post for the business named [BUSINESS NAME = {business_name}] and has a business description [BUSINESS DESCRIPTION = {business_description}] and is specific to the social media platform [PLATFORM = {platform}].",
+    f"Create a proffesional-toned social media post for the business named [BUSINESS NAME = {business_name}] and has a business description [BUSINESS DESCRIPTION = {business_description}] and is specific to the social media platform [PLATFORM = {platform}].",
+    f"Create a goofy-toned social media post for the business named [BUSINESS NAME = {business_name}] and has a business description [BUSINESS DESCRIPTION = {business_description}] and is specific to the social media platform [PLATFORM = {platform}].",
+    f"Create a fun-toned social media post for the business named [BUSINESS NAME = {business_name}] and has a business description [BUSINESS DESCRIPTION = {business_description}] and is specific to the social media platform [PLATFORM = {platform}].",]
+    prompt = random.choice(prompts)
     response = openai.Completion.create(
         model="gpt-3.5-turbo-instruct",
         prompt=prompt,
@@ -24,20 +37,73 @@ def create_text_post(platform, business_description, business_name):
     original_string = original_string.replace('"', '').replace("'", "")
     return original_string
 
+def add_stock_tags(tags, stock_images, bucket_name, bucket_credentials, user_folder_path):
+    credentials = service_account.Credentials.from_service_account_file(bucket_credentials)
+    client = storage.Client(project=credentials.project_id, credentials=credentials)
+    bucket = client.bucket(bucket_name)
+    tags_list = ast.literal_eval(tags)
+
+    if stock_images == None:
+        image_urls = []
+    else:
+       image_urls = stock_images
+
+    for key in tags_list[:2]:
+        base_url = 'https://api.unsplash.com/'
+        headers = {
+            'Authorization': f'Client-ID {UNSPLASH_API_KEY}',
+        }
+        params = {
+            'query': key,
+            'count': 2,
+        }
+        response = requests.get(f'{base_url}photos/random', headers=headers, params=params)
+        response.raise_for_status()
+        data = response.json()
+
+        for photo in data:
+            image_url = photo['urls']['regular']
+            image_response = requests.get(image_url)
+            image_data = image_response.content
+            img = Image.open(BytesIO(image_data))
+            width, height = img.size
+            size = min(width, height)
+            left = (width - size) / 2
+            top = (height - size) / 2
+            right = (width + size) / 2
+            bottom = (height + size) / 2
+            cropped_img = img.crop((left, top, right, bottom))
+            resized_img = cropped_img.resize((1024, 1024))
+            image_io = BytesIO()
+            resized_img.save(image_io, format='JPEG')
+            image_io.seek(0)
+            
+            filename = str(uuid.uuid4()) + ".jpg"
+            blob = bucket.blob(user_folder_path + filename)
+            blob.upload_from_file(image_io, content_type='image/jpeg')
+            blob.make_public()
+            image_urls.append(blob.public_url)
+
+    return image_urls
+
 def create_tags(business_description):
     prompt = f"Produce an array of 7-10 tags that start general and get more specific and relate to the business description: {business_description}."
-    response = openai.Completion.create(
-        model="gpt-3.5-turbo-instruct",
-        prompt=prompt,
+    response = openai.ChatCompletion.create(
+        model="gpt-4",
+        messages=[
+            {"role": "system", "content": 'You are a helpful assistant. Generate arrays of related items in the format ["item1", "item2", "item3"].'},
+            {"role": "user", "content": prompt}
+        ],
         max_tokens=300,
         temperature=1
     )
-    original_string = response.choices[0].text.strip()
-    print('ORIGINAL: ', original_string)
-    items = re.split(r'\d+\.', original_string)
-    items = [item.strip() for item in items if item.strip()]
-    tags = '["' + '", "'.join(items) + '"]'
-    print('Tags: ', tags)
+    original_string = response['choices'][0]['message']['content'].strip()
+    if "'" in original_string:
+        tags_list = [tag.strip().strip("'") for tag in original_string.strip("[]").split(",")]
+    else:
+        tags_list = [tag.strip().strip('"') for tag in original_string.strip("[]").split(",")]
+    tags_json = json.dumps(tags_list)
+    tags= str(tags_json)
     return tags
 
 def generate_unique_filename(extension):
@@ -91,3 +157,31 @@ def generate_secondary_colors(color):
     colors_str = json.dumps(colors)
 
     return colors_str
+
+def upload_and_crop_image(post_image_files, user_image_folder_path):
+    
+    image_data = post_image_files.read()
+    img = Image.open(BytesIO(image_data))
+    if img.format != 'JPEG':
+        img = img.convert('RGB')
+    width, height = img.size
+    size = min(width, height)
+    left = (width - size) / 2
+    top = (height - size) / 2
+    right = (width + size) / 2
+    bottom = (height + size) / 2
+    cropped_img = img.crop((left, top, right, bottom))
+    cropped_img = cropped_img.resize((1024, 1024))
+    image_io = BytesIO()
+    cropped_img.save(image_io, format='JPEG')
+    image_io.seek(0)
+    credentials = service_account.Credentials.from_service_account_file(settings.GS_CREDENTIALS)
+    client = storage.Client(project=credentials.project_id, credentials=credentials)
+    bucket = client.bucket(settings.GS_BUCKET_NAME)
+    filename = str(uuid.uuid4()) + ".jpg"
+    blob = bucket.blob(user_image_folder_path + filename)
+    blob.upload_from_file(image_io, content_type='image/jpeg')
+    blob.make_public()
+    uploaded_image_url = blob.public_url
+    
+    return uploaded_image_url

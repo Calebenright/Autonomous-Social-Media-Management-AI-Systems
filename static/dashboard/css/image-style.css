@@ -4,7 +4,7 @@
 
 .text-box-wrapper {
     width: 100%;
-    max-width: 300px;
+    max-width: 450px;
     /* Adjust the width as needed */
 }
 
@@ -29,8 +29,8 @@
 }
 
 .generated-image-xs {
-    max-width: 20%;
-    max-height: 20%;
+    max-width: 30%;
+    max-height: 30%;
 }
 
 .generated-post {

@@ -1,6 +1,7 @@
 @charset "UTF-8";
 @import url(https://fonts.googleapis.com/css?family=Roboto:400,500,700);
 @import url(https://fonts.googleapis.com/css?family=Karla:400,700);
+@import url("https://fonts.googleapis.com/css?family=Poppins:300,400,700,900");
 
 :root {
     --ct-link-color: #71b6f9;
@@ -25305,6 +25306,28 @@ body[data-layout-color=dark] .datepicker tfoot tr th:hover {
     color: #fff;
 }
 
+.image-tag-thumbnail {
+    display: inline-block;
+    width: 45%;
+    height: 20%;
+    margin: 5px;
+    border-radius: 5px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    cursor: pointer;
+    transition: box-shadow 0.3s;
+}
+
+.image-tag-thumbnail:hover {
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+
+.image-tag-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* This will ensure images maintain their aspect ratio */
+}
+
 .social-button {
     border-radius: 10px;
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); 
@@ -25358,4 +25381,117 @@ body[data-layout-color=dark] .datepicker tfoot tr th:hover {
     font-size: 15px;
     color: var(--ct-input-color);
     font-weight: bold;
+}
+
+.thumbnail {
+    width: 95px; 
+    height: 95px;
+    margin: 5px;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: transform 0.2s;
+    box-shadow: -4px 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.thumbnail-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-radius: 10px;
+    margin: 5px;
+    padding: 10px;
+}
+
+.thumbnail:hover {
+    transform: scale(1.05);
+    border: 2px solid blue;
+}
+
+.thumbnail.selected {
+    border: 2px solid green;
+    transform: scale(1.1);
+}
+
+.none-option {
+    display: inline-block;
+    padding: 10px 15px;
+    border: 2px solid transparent;
+    border-radius: 10px;
+    cursor: pointer;
+    margin: 5px;
+    transition: background-color 0.2s;
+}
+
+.none-option:hover {
+    background-color: #e6e6e6;
+}
+
+.none-option.selected {
+    border: 2px solid green;
+    background-color: #d4ffd4;
+}
+
+.none-thumbnail {
+    position: relative;
+    background-color: #f5f5f5; /* A light gray background for the "None" option */
+    display: inline-block;
+    width: 95px; 
+    height: 95px;
+    border-radius: 10px;
+}
+
+.none-ad-thumbnail {
+    position: relative;
+    background-color: #f5f5f5; /* A light gray background for the "None" option */
+    display: inline-block;
+    width: 95px; 
+    height: 95px;
+    border-radius: 10px;
+}
+
+.red-line {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background-color: red;
+    transform: rotate(-45deg);
+    top: 50%;
+    left: 0;
+    transform-origin: center;
+    border-radius: 0 0 5px 5px; /* Round the end of the line */
+}
+
+.ai-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); /* Center the text */
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 32px; /* Adjust font size as needed */
+    letter-spacing: 1px; /* Optional: adds a bit of space between the letters */
+}
+
+.ad-creative-thumbnails {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.graphic-thumbnails {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.post-type-thumbnails {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+.poppins {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    margin-top: 10px;
 }

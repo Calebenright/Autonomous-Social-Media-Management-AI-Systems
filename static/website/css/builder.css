@@ -1,0 +1,944 @@
+/* Alata Regular */
+@font-face {
+    font-family: 'Alata';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/Alata-400.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+/* Amatic SC Bold */
+@font-face {
+    font-family: 'AmaticSC';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/AmaticSC-700.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+}
+
+/* Amatic SC Regular */
+@font-face {
+    font-family: 'AmaticSC';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/AmaticSC-400.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+
+@font-face {
+    font-family: 'BergenText';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/BergenText-400.otf') format('opentype');
+    font-weight: 400; /* Regular */
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'BergenText';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/BergenText-700.otf') format('opentype');
+    font-weight: 700; /* Bold */
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'BergenText';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/BergenText-400I.otf') format('opentype');
+    font-weight: 400; /* Regular */
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'BergenText';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/BergenText-700I.otf') format('opentype');
+    font-weight: 700; /* Bold */
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'BergenText';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/BergenText-600.otf') format('opentype');
+    font-weight: 600; /* SemiBold */
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'BergenText';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/BergenText-600I.otf') format('opentype');
+    font-weight: 600; /* SemiBold */
+    font-style: italic;
+}
+
+/* Cantarell */
+@font-face {
+    font-family: 'Cantarell';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/Cantarell-700.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Cantarell';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/Cantarell-700I.ttf') format('truetype');
+    font-weight: bold;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Cantarell';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/Cantarell-400I.ttf') format('truetype');
+    font-weight: normal;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Cantarell';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/Cantarell-400.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+/* Caveat */
+@font-face {
+    font-family: 'Caveat';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/Caveat-700.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Caveat';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/Caveat-500.ttf') format('truetype');
+    font-weight: 500;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Caveat';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/Caveat-400.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Caveat';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/Caveat-600.ttf') format('truetype');
+    font-weight: 600;
+    font-style: normal;
+}
+
+/* Futura Cyrillic */
+@font-face {
+    font-family: 'FuturaCyrillic';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/FuturaCyrillic-700.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'FuturaCyrillic';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/FuturaCyrillic-400.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'FuturaCyrillic';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/FuturaCyrillic-600.ttf') format('truetype');
+    font-weight: 600;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'FuturaCyrillic';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/FuturaCyrillic-800.ttf') format('truetype');
+    font-weight: 800;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'FuturaCyrillic';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/FuturaCyrillic-900.ttf') format('truetype');
+    font-weight: 900;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'FuturaCyrillic';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/FuturaCyrillic-300.ttf') format('truetype');
+    font-weight: 300;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'FuturaCyrillic';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/FuturaCyrillic-500.ttf') format('truetype');
+    font-weight: 500;
+    font-style: normal;
+}
+
+/* Kanit */
+@font-face {
+    font-family: 'Kanit';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/Kanit-900.ttf') format('truetype');
+    font-weight: 900;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Kanit';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/Kanit-900I.ttf') format('truetype');
+    font-weight: 900;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Kanit';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/Kanit-700.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Kanit';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/Kanit-700I.ttf') format('truetype');
+    font-weight: bold;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Kanit';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/Kanit-800.ttf') format('truetype');
+    font-weight: 800;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Kanit';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/Kanit-800I.ttf') format('truetype');
+    font-weight: 800;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Kanit';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/Kanit-200.ttf') format('truetype');
+    font-weight: 200;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Kanit';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/Kanit-200I.ttf') format('truetype');
+    font-weight: 200;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Kanit';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/Kanit-400I.ttf') format('truetype');
+    font-weight: normal;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Kanit';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/Kanit-300.ttf') format('truetype');
+    font-weight: 300;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Kanit';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/Kanit-300I.ttf') format('truetype');
+    font-weight: 300;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Kanit';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/Kanit-500.ttf') format('truetype');
+    font-weight: 500;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Kanit';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/Kanit-500I.ttf') format('truetype');
+    font-weight: 500;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Kanit';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/Kanit-400.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Kanit';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/Kanit-600.ttf') format('truetype');
+    font-weight: 600;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Kanit';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/Kanit-600I.ttf') format('truetype');
+    font-weight: 600;
+    font-style: italic;
+}
+
+
+/* Kanit Thin */
+@font-face {
+    font-family: 'Kanit';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/Kanit-100.ttf') format('truetype');
+    font-weight: 100;
+    font-style: normal;
+}
+
+/* Kanit Thin Italic */
+@font-face {
+    font-family: 'Kanit';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/Kanit-100i.ttf') format('truetype');
+    font-weight: 100;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'LilitaOne';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/LilitaOne-400.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+/* Montserrat Black */
+@font-face {
+    font-family: 'Montserrat';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/Montserrat-900.ttf') format('truetype');
+    font-weight: 900;
+    font-style: normal;
+}
+
+/* Montserrat Black Italic */
+@font-face {
+    font-family: 'Montserrat';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/Montserrat-900I.ttf') format('truetype');
+    font-weight: 900;
+    font-style: italic;
+}
+
+/* Montserrat Bold */
+@font-face {
+    font-family: 'Montserrat';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/Montserrat-700.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+}
+
+/* Montserrat Bold Italic */
+@font-face {
+    font-family: 'Montserrat';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/Montserrat-700I.ttf') format('truetype');
+    font-weight: bold;
+    font-style: italic;
+}
+
+/* Montserrat ExtraBold */
+@font-face {
+    font-family: 'Montserrat';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/Montserrat-800.ttf') format('truetype');
+    font-weight: 800;
+    font-style: normal;
+}
+
+/* Montserrat ExtraBold Italic */
+@font-face {
+    font-family: 'Montserrat';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/Montserrat-800I.ttf') format('truetype');
+    font-weight: 800;
+    font-style: italic;
+}
+
+/* Montserrat ExtraLight */
+@font-face {
+    font-family: 'Montserrat';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/Montserrat-200.ttf') format('truetype');
+    font-weight: 200;
+    font-style: normal;
+}
+
+/* Montserrat ExtraLight Italic */
+@font-face {
+    font-family: 'Montserrat';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/Montserrat-200I.ttf') format('truetype');
+    font-weight: 200;
+    font-style: italic;
+}
+
+/* Montserrat Italic */
+@font-face {
+    font-family: 'Montserrat';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/Montserrat-400I.ttf') format('truetype');
+    font-weight: normal;
+    font-style: italic;
+}
+
+/* Montserrat Light */
+@font-face {
+    font-family: 'Montserrat';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/Montserrat-300.ttf') format('truetype');
+    font-weight: 300;
+    font-style: normal;
+}
+/* Montserrat Light Italic */
+@font-face {
+    font-family: 'Montserrat';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/Montserrat-300I.ttf') format('truetype');
+    font-weight: 300;
+    font-style: italic;
+}
+
+/* Montserrat Medium */
+@font-face {
+    font-family: 'Montserrat';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/Montserrat-500.ttf') format('truetype');
+    font-weight: 500;
+    font-style: normal;
+}
+
+/* Montserrat Medium Italic */
+@font-face {
+    font-family: 'Montserrat';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/Montserrat-500I.ttf') format('truetype');
+    font-weight: 500;
+    font-style: italic;
+}
+
+/* Montserrat Regular */
+@font-face {
+    font-family: 'Montserrat';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/Montserrat-400.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+/* Montserrat SemiBold */
+@font-face {
+    font-family: 'Montserrat';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/Montserrat-600.ttf') format('truetype');
+    font-weight: 600;
+    font-style: normal;
+}
+/* Montserrat SemiBold Italic */
+@font-face {
+    font-family: 'Montserrat';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/Montserrat-600I.ttf') format('truetype');
+    font-weight: 600;
+    font-style: italic;
+}
+
+/* Montserrat Thin */
+@font-face {
+    font-family: 'Montserrat';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/Montserrat-100.ttf') format('truetype');
+    font-weight: 100;
+    font-style: normal;
+}
+
+/* Montserrat Thin Italic */
+@font-face {
+    font-family: 'Montserrat';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/Montserrat-100i.ttf') format('truetype');
+    font-weight: 100;
+    font-style: italic;
+}
+
+/* Noticia Text Bold */
+@font-face {
+    font-family: 'NoticiaText';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/NoticiaText-700.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+}
+
+/* Noticia Text Bold Italic */
+@font-face {
+    font-family: 'NoticiaText';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/NoticiaText-700I.ttf') format('truetype');
+    font-weight: bold;
+    font-style: italic;
+}
+/* Noticia Text Italic */
+@font-face {
+    font-family: 'NoticiaText';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/NoticiaText-400I.ttf') format('truetype');
+    font-weight: normal;
+    font-style: italic;
+}
+
+/* Noticia Text Regular */
+@font-face {
+    font-family: 'NoticiaText';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/NoticiaText-400.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+/* Oswald Bold */
+@font-face {
+    font-family: 'Oswald';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/Oswald-700.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+}
+
+/* Oswald ExtraLight */
+@font-face {
+    font-family: 'Oswald';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/Oswald-200.ttf') format('truetype');
+    font-weight: 200;
+    font-style: normal;
+}
+
+/* Oswald Light */
+@font-face {
+    font-family: 'Oswald';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/Oswald-300.ttf') format('truetype');
+    font-weight: 300;
+    font-style: normal;
+}
+/* Oswald Medium */
+@font-face {
+    font-family: 'Oswald';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/Oswald-500.ttf') format('truetype');
+    font-weight: 500;
+    font-style: normal;
+}
+
+/* Oswald Regular */
+@font-face {
+    font-family: 'Oswald';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/Oswald-400.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+/* Oswald SemiBold */
+@font-face {
+    font-family: 'Oswald';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/Oswald-600.ttf') format('truetype');
+    font-weight: 600;
+    font-style: normal;
+}
+
+/* Poppins Black */
+@font-face {
+    font-family: 'Poppins';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/Poppins-900.ttf') format('truetype');
+    font-weight: 900;
+    font-style: normal;
+}
+
+/* Poppins Black Italic */
+@font-face {
+    font-family: 'Poppins';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/Poppins-900I.ttf') format('truetype');
+    font-weight: 900;
+    font-style: italic;
+}
+
+/* Poppins Bold */
+@font-face {
+    font-family: 'Poppins';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/Poppins-700.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+}
+
+/* Poppins Bold Italic */
+@font-face {
+    font-family: 'Poppins';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/Poppins-700I.ttf') format('truetype');
+    font-weight: bold;
+    font-style: italic;
+}
+
+/* Poppins ExtraBold */
+@font-face {
+    font-family: 'Poppins';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/Poppins-800.ttf') format('truetype');
+    font-weight: 800;
+    font-style: normal;
+}
+
+/* Poppins ExtraBold Italic */
+@font-face {
+    font-family: 'Poppins';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/Poppins-800I.ttf') format('truetype');
+    font-weight: 800;
+    font-style: italic;
+}
+
+/* Poppins ExtraLight */
+@font-face {
+    font-family: 'Poppins';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/Poppins-200.ttf') format('truetype');
+    font-weight: 200;
+    font-style: normal;
+}
+/* Poppins ExtraLight Italic */
+@font-face {
+    font-family: 'Poppins';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/Poppins-200I.ttf') format('truetype');
+    font-weight: 200;
+    font-style: italic;
+}
+
+/* Poppins Italic */
+@font-face {
+    font-family: 'Poppins';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/Poppins-400I.ttf') format('truetype');
+    font-weight: normal;
+    font-style: italic;
+}
+
+/* Poppins Light */
+@font-face {
+    font-family: 'Poppins';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/Poppins-300.ttf') format('truetype');
+    font-weight: 300;
+    font-style: normal;
+}
+
+/* Poppins Light Italic */
+@font-face {
+    font-family: 'Poppins';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/Poppins-300I.ttf') format('truetype');
+    font-weight: 300;
+    font-style: italic;
+}
+
+/* Poppins Medium */
+@font-face {
+    font-family: 'Poppins';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/Poppins-500.ttf') format('truetype');
+    font-weight: 500;
+    font-style: normal;
+}
+
+/* Poppins Medium Italic */
+@font-face {
+    font-family: 'Poppins';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/Poppins-500I.ttf') format('truetype');
+    font-weight: 500;
+    font-style: italic;
+}
+
+/* Poppins Regular */
+@font-face {
+    font-family: 'Poppins';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/Poppins-400.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+/* Poppins SemiBold */
+@font-face {
+    font-family: 'Poppins';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/Poppins-600.ttf') format('truetype');
+    font-weight: 600;
+    font-style: normal;
+}
+
+/* Poppins SemiBold Italic */
+@font-face {
+    font-family: 'Poppins';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/Poppins-600I.ttf') format('truetype');
+    font-weight: 600;
+    font-style: italic;
+}
+
+/* Poppins Thin */
+@font-face {
+    font-family: 'Poppins';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/Poppins-100.ttf') format('truetype');
+    font-weight: 100;
+    font-style: normal;
+}
+/* Poppins Thin Italic */
+@font-face {
+    font-family: 'Poppins';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/Poppins-100i.ttf') format('truetype');
+    font-weight: 100;
+    font-style: italic;
+}
+
+/* Prata Regular */
+@font-face {
+    font-family: 'Prata';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/Prata-400.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+/* RobotoMono Bold */
+@font-face {
+    font-family: 'RobotoMono';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/RobotoMono-700.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+}
+
+/* RobotoMono Bold Italic */
+@font-face {
+    font-family: 'RobotoMono';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/RobotoMono-700I.ttf') format('truetype');
+    font-weight: bold;
+    font-style: italic;
+}
+
+/* RobotoMono ExtraLight */
+@font-face {
+    font-family: 'RobotoMono';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/RobotoMono-200.ttf') format('truetype');
+    font-weight: 200;
+    font-style: normal;
+}
+
+/* RobotoMono ExtraLight Italic */
+@font-face {
+    font-family: 'RobotoMono';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/RobotoMono-200I.ttf') format('truetype');
+    font-weight: 200;
+    font-style: italic;
+}
+
+/* RobotoMono Italic */
+@font-face {
+    font-family: 'RobotoMono';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/RobotoMono-400I.ttf') format('truetype');
+    font-weight: normal;
+    font-style: italic;
+}
+
+/* RobotoMono Light */
+@font-face {
+    font-family: 'RobotoMono';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/RobotoMono-300.ttf') format('truetype');
+    font-weight: 300;
+    font-style: normal;
+}
+
+/* RobotoMono Light Italic */
+@font-face {
+    font-family: 'RobotoMono';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/RobotoMono-300I.ttf') format('truetype');
+    font-weight: 300;
+    font-style: italic;
+}
+
+/* RobotoMono Medium */
+@font-face {
+    font-family: 'RobotoMono';
+    src: url('https://storage.googleapis.com/starter_web_app_bucket/graphic_design_posts/fonts/RobotoMono-500.ttf') format('truetype');
+    font-weight: 500;
+    font-style: normal;
+}
+
+body {
+    transform: scale(0.67);
+    transform-origin: top left;
+    width: 150%; /* Adjust as needed to fit content */
+    height: 150%; /* Adjust as needed to fit content */
+}
+
+.body-container {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f4f4;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+canvas {
+    background-color: #c4c4c4; /* Grey color */
+    border: 1px solid #ddd;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+    margin: 20px 0;
+}
+
+.div-container {
+    width: 100%;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+    background-color: #fff;
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+    margin-left: 20px; 
+}
+
+label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: 500;
+    color: #333;
+    margin-right: 5px;
+    align-self: center;
+}
+
+input[type="number"],
+input[type="text"],
+input[type="file"],
+select {
+    width: 100%;
+    padding: 10px 15px;
+    margin-bottom: 20px;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    font-size: 16px;
+    background-color: #ffffff;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03) inset;
+    transition: border-color 0.3s ease;
+}
+
+input[type="number"]:focus,
+input[type="text"]:focus,
+input[type="file"]:focus,
+select:focus {
+    border-color: #007BFF;
+    outline: none;
+}
+
+input[type="checkbox"] {
+    margin-right: 10px;
+}
+
+button {
+    cursor: pointer;
+    padding: 12px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    color: #ffffff;
+    background-color: #007BFF;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+#createLogo {
+    background-color: #4CAF50; /* Green background */
+    color: white; /* White text */
+    border: none; /* No border */
+    padding: 10px 20px; /* Some padding */
+    text-align: center; /* Center the text */
+    text-decoration: none; /* No underline on text */
+    display: inline-block; /* Allows setting width and height */
+    font-size: 16px; /* Default font size */
+    margin: 4px 2px; /* Some margin */
+    cursor: pointer; /* Pointer/hand icon when you hover over the button */
+    border-radius: 5px; /* Rounded corners */
+}
+
+#createLogo:hover {
+    background-color: #45a049; /* Darker shade of green when hovering */
+}
+
+#deleteLogo {
+    background-color: #af4c4c; /* Green background */
+    color: white; /* White text */
+    border: none; /* No border */
+    padding: 10px 20px; /* Some padding */
+    text-align: center; /* Center the text */
+    text-decoration: none; /* No underline on text */
+    display: inline-block; /* Allows setting width and height */
+    font-size: 16px; /* Default font size */
+    margin: 4px 2px; /* Some margin */
+    cursor: pointer; /* Pointer/hand icon when you hover over the button */
+    border-radius: 5px; /* Rounded corners */
+}
+
+#deleteLogo:hover {
+    background-color: #7b3535; /* Darker shade of green when hovering */
+}
+
+#createImg {
+    background-color: #4ca8af; /* Green background */
+    color: white; /* White text */
+    border: none; /* No border */
+    padding: 10px 20px; /* Some padding */
+    text-align: center; /* Center the text */
+    text-decoration: none; /* No underline on text */
+    display: inline-block; /* Allows setting width and height */
+    font-size: 16px; /* Default font size */
+    margin: 4px 2px; /* Some margin */
+    cursor: pointer; /* Pointer/hand icon when you hover over the button */
+    border-radius: 5px; /* Rounded corners */
+}
+
+#createImg:hover {
+    background-color: #337275; /* Darker shade of green when hovering */
+}
+
+#deleteImg {
+    background-color: #af864c; /* Green background */
+    color: white; /* White text */
+    border: none; /* No border */
+    padding: 10px 20px; /* Some padding */
+    text-align: center; /* Center the text */
+    text-decoration: none; /* No underline on text */
+    display: inline-block; /* Allows setting width and height */
+    font-size: 16px; /* Default font size */
+    margin: 4px 2px; /* Some margin */
+    cursor: pointer; /* Pointer/hand icon when you hover over the button */
+    border-radius: 5px; /* Rounded corners */
+}
+
+#deleteImg:hover {
+    background-color: #7b6135; /* Darker shade of green when hovering */
+}
+
+#textBoxControls {
+    display: flex;
+    gap: 10px;
+}
+
+#imgBoxControls {
+    display: flex;
+    gap: 10px;
+}
+
+#logoBoxControls {
+    display: flex;
+    gap: 10px;
+}
+
+#modifyText {
+    flex-grow: 2;
+}
+
+.parent-container {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 100px;
+}
+
+.right-side {
+    margin: 20px;
+    display: flex;
+    align-items: flex-start;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+

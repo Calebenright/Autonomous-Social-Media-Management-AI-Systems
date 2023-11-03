@@ -35,7 +35,6 @@ def create_caption (business_description, business_name):
     f"Create a sophisticated toned, short social media caption for (BUSINESS NAME = {business_name}) and (BUSINESS DESCRIPTION = {business_description}) | Remove quotations.",
     ]
     prompt = random.choice(prompts)
-    print(prompt)
     response = openai.Completion.create(
         model="gpt-3.5-turbo-instruct",
         prompt=prompt,
@@ -121,7 +120,6 @@ def create_stable_dif_post (key):
     return image_io
 
 def create_stock_post (key):
-
     ## CREATE IMAGE USING Unsplash
     base_url = 'https://api.unsplash.com/'
     headers = {
@@ -129,7 +127,7 @@ def create_stock_post (key):
     }
     params = {
         'query': key,
-        'count': 1,
+        'count': 3,
     }
     response = requests.get(f'{base_url}photos/random', headers=headers, params=params)
     response.raise_for_status()  
@@ -153,7 +151,15 @@ def create_stock_post (key):
 
     return image_io
 
-def create_call_to_action(business_description, business_name, primary_color, colors_as_array, key, img_url, random_int):
+def create_call_to_action(business_description, business_name, primary_color, colors_as_array, img_url, random_int, logo_path):
+    bg = generate_image_from_params(str(random_int), business_description, business_name, primary_color, colors_as_array, img_url, logo_path)
+    image_io = BytesIO()
+    bg.save(image_io, format='PNG')
+    image_io.seek(0)
+
+    return image_io
+
+def create_ad_creative(business_description, business_name, primary_color, colors_as_array, img_url, random_int):
     bg = generate_image_from_params(str(random_int), business_description, business_name, primary_color, colors_as_array, img_url)
     image_io = BytesIO()
     bg = bg.convert("RGB")
@@ -190,20 +196,21 @@ def create_upload(image_name, logo_path, isLogo, isGraphic, color, name):
     right = (width + size) / 2
     bottom = (height + size) / 2
     cropped_img = img.crop((left, top, right, bottom))
+    cropped_img = cropped_img.resize((1024, 1024))
     
     if isGraphic:
         new_size = (int(cropped_img.width * 0.85), int(cropped_img.height * 0.85))
         cropped_img = cropped_img.resize(new_size, Image.ANTIALIAS)
         cropped_img = add_drop_shadow(cropped_img)
-        draw = ImageDraw.Draw(cropped_img)
         font_size = 40
         font = ImageFont.truetype("arial.ttf", font_size)
         name = "@" + name
-        r, g, b = hex_to_rgb(color)
-        draw.text((20 + 110, cropped_img.height - 110 - font_size * 3/2), name, font=font, fill=(r, g, b, 150))
         bg = Image.new('RGB', (1024, 1024), color)
         paste_position = ((bg.width - cropped_img.width) // 2, (bg.height - cropped_img.height) // 2)
         bg.paste(cropped_img.convert('RGB'), paste_position, cropped_img.split()[3])
+        # r, g, b = hex_to_rgb(color)
+        draw = ImageDraw.Draw(bg)
+        draw.text((int(cropped_img.width * 0.15)/2 + 5, int(cropped_img.height * 0.85) - font_size * 1), name, font=font, fill=(255, 255, 255, 50))
         cropped_img = bg
     if isLogo:
         response = requests.get(logo_path)
@@ -225,7 +232,6 @@ def create_upload(image_name, logo_path, isLogo, isGraphic, color, name):
 
     return image_io
 
-
 def create_placeholder(business_description, bucket_name, bucket_credentials, user_folder_path):
     image_url = 'https://th.bing.com/th/id/OIG.CO2sHWK_IEYIwzXsC2hX'
     image_size = 1024
@@ -246,9 +252,7 @@ def create_ad_headline (business_description, business_name):
         temperature=1
     )
     ad_headline = response.choices[0].text.strip()
-    print(ad_headline)
     ad_headline_str = re.sub(r'"+', '', ad_headline)
-    print(ad_headline_str)
 
     return ad_headline_str
 
@@ -309,6 +313,19 @@ def upload_to_google (image, bucket_name, bucket_credentials, user_folder_path):
     filename = str(uuid.uuid4()) + ".jpg"
     blob = bucket.blob(user_folder_path + filename)
     blob.upload_from_file(image, content_type='image/jpeg')
+    blob.make_public()
+
+    return blob.public_url
+
+def upload_png_to_google (image, bucket_name, bucket_credentials, user_folder_path):
+
+    # Upload the image to Google Cloud Storage
+    credentials = service_account.Credentials.from_service_account_file(bucket_credentials)
+    client = storage.Client(project=credentials.project_id, credentials=credentials)
+    bucket = client.bucket(bucket_name)
+    filename = str(uuid.uuid4()) + ".png"
+    blob = bucket.blob(user_folder_path + filename)
+    blob.upload_from_file(image, content_type='image/png')
     blob.make_public()
 
     return blob.public_url

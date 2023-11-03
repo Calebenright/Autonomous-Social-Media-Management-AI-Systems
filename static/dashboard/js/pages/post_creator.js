@@ -5,15 +5,17 @@ const tags = tagsArray;
 const randomTag = tags[Math.floor(Math.random() * tags.length)];
 
 document.addEventListener('DOMContentLoaded', () => {
-    const radioButtons = document.querySelectorAll('input[name="flexRadioDefault"]');
+    const thumbnails = document.querySelectorAll('.post-type-thumbnail');
     const contentCards = document.querySelectorAll('.content-card');
     const stockDescription = document.querySelector('input[name="stock-description"]');
     const graphicDescription = document.querySelector('input[name="graphic-description"]');
+    const adDescription = document.querySelector('input[name="ad-creative-description"]');
 
-    radioButtons.forEach(radioButton => {
-        radioButton.addEventListener('change', () => {
-            const selectedValue = radioButton.value;
-            
+    thumbnails.forEach(thumbnail => {
+        thumbnail.addEventListener('click', () => {
+            thumbnails.forEach(thumb => thumb.classList.remove('selected'));
+            thumbnail.classList.add('selected');
+            const selectedValue = thumbnail.getAttribute('data-value');
             contentCards.forEach(card => {
                 card.style.display = 'none';
             });
@@ -24,17 +26,20 @@ document.addEventListener('DOMContentLoaded', () => {
                     stockDescription.value = randomTag;
                 } else if (selectedValue == "graphic") {
                     graphicDescription.value = randomTag;
+                } else if (selectedValue == "ad") {
+                    adDescription.value = randomTag;
                 }
                 correspondingCard.style.display = 'block';
             }
         });
 
-        if (radioButton.checked) {
-            radioButton.dispatchEvent(new Event('change'));
-        }
     });
 
-    
+    const defaultThumbnail = document.querySelector('.post-type-thumbnail.selected');
+    if (defaultThumbnail) {
+        defaultThumbnail.click();
+    }
+
 });
 
 tagInput.addEventListener('keydown', function(event) {

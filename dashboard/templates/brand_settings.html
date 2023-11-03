@@ -9,6 +9,7 @@
     <meta content="A automonomous social media managing app and ad agency" name="description" />
     <meta content="CJ Enright" name="author" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
     <!-- App favicon -->
     <link rel="shortcut icon" href="{% static 'dashboard/images/favicon.ico' %}">
 
@@ -23,6 +24,8 @@
     <link href="{% static 'dashboard/css/image-style.css' %}" rel="stylesheet" type="text/css" />
 
     <!-- Plugins css -->
+    <link href="{% static 'dashboard/libs/dropzone/min/dropzone.min.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'dashboard/libs/dropify/css/dropify.min.css' %}" rel="stylesheet" type="text/css" />
     <link href="{% static 'dashboard/css/spectrum.min.css' %}" rel="stylesheet" type="text/css">
 
 </head>
@@ -254,6 +257,7 @@
                     
                     <script>
                         document.addEventListener("DOMContentLoaded", function() {
+                            
                             var businessDescriptionElement = document.getElementById("businessDescription");
                             var businessDescription = businessDescriptionElement.textContent.trim();
                     
@@ -293,17 +297,16 @@
                             <a href="{% url 'dashboard' %}">
                                 <i class="mdi mdi-view-dashboard-outline"></i>
                                 <!-- <span class="badge bg-success rounded-pill float-end">9+</span> -->
-                                <span> Elaine </span>
+                                <span> Dashboard </span>
                             </a>
                         </li>
 
-                        <li>
+                        <!-- <li>
                             <a href="{% url 'ad_manager' %}">
                                 <i class="mdi mdi-tag-text-outline"></i>
-                                <!-- <span class="badge bg-success rounded-pill float-end">9+</span> -->
                                 <span> Jerry </span>
                             </a>
-                        </li>
+                        </li> -->
 
                         <li class="menu-title mt-2">Apps</li>
 
@@ -377,7 +380,7 @@
                         }
                         </script>
                         {% endif %}                    
-                        <div class="col-md-6">
+                        <div class="col-md-3">
                             <div class="card">
                                 <div class="card-body">
                                     <h4 class="header-title">Brand Settings</h4>
@@ -387,7 +390,7 @@
                                     </p>
 
                                     <div class="row">
-                                        <div class="col-lg-6">
+                                        <div class="col-lg-12">
                                             <form id="tagForm" method="post" action="{% url 'brand_settings' %}"
                                                 enctype="multipart/form-data">
                                                 {% csrf_token %}
@@ -403,6 +406,13 @@
                                                     <input type="text" id="business_description" class="form-control"
                                                         name="business_description"
                                                         value="{{ user_settings.business_description }}">
+                                                </div>
+                                                
+                                                <div class="mb-3">
+                                                    <label for="simpleinput" class="form-label">Website</label>
+                                                    <input type="text" id="website" class="form-control"
+                                                        name="website"
+                                                        value="{{ user_settings.website }}">
                                                 </div>
                                                 {% if user_settings.business_description %}
                                                 <div class="mb-3">
@@ -449,12 +459,7 @@
                                                     }
 
                                                 </script>
-                                                <div class="mb-3">
-                                                    <label for="simpleinput" class="form-label">Website</label>
-                                                    <input type="text" id="website" class="form-control"
-                                                        name="website"
-                                                        value="{{ user_settings.website }}">
-                                                </div>
+
                                                 <h4 class="header-title">Logo</h4>
 
                                                 <p class="sub-header">
@@ -466,13 +471,83 @@
                                                 {% if user_settings.logo %}
                                                 <div class="mb-3">
                                                     <img src="{{ user_settings.logo }}" alt="Generated Image"
-                                                        class="generated-image-small rounded">
+                                                        class="generated-image-xs rounded">
                                                 </div>
                                                 {% endif %}
                                                 <button type="submit"
                                                     class="btn btn-primary waves-effect waves-light">Save</button>
                                                 <br>
                                             </form>
+                                        </div> <!-- end col -->
+                                    </div>
+                                    <!-- end row-->
+
+                                </div> <!-- end card-body -->
+                            </div> <!-- end card -->
+                        </div><!-- end col -->
+                        <div class="col-md-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h4 class="header-title">Image Library</h4>
+                                    <p class="sub-header">
+                                        This is your library of images used in creating your personalized content. Add more for even better results!
+                                    </p>
+                                    <div class="row">
+                                        <div class="col-lg-12">
+                                            <div class="mb-3">
+                                                <div class="image-tag-input-container">
+                                                    <form id="imageTagForm" method="post" action="{% url 'brand_settings' %}" enctype="multipart/form-data">
+                                                        <!-- <form id="imageTagForm" method="post" action="{% url 'brand_settings' %}" enctype="multipart/form-data" class="dropzone" data-plugin="dropzone" data-previews-container="#file-previews" data-upload-preview-template="#uploadPreviewTemplate"> -->
+                                                        {% csrf_token %}
+                                                        
+                                                        <!-- <div class="fallback">
+                                                            <input name="file" type="file" multiple />
+                                                        </div>
+                                                    
+                                                        <div class="dz-message needsclick">
+                                                            <i class="h1 text-muted dripicons-cloud-upload"></i>
+                                                            <h3>Drop files here or click to upload.</h3>
+                                                            <span class="text-muted font-13">(This is just a demo dropzone. Selected files are <strong>not</strong> actually uploaded.)</span>
+                                                        </div>
+                                                        
+                                                        <div class="dropzone-previews mt-3" id="file-previews"></div> 
+                                                    
+                                                        <div class="d-none" id="uploadPreviewTemplate">
+                                                            <div class="card mt-1 mb-0 shadow-none border">
+                                                                <div class="p-2">
+                                                                    <div class="row align-items-center">
+                                                                        <div class="col-auto">
+                                                                            <img data-dz-thumbnail src="#" class="avatar-sm rounded bg-light" alt="">
+                                                                        </div>
+                                                                        <div class="col ps-0">
+                                                                            <a href="javascript:void(0);" class="text-muted fw-bold" data-dz-name></a>
+                                                                            <p class="mb-0" data-dz-size></p>
+                                                                        </div>
+                                                                        <div class="col-auto">
+                                                                            <a href="" class="btn btn-link btn-lg text-muted" data-dz-remove>
+                                                                                <i class="dripicons-cross"></i>
+                                                                            </a>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div> -->
+                                                    
+                                                        <!-- Hidden Inputs and Buttons -->
+                                                        <!-- <input type="file" name="file" data-plugins="dropify" data-height="200" accept=".jpg, .png" /> -->
+                                                        <input type="file" name="file" id="imageUpload" data-plugins="dropify" data-height="200" accept=".jpg, .png" />
+                                                        <input type="hidden" name="form" value="image-tags">
+                                                        <input type="hidden" name="imageTags" value="">
+                                                        <input type="hidden" name="isGenerateStockImagesClicked" id="isGenerateStockImagesClickedField" value="false">
+                                                        <br>
+                                                        <button id="generateStockImages" class="btn btn-success">Add Stock Images</button>
+                                                        <br>
+                                                        <br>
+                                                        <div class="image-tag-thumbnails" id="imageTagThumbnails"></div>
+                                                        <button type="submit" id="imageTagFormSubmit" class="btn btn-primary waves-effect waves-light">Save</button>
+                                                    </form>
+                                                </div>
+                                            </div>
                                         </div> <!-- end col -->
                                     </div>
                                     <!-- end row-->
@@ -506,6 +581,7 @@
                                                 {% endif %}
                                             </div>
                                         </button>
+                                        {% if user_settings.facebook_token %}
                                         <script>
                                             var form = document.getElementById('facebook');
                                             var switcheryInput = document.getElementById('facebook_switch');
@@ -518,6 +594,8 @@
                                                 event.preventDefault();
                                             });
                                         </script>
+                                        {% endif %}
+
                                     </form>
                                     <br>
                                     <form id="instagram" method="post" action="{% url 'all_auth' %}" enctype="multipart/form-data">
@@ -541,6 +619,7 @@
                                                 {% endif %}
                                             </div>
                                         </button>
+                                        {% if user_settings.instagram_token %}
                                         <script>
                                             var form = document.getElementById('instagram');
                                             var switcheryInput = document.getElementById('instagram_switch');
@@ -553,6 +632,7 @@
                                                 event.preventDefault();
                                             });
                                         </script>
+                                        {% endif %}
                                     </form>
                                     <br>
                                     <form id="google_business" method="post" action="{% url 'all_auth' %}" enctype="multipart/form-data">
@@ -576,6 +656,7 @@
                                                 {% endif %}
                                             </div>
                                         </button>
+                                        {% if user_settings.google_business_token %}
                                         <script>
                                             var form = document.getElementById('google_business');
                                             var switcheryInput = document.getElementById('google_business_switch');
@@ -588,6 +669,7 @@
                                                 event.preventDefault();
                                             });
                                         </script>
+                                        {% endif %}
                                     </form>
                                     <br>
                                     <form id="linkedin" method="post" action="{% url 'all_auth' %}" enctype="multipart/form-data">
@@ -611,6 +693,7 @@
                                                 {% endif %}
                                             </div>
                                         </button>
+                                        {% if user_settings.linkedin_token %}
                                         <script>
                                             var form = document.getElementById('linkedin');
                                             var switcheryInput = document.getElementById('linkedin_switch');
@@ -623,6 +706,7 @@
                                                 event.preventDefault();
                                             });
                                         </script>
+                                        {% endif %}
                                     </form>
                                     <br>
                                     <form method="post" action="{% url 'all_auth' %}" enctype="multipart/form-data">
@@ -739,71 +823,16 @@
                     </div>
                     <!-- end row -->
 
+                    <div id="loading-overlay">
+                        <div class="spinner-grow text-info" role="status"></div>
+                    </div>
+
                     <script>
-                        
                         const tagsArray = '{{ user_settings.tags|safe }}' !== '' ?
-                            JSON.parse('{{ user_settings.tags|safe }}') : [];
-
-                        const tagInput = document.getElementById('tagInput');
-                        const tagBubbles = document.getElementById('tagBubbles');
-                        const tags = tagsArray;
-
-                        tagInput.addEventListener('keydown', function(event) {
-                        if (event.key === 'Enter' || event.key === ',') {
-                            event.preventDefault();
-                            const tagValue = tagInput.value.trim();
-                            if (tagValue) {
-                            addTag(tagValue);
-                            tagInput.value = '';
-                            }
-                        }
-                        });
-
-                        function addTag(tagValue) {
-                        tags.push(tagValue);
-                        const tagBubble = document.createElement('div');
-                        tagBubble.classList.add('tag-bubble');
-                        tagBubble.textContent = tagValue;
-                        tagBubbles.appendChild(tagBubble);
-                        tagBubble.addEventListener('click', function() {
-                            removeTag(tagValue);
-                        });
-                        }
-
-                        function removeTag(tagValue) {
-                        const index = tags.indexOf(tagValue);
-                        if (index !== -1) {
-                            tags.splice(index, 1);
-                            updateTagBubbles();
-                        }
-                        }
-
-                        function updateTagBubbles() {
-                        tagBubbles.innerHTML = '';
-                        tags.forEach(tagValue => {
-                            const tagBubble = document.createElement('div');
-                            tagBubble.classList.add('tag-bubble');
-                            tagBubble.textContent = tagValue;
-                            tagBubbles.appendChild(tagBubble);
-                            tagBubble.addEventListener('click', function() {
-                            removeTag(tagValue);
-                            });
-                        });
-                        }
-
-                        function updateHiddenInput() {
-                        const tagsInput = document.querySelector('input[name="tags"]');
-                        tagsInput.value = tags.join(',');
-                        }
-
-                        const tagForm = document.getElementById('tagForm');
-                        tagForm.addEventListener('submit', function(event) {
-                            updateHiddenInput();
-                            tagForm.submit();
-                        });
-
-                        updateTagBubbles();
-
+                        JSON.parse('{{ user_settings.tags|safe }}') : [];
+                        
+                        const imageTagsArray = '{{ user_settings.image_tags|safe }}' !== '' ?
+                        JSON.parse('{{ user_settings.image_tags|safe }}') : [];
                     </script>
                 </div> <!-- container-fluid -->
 
@@ -860,6 +889,8 @@
         userId: '{{ user_id }}',
     };
     </script>
+    <script src="{% static 'dashboard/libs/dropzone/min/dropzone.min.js' %}"></script>
+    <script src="{% static 'dashboard/libs/dropify/js/dropify.min.js' %}"></script>
 
 </body>
 
