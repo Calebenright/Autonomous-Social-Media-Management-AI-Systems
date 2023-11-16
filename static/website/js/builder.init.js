@@ -194,7 +194,7 @@ function redrawCanvas() {
 function drawTextBoxes() {
 
     for (let textBox of textBoxes) {
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+        ctx.fillStyle = 'rgba(100, 100, 100, 0.5)';
         ctx.fillRect(textBox.x, textBox.y, textBox.width, textBox.height);
         switch (textBox.textColor) {
             case 'black':
@@ -208,6 +208,9 @@ function drawTextBoxes() {
                 break;
             case 'secondary':
                 ctx.fillStyle = 'blue';
+                break;
+            case 'primary':
+                ctx.fillStyle = 'green';
                 break;
         }
 
@@ -243,7 +246,11 @@ function drawTextBoxes() {
                 } else if (textBox.textAlign === "right") {
                     lineX = textBox.x + textBox.width - lineMetrics.width - 5;
                 }
-                ctx.fillText(lines[i], lineX, textBox.y + (i + 1) * adjustedLineHeight);
+                if (i == 0){
+                    ctx.fillText(lines[i], lineX, textBox.y + (i + 1) * parseFloat(textBox.fontSize) );
+                } else {
+                    ctx.fillText(lines[i], lineX, textBox.y + (i + 1) * adjustedLineHeight);
+                }
             }
         }
 
@@ -285,10 +292,11 @@ const createImgButton = document.getElementById('createImg');
 const deleteImgButton = document.getElementById('deleteImg');
 const createLogoButton = document.getElementById('createLogo');
 const deleteLogoButton = document.getElementById('deleteLogo');
+const promptSelectionElement = document.getElementById('promptSelection');
+const maxCharCount = document.getElementById('maxCharCount');
 
 createTextBoxButton.addEventListener('click', () => {
-    const maxCharCount = document.getElementById('maxCharCount').value;
-    const promptSelectionElement = document.getElementById('promptSelection');
+    const maxCharCountValue = maxCharCount.value;
     const promptSelectionValue = promptSelectionElement.options[promptSelectionElement.selectedIndex].value;
 
     const newTextBox = {
@@ -304,7 +312,7 @@ createTextBoxButton.addEventListener('click', () => {
         lineHeight: lineHeightInput.value || '1.2',
         charSpacing: charSpacingInput.value || '0',
         anchorPoint: anchorPointInput.value || 'top-left',
-        maxCharCount: maxCharCount || 40,
+        maxCharCount: maxCharCountValue || 40,
         prompt: promptSelectionValue || "Headline",
         textColor: textColorInput || "ai"
     };
@@ -404,7 +412,6 @@ charSpacingInput.addEventListener('change', () => {
 textAlignInput.addEventListener('change', () => {
     if (selectedTextBox) {
         selectedTextBox.textAlign = textAlignInput.value;
-        console.log('Updated selectedTextBox:', selectedTextBox);
         redrawCanvas();
     }
 });
@@ -412,7 +419,6 @@ textAlignInput.addEventListener('change', () => {
 anchorPointInput.addEventListener('change', () => {
     if (selectedTextBox) {
         selectedTextBox.anchorPoint = anchorPointInput.value;
-        console.log('Updated selectedTextBox:', selectedTextBox);
         redrawCanvas();
     }
 });
@@ -420,7 +426,21 @@ anchorPointInput.addEventListener('change', () => {
 textColorInput.addEventListener('change', () => {
     if (selectedTextBox) {
         selectedTextBox.textColor = textColorInput.value;
-        console.log('Updated selectedTextBox:', selectedTextBox);
+        redrawCanvas();
+    }
+});
+
+maxCharCount.addEventListener('change', () => {
+    if (selectedTextBox) {
+        selectedTextBox.maxCharCount = maxCharCount.value;
+        redrawCanvas();
+    }
+});
+
+promptSelectionElement.addEventListener('change', () => {
+    const promptSelectionValue = promptSelectionElement.options[promptSelectionElement.selectedIndex].value;
+    if (selectedTextBox) {
+        selectedTextBox.prompt = promptSelectionValue;
         redrawCanvas();
     }
 });

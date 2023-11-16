@@ -291,7 +291,7 @@
 
                     <ul id="side-menu">
 
-                        <li class="menu-title">Agents</li>
+                        <li class="menu-title">Feadl.io</li>
 
                         <li>
                             <a href="{% url 'dashboard' %}">
@@ -755,15 +755,8 @@
                                     <form method="post" action="{% url 'brand_settings' %}" enctype="multipart/form-data">
                                         {% csrf_token %}
                                         <input type="hidden" name="form" value="user-settings">
-                                        <div class="mb-3">
-                                            <label for="simpleinput" class="form-label">Your Name</label>
-                                            <input type="text" id="user_name" class="form-control"
-                                                name="user_name"
-                                                value="{{ user_settings.user_name }}">
-                                        </div>
                                         <label class="form-label">Profile Image</label>
-                                        <p class="sub-header">( .JPG Files Only )</p>
-                                        <input type="file" id="pfp" name="pfp" class="form-control" accept=".jpg">
+                                        <input type="file" id="pfp" name="pfp" class="form-control" accept=".jpg, .png">
                                         <br>
                                         {% if user_settings.pfp %}
                                         <div class="mb-3">

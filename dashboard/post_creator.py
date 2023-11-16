@@ -15,7 +15,7 @@ from google.oauth2 import service_account
 from django.conf import settings
 from django.templatetags.static import static 
 from django.contrib.staticfiles.storage import staticfiles_storage
-from .functions import generate_unique_filename, tint_image, getPixabayImg
+from .functions import tint_image, getPixabayImg
 from .graphic_designer import generate_image_from_params, hex_to_rgb
 import random
 import json
@@ -152,18 +152,17 @@ def create_stock_post (key):
     return image_io
 
 def create_call_to_action(business_description, business_name, primary_color, colors_as_array, img_url, random_int, logo_path):
-    bg = generate_image_from_params(str(random_int), business_description, business_name, primary_color, colors_as_array, img_url, logo_path)
+    bg = generate_image_from_params(str(random_int), business_description, business_name, primary_color, colors_as_array, img_url, logo_path, 'graphic')
     image_io = BytesIO()
     bg.save(image_io, format='PNG')
     image_io.seek(0)
 
     return image_io
 
-def create_ad_creative(business_description, business_name, primary_color, colors_as_array, img_url, random_int):
-    bg = generate_image_from_params(str(random_int), business_description, business_name, primary_color, colors_as_array, img_url)
+def create_ad_creative(business_description, business_name, primary_color, colors_as_array, img_url, random_int, logo_path):
+    bg = generate_image_from_params(str(random_int), business_description, business_name, primary_color, colors_as_array, img_url, logo_path, 'ad')
     image_io = BytesIO()
-    bg = bg.convert("RGB")
-    bg.save(image_io, format='JPEG')
+    bg.save(image_io, format='PNG')
     image_io.seek(0)
 
     return image_io
@@ -200,7 +199,7 @@ def create_upload(image_name, logo_path, isLogo, isGraphic, color, name):
     
     if isGraphic:
         new_size = (int(cropped_img.width * 0.85), int(cropped_img.height * 0.85))
-        cropped_img = cropped_img.resize(new_size, Image.ANTIALIAS)
+        cropped_img = cropped_img.resize(new_size, Image.Resampling.LANCZOS)
         cropped_img = add_drop_shadow(cropped_img)
         font_size = 40
         font = ImageFont.truetype("arial.ttf", font_size)
@@ -256,10 +255,10 @@ def create_ad_headline (business_description, business_name):
 
     return ad_headline_str
 
-def create_ad_copy (business_description, biz_name):
+def create_ad_copy (business_description, biz_name, platform):
     # Define the Business We Are Creating Media For
 
-    ad_copy_prompt = f"Write me a persuasive PAS-based Facebook Ad that promotes {business_description}. The name of my business is {biz_name}\
+    ad_copy_prompt = f"Write me a persuasive PAS-based {platform} Ad that promotes {business_description}. The name of my business is {biz_name}\
     \
     Start by calling out the main problem, outlining the market's pain points, and providing details on the impacts that the [Create a Main Problem or Pain Point based on {business_description}] has on their life or business. Write this first part in 1 to 2 sentences max.\
     \
@@ -273,7 +272,7 @@ def create_ad_copy (business_description, biz_name):
     \
     Remember, this Facebook Ad needs to be persuasive and compelling and entices the market to take action.\
     \
-    Make sure this ad is less than 200 words and is written at a Grade 4 readability level."
+    Make sure this ad is less than either 100, 75, or 50 words and is written at a Grade 4 readability level."
     
     response = openai.Completion.create(
         model="gpt-3.5-turbo-instruct",
@@ -304,7 +303,7 @@ def add_watermark (image, logo_path):
 
     return image_io
 
-def upload_to_google (image, bucket_name, bucket_credentials, user_folder_path):
+def upload_jpg_to_google (image, bucket_name, bucket_credentials, user_folder_path):
 
     # Upload the image to Google Cloud Storage
     credentials = service_account.Credentials.from_service_account_file(bucket_credentials)
@@ -329,32 +328,6 @@ def upload_png_to_google (image, bucket_name, bucket_credentials, user_folder_pa
     blob.make_public()
 
     return blob.public_url
-
-def create_image (business_name,  business_description, website, key, img_url, color, color_array, selected_option, isLogo, logo_path, bucket_name, bucket_credentials, user_folder_path, random_int):
-    if selected_option == 'cta':
-        img = create_call_to_action(business_description, business_name, color, color_array, key, img_url, random_int)
-    if isLogo == 'true':
-       if logo_path is not None:
-            img = add_watermark(img, logo_path)
-    url = upload_to_google(img, bucket_name, bucket_credentials, user_folder_path)
-    return url
-
-def create_ad (isLogo, logo_path, key, bucket_name, bucket_credentials, user_folder_path, num_ad):
-
-    options = ['stable-dif', 'stock']
-    selected_option = random.choice(options)
-    if selected_option == 'stable-dif':
-        img = create_stable_dif_post(key)
-    elif selected_option == 'stock':
-        img = create_stock_post(key)
-
-    if isLogo == 'true':
-        if logo_path is not None:
-                img = add_watermark(img, logo_path)
-
-    url = upload_to_google(img, bucket_name, bucket_credentials, user_folder_path)
-
-    return url
 
 # create_post('roofing', 'starter_web_app_bucket', 'credentials.json')
 # DONE :)

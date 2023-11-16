@@ -89,24 +89,30 @@
               const dynamicProfile = document.getElementById('dynamicProfile');
 
               generateFeedBtn.addEventListener('click', function() {
-                  const businesses = ['business1', 'business2'];
+                  const businesses = ['business1', 'business2', 'business3', 'business4', 'business5', 'business6'];
                   const selectedBusiness = businesses[Math.floor(Math.random() * businesses.length)];
 
                   switch (selectedBusiness) {
                       case 'business1':
                           dynamicImage.src = 'https://storage.googleapis.com/starter_web_app_bucket/user_folders/assets/index1.png';
-                          // dynamicProfile.src = 'https://storage.googleapis.com/starter_web_app_bucket/user_folders/ai_image_library/49fbecf6-1a0d-4212-8aa5-f9fc684ff289.jpg';
-                          // dynamicCaption.innerText = 'Caption for business 1';
                           break;
                       case 'business2':
                           dynamicImage.src = 'https://storage.googleapis.com/starter_web_app_bucket/user_folders/assets/index2.png';
-                          // dynamicProfile.src = 'https://storage.googleapis.com/starter_web_app_bucket/user_folders/stock_image_library/147af0ac-ab1a-464a-a61d-3b5243e023a0.jpg';
-                          // dynamicCaption.innerText = 'Caption for business 2';
+                          break;
+                      case 'business3':
+                          dynamicImage.src = 'https://storage.googleapis.com/starter_web_app_bucket/user_folders/assets/index3.png';
+                          break;
+                      case 'business4':
+                          dynamicImage.src = 'https://storage.googleapis.com/starter_web_app_bucket/user_folders/assets/index4.png';
+                          break;
+                      case 'business5':
+                          dynamicImage.src = 'https://storage.googleapis.com/starter_web_app_bucket/user_folders/assets/index5.png';
+                          break;
+                      case 'business6':
+                          dynamicImage.src = 'https://storage.googleapis.com/starter_web_app_bucket/user_folders/assets/index6.png';
                           break;
                       default:
                           dynamicImage.src = 'https://storage.googleapis.com/starter_web_app_bucket/user_folders/assets/index.png';
-                          // dynamicProfile.src = 'https://storage.googleapis.com/starter_web_app_bucket/user_folders/stock_image_library/147af0ac-ab1a-464a-a61d-3b5243e023a0.jpg';
-                          // dynamicCaption.innerText = 'Default caption';
                           break;
                   }
               });
@@ -115,8 +121,8 @@
 
           <div class="col-one-half middle">
               <div>
-                <h1 class="hero">No Bad<br>Social Media</h1>
-                <p class="lead">AI driven software that generates graphics, advertisements, impressions, leads, sales, and eyeballs.</p>
+                <h1 class="hero">No Bad Social Media</h1>
+                <p class="lead">AI driven software that generates advertisements, graphics, impressions, leads, sales, and eyeballs.</p>
                 <a href="{% url 'signup' %}" class="button button-primary space-top" role="button">Sign Up</a>
               </div>
           </div>

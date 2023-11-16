@@ -1,5 +1,5 @@
 
-from PIL import Image, ImageDraw, ImageFont, ImageFilter
+from PIL import Image, ImageDraw, ImageFont, ImageFilter, ImageChops
 import os
 import random
 import textwrap
@@ -14,9 +14,12 @@ import requests
 import ast
 import tempfile
 import xml.etree.ElementTree as ET
+from decouple import config
+import numpy as np
 
 from decouple import config
 openai.api_key = config('OPENAI_API_KEY')
+environment = config('ENVIRONMENT', default='development')
 
 # ---------------------- Utility Functions --------------------- #
 
@@ -53,10 +56,36 @@ def recolor_image(img, color):
                                     a))
     return recolored
 
-def process_images(FOLDER_NUM, primary_color, shuffle_colors, isImage, base_image_url, imgX, imgY, imgWidth, imgHeight, bucket, isBlur, blur_amount, logo_path, isLogo, logoX, logoY, logoWidth, logoHeight,):
+def blend_multiply(base_image, overlay_image):
+    base_image = base_image.convert("RGBA")
+    overlay_image = overlay_image.convert("RGBA")
+    blended_image = ImageChops.multiply(base_image, overlay_image)
+    base_alpha = base_image.split()[3]
+    overlay_alpha = overlay_image.split()[3]
+    final_alpha = ImageChops.multiply(base_alpha, overlay_alpha)
+    blended_image.putalpha(final_alpha)
+
+    return blended_image
+
+def blend_screen(base_image, overlay_image):
+    base_image = base_image.convert("RGBA")
+    overlay_image = overlay_image.convert("RGBA")
+    inv_base_image = ImageChops.invert(base_image)
+    inv_overlay_image = ImageChops.invert(overlay_image)
+    blended_data = ImageChops.multiply(inv_base_image, inv_overlay_image)
+    blended_image = ImageChops.invert(blended_data)
+    base_alpha = base_image.split()[3]
+    overlay_alpha = overlay_image.split()[3]
+    final_alpha = ImageChops.screen(base_alpha, overlay_alpha)
+    blended_image.putalpha(final_alpha)
+
+    return blended_image
+
+def process_images(FOLDER_NUM, primary_color, shuffle_colors, isImage, base_image_url, imgX, imgY, imgWidth, imgHeight, bucket, isBlur, blur_amount, logo_path, isLogo, logoX, logoY, logoWidth, logoHeight, folder):
     
     #-------- DEPLOYMENT ----------#
-    folder_path = f"graphic_design_posts/{FOLDER_NUM}/PNG"
+    folder_path = f"{folder}/{FOLDER_NUM}/PNG"
+    random_folder_path = f"{folder}/{FOLDER_NUM}/RANDOM"
 
     primary_rgb = hex_to_rgb(primary_color)
     shuffled_colors_list = [hex_to_rgb(shuffle_color) for shuffle_color in shuffle_colors]
@@ -81,7 +110,7 @@ def process_images(FOLDER_NUM, primary_color, shuffle_colors, isImage, base_imag
             else:
                 new_width = imgWidth
                 new_height = int(imgWidth / img_aspect)
-            resized_image = raw_image.resize((new_width, new_height), Image.ANTIALIAS)
+            resized_image = raw_image.resize((new_width, new_height), Image.Resampling.LANCZOS)
             paste_x = imgX + (imgWidth - new_width) // 2
             paste_y = imgY + (imgHeight - new_height) // 2
             base_image.paste(resized_image, (paste_x, paste_y), resized_image)
@@ -94,18 +123,58 @@ def process_images(FOLDER_NUM, primary_color, shuffle_colors, isImage, base_imag
         img_byte_arr.seek(0)
         base_image = Image.open(img_byte_arr)
 
-    for idx, file_path in enumerate(png_files[0:]):
+    try:
+        random_blobs = bucket.list_blobs(prefix=random_folder_path)
+        random_files = [blob.name for blob in random_blobs if blob.name.endswith('.png')]
+
+        if random_files:
+                file_path = random.choice(random_files)
+                blob = bucket.blob(file_path)
+                img_data = blob.download_as_bytes()
+                img = Image.open(BytesIO(img_data)).convert('RGBA')
+                file_name = os.path.basename(file_path).lower()
+                if 'black' in file_name:
+                    recolored_img = recolor_image(img, (0, 0, 0, 255))
+                elif 'white' in file_name:
+                    recolored_img = recolor_image(img, (255, 255, 255, 255))
+                elif 'gray' in file_name:
+                    recolored_img = recolor_image(img, (225, 225, 225, 255))
+                else:
+                    recolored_img = recolor_image(img, shuffled_colors[0])
+                
+                base_image = Image.alpha_composite(base_image, recolored_img)
+        else:
+            print("No PNG files found in the directory.")
+    except:
+        pass
+    
+    number_extractor = re.compile(r'(\d+)')
+    def sort_key(file_path):
+        file_name = os.path.basename(file_path)
+        matches = number_extractor.search(file_name)
+        return int(matches.group(1)) if matches else float('inf')
+    sorted_files = sorted(png_files, key=sort_key)
+    for idx, file_path in enumerate(sorted_files):
         blob = bucket.blob(file_path)
         img_data = blob.download_as_bytes()
         img = Image.open(BytesIO(img_data))
         file_name = os.path.basename(file_path)
-        if file_name == 'logo.png':
-            if isLogo and logo_path:
-                recolored_img = recolor_image(img, shuffled_colors[idx])
-            else:
-                pass
+        color_index = idx % len(shuffled_colors)
+
+        if 'multiply' in file_name:
+            recolored_img = blend_multiply(base_image, img)
+        if 'screen' in file_name:
+            recolored_img = blend_screen(base_image, img)
+        elif 'white' in file_name:
+            recolored_img = recolor_image(img, (255, 255, 255, 255))
+        elif 'gray' in file_name:
+            recolored_img = recolor_image(img, (225, 225, 225, 255))
+        elif 'black' in file_name:
+            recolored_img = recolor_image(img, (0, 0, 0, 255))
+        elif 'logo' in file_name and isLogo and logo_path:
+            recolored_img = recolor_image(img, shuffled_colors[color_index])
         else:
-            recolored_img = recolor_image(img, shuffled_colors[idx])
+            recolored_img = recolor_image(img, shuffled_colors[color_index])
         base_image = Image.alpha_composite(base_image, recolored_img)
 
     if isLogo:
@@ -120,7 +189,7 @@ def process_images(FOLDER_NUM, primary_color, shuffle_colors, isImage, base_imag
         else:
             new_logo_height = logoHeight
             new_logo_width = int(logoHeight * logo_aspect)
-        resized_logo = raw_logo.resize((new_logo_width, new_logo_height), Image.ANTIALIAS)
+        resized_logo = raw_logo.resize((new_logo_width, new_logo_height), Image.Resampling.LANCZOS)
         paste_logo_x = logoX + (logoWidth - new_logo_width) // 2
         paste_logo_y = logoY + (logoHeight - new_logo_height) // 2
         base_image.paste(resized_logo, (paste_logo_x, paste_logo_y), resized_logo)
@@ -130,18 +199,25 @@ def process_images(FOLDER_NUM, primary_color, shuffle_colors, isImage, base_imag
 def add_text_to_image(img, text, font_io, font_size, start_x, start_y, width, height, anchor_point, alignment, text_color, line_height, primary_color, hex_colors):
     font = ImageFont.truetype(font=font_io, size=font_size)
     draw = ImageDraw.Draw(img)
-
+    colors_array = [hex_to_rgb(hex_color) for hex_color in hex_colors]
     r, g, b = hex_to_rgb(primary_color)
+
     if text_color == 'ai':
         if is_dark_color(r, g, b):
             choose_color = 'white'
         else:
             choose_color = 'black'
     elif text_color == 'primary':
-            choose_color = primary_color
+        choose_color = hex_to_rgb(primary_color)
     elif text_color == 'secondary':
-            colors_array = [hex_to_rgb(hex_color) for hex_color in hex_colors]
-            choose_color = colors_array[-1]
+        choose_color = colors_array[-1]
+    elif text_color == 'lighter':
+        choose_color = colors_array[1]
+    elif text_color == 'darker':
+        choose_color = colors_array[0]
+    else:
+        choose_color = text_color
+
 
     if anchor_point == "center":
         start_x -= width // 2
@@ -151,23 +227,32 @@ def add_text_to_image(img, text, font_io, font_size, start_x, start_y, width, he
 
     while font_size > 0:
         wrapped_text = ""
+        max_line_width = 0
+        total_text_height = 0
+        spacing_height = int(font_size * line_height - font_size)
+
         for line in text.split("\n"):
             while len(line) > 0:
                 to_draw = line
-                while font.getsize(to_draw)[0] > width:
+                line_size = draw.textsize(to_draw, font=font)
+                while line_size[0] > width:
                     to_draw = to_draw.rsplit(' ', 1)[0]
+                    line_size = draw.textsize(to_draw, font=font)
                 wrapped_text += to_draw + "\n"
                 line = line[len(to_draw):].lstrip()
-        wrapped_text = wrapped_text.rstrip()
+                max_line_width = max(max_line_width, line_size[0])
+                total_text_height += line_size[1] + spacing_height
 
-        if font.getsize_multiline(wrapped_text, spacing=int(font_size*line_height-font_size))[1] <= height:
+        total_text_height -= spacing_height
+
+        if total_text_height <= height:
             break
 
         font_size -= 1
         font = ImageFont.truetype(font=font_io, size=font_size)
 
-    total_text_height = font.getsize_multiline(wrapped_text, spacing=int(font_size*line_height-font_size))[1]
-    total_text_width = max([font.getsize(line)[0] for line in wrapped_text.split("\n")])
+    wrapped_text = wrapped_text.rstrip()
+    total_text_width = max_line_width
 
     if alignment == "center":
         start_y += (height - total_text_height) // 2
@@ -178,15 +263,14 @@ def add_text_to_image(img, text, font_io, font_size, start_x, start_y, width, he
     draw.multiline_text((start_x, start_y), wrapped_text, font=font, fill=choose_color, spacing=int(font_size*line_height-font_size), align=alignment)
 
     return img
-
     
 def generate_text(business_description, business_name, max_title_char_count, key):
     if key == 'Call-to-action':
-        prompt = f"Imagine you're an advertiser for my company named {business_name} and our description is {business_description}. Create a ad creative headline like, 'local, personal service at a fraction of the cost.', 'Your next home could be right around the corner?', 'Name brands are so out of style.', etc.. Be creative and try to think about what might make a person click on the ad. It has to be less than {max_title_char_count} characters",
+        prompt = f"Imagine you're an advertiser for my company named {business_name} and our description is {business_description}. Create a ad creative headline like, 'local, personal service at a fraction of the cost.', 'Your next home could be right around the corner?', 'Name brands are so out of style.', etc.. Be creative and try to think about what might make a person click on the ad. It has to be less than {max_title_char_count} characters and don't use any social media hashtags.",
     if key == 'Headline':
-        prompt = f"Imagine you're an advertiser for my company named {business_name} and our description is {business_description}. Create a ad creative call-to-action like, 'Looking to improve your style?', 'Want a Safer Home?', 'Shop our newest collection!', etc.. It has to be less than {max_title_char_count} characters",
+        prompt = f"Imagine you're an advertiser for my company named {business_name} and our description is {business_description}. Create a ad creative call-to-action like, 'Looking to improve your style?', 'Want a Safer Home?', 'Shop our newest collection!', etc.. It has to be less than {max_title_char_count} characters and don't use any social media hashtags.",
     if key == 'Description':
-        prompt = f"Imagine you're a social media manager for my company named {business_name} and our description is {business_description}. Create a catchy description that makes people understand and want us. It has to be less than {max_title_char_count} characters and avoid hashtags.",
+        prompt = f"Imagine you're a social media manager for my company named {business_name} and our description is {business_description}. Create a catchy description that makes people understand and want us. It has to be less than {max_title_char_count} characters and exclude any hashtags.",
         
     response = openai.Completion.create(
         model="gpt-3.5-turbo-instruct",
@@ -196,11 +280,8 @@ def generate_text(business_description, business_name, max_title_char_count, key
     )
     original_string = response.choices[0].text.strip()
     try:
-        print(f"Attempting to literal_eval this string: '{original_string}'")
         original_string = ast.literal_eval(original_string)
-    except SyntaxError as e:
-        print(f"SyntaxError: {e}")
-        print(f"Problematic string: '{original_string}'")
+    except:
         original_string = original_string
     caption = remove_emojis(original_string)
     if len(caption) > max_title_char_count:
@@ -210,16 +291,20 @@ def generate_text(business_description, business_name, max_title_char_count, key
 
 # ---------------------- Utility Functions ----------------------#
 
-def generate_image_from_params(FOLDER_NUM, business_description, business_name, primary_color, specified_colors, base_image_url, logo_path):
+def generate_image_from_params(FOLDER_NUM, business_description, business_name, primary_color, specified_colors, base_image_url, logo_path, classify):
 
     credentials = service_account.Credentials.from_service_account_file(settings.GS_CREDENTIALS)
     client = storage.Client(project=credentials.project_id, credentials=credentials)
     bucket = client.bucket(settings.GS_BUCKET_NAME)
 
     # ---------------------- JSON Loading ----------------------
+    if classify == 'ad':
+        folder = 'ad_creatives'
+    if classify == 'graphic':
+        folder = 'graphic_design_posts'
 
     # -------- DEPLOY --------#
-    blob = bucket.blob(f'graphic_design_posts/{FOLDER_NUM}/settings.json')
+    blob = bucket.blob(f'{folder}/{FOLDER_NUM}/settings.json')
     json_data = blob.download_as_text()
     params = json.loads(json_data)
 
@@ -249,7 +334,6 @@ def generate_image_from_params(FOLDER_NUM, business_description, business_name, 
     imgY = params.get('img_start_y', 0)
     imgWidth = params.get('img_width', 1024)
     imgHeight = params.get('img_height', 1024)
-    print(imgHeight)
     isBlur = params.get('isBlur', False)
     blur_amount = params.get('blur_amount', 0)
     text_boxes = {}
@@ -269,7 +353,7 @@ def generate_image_from_params(FOLDER_NUM, business_description, business_name, 
 
     # ---------------------- Main Execution ---------------------- #
 
-    recolored_image = process_images(FOLDER_NUM, primary_color, specified_colors, isImage, base_image_url, imgX, imgY, imgWidth, imgHeight, bucket, isBlur, blur_amount, logo_path, isLogo, logoX, logoY, logoWidth, logoHeight,)
+    recolored_image = process_images(FOLDER_NUM, primary_color, specified_colors, isImage, base_image_url, imgX, imgY, imgWidth, imgHeight, bucket, isBlur, blur_amount, logo_path, isLogo, logoX, logoY, logoWidth, logoHeight, folder)
     
     for box_name, box_data in text_boxes.items():
         font_path = box_data["font"]
@@ -277,11 +361,15 @@ def generate_image_from_params(FOLDER_NUM, business_description, business_name, 
         if FontBlob.exists():
             font_data = FontBlob.download_as_bytes()
             if font_data:
-                # Write to a temporary file to check if the font_data is correct
-                with tempfile.NamedTemporaryFile(delete=False, suffix='.ttf') as temp_font_file:
-                    temp_font_file.write(font_data)
-                    font_io = temp_font_file.name
-                
+                temp_dir = None
+                if environment == 'production':
+                    with tempfile.NamedTemporaryFile(delete=False, suffix='.ttf', dir='/tmp') as temp_font_file:
+                        temp_font_file.write(font_data)
+                        temp_font_file.flush()
+                else:
+                    with tempfile.NamedTemporaryFile(delete=False, suffix='.ttf') as temp_font_file:
+                        temp_font_file.write(font_data)
+                        temp_font_file.flush()
             else:
                 print("The font data is empty.")
         else:
@@ -300,7 +388,7 @@ def generate_image_from_params(FOLDER_NUM, business_description, business_name, 
         recolored_image = add_text_to_image(
             recolored_image, 
             text, 
-            font_io, 
+            temp_font_file.name, 
             box_data["font_size"], 
             box_data["start_x"], 
             box_data["start_y"],
@@ -315,7 +403,7 @@ def generate_image_from_params(FOLDER_NUM, business_description, business_name, 
         )
 
         # Clean up the temporary file
-        os.remove(font_io)
+        os.remove(temp_font_file.name)
 
     return recolored_image
 

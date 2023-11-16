@@ -97,3 +97,8 @@ tagForm.addEventListener('submit', function(event) {
 });
 
 updateTagBubbles();
+
+window.onload = function() {
+    selectNoneAd();
+    selectNone();
+};

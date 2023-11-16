@@ -11,6 +11,8 @@ from django.conf import settings
 import ast
 from google.cloud import storage
 from google.oauth2 import service_account
+from urllib.parse import urlparse
+from google.cloud.storage import Blob
 
 # FOR DEVELOPMENT
 from decouple import config
@@ -79,7 +81,7 @@ def add_stock_tags(tags, stock_images, bucket_name, bucket_credentials, user_fol
             image_io.seek(0)
             
             filename = str(uuid.uuid4()) + ".jpg"
-            blob = bucket.blob(user_folder_path + filename)
+            blob = bucket.blob(user_folder_path + key + '/' + filename)
             blob.upload_from_file(image_io, content_type='image/jpeg')
             blob.make_public()
             image_urls.append(blob.public_url)
@@ -185,3 +187,54 @@ def upload_and_crop_image(post_image_files, user_image_folder_path):
     uploaded_image_url = blob.public_url
     
     return uploaded_image_url
+
+def delete_from_google(public_url, bucket_credentials):
+    path_parts = public_url.replace("https://storage.googleapis.com/", "").split("/")
+    bucket_name = path_parts[0]
+    object_name = "/".join(path_parts[1:])
+    credentials = service_account.Credentials.from_service_account_file(bucket_credentials)
+    client = storage.Client(project=credentials.project_id, credentials=credentials)
+    bucket = client.bucket(bucket_name)
+    blob = bucket.blob(object_name)
+    blob.delete()
+
+    print(f"The file {object_name} was deleted from bucket {bucket_name}.")
+
+def reupload_gcs_image(source_url, new_folder):
+    # Parse the source URL
+    parse_result = urlparse(source_url)
+    bucket_name = parse_result.netloc.split(".")[0]
+    blob_name = parse_result.path.lstrip('/')
+    if bucket_name == 'storage':
+        bucket_name = parse_result.path.split('/')[1]
+        blob_name = '/'.join(parse_result.path.split('/')[2:])
+
+    print('BUCKET NAME: ', bucket_name)
+    print('BLOB NAME: ', blob_name)
+
+    # Replace the current image library path with 'scheduled_image_library'
+    parts = blob_name.split('/')
+    if len(parts) > 1 and parts[1].endswith('_image_library'):
+        parts[1] = new_folder
+    destination_blob_name = '/'.join(parts)
+
+
+    print(destination_blob_name)
+    # Create a client to interact with Google Cloud Storage
+    storage_client = storage.Client()
+
+    # Get the source bucket and blob
+    source_bucket = storage_client.bucket(bucket_name)
+    source_blob = source_bucket.blob(blob_name)
+
+    # Copy the source blob to the new destination within the same bucket
+    destination_blob = source_bucket.blob(destination_blob_name)
+    source_bucket.copy_blob(source_blob, source_bucket, destination_blob_name)
+
+    # Make the blob publicly accessible
+    destination_blob.make_public()
+
+    # Create the new public URL for the copied blob
+    new_image_url = destination_blob.public_url
+    print(f"Image re-uploaded from {source_url} to {new_image_url}")
+    return new_image_url

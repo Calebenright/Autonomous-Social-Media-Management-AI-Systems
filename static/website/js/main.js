@@ -19,8 +19,6 @@ document.addEventListener('scroll', function() {
   }
 });
 
-// Add class when mobile navigation icon is clicked
-
 Array.from(document.getElementsByClassName('nav-toggle')).forEach(function(el) {
   el.addEventListener('click', function() {
     Array.from(document.getElementsByTagName('body')).forEach(function(el) {
@@ -31,8 +29,6 @@ Array.from(document.getElementsByClassName('nav-toggle')).forEach(function(el) {
     });
   });
 });
-
-// Prevent background from scrolling on mobile when navigation is toggled
 
 document.addEventListener('touchmove', function(evt) {
   evt.preventDefault();

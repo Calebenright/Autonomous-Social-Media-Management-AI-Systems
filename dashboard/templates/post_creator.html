@@ -284,7 +284,7 @@
 
                     <ul id="side-menu">
 
-                        <li class="menu-title">Agents</li>
+                        <li class="menu-title">Feadl.io</li>
 
                         <li>
                             <a href="{% url 'dashboard' %}">
@@ -385,24 +385,24 @@
                                             <h4 class="header-title">Post type</h4>
                                             <p></p>
                                             <div class="post-type-thumbnails">
-
+<!-- 
                                                 <div class="thumbnail-container" onclick="selectPostType('text')">
-                                                    <img class="thumbnail post-type-thumbnail" data-value="text" src="https://storage.googleapis.com/starter_web_app_bucket/user_folders/assets/text-white.png" alt="Text Blurb">
-                                                    <p class="poppins">Text Blurb</p>
-                                                </div>
+                                                    <img class="post-type-thumbnail" data-value="text" src="https://storage.googleapis.com/starter_web_app_bucket/user_folders/assets/text-white.png" alt="Text Blurb">
+                                                    <p class="poppins">Copy</p>
+                                                </div> -->
                                             
-                                                <div class="thumbnail-container selected" onclick="selectPostType('graphic')">
-                                                    <img class="thumbnail post-type-thumbnail selected" data-value="graphic" src="https://storage.googleapis.com/starter_web_app_bucket/user_folders/assets/graphic-white.png" alt="Graphic Design">
-                                                    <p class="poppins">Graphic Design</p>
-                                                </div>
+                                                <!-- <div class="thumbnail-container selected" onclick="selectPostType('graphic')">
+                                                    <img class="post-type-thumbnail selected" data-value="graphic" src="https://storage.googleapis.com/starter_web_app_bucket/user_folders/assets/graphic-white.png" alt="Graphic Design">
+                                                    <p class="poppins">Social Media Post</p>
+                                                </div> -->
                                             
                                                 <div class="thumbnail-container" onclick="selectPostType('ad')">
-                                                    <img class="thumbnail post-type-thumbnail" data-value="ad" src="https://storage.googleapis.com/starter_web_app_bucket/user_folders/assets/ad-white.png" alt="Ad Creative">
+                                                    <img class="post-type-thumbnail" data-value="ad" src="https://storage.googleapis.com/starter_web_app_bucket/user_folders/assets/ad-white.png" alt="Ad Creative">
                                                     <p class="poppins">Ad Creative</p>
                                                 </div>
                                             
                                                 <div class="thumbnail-container" onclick="selectPostType('up')">
-                                                    <img class="thumbnail post-type-thumbnail" data-value="up" src="https://storage.googleapis.com/starter_web_app_bucket/user_folders/assets/up-white.png" alt="Upload Photo">
+                                                    <img class="post-type-thumbnail selected" data-value="up" src="https://storage.googleapis.com/starter_web_app_bucket/user_folders/assets/up-white.png" alt="Upload Photo">
                                                     <p class="poppins">Upload Photo</p>
                                                 </div>
                                             
@@ -436,7 +436,8 @@
                                             <div class="mb-3">
                                                 <select class="form-select" id="text-platform" name="text-platform">
                                                     <option>Facebook</option>
-                                                    <option>Twitter</option>
+                                                    <option>Instagram</option>
+                                                    <option>X</option>
                                                     <option>LinkedIn</option>
                                                     <option>Google My Business</option>
                                                 </select>
@@ -482,11 +483,6 @@
                                         </div>
                                         
                                         <div id="content-card-graphic" class="content-card">
-                                            <h4 class="header-title">AI Image Keyword</h4>
-                                            <p></p>
-                                            <div class="mb-3">
-                                                <input type="text" name="graphic-description" class="form-control" placeholder="Enter Background Image Keyword...">
-                                            </div>
                                         
                                             <p>Select an image:</p>
 
@@ -495,6 +491,14 @@
                                                 <div class="thumbnail none-thumbnail" onclick="selectNone()">
                                                     <!-- <div class="red-line"></div> -->
                                                     <span class="ai-text">AI</span>
+                                                </div>
+                                            </div>
+                                            <br>
+                                            <div id="ai-image">
+                                                <h4 class="header-title">AI Image Keyword</h4>
+                                                <p></p>
+                                                <div class="mb-3">
+                                                    <input type="text" name="graphic-description" class="form-control" placeholder="Enter Background Image Keyword...">
                                                 </div>
                                             </div>
                                         
@@ -510,8 +514,8 @@
 
                                             let imageURLsString = decodeHtmlEntities("{{ user_settings.image_tags }}");
                                             let imageURLs = JSON.parse(imageURLsString);
-
                                             let previouslySelectedImage = null;
+                                            const aiImage = document.getElementById('ai-image')
                                         
                                             function selectImage(imgElement, url) {
                                                 document.getElementById('selected_image_url').value = url;
@@ -521,6 +525,7 @@
                                                 }
                                                 imgElement.classList.add('selected');
                                                 previouslySelectedImage = imgElement;
+                                                aiImage.style.display = "none";
                                             }
 
                                             function selectNone() {
@@ -532,6 +537,8 @@
                                                 let noneThumbnail = document.querySelector('.none-thumbnail');
                                                 noneThumbnail.classList.add('selected');
                                                 previouslySelectedImage = noneThumbnail;
+                                                aiImage.style.display = "block";
+                                                
                                             }
                                         
                                             // Generate image thumbnails
@@ -544,15 +551,11 @@
                                                 imgElement.addEventListener('click', () => selectImage(imgElement, url));
                                                 thumbnailsDiv.appendChild(imgElement);
                                             });
+
                                         </script>
                                         
                                         <div id="content-card-ad" class="content-card">
-                                            <h4 class="header-title">AI Image Keyword</h4>
-                                            <p></p>
-                                            <div class="mb-3">
-                                                <input type="text" name="ad-creative-description" class="form-control" placeholder="Enter Background Image for Ad Creative...">
-                                            </div>
-
+                                        
                                             <p>Select an image:</p>
 
                                             <div class="ad-creative-thumbnails">
@@ -560,6 +563,25 @@
                                                     <!-- <div class="red-line"></div> -->
                                                     <span class="ai-text">AI</span>
                                                 </div>
+                                            </div>
+                                            <br>
+                                            <div id="ai-ad-image">
+                                                <h4 class="header-title">AI Image Keyword</h4>
+                                                <p></p>
+                                                <div class="mb-3">
+                                                    <input type="text" name="ad-creative-description" class="form-control" placeholder="Enter Background Image for Ad Creative...">
+                                                </div>
+                                            </div>
+                                            <h4 class="header-title">Platform</h4>
+                                            <p></p> 
+                                            <div class="mb-3">
+                                                <select class="form-select" id="text-platform" name="text-platform">
+                                                    <option>Facebook</option>
+                                                    <option>Instagram</option>
+                                                    <option>X</option>
+                                                    <option>LinkedIn</option>
+                                                    <option>Google My Business</option>
+                                                </select>
                                             </div>
 
                                             <input type="hidden" name="selected_ad_creative_image_url" id="selected_ad_creative_image_url">
@@ -573,7 +595,7 @@
                                         
                                             let adCreativeImageURLsString = decodeHtmlEntities("{{ user_settings.image_tags }}");
                                             let adCreativeImageURLs = JSON.parse(adCreativeImageURLsString);
-                                        
+                                            const aiAdImage = document.getElementById('ai-ad-image')
                                             let previouslySelectedAdCreativeImage = null;
                                         
                                             function selectAdImage(imgAdElement, url) {
@@ -584,6 +606,7 @@
                                                 }
                                                 imgAdElement.classList.add('selected');
                                                 previouslySelectedAdCreativeImage = imgAdElement;
+                                                aiAdImage.style.display = "none";
                                             }
 
                                             function selectNoneAd() {
@@ -595,6 +618,7 @@
                                                 let noneAdThumbnail = document.querySelector('.none-ad-thumbnail');
                                                 noneAdThumbnail.classList.add('selected');
                                                 previouslySelectedAdCreativeImage = noneAdThumbnail;
+                                                aiAdImage.style.display = "block";
                                             }
 
                                             // Generate image thumbnails for ad creative
@@ -607,6 +631,8 @@
                                                 imgAdElement.addEventListener('click', () => selectAdImage(imgAdElement, url));
                                                 adCreativeThumbnailsDiv.appendChild(imgAdElement);
                                             });
+
+
                                         </script>
                                             
                                         
@@ -619,7 +645,7 @@
                                                 <label class="form-check-label" for="logo">Logo</label>
                                             </div>
                                             {% endif %}  
-                                            <div class="form-check mb-2 form-check-success">
+                                            <!-- <div class="form-check mb-2 form-check-success">
                                                 <input class="form-check-input" type="checkbox" name="isGraphic" value="true">
                                                 <label class="form-check-label">Graphic</label>
                                             </div>
@@ -628,7 +654,7 @@
                                             <p></p> 
                                             <div class="mb-3">
                                                 <input type="text" name="photo-attribution" class="form-control" value="{{ user_settings.business_name }}" placeholder="Enter Attribution...">
-                                            </div>
+                                            </div> -->
                                             <br>
                                             <h4 class="header-title">File Upload</h4>
                                             <p class="sub-header">
@@ -667,7 +693,7 @@
                                         <form id="captionForm" method="post" action="{% url 'post_creator' %}">
                                             {% csrf_token %}
                                             <input type="hidden" name="form" value="formCaption1">
-                                            <button type="submit" class="btn btn-soft-secondary rounded-pill waves-effect btn-xs" onclick="showSpinner()">Re-Generate Caption</button>
+                                            <button type="submit" class="btn btn-soft-secondary rounded-pill waves-effect btn-xs" onclick="showSpinner()">Re-Generate Copy</button>
                                             <br>
                                             <br>
                                         </form>
@@ -679,6 +705,17 @@
                                             <br>
                                         </form>
                                         {% endif %}
+                                        <form method="post" action="{% url 'post_creator' %}">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="form" value="formPostPost">
+                                            <input type="hidden" name="caption2" value="{{ user_settings.next_caption }}">
+                                            <input type="hidden" id="editedCaption2" name="edited_caption2" value="">
+                                            {% if user_settings.lastType != 'image' %}
+                                            <input type="hidden" name="url2" value="{{ user_settings.next_image_url }}">
+                                            {% endif %}
+                                            <button type="submit" class="btn btn-gold rounded-pill w-md waves-effect waves-light mb-3" onclick="showSpinner()">
+                                                <i class="mdi mdi-plus"></i> Post to Feed!</button>
+                                        </form>
                                         <form method="post" action="{% url 'post_creator' %}">
                                             {% csrf_token %}
                                             <input type="hidden" name="form" value="formPostSchedule">
@@ -694,7 +731,10 @@
                                             function updateAndSubmitForm() {
                                                 var updatedCaption = document.getElementById('prompt').innerText;
                                                 document.getElementById('editedCaption').value = updatedCaption;
-                                                document.getElementById('captionForm').submit();
+                                            }
+                                            function updateAndSubmitForm2() {
+                                                var updatedCaption = document.getElementById('prompt').innerText;
+                                                document.getElementById('editedCaption2').value = updatedCaption;
                                             }
                                         </script>   
                                     </div>
