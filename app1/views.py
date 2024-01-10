@@ -126,8 +126,16 @@ def signup(request):
                 # ---------------------------------------------------------------------- #
 
                 firestore_data = {
-                    'ftue': True,
-                    'isSubscriber': False
+                    'ftue': False,
+                    'autoState': 1,
+                    'isSubscriber': False,
+                    'brand_color': '#000000',
+                    'business_description': '',
+                    'business_name': '',
+                    'secpndary_colors': "['#000000', '#000000', '#000000', '#000000', '#000000']",
+                    'images_generated': 0,
+                    'progress': 100,
+                    'admin': False,
                 }
                 user_settings_ref.set(firestore_data, merge=True)
                 messages.success(request, f'Account created. You can now log in.')
@@ -154,8 +162,8 @@ def login(request):
             request.session['user_id'] = user_id
             return redirect('dashboard') 
         except Exception as e:
-            error_message = f'Error: Credentials Invalid.'
-            return render(request, 'login.html', {'error': error_message})
+            messages.error(request, 'Credentials Invalid.')
+            return redirect('login')
     return render(request, 'login.html')
 
 

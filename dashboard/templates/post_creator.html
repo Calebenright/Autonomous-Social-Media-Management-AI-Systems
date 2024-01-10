@@ -84,7 +84,7 @@
                             <!-- item-->
                             <a href="javascript:void(0);" class="dropdown-item notify-item active">
                                 <div class="notify-icon">
-                                    <img src="{% static 'dashboard/images/users/user-1.jpg' %}"
+                                    <img src="{% static 'dashboard/images/users/aiCj.jpg' %}"
                                         class="img-fluid rounded-circle" alt="" />
                                 </div>
                                 <p class="notify-details">AI CJ</p>
@@ -106,10 +106,10 @@
                 <li class="dropdown notification-list topbar-dropdown">
                     <a class="nav-link dropdown-toggle nav-user me-0 waves-effect waves-light" data-bs-toggle="dropdown"
                         href="#" role="button" aria-haspopup="false" aria-expanded="false">
-                        {% if user_settings.pfp %}
-                        <img src="{{ user_settings.pfp }}" alt="user-img" title="pfp" class="rounded-circle">
+                        {% if user_settings.logo %}
+                        <img src="{{ user_settings.logo }}" alt="user-img" title="profile-picture" class="rounded-circle">
                         {% else %}
-                        <img src="{% static 'dashboard/images/users/default.png' %}" alt="user-img" title="cj" class="rounded-circle">
+                        <img src="{% static 'dashboard/images/users/default.png' %}" alt="user-img" title="default" class="rounded-circle">
                         {% endif %}
                         {% if user_settings.business_name %}
                         <span class="pro-user-name ms-1">{{ user_settings.business_name }}<i class="mdi mdi-chevron-down"></i>
@@ -153,18 +153,18 @@
             <div class="logo-box">
                 <a href="{% url 'dashboard' %}" class="logo logo-light text-center">
                     <span class="logo-sm">
-                        <img src="{% static 'dashboard/images/logo-sm.png' %}" alt="" height="22">
+                        <img src="{% static 'dashboard/images/brand/logo-sm.png' %}" alt="" height="22">
                     </span>
                     <span class="logo-lg">
-                        <img src="{% static 'dashboard/images/logo-light.png' %}" alt="" height="16">
+                        <img src="{% static 'dashboard/images/brand/logo-light.png' %}" alt="" height="16">
                     </span>
                 </a>
                 <a href="{% url 'dashboard' %}" class="logo logo-dark text-center">
                     <span class="logo-sm">
-                        <img src="{% static 'dashboard/images/logo-sm.png' %}" alt="" height="22">
+                        <img src="{% static 'dashboard/images/brand/logo-sm.png' %}" alt="" height="22">
                     </span>
                     <span class="logo-lg">
-                        <img src="{% static 'dashboard/images/logo-dark.png' %}" alt="" height="16">
+                        <img src="{% static 'dashboard/images/brand/logo-dark.png' %}" alt="" height="16">
                     </span>
                 </a>
             </div>
@@ -184,7 +184,7 @@
                         <!-- item-->
                         <a href="{% url 'dashboard' %}" class="dropdown-item notify-item">
                             <i class="mdi mdi-view-dashboard-outline"></i>
-                            <span>Dashboard</span>
+                            <span>Social Media Agent</span>
                         </a>
 
                         <!-- item-->
@@ -202,7 +202,13 @@
                         <!-- item-->
                         <a href="{% url 'brand_settings' %}" class="dropdown-item notify-item">
                             <i class="fe-settings"></i>
-                            <span>Settings</span>
+                            <span>Account</span>
+                        </a>
+
+                        <!-- item-->
+                        <a href="{% url 'library' %}" class="dropdown-item notify-item">
+                            <i class="fe-grid"></i>
+                            <span>Library</span>
                         </a>
 
                         <div class="dropdown-divider"></div>
@@ -234,10 +240,10 @@
 
                 <!-- User box -->
                 <div class="user-box text-center">
-                    {% if user_settings.pfp %}
-                    <img src="{{ user_settings.pfp }}" alt="user-img" title="pfp" class="rounded-circle img-thumbnail avatar-md">
+                    {% if user_settings.logo %}
+                    <img src="{{ user_settings.logo }}" alt="user-img" title="profile-picture" class="rounded-circle img-thumbnail avatar-md">
                     {% else %}
-                    <img src="{% static 'dashboard/images/users/default.png' %}" alt="user-img" title="cj" class="rounded-circle img-thumbnail avatar-md">
+                    <img src="{% static 'dashboard/images/users/default.png' %}" alt="user-img" title="default" class="rounded-circle img-thumbnail avatar-md">
                     {% endif %}
                     <div class="dropdown">
                         {% if user_settings.business_name %}
@@ -284,12 +290,13 @@
 
                     <ul id="side-menu">
 
-                        <li class="menu-title">Feadl.io</li>
+                        <li class="menu-title">Agents</li>
 
                         <li>
                             <a href="{% url 'dashboard' %}">
                                 <i class="mdi mdi-view-dashboard-outline"></i>
-                                <span> Dashboard </span>
+                                <!-- <span class="badge bg-success rounded-pill float-end">9+</span> -->
+                                <span> Social Media Manager </span>
                             </a>
                         </li>
 
@@ -322,7 +329,14 @@
                         <li>
                             <a href="{% url 'brand_settings' %}">
                                 <i class="fe-settings"></i>
-                                <span> Settings </span>
+                                <span> Account </span>
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="{% url 'library' %}">
+                                <i class="fe-grid"></i>
+                                <span> Library </span>
                             </a>
                         </li>
                     </ul>
@@ -350,30 +364,16 @@
                 <div class="container-fluid">
 
                     <div class="row">
-                        {% if error %}
-                        <div class="error-message">
-                          <span>{{ error }}</span>
-                          <button class="close-button" onclick="closeErrorMessage()">&times;</button>
-                        </div>
-                        <script>
-                        function closeErrorMessage() {
-                            const errorDiv = document.querySelector('.error-message');
-                            errorDiv.style.display = 'none';
-                        }
-                        </script>                    
-                        {% endif %}
-                        {% if success %}
-                        <div class="success-message">
-                            <span>{{ success }}</span>
-                            <button class="close-button" onclick="closeSuccessMessage()">&times;</button>
-                        </div>
-                        <script>
-                        function closeSuccessMessage() {
-                            const successDiv = document.querySelector('.success-message');
-                            successDiv.style.display = 'none';
-                        }
-                        </script>
-                        {% endif %}              
+                        {% if messages %}
+                        <ul class="messages">
+                            {% for message in messages %}
+                                <li class="{{ message.tags }}" data-message-id="{{ forloop.counter }}">
+                                    {{ message }}
+                                    <span class="closebtn" onclick="closeMessage(this);">&times;</span>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                        {% endif %}         
                         <div class="col-lg-6">
                             <form enctype="multipart/form-data" id="tagForm" method="post" action="{% url 'post_creator' %}">
                                 {% csrf_token %}
@@ -385,24 +385,29 @@
                                             <h4 class="header-title">Post type</h4>
                                             <p></p>
                                             <div class="post-type-thumbnails">
-<!-- 
+
                                                 <div class="thumbnail-container" onclick="selectPostType('text')">
-                                                    <img class="post-type-thumbnail" data-value="text" src="https://storage.googleapis.com/starter_web_app_bucket/user_folders/assets/text-white.png" alt="Text Blurb">
-                                                    <p class="poppins">Copy</p>
-                                                </div> -->
+                                                    <img class="post-type-thumbnail" data-value="text" src="https://storage.googleapis.com/starter_web_app_bucket/assets/text.png" alt="Text Blurb">
+                                                    <p class="poppins">Text Post</p>
+                                                </div>
+
+                                                <div class="thumbnail-container" onclick="selectPostType('photo')">
+                                                    <img class="post-type-thumbnail" data-value="photo" src="https://storage.googleapis.com/starter_web_app_bucket/assets/stock.png" alt="Photo">
+                                                    <p class="poppins">Stock Photo Post</p>
+                                                </div>
                                             
-                                                <!-- <div class="thumbnail-container selected" onclick="selectPostType('graphic')">
-                                                    <img class="post-type-thumbnail selected" data-value="graphic" src="https://storage.googleapis.com/starter_web_app_bucket/user_folders/assets/graphic-white.png" alt="Graphic Design">
-                                                    <p class="poppins">Social Media Post</p>
-                                                </div> -->
+                                                <div class="thumbnail-container selected" onclick="selectPostType('graphic')">
+                                                    <img class="post-type-thumbnail selected" data-value="graphic" src="https://storage.googleapis.com/starter_web_app_bucket/assets/graphic.png" alt="Graphic Design">
+                                                    <p class="poppins">Social Media Graphic Post</p>
+                                                </div>
                                             
                                                 <div class="thumbnail-container" onclick="selectPostType('ad')">
-                                                    <img class="post-type-thumbnail" data-value="ad" src="https://storage.googleapis.com/starter_web_app_bucket/user_folders/assets/ad-white.png" alt="Ad Creative">
+                                                    <img class="post-type-thumbnail" data-value="ad" src="https://storage.googleapis.com/starter_web_app_bucket/assets/ad.png" alt="Ad Creative">
                                                     <p class="poppins">Ad Creative</p>
                                                 </div>
                                             
                                                 <div class="thumbnail-container" onclick="selectPostType('up')">
-                                                    <img class="post-type-thumbnail selected" data-value="up" src="https://storage.googleapis.com/starter_web_app_bucket/user_folders/assets/up-white.png" alt="Upload Photo">
+                                                    <img class="post-type-thumbnail selected" data-value="up" src="https://storage.googleapis.com/starter_web_app_bucket/assets/up.png" alt="Upload Photo">
                                                     <p class="poppins">Upload Photo</p>
                                                 </div>
                                             
@@ -421,8 +426,10 @@
                                                 }
 
                                                 let selectedThumbnail = document.querySelector(`.thumbnail[data-value="${postType}"]`);
-                                                selectedThumbnail.classList.add('selected');
-                                                previouslySelectedPostType = selectedThumbnail;
+                                                if (selectedThumbnail){
+                                                    selectedThumbnail.classList.add('selected');
+                                                    previouslySelectedPostType = selectedThumbnail;
+                                                }
                                             }
 
                                         </script>                                        
@@ -437,14 +444,13 @@
                                                 <select class="form-select" id="text-platform" name="text-platform">
                                                     <option>Facebook</option>
                                                     <option>Instagram</option>
-                                                    <option>X</option>
                                                     <option>LinkedIn</option>
                                                     <option>Google My Business</option>
                                                 </select>
                                             </div>
                                         </div>
 
-                                        <div id="content-card-stable-dif" class="content-card">
+                                        <div id="content-card-photo" class="content-card">
                                             <h4 class="header-title">Add Elements</h4>
                                             {% if user_settings.logo %}
                                             <p></p>
@@ -578,7 +584,6 @@
                                                 <select class="form-select" id="text-platform" name="text-platform">
                                                     <option>Facebook</option>
                                                     <option>Instagram</option>
-                                                    <option>X</option>
                                                     <option>LinkedIn</option>
                                                     <option>Google My Business</option>
                                                 </select>
@@ -666,11 +671,15 @@
                                         
                                     </div>
                                 </div>
-                                <div style="display: flex; justify-content: center; padding-top: 10px;">
-                                    <button type="submit" class="btn btn-purple rounded-pill w-md waves-effect waves-light mb-3" onclick="showSpinner()">
-                                        <i class="mdi mdi-plus"></i> Generate Post</button>
+                                
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div style="display: flex; justify-content: center; padding-top: 15px;">
+                                            <button type="submit" class="btn btn-purple rounded-pill w-md waves-effect waves-light mb-3" onclick="showSpinner()">
+                                                <i class="mdi mdi-plus"></i> Generate Post</button>
+                                        </div>
+                                    </div>
                                 </div>
-                                <br>
                             </form>
                         </div>
                         {% if user_settings.lastType %}
@@ -681,8 +690,12 @@
                                         <h4 class="header-title">Generated Post</h4>
                                         {% if user_settings.lastType != 'text' %}
                                         <br>
-                                        <img src="{{ user_settings.next_image_url }}" alt="Generated Image" class="generated-image-small rounded">
+                                        <img id="loaded-image" src="{% static 'dashboard\gifs\load-start.gif' %}" alt="Generated Image" class="generated-image-small rounded">
                                         <br>
+                                        <form method="post" action="{% url 'download' %}">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-soft-dark rounded waves-effect btn-xs">Download Image</button>
+                                        </form>
                                         {% endif %}
                                         <br>
                                         <div class="mb-3">
@@ -693,18 +706,10 @@
                                         <form id="captionForm" method="post" action="{% url 'post_creator' %}">
                                             {% csrf_token %}
                                             <input type="hidden" name="form" value="formCaption1">
-                                            <button type="submit" class="btn btn-soft-secondary rounded-pill waves-effect btn-xs" onclick="showSpinner()">Re-Generate Copy</button>
+                                            <button type="submit" class="btn btn-soft-secondary rounded waves-effect btn-xs" onclick="showSpinner()">Re-Generate Copy</button>
                                             <br>
                                             <br>
                                         </form>
-                                        {% if user_settings.lastType != 'image' %}
-                                        <form method="post" action="{% url 'download' %}">
-                                            {% csrf_token %}
-                                            <button type="submit" class="btn btn-soft-warning rounded-pill waves-effect btn-xs">Download Image</button>
-                                            <br>
-                                            <br>
-                                        </form>
-                                        {% endif %}
                                         <form method="post" action="{% url 'post_creator' %}">
                                             {% csrf_token %}
                                             <input type="hidden" name="form" value="formPostPost">
@@ -713,7 +718,30 @@
                                             {% if user_settings.lastType != 'image' %}
                                             <input type="hidden" name="url2" value="{{ user_settings.next_image_url }}">
                                             {% endif %}
-                                            <button type="submit" class="btn btn-gold rounded-pill w-md waves-effect waves-light mb-3" onclick="showSpinner()">
+                                            {% if user_settings.isFacebook %}
+                                            <input type="hidden" id="facebook_visible" name="facebook_visible" value="true">
+                                            {% endif %}
+                                            {% if user_settings.isInstagram %}
+                                            <input type="hidden" id="instagram_visible" name="instagram_visible" value="true">
+                                            {% endif %}
+                                            {% if user_settings.isLinkedin %}
+                                            <input type="hidden" id="linkedin_visible" name="linkedin_visible" value="true">
+                                            {% endif %}
+                                            <div class="mb-3">
+                                                <div style="display: inline-block;">
+                                                    <img src="{% static 'dashboard\images\icon\reset_icon.png' %}" class="social-icons" id="social_reset" onclick="resetSocialMedia()">
+                                                    {% if user_settings.isFacebook %}
+                                                    <img src="{% static 'dashboard\images\icon\facebook_logo.png' %}" class="social-icons" id="facebook" onclick="toggleSocialMedia('facebook')">
+                                                    {% endif %}
+                                                    {% if user_settings.isInstagram %}
+                                                    <img src="{% static 'dashboard\images\icon\instagram_logo.png' %}" class="social-icons" id="instagram" onclick="toggleSocialMedia('instagram')">
+                                                    {% endif %}
+                                                    {% if user_settings.isLinkedin %}
+                                                    <img src="{% static 'dashboard\images\icon\linkedin_logo.png' %}" class="social-icons" id="linkedin" onclick="toggleSocialMedia('linkedin')">
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                            <button type="submit" class="btn btn-gold rounded-pill w-md waves-effect waves-light mb-3" onclick="updateAndSubmitForm2(); showSpinner()">
                                                 <i class="mdi mdi-plus"></i> Post to Feed!</button>
                                         </form>
                                         <form method="post" action="{% url 'post_creator' %}">
@@ -724,7 +752,16 @@
                                             {% if user_settings.lastType != 'image' %}
                                             <input type="hidden" name="url" value="{{ user_settings.next_image_url }}">
                                             {% endif %}
-                                            <button type="submit" class="btn btn-purple rounded-pill w-md waves-effect waves-light mb-3" onclick="updateAndSubmitForm(); showSpinner()">
+                                            {% if user_settings.isFacebook %}
+                                            <input type="hidden" id="facebook_visible2" name="facebook_visible2" value="true">
+                                            {% endif %}
+                                            {% if user_settings.isInstagram %}
+                                            <input type="hidden" id="instagram_visible2" name="instagram_visible2" value="true">
+                                            {% endif %}
+                                            {% if user_settings.isLinkedin %}
+                                            <input type="hidden" id="linkedin_visible2" name="linkedin_visible2" value="true">
+                                            {% endif %}
+                                            <button type="submit" class="btn btn-success rounded-pill w-md waves-effect waves-light mb-3" onclick="updateAndSubmitForm(); showSpinner()">
                                                 <i class="mdi mdi-plus"></i> Add To Schedule!</button>
                                         </form>
                                         <script>
@@ -735,6 +772,22 @@
                                             function updateAndSubmitForm2() {
                                                 var updatedCaption = document.getElementById('prompt').innerText;
                                                 document.getElementById('editedCaption2').value = updatedCaption;
+                                            }
+                                            function toggleSocialMedia(media) {
+                                                var element = document.getElementById(media);
+                                                var isVisible = element.style.display != "none";
+                                                document.getElementById(media + '_visible').value = isVisible ? "false" : "true";
+                                                document.getElementById(media + '_visible2').value = isVisible ? "false" : "true";
+                                                element.style.display = isVisible ? "none" : "inline";
+                                            }
+                                            function resetSocialMedia() {
+                                                ['facebook', 'instagram', 'linkedin', 'google_business'].forEach(media => {
+                                                    var element = document.getElementById(media);
+                                                    if (element) {
+                                                        element.style.display = "inline";
+                                                        document.getElementById(media + '_visible').value = "true";
+                                                }
+                                                });
                                             }
                                         </script>   
                                     </div>
@@ -811,8 +864,15 @@
 
     <!-- App js -->
     <script src="{% static 'dashboard/js/app.min.js' %}"></script>
-    <script src="{% static 'dashboard/js/pages/post_creator.js' %}"></script>
-
+    <script type="module" src="{% static 'dashboard/js/pages/post_creator.js' %}"></script>
+    <script>
+        const gifStart = "{% static 'dashboard/gifs/load-start.gif' %}"
+        const gifDone = "{% static 'dashboard/gifs/load-done.gif' %}"
+        var jsonDump = {
+            userId: '{{ user_id }}',
+            selectedOption: '{{ selected_radio }}',
+        };
+    </script>
 
 </body>
 

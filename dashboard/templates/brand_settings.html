@@ -87,7 +87,7 @@
                             <!-- item-->
                             <a href="javascript:void(0);" class="dropdown-item notify-item active">
                                 <div class="notify-icon">
-                                    <img src="{% static 'dashboard/images/users/cj.jpg' %}"
+                                    <img src="{% static 'dashboard/images/users/aiCj.jpg' %}"
                                         class="img-fluid rounded-circle" alt="" />
                                 </div>
                                 <p class="notify-details">AI CJ</p>
@@ -109,10 +109,10 @@
                 <li class="dropdown notification-list topbar-dropdown">
                     <a class="nav-link dropdown-toggle nav-user me-0 waves-effect waves-light" data-bs-toggle="dropdown"
                     href="#" role="button" aria-haspopup="false" aria-expanded="false">
-                        {% if user_settings.pfp %}
-                        <img src="{{ user_settings.pfp }}" alt="user-img" title="pfp" class="rounded-circle">
+                        {% if user_settings.logo %}
+                        <img src="{{ user_settings.logo }}" alt="user-img" title="profile-picture" class="rounded-circle">
                         {% else %}
-                        <img src="{% static 'dashboard/images/users/default.png' %}" alt="user-img" title="cj" class="rounded-circle">
+                        <img src="{% static 'dashboard/images/users/default.png' %}" alt="user-img" title="default" class="rounded-circle">
                         {% endif %}
                         {% if user_settings.business_name %}
                         <span class="pro-user-name ms-1">{{ user_settings.business_name }}<i class="mdi mdi-chevron-down"></i>
@@ -157,18 +157,18 @@
             <div class="logo-box">
                 <a href="{% url 'dashboard' %}" class="logo logo-light text-center">
                     <span class="logo-sm">
-                        <img src="{% static 'dashboard/images/logo-sm.png' %}" alt="" height="22">
+                        <img src="{% static 'dashboard/images/brand/logo-sm.png' %}" alt="" height="22">
                     </span>
                     <span class="logo-lg">
-                        <img src="{% static 'dashboard/images/logo-light.png' %}" alt="" height="16">
+                        <img src="{% static 'dashboard/images/brand/logo-light.png' %}" alt="" height="16">
                     </span>
                 </a>
                 <a href="{% url 'dashboard' %}" class="logo logo-dark text-center">
                     <span class="logo-sm">
-                        <img src="{% static 'dashboard/images/logo-sm.png' %}" alt="" height="22">
+                        <img src="{% static 'dashboard/images/brand/logo-sm.png' %}" alt="" height="22">
                     </span>
                     <span class="logo-lg">
-                        <img src="{% static 'dashboard/images/logo-dark.png' %}" alt="" height="16">
+                        <img src="{% static 'dashboard/images/brand/logo-dark.png' %}" alt="" height="16">
                     </span>
                 </a>
             </div>
@@ -188,7 +188,7 @@
                         <!-- item-->
                         <a href="{% url 'dashboard' %}" class="dropdown-item notify-item">
                             <i class="mdi mdi-view-dashboard-outline"></i>
-                            <span>Dashboard</span>
+                            <span>Social Media Agent</span>
                         </a>
 
                         <!-- item-->
@@ -206,7 +206,13 @@
                         <!-- item-->
                         <a href="{% url 'brand_settings' %}" class="dropdown-item notify-item">
                             <i class="fe-settings"></i>
-                            <span>Settings</span>
+                            <span>Account</span>
+                        </a>
+
+                        <!-- item-->
+                        <a href="{% url 'library' %}" class="dropdown-item notify-item">
+                            <i class="fe-grid"></i>
+                            <span>Library</span>
                         </a>
 
                         <div class="dropdown-divider"></div>
@@ -238,10 +244,10 @@
 
                 <!-- User box -->
                 <div class="user-box text-center">
-                    {% if user_settings.pfp %}
-                    <img src="{{ user_settings.pfp }}" alt="user-img" title="pfp" class="rounded-circle img-thumbnail avatar-md">
+                    {% if user_settings.logo %}
+                    <img src="{{ user_settings.logo }}" alt="user-img" title="pfp" class="rounded-circle img-thumbnail avatar-md">
                     {% else %}
-                    <img src="{% static 'dashboard/images/users/default.png' %}" alt="user-img" title="cj" class="rounded-circle img-thumbnail avatar-md">
+                    <img src="{% static 'dashboard/images/users/default.png' %}" alt="user-img" title="default" class="rounded-circle img-thumbnail avatar-md">
                     {% endif %}
                     <div class="dropdown">
                         {% if user_settings.business_name %}
@@ -291,13 +297,13 @@
 
                     <ul id="side-menu">
 
-                        <li class="menu-title">Feadl.io</li>
+                        <li class="menu-title">Agents</li>
 
                         <li>
                             <a href="{% url 'dashboard' %}">
                                 <i class="mdi mdi-view-dashboard-outline"></i>
                                 <!-- <span class="badge bg-success rounded-pill float-end">9+</span> -->
-                                <span> Dashboard </span>
+                                <span> Social Media Manager </span>
                             </a>
                         </li>
 
@@ -329,7 +335,14 @@
                         <li>
                             <a href="{% url 'brand_settings' %}">
                                 <i class="fe-settings"></i>
-                                <span> Settings </span>
+                                <span> Account </span>
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="{% url 'library' %}">
+                                <i class="fe-grid"></i>
+                                <span> Library </span>
                             </a>
                         </li>
                     </ul>
@@ -356,34 +369,20 @@
 
                 <div class="container-fluid">
                     <div class="row">
-                        {% if error %}
-                        <div class="error-message">
-                          <span>{{ error }}</span>
-                          <button class="close-button" onclick="closeErrorMessage()">&times;</button>
-                        </div>
-                        <script>
-                        function closeErrorMessage() {
-                            const errorDiv = document.querySelector('.error-message');
-                            errorDiv.style.display = 'none';
-                        }
-                        </script>                    
-                        {% endif %}
-                        {% if success %}
-                        <div class="success-message">
-                            <span>{{ success }}</span>
-                            <button class="close-button" onclick="closeSuccessMessage()">&times;</button>
-                        </div>
-                        <script>
-                        function closeSuccessMessage() {
-                            const successDiv = document.querySelector('.success-message');
-                            successDiv.style.display = 'none';
-                        }
-                        </script>
-                        {% endif %}                    
+                        {% if messages %}
+                        <ul class="messages">
+                            {% for message in messages %}
+                                <li class="{{ message.tags }}" data-message-id="{{ forloop.counter }}">
+                                    {{ message }}
+                                    <span class="closebtn" onclick="closeMessage(this);">&times;</span>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                        {% endif %}                   
                         <div class="col-md-3">
                             <div class="card">
                                 <div class="card-body">
-                                    <h4 class="header-title">Brand Settings</h4>
+                                    <h4 class="header-title">Business Info</h4>
                                     <p class="sub-header">
                                         Tell us about you and your business so we can generate content specifically
                                         tailored towards you.
@@ -408,12 +407,12 @@
                                                         value="{{ user_settings.business_description }}">
                                                 </div>
                                                 
-                                                <div class="mb-3">
+                                                <!-- <div class="mb-3">
                                                     <label for="simpleinput" class="form-label">Website</label>
                                                     <input type="text" id="website" class="form-control"
                                                         name="website"
                                                         value="{{ user_settings.website }}">
-                                                </div>
+                                                </div> -->
                                                 {% if user_settings.business_description %}
                                                 <div class="mb-3">
                                                     <h4 class="header-title">Tags</h4>
@@ -425,58 +424,8 @@
                                                     </div>
                                                 </div>
                                                 {% endif %}
-                                                <div class="mb-3">
-                                                    <label class="form-label">Primary Brand Color</label>
-                                                    <input type="text" class="form-control" id="colorpicker-showinput-intial" name="brand_color" value="{{ user_settings.brand_color }}">
-                                                </div>
-                                                <div class="mb-3">
-                                                    <label class="form-label">Secondary Brand Colors</label>
-                                                    <input type="text" name="color2" class="form-control" id="colorpicker-showinput-intial2">
-                                                    <br>
-                                                    <input type="text" name="color3" class="form-control" id="colorpicker-showinput-intial3">
-                                                    <br>
-                                                    <input type="text" name="color4" class="form-control" id="colorpicker-showinput-intial4">
-                                                    <br>
-                                                    <input type="text" name="color5" class="form-control" id="colorpicker-showinput-intial5">
-                                                </div>
-                                                <script>
-                                                    let colorsArray = {{ user_settings.secondary_colors|safe }};
-
-                                                    if(colorsArray.length > 0) {
-                                                        document.getElementById("colorpicker-showinput-intial2").value = colorsArray[0];
-                                                    }
-
-                                                    if(colorsArray.length > 1) {
-                                                        document.getElementById("colorpicker-showinput-intial3").value = colorsArray[1];
-                                                    }
-
-                                                    if(colorsArray.length > 2) {
-                                                        document.getElementById("colorpicker-showinput-intial4").value = colorsArray[2];
-                                                    }
-
-                                                    if(colorsArray.length > 3) {
-                                                        document.getElementById("colorpicker-showinput-intial5").value = colorsArray[3];
-                                                    }
-
-                                                </script>
-
-                                                <h4 class="header-title">Logo</h4>
-
-                                                <p class="sub-header">
-                                                    ( .PNG Files Only )
-                                                </p>
-                                                <div class="mb-3">
-                                                    <input type="file" id="logo" name="logo" class="form-control" accept=".png">
-                                                </div>
-                                                {% if user_settings.logo %}
-                                                <div class="mb-3">
-                                                    <img src="{{ user_settings.logo }}" alt="Generated Image"
-                                                        class="generated-image-xs rounded">
-                                                </div>
-                                                {% endif %}
                                                 <button type="submit"
-                                                    class="btn btn-primary waves-effect waves-light">Save</button>
-                                                <br>
+                                                class="btn btn-primary waves-effect waves-light">Save</button>
                                             </form>
                                         </div> <!-- end col -->
                                     </div>
@@ -485,76 +434,79 @@
                                 </div> <!-- end card-body -->
                             </div> <!-- end card -->
                         </div><!-- end col -->
-                        <div class="col-md-3">
+                        <div class="col-xl-3 col-md-6">
                             <div class="card">
                                 <div class="card-body">
-                                    <h4 class="header-title">Image Library</h4>
-                                    <p class="sub-header">
-                                        This is your library of images used in creating your personalized content. Add more for even better results!
-                                    </p>
-                                    <div class="row">
-                                        <div class="col-lg-12">
-                                            <div class="mb-3">
-                                                <div class="image-tag-input-container">
-                                                    <form id="imageTagForm" method="post" action="{% url 'brand_settings' %}" enctype="multipart/form-data">
-                                                        <!-- <form id="imageTagForm" method="post" action="{% url 'brand_settings' %}" enctype="multipart/form-data" class="dropzone" data-plugin="dropzone" data-previews-container="#file-previews" data-upload-preview-template="#uploadPreviewTemplate"> -->
-                                                        {% csrf_token %}
-                                                        
-                                                        <!-- <div class="fallback">
-                                                            <input name="file" type="file" multiple />
-                                                        </div>
-                                                    
-                                                        <div class="dz-message needsclick">
-                                                            <i class="h1 text-muted dripicons-cloud-upload"></i>
-                                                            <h3>Drop files here or click to upload.</h3>
-                                                            <span class="text-muted font-13">(This is just a demo dropzone. Selected files are <strong>not</strong> actually uploaded.)</span>
-                                                        </div>
-                                                        
-                                                        <div class="dropzone-previews mt-3" id="file-previews"></div> 
-                                                    
-                                                        <div class="d-none" id="uploadPreviewTemplate">
-                                                            <div class="card mt-1 mb-0 shadow-none border">
-                                                                <div class="p-2">
-                                                                    <div class="row align-items-center">
-                                                                        <div class="col-auto">
-                                                                            <img data-dz-thumbnail src="#" class="avatar-sm rounded bg-light" alt="">
-                                                                        </div>
-                                                                        <div class="col ps-0">
-                                                                            <a href="javascript:void(0);" class="text-muted fw-bold" data-dz-name></a>
-                                                                            <p class="mb-0" data-dz-size></p>
-                                                                        </div>
-                                                                        <div class="col-auto">
-                                                                            <a href="" class="btn btn-link btn-lg text-muted" data-dz-remove>
-                                                                                <i class="dripicons-cross"></i>
-                                                                            </a>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div> -->
-                                                    
-                                                        <!-- Hidden Inputs and Buttons -->
-                                                        <!-- <input type="file" name="file" data-plugins="dropify" data-height="200" accept=".jpg, .png" /> -->
-                                                        <input type="file" name="file" id="imageUpload" data-plugins="dropify" data-height="200" accept=".jpg, .png" />
-                                                        <input type="hidden" name="form" value="image-tags">
-                                                        <input type="hidden" name="imageTags" value="">
-                                                        <input type="hidden" name="isGenerateStockImagesClicked" id="isGenerateStockImagesClickedField" value="false">
-                                                        <br>
-                                                        <button id="generateStockImages" class="btn btn-success">Add Stock Images</button>
-                                                        <br>
-                                                        <br>
-                                                        <div class="image-tag-thumbnails" id="imageTagThumbnails"></div>
-                                                        <button type="submit" id="imageTagFormSubmit" class="btn btn-primary waves-effect waves-light">Save</button>
-                                                    </form>
-                                                </div>
-                                            </div>
-                                        </div> <!-- end col -->
-                                    </div>
-                                    <!-- end row-->
+                                    <h4 class="header-title">Branding</h4>
+                                    <br>
+                                    <form method="post" action="{% url 'brand_settings' %}" enctype="multipart/form-data">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="form" value="branding">
+                                        <div class="mb-3">
+                                            <label class="form-label">Primary Brand Color</label>
+                                            <input type="text" class="form-control" id="colorpicker-showinput-intial" name="brand_color" value="{{ user_settings.brand_color }}">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Secondary Brand Colors</label>
+                                            <input type="text" name="color2" class="form-control" id="colorpicker-showinput-intial2">
+                                            <br>
+                                            <input type="text" name="color3" class="form-control" id="colorpicker-showinput-intial3">
+                                            <br>
+                                            <input type="text" name="color4" class="form-control" id="colorpicker-showinput-intial4">
+                                            <br>
+                                            <input type="text" name="color5" class="form-control" id="colorpicker-showinput-intial5">
+                                        </div>
+                                        <script>
+                                            let colorsArray = {{ user_settings.secondary_colors|safe }};
 
-                                </div> <!-- end card-body -->
-                            </div> <!-- end card -->
-                        </div><!-- end col -->
+                                            if(colorsArray.length > 0) {
+                                                document.getElementById("colorpicker-showinput-intial2").value = colorsArray[0];
+                                            }
+
+                                            if(colorsArray.length > 1) {
+                                                document.getElementById("colorpicker-showinput-intial3").value = colorsArray[1];
+                                            }
+
+                                            if(colorsArray.length > 2) {
+                                                document.getElementById("colorpicker-showinput-intial4").value = colorsArray[2];
+                                            }
+
+                                            if(colorsArray.length > 3) {
+                                                document.getElementById("colorpicker-showinput-intial5").value = colorsArray[3];
+                                            }
+
+                                        </script>
+
+                                        <h4 class="header-title">Logo</h4>
+
+                                        <p class="sub-header">
+                                            ( .PNG Files Only )
+                                        </p>
+                                        <div class="mb-3">
+                                            <input type="file" id="logo" name="logo" class="form-control" accept=".png">
+                                        </div>
+                                        {% if user_settings.logo %}
+                                        <div class="mb-3">
+                                            <img src="{{ user_settings.logo }}" alt="Generated Image"
+                                                class="generated-image-xs rounded">
+                                        </div>
+                                        {% endif %}
+                                        <!-- <label class="form-label">Profile Image</label>
+                                        <input type="file" id="pfp" name="pfp" class="form-control" accept=".jpg, .png">
+                                        <br>
+                                        {% if user_settings.pfp %}
+                                        <div class="mb-3">
+                                            <img src="{{ user_settings.pfp }}" alt="Generated Image"
+                                                class="generated-image-small rounded">
+                                        </div> -->
+                                        {% endif %}
+                                        <button type="submit"
+                                            class="btn btn-primary waves-effect waves-light">Save</button>
+                                        <br>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
                         <div class="col-xl-3 col-md-6">
                             <div class="card">
                                 <div class="card-body widget-user">
@@ -566,36 +518,38 @@
                                         <button class="social-button">
                                             <div class="d-flex align-items-center">
                                                 <div class="avatar-sm me-3 flex-shrink-0">
-                                                    <img src="{% static 'dashboard/images/users/facebook_logo.png' %}" class="img-fluid rounded-circle" alt="Facebook">
+                                                    <img src="{% static 'dashboard/images/icon/facebook_logo.png' %}" class="img-fluid rounded-circle" alt="Facebook">
                                                 </div>
                                                 <div class="flex-grow-1 overflow-hidden">
                                                     <h5 class="mt-0 mb-1"> Facebook</h5>
-                                                    {% if user_settings.facebook_token %}
+                                                    {% if user_settings.facebook_token and user_settings.facebook_page_id and user_settings.facebook_page_name %}
+                                                    <small class="text-primary"><b>{{ user_settings.facebook_page_name }}</b></small><br>
                                                     <small class="text-primary"><b>Linked</b></small>
                                                     {% else %}
                                                     <small class="text-primary"><b>Not Linked</b></small>
                                                     {% endif %}
                                                 </div>
-                                                {% if user_settings.facebook_token %}
-                                                <input id="facebook_switch" type="checkbox" {% if user_settings.isFacebook %}checked{% endif %} data-plugin="switchery" data-color="#039cfd"/>
+                                                {% if user_settings.facebook_token and user_settings.facebook_page_id and user_settings.facebook_page_name %}
+                                                <input type="hidden" name="provider" value="facebook">
+                                                <input type="hidden" name="isCheck" value="Facebook">
                                                 {% endif %}
                                             </div>
                                         </button>
-                                        {% if user_settings.facebook_token %}
+                                        {% if user_settings.facebook_token and user_settings.facebook_page_id and user_settings.facebook_page_name %}
                                         <script>
-                                            var form = document.getElementById('facebook');
-                                            var switcheryInput = document.getElementById('facebook_switch');
+                                            var facebookForm = document.getElementById('facebook');
+                                            var unlinkUrl = "{% url 'unlink' %}";
 
-                                            switcheryInput.addEventListener('click', function(event) {
-                                                event.stopPropagation();
-                                            });
-
-                                            form.addEventListener('submit', function(event) {
+                                            facebookForm.addEventListener('submit', function(event) {
                                                 event.preventDefault();
+                                                var userConfirmed = confirm("Are you sure you want to unlink?");
+                                                if (userConfirmed) {
+                                                    facebookForm.action = unlinkUrl;
+                                                    facebookForm.submit();
+                                                }
                                             });
                                         </script>
                                         {% endif %}
-
                                     </form>
                                     <br>
                                     <form id="instagram" method="post" action="{% url 'all_auth' %}" enctype="multipart/form-data">
@@ -604,7 +558,7 @@
                                         <button class="social-button">
                                             <div class="d-flex align-items-center">
                                                 <div class="avatar-sm me-3 flex-shrink-0">
-                                                    <img src="{% static 'dashboard/images/users/instagram_logo.png' %}" class="img-fluid rounded-circle" alt="Instagram">
+                                                    <img src="{% static 'dashboard/images/icon/instagram_logo.png' %}" class="img-fluid rounded-circle" alt="Instagram">
                                                 </div>
                                                 <div class="flex-grow-1 overflow-hidden">
                                                     <h5 class="mt-0 mb-1"> Instagram</h5>
@@ -615,58 +569,23 @@
                                                     {% endif %}
                                                 </div>
                                                 {% if user_settings.instagram_token %}
-                                                <input id="instagram_switch" type="checkbox" {% if user_settings.isInstagram %}checked{% endif %} data-plugin="switchery" data-color="#ff7aa3"/>
+                                                <input type="hidden" name="provider" value="instagram">
+                                                <input type="hidden" name="isCheck" value="Instagram">
                                                 {% endif %}
                                             </div>
                                         </button>
                                         {% if user_settings.instagram_token %}
                                         <script>
-                                            var form = document.getElementById('instagram');
-                                            var switcheryInput = document.getElementById('instagram_switch');
+                                            var instagramForm = document.getElementById('instagram');
+                                            var unlinkUrl = "{% url 'unlink' %}";
 
-                                            switcheryInput.addEventListener('click', function(event) {
-                                                event.stopPropagation();
-                                            });
-
-                                            form.addEventListener('submit', function(event) {
+                                            instagramForm.addEventListener('submit', function(event) {
                                                 event.preventDefault();
-                                            });
-                                        </script>
-                                        {% endif %}
-                                    </form>
-                                    <br>
-                                    <form id="google_business" method="post" action="{% url 'all_auth' %}" enctype="multipart/form-data">
-                                        {% csrf_token %}
-                                        <input type="hidden" name="form" value="formGoogle">
-                                        <button class="social-button">
-                                            <div class="d-flex align-items-center">
-                                                <div class="avatar-sm me-3 flex-shrink-0">
-                                                    <img src="{% static 'dashboard/images/users/google_business_logo.png' %}" class="img-fluid rounded-circle" alt="Google Business">
-                                                </div>
-                                                <div class="flex-grow-1 overflow-hidden">
-                                                    <h5 class="mt-0 mb-1"> Google Business</h5>
-                                                    {% if user_settings.google_business_token %}
-                                                    <small class="text-warning"><b>Linked</b></small>
-                                                    {% else %}
-                                                    <small class="text-warning"><b>Not Linked</b></small>
-                                                    {% endif %}
-                                                </div>
-                                                {% if user_settings.google_business_token %}
-                                                <input id="google_business_switch" type="checkbox" {% if user_settings.isGoogle %}checked{% endif %} data-plugin="switchery" data-color="#f1b53d"/>
-                                                {% endif %}
-                                            </div>
-                                        </button>
-                                        {% if user_settings.google_business_token %}
-                                        <script>
-                                            var form = document.getElementById('google_business');
-                                            var switcheryInput = document.getElementById('google_business_switch');
-
-                                            switcheryInput.addEventListener('click', function(event) {
-                                                event.stopPropagation();
-                                            });
-
-                                            form.addEventListener('submit', function(event) {
-                                                event.preventDefault();
+                                                var userConfirmed = confirm("Are you sure you want to unlink?");
+                                                if (userConfirmed) {
+                                                    instagramForm.action = unlinkUrl;
+                                                    instagramForm.submit();
+                                                }
                                             });
                                         </script>
                                         {% endif %}
@@ -678,7 +597,7 @@
                                         <button class="social-button">
                                             <div class="d-flex align-items-center">
                                                 <div class="avatar-sm me-3 flex-shrink-0">
-                                                    <img src="{% static 'dashboard/images/users/linkedin_logo.png' %}" class="img-fluid rounded-circle" alt="LinkedIn">
+                                                    <img src="{% static 'dashboard/images/icon/linkedin_logo.png' %}" class="img-fluid rounded-circle" alt="LinkedIn">
                                                 </div>
                                                 <div class="flex-grow-1 overflow-hidden">
                                                     <h5 class="mt-0 mb-1"> LinkedIn</h5>
@@ -689,18 +608,54 @@
                                                     {% endif %}
                                                 </div>
                                                 {% if user_settings.linkedin_token %}
-                                                <input id="linkedin_switch" type="checkbox" {% if user_settings.isLinkedin %}checked{% endif %} data-plugin="switchery" data-color="#039cfd"/>
+                                                <input type="hidden" name="provider" value="linkedin">
+                                                <input type="hidden" name="isCheck" value="Linkedin">
                                                 {% endif %}
                                             </div>
                                         </button>
                                         {% if user_settings.linkedin_token %}
                                         <script>
-                                            var form = document.getElementById('linkedin');
-                                            var switcheryInput = document.getElementById('linkedin_switch');
+                                            var linkedinForm = document.getElementById('linkedin');
+                                            var unlinkUrl = "{% url 'unlink' %}";
 
-                                            switcheryInput.addEventListener('click', function(event) {
-                                                event.stopPropagation(); //
+                                            linkedinForm.addEventListener('submit', function(event) {
+                                                event.preventDefault();
+                                                var userConfirmed = confirm("Are you sure you want to unlink?");
+                                                if (userConfirmed) {
+                                                    linkedinForm.action = unlinkUrl;
+                                                    linkedinForm.submit();
+                                                }
                                             });
+                                        </script>
+                                        {% endif %}
+                                    </form>
+                                    <br>
+                                    <form id="google_business" method="post" action="{% url 'all_auth' %}" enctype="multipart/form-data">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="form" value="formGoogle">
+                                        <button class="social-button">
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar-sm me-3 flex-shrink-0">
+                                                    <img src="{% static 'dashboard/images/icon/google_business_logo.png' %}" class="img-fluid rounded-circle" alt="Google Business">
+                                                </div>
+                                                <div class="flex-grow-1 overflow-hidden">
+                                                    <h5 class="mt-0 mb-1"> Google Business</h5>
+                                                    <small class="text-warning"><b>Coming Soon</b></small>
+                                                    <!-- {% if user_settings.google_business_token %}
+                                                    <small class="text-warning"><b>Linked</b></small>
+                                                    {% else %}
+                                                    <small class="text-warning"><b>Not Linked</b></small>
+                                                    {% endif %} -->
+                                                </div>
+                                                {% if user_settings.google_business_token %}
+                                                <input type="hidden" name="provider" value="google">
+                                                <input type="hidden" name="isCheck" value="Google">
+                                                {% endif %}
+                                            </div>
+                                        </button>
+                                        {% if user_settings.google_business_token %}
+                                        <script>
+                                            var form = document.getElementById('google_business');
 
                                             form.addEventListener('submit', function(event) {
                                                 event.preventDefault();
@@ -715,7 +670,7 @@
                                             <input type="hidden" name="form" value="formX">
                                             <div class="d-flex align-items-center">
                                                 <div class="avatar-sm me-3 flex-shrink-0">
-                                                    <img src="{% static 'dashboard/images/users/x_logo.png' %}" class="img-fluid rounded-circle" alt="X">
+                                                    <img src="{% static 'dashboard/images/icon/x_logo.png' %}" class="img-fluid rounded-circle" alt="X">
                                                 </div>
                                                 <div class="flex-grow-1 overflow-hidden">
                                                     <h5 class="mt-0 mb-1"> X</h5>
@@ -724,52 +679,27 @@
                                             </div>
                                         </button>
                                     </form>
-                                </div>
-                            </div>
-                            <div class="card">
-                                <div class="card-body generated-post">
-                                    <h4 class="header-title">AI Generator Cooldown</h4>
                                     <br>
-                                    <div class="mt-3" dir="ltr">
-                                        <input data-plugin="knob" data-width="150" data-height="150" data-linecap=round
-                                        data-displayInput=false value="{{ cooldown }}"
-                                        data-skin="tron" data-angleOffset="180" data-readOnly=true data-thickness=".5"
-                                        {% if cooldown < 40 %}
-                                            data-fgColor="#3CB371"
-                                        {% elif cooldown >= 40 and cooldown <= 80 %}
-                                            data-fgColor="#FFD700"
-                                        {% else %}
-                                            data-fgColor="#f97171"
-                                        {% endif %}
-                                    />
-                                    </div>
+                                    <form method="post" action="{% url 'all_auth' %}" enctype="multipart/form-data">
+                                        {% csrf_token %}
+                                        <button type="submit" class="social-button">
+                                            <input type="hidden" name="form" value="formYoutube">
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar-sm me-3 flex-shrink-0">
+                                                    <img src="{% static 'dashboard/images/icon/youtube_logo.png' %}" class="img-fluid rounded-circle" alt="youtube">
+                                                </div>
+                                                <div class="flex-grow-1 overflow-hidden">
+                                                    <h5 class="mt-0 mb-1"> Youtube</h5>
+                                                    <small class="text-danger"><b>Coming Soon</b></small>
+                                                </div>
+                                            </div>
+                                        </button>
+                                    </form>
                                 </div>
                             </div>
                         </div><!-- end col -->
                         
                         <div class="col-xl-3 col-md-6">
-                            <div class="card">
-                                <div class="card-body">
-                                    <h4 class="header-title">User Settings</h4>
-                                    <br>
-                                    <form method="post" action="{% url 'brand_settings' %}" enctype="multipart/form-data">
-                                        {% csrf_token %}
-                                        <input type="hidden" name="form" value="user-settings">
-                                        <label class="form-label">Profile Image</label>
-                                        <input type="file" id="pfp" name="pfp" class="form-control" accept=".jpg, .png">
-                                        <br>
-                                        {% if user_settings.pfp %}
-                                        <div class="mb-3">
-                                            <img src="{{ user_settings.pfp }}" alt="Generated Image"
-                                                class="generated-image-small rounded">
-                                        </div>
-                                        {% endif %}
-                                        <button type="submit"
-                                            class="btn btn-primary waves-effect waves-light">Save</button>
-                                        <br>
-                                    </form>
-                                </div>
-                            </div>
                             <div class="card">
                                 <div class="card-body">
                                     <h4 class="header-title">Manage Account</h4>
@@ -809,7 +739,25 @@
                                             <span style="padding-left: 2px;">More Questions? Call: (407) 516 6380</span>
                                         </a>
                                     </div>
-                                    
+                                </div>
+                            </div>
+                            <div class="card">
+                                <div class="card-body generated-post">
+                                    <h4 class="header-title">AI Generator Cooldown</h4>
+                                    <br>
+                                    <div class="mt-3" dir="ltr">
+                                        <input data-plugin="knob" data-width="150" data-height="150" data-linecap=round
+                                        data-displayInput=false value="{{ cooldown }}"
+                                        data-skin="tron" data-angleOffset="180" data-readOnly=true data-thickness=".5"
+                                        {% if cooldown < 40 %}
+                                            data-fgColor="#3CB371"
+                                        {% elif cooldown >= 40 and cooldown <= 80 %}
+                                            data-fgColor="#FFD700"
+                                        {% else %}
+                                            data-fgColor="#f97171"
+                                        {% endif %}
+                                    />
+                                    </div>
                                 </div>
                             </div>
                         </div>

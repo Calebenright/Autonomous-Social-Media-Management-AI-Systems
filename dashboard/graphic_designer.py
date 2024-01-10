@@ -4,7 +4,6 @@ import os
 import random
 import textwrap
 import json
-import openai
 import re
 from django.conf import settings
 from google.cloud import storage
@@ -16,9 +15,8 @@ import tempfile
 import xml.etree.ElementTree as ET
 from decouple import config
 import numpy as np
+from openai import OpenAI
 
-from decouple import config
-openai.api_key = config('OPENAI_API_KEY')
 environment = config('ENVIRONMENT', default='development')
 
 # ---------------------- Utility Functions --------------------- #
@@ -265,20 +263,31 @@ def add_text_to_image(img, text, font_io, font_size, start_x, start_y, width, he
     return img
     
 def generate_text(business_description, business_name, max_title_char_count, key):
+    client = OpenAI(api_key=config('OPENAI_API_KEY'))
+    print(key)
     if key == 'Call-to-action':
-        prompt = f"Imagine you're an advertiser for my company named {business_name} and our description is {business_description}. Create a ad creative headline like, 'local, personal service at a fraction of the cost.', 'Your next home could be right around the corner?', 'Name brands are so out of style.', etc.. Be creative and try to think about what might make a person click on the ad. It has to be less than {max_title_char_count} characters and don't use any social media hashtags.",
+        prompt = f"Imagine you're an advertiser for my company named {business_name} and our description is {business_description}. Create a ad creative headline like, 'local, personal service at a fraction of the cost.', 'Your next home could be right around the corner?', 'Name brands are so out of style.', etc.. Be creative and try to think about what might make a person click on the ad. It has to be less than {max_title_char_count} characters and don't use any social media hashtags."
     if key == 'Headline':
-        prompt = f"Imagine you're an advertiser for my company named {business_name} and our description is {business_description}. Create a ad creative call-to-action like, 'Looking to improve your style?', 'Want a Safer Home?', 'Shop our newest collection!', etc.. It has to be less than {max_title_char_count} characters and don't use any social media hashtags.",
+        prompt = f"Imagine you're an advertiser for my company named {business_name} and our description is {business_description}. Create a ad creative call-to-action like, 'Looking to improve your style?', 'Want a Safer Home?', 'Shop our newest collection!', etc.. It has to be less than {max_title_char_count} characters and don't use any social media hashtags."
     if key == 'Description':
-        prompt = f"Imagine you're a social media manager for my company named {business_name} and our description is {business_description}. Create a catchy description that makes people understand and want us. It has to be less than {max_title_char_count} characters and exclude any hashtags.",
-        
-    response = openai.Completion.create(
-        model="gpt-3.5-turbo-instruct",
-        prompt=prompt,
-        max_tokens=max_title_char_count,
-        temperature=1
+        prompt = f"Imagine you're a social media manager for my company named {business_name} and our description is {business_description}. Create a catchy description that makes people understand and want us. It has to be less than {max_title_char_count} characters and exclude any hashtags."
+    print(prompt)
+    response = client.chat.completions.create(
+        model="gpt-3.5-turbo-1106",
+        messages=[
+            {
+            "role": "system",
+            "content": "You are not a person. Respond with just the output."
+            },
+            {
+            "role": "user",
+            "content": prompt
+            }
+        ],
+        temperature=1,
+        max_tokens=200
     )
-    original_string = response.choices[0].text.strip()
+    original_string = response.choices[0].message.content.strip()
     try:
         original_string = ast.literal_eval(original_string)
     except:

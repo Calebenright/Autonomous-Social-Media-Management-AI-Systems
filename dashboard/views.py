@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, FileResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
 from django.core.mail import EmailMessage
 from .forms import UserSettingsForm
 from .models import UserSettings
@@ -13,12 +14,11 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport import requests
 from urllib.parse import urlparse
 import os
-from .post_creator import create_stock_post, create_call_to_action, create_caption, create_dalle_post, create_stable_dif_post, create_ad_copy, create_ad_headline, create_placeholder, upload_jpg_to_google, add_watermark, create_upload, create_ad_creative, upload_png_to_google
-from .post_to_media import post_to_facebook_page_feed, post_to_instagram, post_to_linkedin, post_to_google_mybusiness, get_instagram_user_id, get_facebook_page_id
+from .post_to_socials import post_to_facebook_page_feed, post_to_facebook_group_feed, post_text_to_facebook_page_feed, post_text_to_facebook_group_feed, post_to_instagram, post_to_linkedin, post_to_google_mybusiness, get_instagram_user_id, get_facebook_pages_and_groups
 from django.http import JsonResponse
 from django.core.files.uploadedfile import InMemoryUploadedFile
 import time
-from .functions import generate_random_date, create_tags, generate_secondary_colors, create_text_post, add_stock_tags, upload_and_crop_image, delete_from_google, reupload_gcs_image
+from .functions import generate_random_date, create_tags, generate_secondary_colors, create_text_post, add_stock_tags, upload_and_crop_image, delete_from_google, reupload_gcs_image, download_and_save_image_as_seek, create_stock_image_description, create_stock_post, create_call_to_action, create_caption, create_dalle_post, create_stable_dif_post, create_ad_copy, create_ad_headline, create_placeholder, upload_jpg_to_google, add_logo, create_upload, create_ad_creative, upload_png_to_google
 from firebase_admin import firestore, auth, credentials
 import base64
 import ast
@@ -37,11 +37,18 @@ from io import BytesIO
 import jwt
 import re
 import imghdr
+from openai import OpenAI
+import logging
+import threading
+from django.contrib import messages
 
-# stripe.api_key = settings.STRIPE_SECRET_KEY
-# endpoint_secret = 'whsec_ZS4zkRNL4aZ9Kumreb6D6ygrb3eHS8p9'
-stripe.api_key = 'sk_test_51N3DeEAy1fGRWtyhPPQQR7NXm6N0kvTGbQ3XhxT4GB574akDF8ki3OPo9zhqSWYvZNMWhPvrGbbMeVkLPjQWi4Ga0027FmfJpA'
-endpoint_secret = 'whsec_359fc53bbb46857ff7bbca0a01c1c56c36f795da8f7cf4717bb46e53a78f368a'
+logger = logging.getLogger(__name__)
+
+client = OpenAI(api_key=config('OPENAI_API_KEY'))
+assistant_ids = {'elaine': 'asst_KIHRjofgKB36hQkJt2IqXF51'}
+
+stripe.api_key = settings.STRIPE_SECRET_KEY
+endpoint_secret = settings.STRIPE_ENDPOINT
 
 def dashboard(request):
     try:
@@ -70,343 +77,58 @@ def dashboard(request):
     except AttributeError as e:
         if "AuthError" in str(e):
             return redirect('login')
-    
-        return render(request, 'error.html', {'error_message': 'Please Try Logging in Again.'})
+        messages.error(request, 'Please Try Logging in Again.')
+        return redirect('login')
     try:
         ftue = user_settings['ftue']
     except (TypeError, KeyError):
-        return render(request, 'error.html', {'error_message': 'Please Try Logging in Again.'})
-    try:
-        endFtue = user_settings['endFtue']
-    except (TypeError, KeyError):
-        endFtue = False
-    try:
-        website = user_settings['business_description']
-    except (TypeError, KeyError):
-        website = ''
+        messages.error(request, 'Please Try Logging in Again.')
+        return redirect('login')
+
+    all_messages = request.session.get('all_messages', [{'role': 'bot', 'content': 'How can I assist you?'}])
 
     if request.method == 'POST':
         form_name = request.POST.get('form')
         if form_name == 'formFtue':
             if ftue:
+                business_name = request.POST.get('business_name')
+                business_description = request.POST.get('business_description')
+                brand_color = request.POST.get('brand_color')
+                colors = generate_secondary_colors(brand_color)
+                tags = create_tags(business_description)
+
                 # Prepare the data to be saved in Firestore
                 firestore_data = {
                     'ftue': False,
-                    'ftue2': True,
-                    'ftue3': False,
-                    'ftue4': False,
-                    'endFtue': False
+                    'tags': tags,
+                    'business_description': business_description,
+                    'business_name': business_name,
+                    'brand_color': brand_color,
+                    'secondary_colors' : colors
                 }
-            
-            else:
-                ftue2 = user_settings['ftue2']
-                ftue3 = user_settings['ftue3']
-                ftue4 = user_settings['ftue4']
-                if ftue2:
-                    # Prepare the data to be saved in Firestore
-                    firestore_data = {
-                        'ftue2': False,
-                        'ftue3': True
-                    }
-                elif ftue3:
-                    business_name = request.POST.get('business_name')
-                    business_description = request.POST.get('business_description')
-                    brand_color = request.POST.get('brand_color')
-                    colors = generate_secondary_colors(brand_color)
-                    tags = create_tags(business_description)
-
-                    # Prepare the data to be saved in Firestore
-                    firestore_data = {
-                        'ftue3': False,
-                        'ftue4': True,
-                        'tags': tags,
-                        'business_description': business_description,
-                        'business_name': business_name,
-                        'brand_color': brand_color,
-                        'secondary_colors' : colors
-                    }
-                elif ftue4:
-                    link = request.POST.get('link')
-
-                    # Prepare the data to be saved in Firestore
-                    firestore_data = {
-                        'ftue4': False,
-                        'endFtue': True,
-                        'autoState': 1
-                    }
-                    user_settings_ref.set(firestore_data, merge=True)
-                    return redirect(link)
-                
-        elif form_name == 'formAutomate':
-            if user_settings['isSubscriber']:
-                if 'total_allowed_images' in global_variables and 'images_generated' in user_settings and 'cooldown_expiry' in user_settings:
-                    total_allowed_images = user_settings['total_allowed_images']
-                    images_generated = user_settings['images_generated']
-                    cooldown_expiry = user_settings['cooldown_expiry']
-                else:
-                    total_allowed_images = global_variables['total_allowed_images']
-                    images_generated = 0
-                    cooldown_duration = timedelta(days=global_variables['cooldown_duration'])
-                    cooldown_expiry = datetime.now() + cooldown_duration
-                    user_settings_ref.update({
-                        'cooldown_expiry': cooldown_expiry,
-                        'images_generated': images_generated,
-                        'total_allowed_images': total_allowed_images
-                    })
-
-                tz = pytz.UTC
-                current_time = datetime.now(tz)
-
-                if current_time > cooldown_expiry:
-                    images_generated = 0
-                    cooldown_duration = timedelta(days=global_variables['cooldown_duration'])
-                    cooldown_expiry = datetime.now() + cooldown_duration
-                    user_settings_ref.update({
-                        'images_generated': images_generated,
-                        'cooldown_expiry': cooldown_expiry
-                    })
-
-                if images_generated < total_allowed_images:
-                    images_generated = images_generated + 2
-                    user_settings_ref.update({
-                        'images_generated': images_generated,
-                    })
-
-                    if images_generated >= total_allowed_images:
-                        cooldown_duration = timedelta(days=global_variables['cooldown_duration'])
-                        cooldown_expiry = datetime.now() + cooldown_duration
-
-                    image_folder_path = f'ai_image_library/'
-                    tags = user_settings['tags']
-                    key = user_settings['business_description']
-                    biz_name = user_settings['business_name']
-                    color = user_settings['brand_color']
-                    secondary_colors = user_settings['secondary_colors']
-                    selected_option = 'cta'
-                    isLogo = False
-                    logo_path = ''
-                    post_num1 = random.randint(1, global_variables['random_int_max'])
-                    post_num2 = random.randint(1, global_variables['random_int_max'])
-                    payload = {'user_id': user_id}
-                    try:
-                        enqueue_task(payload, settings.GS_IMAGE_QUEUE_NAME, settings.GS_GENERATE_AI_IMAGE_URL)
-                        enqueue_task(payload, settings.GS_IMAGE_QUEUE_NAME, settings.GS_GENERATE_STOCK_URL)
-                        enqueue_task(payload, settings.GS_IMAGE_QUEUE_NAME, settings.GS_GENERATE_CAPTIONS_URL)
-                    except:
-                        context = {
-                            'user_settings_json': json.dumps(user_settings_strings),
-                            'user_settings': user_settings,
-                            'user_id' : user_id,
-                            'error': 'Images failed to generate. Please retry later.'
-                        }
-                        return render(request, 'dashboard.html', context)
-                    firestore_data = {
-                        'status': '10',
-                        'status2': '0',
-                        'status3': '0',
-                        'autoState': 2,
-                        'post_num1': post_num1,
-                        'post_num2': post_num2,
-                        'cooldown_expiry': cooldown_expiry,
-                        'images_generated': images_generated
-                    }
-                        
-                    user_settings_ref.set(firestore_data, merge=True)
-                    user_settings_doc = user_settings_ref.get()
-                    user_settings = user_settings_doc.to_dict()
-                else:
-                    user_settings_strings = {
-                        key: value.isoformat() if isinstance(value, datetime) else value
-                        for key, value in user_settings.items()
-                    }
-                    context = {
-                        'user_settings_json': json.dumps(user_settings_strings),
-                        'user_settings': user_settings,
-                        'user_id' : user_id,
-                        'error': 'Our generators need to cooldown. You can check the status of them in the settings tab.'
-                    }
-                    return render(request, 'dashboard.html', context)
-
-                user_settings_strings = {
-                    key: value.isoformat() if isinstance(value, datetime) else value
-                    for key, value in user_settings.items()
-                }
-                context = {
-                    'user_settings_json': json.dumps(user_settings_strings),
-                    'user_settings': user_settings,
-                    'user_id' : user_id
-                }
-                return render(request, 'dashboard.html', context)
-            else:
-                user_settings_strings = {
-                    key: value.isoformat() if isinstance(value, datetime) else value
-                    for key, value in user_settings.items()
-                }
-                context = {
-                    'user_settings_json': json.dumps(user_settings_strings),
-                    'user_settings': user_settings,
-                    'user_id': user_id,
-                    'error': 'No Subscription'
-                }
-                return render(request, 'dashboard.html', context)
-        elif form_name == 'formReset':
-            firestore_data = {
-                'autoState': 1
-            }
-            user_settings_ref.set(firestore_data, merge=True)
-            user_settings_doc = user_settings_ref.get()
-            user_settings = user_settings_doc.to_dict()
-            user_settings_strings = {
-                key: value.isoformat() if isinstance(value, datetime) else value
-                for key, value in user_settings.items()
-            }
-            context = {
-                'user_settings_json': json.dumps(user_settings_strings),
-                'user_settings': user_settings,
-                'user_id' : user_id
-            }
-            return render(request, 'dashboard.html', context)
-        elif form_name == 'formView':
-            image_folder_path = f'ai_image_library/'
-            tags = user_settings['tags']
-            tags_list = ast.literal_eval(tags)
-            key = random.choice(tags_list)
-            business_description = user_settings['business_description']
-            biz_name = user_settings['business_name']
-            color = user_settings['brand_color']
-            secondary_colors = ast.literal_eval(user_settings['secondary_colors'])
-            post_num1 = user_settings['post_num1']
-            post_num2 = user_settings['post_num2']
-            selected_option = 'cta'
-            isLogo = False
-            logo_path = ''
-            random_int = random.randint(1, global_variables['random_int_max'])
-            random_int2 = random.randint(1, global_variables['random_int_max'])
-            try:
-                image_list = [user_settings['schedule_image_1'], user_settings['schedule_image_2'], user_settings['schedule_image_3'], user_settings['schedule_image_4'], user_settings['schedule_image_5'], user_settings['schedule_image_6']]
-                img_url = random.choice(image_list)
-            except:
-                img = create_stock_post(key)
-                img_url = upload_jpg_to_google(img, settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, image_folder_path)
-            schedule_img_7 = create_call_to_action(business_description, biz_name, color, secondary_colors, img_url, random_int, logo_path)
-            schedule_img_8 = create_call_to_action(business_description, biz_name, color, secondary_colors, img_url, random_int2, logo_path)
-
-            firestore_data = {
-                'schedule_image_7': schedule_img_7,
-                'schedule_image_8': schedule_img_8,
-                'autoState': 3
-            }
-                
-            user_settings_ref.set(firestore_data, merge=True)
-            user_settings_doc = user_settings_ref.get()
-            user_settings = user_settings_doc.to_dict()
-            user_settings_strings = {
-                key: value.isoformat() if isinstance(value, datetime) else value
-                for key, value in user_settings.items()
-            }
-            context = {
-                'user_settings_json': json.dumps(user_settings_strings),
-                'user_settings': user_settings,
-                'user_id': user_id
-            }
-            return render(request, 'dashboard.html', context)
         
-        elif form_name == 'formSchedule':
-            checkboxes = [
-                'ftueCheck',
-                'ftueCheck2',
-                'ftueCheck3',
-                'ftueCheck4',
-                'ftueCheck5',
-                'ftueCheck6',
-                'ftueCheck7',
-                'ftueCheck8'
-            ]
-            timestamps = [
-                "T21:00:00",
-                "T21:30:00",
-                "T22:00:00",
-                "T22:30:00",
-                "T23:00:00",
-                "T23:30:00"
-            ]
+                user_settings_ref.set(firestore_data, merge=True)
+                print('redirecting to dashboard')
+                return redirect('dashboard')
 
-            total_events = sum(1 for checkbox in checkboxes if request.POST.get(checkbox) == 'on')
-            existing_events = user_settings_ref.collection('events').order_by('start').stream()
-            existing_event_times = []
-            for event in existing_events:
-                event_data = event.to_dict()
-                if 'start' in event_data:
-                    existing_event_times.append(event_data['start'])
-            if existing_event_times:
-                last_event_date = max(existing_event_times)
-            else:
-                last_event_date = datetime.now()
-            generated_dates = []
-            for _ in range(total_events):
-                new_date = generate_random_date(last_event_date, existing_event_times)
-                generated_dates.append(new_date)
-                last_event_date = datetime.strptime(new_date, '%Y-%m-%d')
+    user_settings_strings = {
+        key: value.isoformat() if isinstance(value, datetime) else value
+        for key, value in user_settings.items()
+    }
+    context = {
+        'user_settings_json': json.dumps(user_settings_strings),
+        'all_messages': all_messages,
+        'user_settings': user_settings,
+        'user_id' : user_id
 
-            check_num = 1
-            time_num = 0
-            for checkbox in checkboxes:
-                checkbox_value = request.POST.get(checkbox, 'off')
-                if checkbox_value == 'on':
-                    event_id = uuid.uuid4()
-                    eid = str(event_id)
-                    eventDocRef = user_settings_ref.collection('events').document(eid)
-                    timestamp = generated_dates[time_num] + random.choice(timestamps)
-                    start_time = datetime.fromisoformat(timestamp)
-                    socials = []
-                    social_options = {
-                        'isFacebook': 'facebook',
-                        'isInstagram': 'instagram',
-                        'isLinkedin': 'linkedin',
-                        'isGoogle': 'google_business'
-                    }
-                    for option, platform in social_options.items():
-                        if option in user_settings and user_settings[option]:
-                            try:
-                                socials.append(platform)
-                            except Exception as e:
-                                return render(request, 'error.html', {'error': str(e)})
-                        else:
-                            pass
-                    event_data = {
-                        'eid': eid,
-                        'start': start_time,
-                        'image_url': user_settings[f'schedule_image_{str(check_num)}' ],
-                        'caption': user_settings[f'schedule_cap_{str(check_num)}'],
-                        'className': 'bg-elaine',
-                        'socials': socials,
-                        'type': 'image',
-                        'status': 'pending',
-                    }
-                    eventDocRef.set(event_data, merge=True)
-                    time_num += 1
-                check_num += 1
+    }
+    return render(request, 'dashboard.html', context)
 
-            firestore_data = {
-                'autoState': 1
-            }
-            user_settings_ref.set(firestore_data, merge=True)
-            user_settings_doc = user_settings_ref.get()
-            user_settings = user_settings_doc.to_dict()
-            user_settings_strings = {
-                key: value.isoformat() if isinstance(value, datetime) else value
-                for key, value in user_settings.items()
-            }
-            context = {
-                'user_settings_json': json.dumps(user_settings_strings),
-                'user_settings': user_settings,
-                'user_id' : user_id
-            }
-            return render(request, 'dashboard.html', context)
-        
-        user_settings_ref.set(firestore_data, merge=True)
+# ---------------- chats ---------------- #
 
-# ----- Get the Firestore document reference for the user settings ----- #
+def start_chat(request):
+    # ----- Get the Firestore document reference for the user settings ----- #
+    try:
         db = firestore.client()
         user_id = request.session.get('user_id')
         user_settings_ref = db.collection('users').document(user_id)
@@ -414,18 +136,242 @@ def dashboard(request):
             user_settings_doc = user_settings_ref.get()
             user_settings = user_settings_doc.to_dict()
         except firestore.NotFound:
-            return redirect('login') 
-# ---------------------------------------------------------------------- #
-    user_settings_strings = {
-        key: value.isoformat() if isinstance(value, datetime) else value
-        for key, value in user_settings.items()
-    }
-    context = {
-        'user_settings_json': json.dumps(user_settings_strings),
-        'user_settings': user_settings,
-        'user_id' : user_id
-    }
-    return render(request, 'dashboard.html', context)
+            return JsonResponse({'error': 'Invalid request'}, status=400)
+
+        pass
+    
+    except:
+        return JsonResponse({'error': 'Invalid request'}, status=400)
+
+    # ---------------------------------------------------------------------- #
+
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest' and request.method == "POST":
+        if user_settings['isSubscriber']:
+            social_media_platforms = []
+
+            if user_settings.get('isFacebook'):
+                social_media_platforms.append('Facebook')
+
+            if user_settings.get('isTwitter'):
+                social_media_platforms.append('Twitter')
+
+            if user_settings.get('isInstagram'):
+                social_media_platforms.append('Instagram')
+
+            if user_settings.get('isLinkedin'):
+                social_media_platforms.append('Linkedin')
+
+            assistant_id = assistant_ids.get('elaine')
+            assistant = client.beta.assistants.retrieve(assistant_id)
+            
+            if 'thread_id' not in request.session:
+                thread = client.beta.threads.create()
+                request.session['thread_id'] = thread.id
+                thread_id = thread.id
+            else:
+                thread_id = request.session['thread_id']
+                
+            user_input = request.POST.get('message')
+            request.session['user_input'] = user_input
+
+            client.beta.threads.messages.create(
+                thread_id=thread_id,
+                role="user",
+                content=f"[Ignore but remember this context for this user then answer the response: business name={user_settings['business_name']}, business description={user_settings['business_description']}, social_media_platforms={social_media_platforms}]" + user_input
+            )
+            print(f"[Ignore but remember this context for this user then answer the response: business name={user_settings['business_name']}, business description={user_settings['business_description']}, social_media_platforms={social_media_platforms}]" + user_input)
+
+            run = client.beta.threads.runs.create(thread_id=thread_id, assistant_id=assistant_id)
+            request.session['run_id'] = run.id
+
+            # ---------------------------------------------------------------------- #
+            return JsonResponse({'status': 'pending', 'thread_id': thread_id, 'run_id': run.id})
+        else:
+            return JsonResponse({'error': 'Please Add A Payment Method To Continue.'}, status=400)
+
+    else:
+        return JsonResponse({'error': 'Invalid request'}, status=400)
+
+def get_chat(request):
+    # ----- Get the Firestore document reference for the user settings ----- #
+    try:
+        db = firestore.client()
+        user_id = request.session.get('user_id')
+        user_settings_ref = db.collection('users').document(user_id)
+        try:
+            user_settings_doc = user_settings_ref.get()
+            user_settings = user_settings_doc.to_dict()
+        except firestore.NotFound:
+            return JsonResponse({'error': 'Invalid request'}, status=400)
+
+        pass
+    
+    except:
+        return JsonResponse({'error': 'Invalid request'}, status=400)
+
+    # ---------------------------------------------------------------------- #
+    
+    client = OpenAI(api_key=config('OPENAI_API_KEY'))
+
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        if user_settings['isSubscriber']:
+            assistant_id = assistant_ids.get('elaine')
+            assistant = client.beta.assistants.retrieve(assistant_id)
+
+            user_input = request.session.get('user_input')
+            all_messages = request.session.get('all_messages', [{'role': 'bot', 'content': 'How can I help you?'}])
+            thread_id = request.session.get('thread_id')
+            run_id = request.session.get('run_id')
+        
+            run = client.beta.threads.runs.retrieve(thread_id=thread_id, run_id=run_id)
+            if run.status == 'completed':
+                messages = client.beta.threads.messages.list(thread_id=thread_id)
+                all_messages.append({'role': 'user', 'content': user_input})
+                if messages:
+                    messages_list = messages.data
+                    if messages_list:
+                        last_message_content = messages_list[0].content[0].text.value
+                        # formatted_message = format_message(last_message_content)
+                        formatted_message = last_message_content
+                        all_messages.append({'role': 'bot', 'content': formatted_message})
+                        request.session['last_message'] = formatted_message
+
+                request.session['all_messages'] = all_messages
+
+                firestore_data = {'images_generated': user_settings['images_generated'] + 0.1}
+                user_settings_ref.set(firestore_data, merge=True)
+
+                return JsonResponse({
+                    'all_messages': all_messages,
+                    'botMessage': formatted_message,
+                    'status': 'completed'
+                })
+            else:
+                return JsonResponse({'status': 'pending'})
+        else:
+            return JsonResponse({'error': 'Please Add A Payment Method To Continue.'}, status=400)
+
+    else:
+        return JsonResponse({'error': 'Invalid request'}, status=400)
+
+def clear_chat(request):
+    keys_to_clear = [
+        'thread_id', 'run_id', 'user_input', 'all_messages'
+    ]
+
+    for key in keys_to_clear:
+        if key in request.session:
+            del request.session[key]
+    return JsonResponse({'success': 'cleared'})
+
+def start_image(request):
+    # ----- Get the Firestore document reference for the user settings ----- #
+    try:
+        db = firestore.client()
+        user_id = request.session.get('user_id')
+        user_settings_ref = db.collection('users').document(user_id)
+        try:
+            user_settings_doc = user_settings_ref.get()
+            user_settings = user_settings_doc.to_dict()
+        except firestore.NotFound:
+            return JsonResponse({'error': 'Invalid request'}, status=400)
+
+        pass
+    
+    except:
+        return JsonResponse({'error': 'Invalid request'}, status=400)
+
+    # ---------------------------------------------------------------------- #
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        try:
+            prompts = [
+                f'Pretend you are a christian theologian. Come up with a detailed exegesis and use an anecdotal application as if you were a modern day individual to convey your point, without saying its an anecdotal application, for this biblical text [{reference} {verses}]. Use [{user_input}] as a topic/guide for the response and exegesis. Write it as if you were showing me your findings. Minimum 2500 characters.',
+                f'Pretend you are a christian theologian. Come up with a detailed exegesis and sometimes intertwine an anecdotal application as if you were a modern day individual for this biblical text [{reference} {verses}]. Write it as if you were showing me your findings. It should be written at a medium reading level. Use [{user_input}] as a topic/guide for the response and exegesis. Minimum 2500 characters.',
+            ]
+            prompt = random.choice(prompts)
+
+            # TASKS #
+            payload = {'uid': user_id, 'prompt': prompt, 'dimensions': "1024x1024", 'number': 1}
+            DALLE3_URL = config('DALLE3_URL')
+
+            def trigger_cloud_function_async():
+                def send_request():
+                    requests.post(DALLE3_URL, json=payload)
+                thread = threading.Thread(target=send_request)
+                thread.start()
+
+            trigger_cloud_function_async()
+
+            firestore_data = {'progress': 0,}
+            user_settings_ref.set(firestore_data, merge=True)
+            # ---------------------------------------------------------------------- #
+            return JsonResponse({'status': 'pending'}, status=200)
+
+        except Exception as e:
+            logger.error(f"Error occurred: {e}")
+            return JsonResponse({'error': str(e)}, status=500)
+        
+    else:
+        return JsonResponse({'error': 'Invalid request'}, status=400)
+
+def get_image(request):
+    # ----- Get the Firestore document reference for the user settings ----- #
+    try:
+        db = firestore.client()
+        user_id = request.session.get('user_id')
+        user_settings_ref = db.collection('users').document(user_id)
+        try:
+            user_settings_doc = user_settings_ref.get()
+            user_settings = user_settings_doc.to_dict()
+        except firestore.NotFound:
+            return JsonResponse({'error': 'Invalid request'}, status=400)
+
+        pass
+    
+    except:
+        return JsonResponse({'error': 'Invalid request'}, status=400)
+
+    # ---------------------------------------------------------------------- #
+
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        if user_settings['isSubscriber']:
+            try:
+                client = OpenAI(api_key=config('OPENAI_API_KEY'))
+                prompt = f'Pick out an important verse, theme, element, or historical context here in these bible verses and I want you to generate a photographic description based on your interpretation. Use technical detail. Here are the versus to pick from: [{verses}].'
+                response = client.chat.completions.create(
+                    model="gpt-3.5-turbo-1106",
+                    messages=[
+                        {
+                        "role": "system",
+                        "content": 'Take on the role of either a biblical historical photographer or a modern day American photographer. Make sure the content is age-appropriate. Do not include mentions of text or overlays. Generate an image description of the following:'
+                        },
+                        {
+                        "role": "user",
+                        "content": prompt
+                        }
+                    ],
+                    temperature=1,
+                    max_tokens=600,
+                )
+                img_description = response.choices[0].message.content.strip()
+                response = client.images.generate(
+                    model="dall-e-3",
+                    prompt=img_description,
+                    size="1024x1024",
+                    quality="standard",
+                    n=1,
+                )
+                image_url = response.data[0].url
+                request.session['image_url'] = image_url
+                return JsonResponse({'image_url': image_url}, status=200)
+
+            except Exception as e:
+                return JsonResponse({'error': str(e)}, status=500)
+        
+        else:
+            return JsonResponse({'error': 'Please Add A Payment Method To Continue.'}, status=400)
+    else:
+        return JsonResponse({'error': 'Invalid request'}, status=400)
 
 def download(request):
     # ----- Get the Firestore document reference for the user settings ----- #
@@ -619,11 +565,7 @@ def post_creator(request):
         biz_name = user_settings['business_name']
         color = user_settings['brand_color']
     except (TypeError, KeyError):
-        return redirect('login') 
-    try:
-        website = user_settings['website']
-    except (TypeError, KeyError):
-        website = ''
+        return redirect('login')
     try:
         logo_path = user_settings['logo']
     except (TypeError, KeyError):
@@ -632,10 +574,6 @@ def post_creator(request):
         num_post = int(user_settings['num_post'])
     except (TypeError, KeyError):
         num_post = 1
-    try:
-        num_schedule = int(user_settings['num_schedule'])
-    except (TypeError, KeyError):
-        num_schedule = 1
     if request.session.get('tags') != ['']:
         tags = request.session.get('tags')
     else:
@@ -644,12 +582,14 @@ def post_creator(request):
         except (TypeError, KeyError):
             tags = ''
 
+    selected_option = request.session.get('selected_radio', 'photo')
+    isLogo = request.session.get('isLogo', None)
+
     if request.method == 'POST':
         form_name = request.POST.get('form')
         if user_settings['isSubscriber']:
+            # -------------- CAPTIONS --------------- #
             if form_name == 'formCaption1':
-                selected_option = request.session.get('selected_radio')
-                isLogo = request.session.get('isLogo', None)
                 if selected_option == "text":
                     post = create_text_post('facebook', biz, biz_name)
                 else:
@@ -657,13 +597,9 @@ def post_creator(request):
                 firestore_data = {'next_caption': post}
                 url = user_settings['next_image_url']
                 user_settings_ref.set(firestore_data, merge=True)
-                user_settings_doc = user_settings_ref.get()
-                user_settings = user_settings_doc.to_dict()
-
-                return render(request, 'post_creator.html', {'selected_radio': selected_option, 'isLogo': isLogo, 'user_settings': user_settings})
+                return redirect('post_creator')
+            # -------------- DOWNLOAD --------------- #
             if form_name == 'formDownload':
-                selected_option = request.session.get('selected_radio')
-                isLogo = request.session.get('isLogo', None)
                 url = user_settings['next_image_url']
                 parsed_url = urlparse(url)
                 if parsed_url.netloc == 'storage.googleapis.com':
@@ -671,7 +607,8 @@ def post_creator(request):
                     bucket_name = parts[0]
                     object_name = '/'.join(parts[1:])
                 else:
-                    raise ValueError('Invalid Google Cloud Storage URL')
+                    messages.error(request, 'Invalid Google Cloud Storage URL')
+                    return redirect('post_creator')
                 
                 storage_client = storage.Client()
                 bucket_name = bucket_name
@@ -683,7 +620,8 @@ def post_creator(request):
                 user_settings_doc = user_settings_ref.get()
                 user_settings = user_settings_doc.to_dict()
 
-                return render(request, 'post_creator.html', {'selected_radio': selected_option, 'isLogo': isLogo, 'user_settings': user_settings})
+                return redirect('post_creator')
+            # -------------- SCHEDULE --------------- #
             elif form_name == 'formPostSchedule':
                 timestamps = [
                     "T21:00:00",
@@ -703,9 +641,7 @@ def post_creator(request):
                     last_event_date = max(existing_event_times)
                 else:
                     last_event_date = datetime.now()
-
                 new_date = generate_random_date(last_event_date, existing_event_times)
-
                 post = request.POST.get('edited_caption', '')
                 if user_settings['lastType'] == 'text':
                     url = "https://storage.googleapis.com/starter_web_app_bucket/user_folders/assets/textPost.png"
@@ -713,28 +649,22 @@ def post_creator(request):
                 else:
                     post_type = "image"
                     url = reupload_gcs_image(request.POST.get('url'), "scheduled_image_library")
-                selected_option = request.session.get('selected_radio', 'stable-dif')
-                isLogo = request.session.get('isLogo', None)
                 event_id = uuid.uuid4()
                 eid = str(event_id)
                 eventDocRef = user_settings_ref.collection('events').document(eid)
                 timestamp = new_date + random.choice(timestamps)
                 start_time = datetime.fromisoformat(timestamp)
-                socials = []
-                social_options = {
-                    'isFacebook': 'facebook',
-                    'isInstagram': 'instagram',
-                    'isLinkedin': 'linkedin',
-                    'isGoogle': 'google_business'
-                }
-                for option, platform in social_options.items():
-                    if option in user_settings and user_settings[option]:
-                        try:
-                            socials.append(platform)
-                        except Exception as e:
-                            return render(request, 'error.html', {'error': str(e)})
-                    else:
-                        pass
+
+                facebook_checked = request.POST.get('facebook_visible2', 'false') == 'true'
+                instagram_checked = request.POST.get('instagram_visible2', 'false') == 'true'
+                linkedin_checked = request.POST.get('linkedin_visible2', 'false') == 'true'
+
+                socials = [platform for platform, checked in [
+                    ('facebook', facebook_checked),
+                    ('instagram', instagram_checked),
+                    ('linkedin', linkedin_checked)
+                ] if checked]
+
                 event_data = {
                     'eid': eid,
                     'start': start_time,
@@ -750,29 +680,51 @@ def post_creator(request):
                 user_settings_ref.set(firestore_data, merge=True)
                 user_settings_doc = user_settings_ref.get()
                 user_settings = user_settings_doc.to_dict()
-                context = { 'user_settings': user_settings, 'success': 'Post has been successfully uploaded to the schedule!'}
-                return render(request, 'post_creator.html', context)
+                messages.success(request, 'Post has been successfully uploaded to the schedule!')
+                return redirect('post_creator')
+            # -------------- POST --------------- #
             elif form_name == 'formPostPost':
                 caption = request.POST.get('edited_caption2', '')
-                selected_option = request.session.get('selected_radio', 'stable-dif')
-                isLogo = request.session.get('isLogo', None)
                 image_url = request.POST.get('url2', '')
-                if 'isFacebook' in user_settings and user_settings['isFacebook']:
-                    page_id = user_settings['facebook_page_id']
-                    access_token = user_settings['facebook_token']
-                    post_to_facebook_page_feed(caption, image_url, page_id, access_token)
-                elif 'isInstagram' in user_settings and user_settings['isInstagram']:
-                    instagram_user_id = user_settings['instagram_user_id']
-                    access_token = user_settings['instagram_token']
-                    post_to_instagram(access_token, image_url, caption, instagram_user_id)
-                elif 'isGoogle' in user_settings and user_settings['isGoogle']:
-                    access_token = user_settings['google_token']
-                    post_to_google_mybusiness(caption, image_url, access_token)
-                elif 'isLinkedin' in user_settings and user_settings['isLinkedin']:
-                    access_token = user_settings['linkedin_token']
-                    post_to_linkedin(caption, image_url, access_token, page_id)
-                context = { 'user_settings': user_settings, 'success': 'Post has been successfully uploaded to your feed!'}
-                return render(request, 'post_creator.html', context)
+
+                facebook_checked = request.POST.get('facebook_visible', 'false') == 'true'
+                instagram_checked = request.POST.get('instagram_visible', 'false') == 'true'
+                linkedin_checked = request.POST.get('linkedin_visible', 'false') == 'true'
+
+                if user_settings['lastType'] == 'text' or image_url == '':
+                    if facebook_checked:
+                        if user_settings['facebook_page_type'] == 'group':
+                            page_id = user_settings['facebook_page_id']
+                            facebook_group_token = user_settings['facebook_token']
+                            post_text_to_facebook_group_feed(caption, page_id, facebook_group_token)
+                        else:
+                            page_id = user_settings['facebook_page_id']
+                            facebook_page_token = user_settings['facebook_page_token']
+                            post_text_to_facebook_page_feed(caption, page_id, facebook_page_token)
+                    if linkedin_checked:
+                        access_token = user_settings['linkedin_token']
+                        post_to_linkedin(caption, image_url, access_token, page_id)
+                else:
+                    if facebook_checked:
+                        if user_settings['facebook_page_type'] == 'group':
+                            page_id = user_settings['facebook_page_id']
+                            facebook_group_token = user_settings['facebook_token']
+                            post_to_facebook_group_feed(caption, image_url, page_id, facebook_group_token)
+                        else:
+                            page_id = user_settings['facebook_page_id']
+                            facebook_page_token = user_settings['facebook_page_token']
+                            post_to_facebook_page_feed(caption, image_url, page_id, facebook_page_token)
+                    if instagram_checked:
+                        instagram_user_id = user_settings['instagram_user_id']
+                        access_token = user_settings['instagram_token']
+                        post_to_instagram(access_token, image_url, caption, instagram_user_id)
+                    if linkedin_checked:
+                        access_token = user_settings['linkedin_token']
+                        post_to_linkedin(caption, image_url, access_token, page_id)
+                print(facebook_checked, instagram_checked, linkedin_checked)
+                messages.success(request, 'Post has been successfully uploaded to your feed!')
+                return redirect('post_creator')
+            # -------------- GENERATE --------------- #
             else:
         # ------------------- Get Selected Post Type --------------------------- #
                 selected_option = request.POST.get('selected_post_type')
@@ -818,117 +770,154 @@ def post_creator(request):
                         cooldown_duration = timedelta(days=global_variables['cooldown_duration'])
                         cooldown_expiry = datetime.now() + cooldown_duration
 
+
                     if selected_option == 'up':
+                        progress = 100
                         image = request.FILES.get('file')
                         isGraphic = request.POST.get('isGraphic')
                         isLogo = request.POST.get('isLogo')
                         name = request.POST.get('photo-attribution')
                         file_extension = image.name.split('.')[-1].lower()
                         if file_extension not in ['jpg', 'jpeg', 'png']:
-                            context = {
-                                'user_settings': user_settings,
-                                'error': 'ONLY ACCEPTED FILE FORMATS: .jpg, .jpeg, .png'
-                            }
-                            return render(request, 'post_creator.html', context)
-                        # try:
-                        img = create_upload(image, logo_path, isLogo, isGraphic, color, name)
-                        url = upload_png_to_google(img, settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, image_folder_path)
-                        # except requests.exceptions.HTTPError:
-                        #     return render(request, 'post_creator.html', {'selected_radio': selected_option, 'isLogo': isLogo, 'user_settings': user_settings, 'error': 'Image failed to generate. Your input may be too specific. Please try again.'})
-                        # except:
-                        #     return render(request, 'post_creator.html', {'selected_radio': selected_option, 'isLogo': isLogo, 'user_settings': user_settings, 'error': 'Image failed to generate. If the problem persists, please contact us at https://feadl.io/contact/'})
+                            messages.error(request, 'ONLY ACCEPTED FILE FORMATS: .jpg, .jpeg, .png')
+                            return redirect('post_creator')
+                        try:
+                            img = create_upload(image, logo_path, isLogo, isGraphic, color, name)
+                            url = upload_png_to_google(img, settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, image_folder_path)
+                        except:
+                            messages.error(request, 'Image failed to generate. If the problem persists, please contact us at https://feadl.io/contact/')
+                            return redirect('post_creator')
+                        
+
                     elif selected_option == 'text':
+                        progress = 100
                         platform = request.POST.get('text-platfrom')
                         try:
                             post = create_text_post(platform, biz, biz_name)
                             url = "https://storage.googleapis.com/starter_web_app_bucket/user_folders/assets/textPost.png"
-                        except requests.exceptions.HTTPError:
-                            return render(request, 'post_creator.html', {'selected_radio': selected_option, 'isLogo': isLogo, 'user_settings': user_settings, 'error': 'Image failed to generate. Your input may be too specific. Please try again.'})
                         except:
-                            return render(request, 'post_creator.html', {'selected_radio': selected_option, 'isLogo': isLogo, 'user_settings': user_settings, 'error': 'Image failed to generate. If the problem persists, please contact us at https://feadl.io/contact/'})
-                    
-                    elif selected_option == 'stable-dif':
+                            messages.error(request, 'Image failed to generate. If the problem persists, please contact us at https://feadl.io/contact/')
+                            return redirect('post_creator')
+                        
+
+                    elif selected_option == 'photo':
+                        progress = 0
                         entered_tags = request.POST.get('tags')
+                        isLogo = request.POST.get('isLogo')
+                        request.session['isLogo'] = isLogo
                         tags = entered_tags.split(',')
                         request.session['tags'] = tags
                         key = tags
+                        prompt_string = create_stock_image_description(key)
+                        url = ''
                         try:
-                            img = create_stable_dif_post(key)
-                            if isLogo == 'true':
-                                if logo_path is not None:
-                                        img = add_watermark(img, logo_path)
-                            url = upload_jpg_to_google(img, settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, image_folder_path)
-                        except requests.exceptions.HTTPError:
-                            return render(request, 'post_creator.html', {'selected_radio': selected_option, 'isLogo': isLogo, 'user_settings': user_settings, 'error': 'Image failed to generate. Your input may be too specific. Please try again.'})
+                            payload = {
+                                "prompt": prompt_string, 
+                                "uid": user_id, 
+                                "dimensions": "1024x1024", 
+                                "number": 1
+                            }
+                            enqueue_task(payload, settings.GS_IMAGE_QUEUE_NAME, settings.GS_DALLE3)
                         except:
-                            return render(request, 'post_creator.html', {'selected_radio': selected_option, 'isLogo': isLogo, 'user_settings': user_settings, 'error': 'Image failed to generate. If the problem persists, please contact us at https://feadl.io/contact/'})
+                            messages.error(request, 'Image failed to generate. If the problem persists, please contact us at https://feadl.io/contact/')
+                            return redirect('post_creator')
+                        
+
                     elif selected_option == 'graphic':
                         key = request.POST.get('graphic-description')
                         img_url = request.POST.get('selected_image_url', None)
-                        print(img_url)
-                        random_int = random.randint(global_variables['random_int_min'], global_variables['random_int_max'])
-                        image_folder_path = f'graphic_image_library/'
+                        randomizer_choices = ["graphic", "ad"]
+                        randomizer = random.choice(randomizer_choices)
+                        print('RANDOMIZER: ', randomizer)
+                        request.session['randomizer'] = randomizer
+
+                        if randomizer == "ad":
+                            random_int = random.randint(global_variables['random_ad_int_min'], global_variables['random_ad_int_max'])
+                            image_folder_path = f'ad_image_library/'
+                        else:
+                            random_int = random.randint(global_variables['random_int_min'], global_variables['random_int_max'])
+                            image_folder_path = f'graphic_image_library/'
+
                         color = user_settings['brand_color']
                         secondary_colors = ast.literal_eval(user_settings['secondary_colors'])
                         if img_url == 'None':
-                            img = create_stable_dif_post(key)
-                            img_url = upload_jpg_to_google(img, settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, image_folder_path)
-                        # try:
-                        img = create_call_to_action(biz, biz_name, color, secondary_colors, img_url, random_int, logo_path)
-                        url = upload_png_to_google(img, settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, image_folder_path)
-                        # except requests.exceptions.HTTPError:
-                        #     return render(request, 'post_creator.html', {'selected_radio': selected_option, 'isLogo': isLogo, 'user_settings': user_settings, 'error': 'Image failed to generate. Your input may be too specific. Please try again.'})
-                        # except:
-                        #     return render(request, 'post_creator.html', {'selected_radio': selected_option, 'isLogo': isLogo, 'user_settings': user_settings, 'error': 'Image failed to generate. If the problem persists, please contact us at https://feadl.io/contact/'})
+                            try:
+                                prompt_string = create_stock_image_description(key)
+                                payload = {
+                                    "prompt": prompt_string, 
+                                    "uid": user_id, 
+                                    "dimensions": "1024x1024", 
+                                    "number": 1
+                                }
+                                enqueue_task(payload, settings.GS_IMAGE_QUEUE_NAME, settings.GS_DALLE3)
+                                url = ''
+                                progress = 0    
+                            except:
+                                messages.error(request, 'Image failed to generate. If the problem persists, please contact us at https://feadl.io/contact/')
+                                return redirect('post_creator')
+                        else:
+                            progress = 100
+                            try:
+                                if randomizer == "ad":
+                                    img = create_ad_creative(biz, biz_name, color, secondary_colors, img_url, random_int, logo_path)
+                                else:
+                                    img = create_call_to_action(biz, biz_name, color, secondary_colors, img_url, random_int, logo_path)
+                                url = upload_png_to_google(img, settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, image_folder_path)
+                            except:
+                                messages.error(request, 'Image failed to generate. If the problem persists, please contact us at https://feadl.io/contact/')
+                                return redirect('post_creator')
+
                     elif selected_option == 'ad':
                         key = request.POST.get('ad-creative-description')
                         img_url = request.POST.get('selected_ad_creative_image_url', None)
-                        print(img_url)
                         platform = request.POST.get('text-platform')
                         random_int = random.randint(global_variables['random_ad_int_min'], global_variables['random_ad_int_max'])
                         image_folder_path = f'ad_image_library/'
                         color = user_settings['brand_color']
                         secondary_colors = ast.literal_eval(user_settings['secondary_colors'])
+                        print(img_url)
                         if img_url == 'None':
-                            img = create_stable_dif_post(key)
-                            img_url = upload_jpg_to_google(img, settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, image_folder_path)
-                        # try:
-                        img = create_ad_creative(biz, biz_name, color, secondary_colors, img_url, random_int, logo_path)
-                        url = upload_png_to_google(img, settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, image_folder_path)
-                        # except requests.exceptions.HTTPError:
-                        #     return render(request, 'post_creator.html', {'selected_radio': selected_option, 'isLogo': isLogo, 'user_settings': user_settings, 'error': 'Image failed to generate. Your input may be too specific. Please try again.'})
-                        # except:
-                        #     return render(request, 'post_creator.html', {'selected_radio': selected_option, 'isLogo': isLogo, 'user_settings': user_settings, 'error': 'Image failed to generate. If the problem persists, please contact us at https://feadl.io/contact/'})
-                    
-                    elif selected_option == 'stock':
-                        key = request.POST.get('stock-description')
-                        try:
-                            img = create_stock_post(key)
-                            if isLogo == 'true':
-                                if logo_path is not None:
-                                        img = add_watermark(img, logo_path)
-                            url = upload_jpg_to_google(img, settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, image_folder_path)
-                        except requests.exceptions.HTTPError:
-                            return render(request, 'post_creator.html', {'selected_radio': selected_option, 'isLogo': isLogo, 'user_settings': user_settings, 'error': 'Image failed to generate. Your input may be too specific. Please try again.'})
-                        except:
-                            return render(request, 'post_creator.html', {'selected_radio': selected_option, 'isLogo': isLogo, 'user_settings': user_settings, 'error': 'Image failed to generate. If the problem persists, please contact us at https://feadl.io/contact/'})
-                    else:
-                        return render(request, 'post_creator.html', {'selected_radio': selected_option, 'isLogo': isLogo, 'user_settings': user_settings, 'error': 'Image failed to generate. If the problem persists, please contact us at https://feadl.io/contact/'})
-
+                            try:
+                                prompt_string = create_stock_image_description(key)
+                                payload = {
+                                    "prompt": prompt_string, 
+                                    "uid": user_id, 
+                                    "dimensions": "1024x1024", 
+                                    "number": 1
+                                }
+                                enqueue_task(payload, settings.GS_IMAGE_QUEUE_NAME, settings.GS_DALLE3)
+                                progress = 0
+                                url = ''
+                            except:
+                                messages.error(request, 'Image failed to generate. If the problem persists, please contact us at https://feadl.io/contact/')
+                                return redirect('post_creator')
+                        else:
+                            progress = 100
+                            try:
+                                img = create_ad_creative(biz, biz_name, color, secondary_colors, img_url, random_int, logo_path)
+                                url = upload_png_to_google(img, settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, image_folder_path)
+                            except:
+                                messages.error(request, 'Image failed to generate. If the problem persists, please contact us at https://feadl.io/contact/')
+                                return redirect('post_creator')
+            
                     try:
                         last_image_url = user_settings['next_image_url']
                         last_caption = user_settings['next_caption']
                     except (TypeError, KeyError):
                         last_image_url = None
                         last_caption = None
+
                     if selected_option != "text":
                         if selected_option == "ad":
                             post = create_ad_copy(biz, biz_name, platform)
                         else:
                             post = create_caption(biz, biz_name)
                 else:
-                    return render(request, 'post_creator.html', {'selected_radio': selected_option, 'isLogo': isLogo, 'user_settings': user_settings, 'error': 'Our generators need time to cooldown. You can check the progress in the brand settings tab.'})
+                    messages.error(request, 'Our generators need time to cooldown. You can check the progress in the brand settings tab.')
+                    return redirect('post_creator')
+                
                 post_type = selected_option
+
                 try:
                     delete_from_google(user_settings['next_image_url'], settings.GS_CREDENTIALS)
                 except:
@@ -942,20 +931,98 @@ def post_creator(request):
                     'lastType' : post_type,
                     'num_post': num_post,
                     'cooldown_expiry': cooldown_expiry,
-                    'images_generated': images_generated
+                    'images_generated': images_generated,
+                    'progress': progress
                 }
 
             user_settings_ref.set(firestore_data, merge=True)
             user_settings_doc = user_settings_ref.get()
             user_settings = user_settings_doc.to_dict()
-
-            return render(request, 'post_creator.html', {'selected_radio': selected_option, 'isLogo': isLogo, 'user_settings': user_settings})
+            return redirect('post_creator')
         else:
-            return render(request, 'post_creator.html', {'user_settings': user_settings, 'error': 'We are here to help your business. Our generators are in high demand and accrue a cost. Please subscribe to utilize our amazing app!'})
-
-    context = {'user_settings': user_settings,}
-    
+            messages.error(request, 'We are here to help your business. Our generators are in high demand and accrue a cost. Please subscribe to utilize our amazing app!')
+            return redirect('post_creator')
+        
+    context = {'user_id': user_id,  'user_settings': user_settings, 'selected_radio': selected_option, 'isLogo': isLogo,}
     return render(request, 'post_creator.html', context)
+
+def add_graphics(request):
+    try:
+        # ----- Get the Firestore document reference for the user settings ----- #
+        db = firestore.client()
+        user_id = request.session.get('user_id')
+        user_settings_ref = db.collection('users').document(user_id)
+        global_variables_ref = db.collection('variables').document('global_variables')
+        try:
+            user_settings_doc = user_settings_ref.get()
+            user_settings = user_settings_doc.to_dict()
+            global_variables_doc = global_variables_ref.get()
+            global_variables = global_variables_doc.to_dict()
+        except firestore.NotFound:
+            return JsonResponse({'error': 'firestore.NotFound'}, status=400)
+        # ---------------------------------------------------------------------- #
+        pass
+    
+    except:
+        return JsonResponse({'error': 'Invalid rlogin'}, status=400)
+    # ---------------------------------------------------------------------- #
+
+    try:
+        biz = user_settings['business_description']
+        biz_name = user_settings['business_name']
+        color = user_settings['brand_color']
+    except (TypeError, KeyError):
+        return JsonResponse({'error': 'Error fetching user info.'})
+    
+    if request.session.get('tags') != ['']:
+        tags = request.session.get('tags')
+    else:
+        try:
+            tags = ast.literal_eval(user_settings['tags'])
+        except (TypeError, KeyError):
+            tags = ''
+
+    logo_path = user_settings.get('logo', None)
+    selected_option = request.session.get('selected_radio', 'photo')
+    isLogo = request.session.get('isLogo', None)
+
+    if request.method == 'POST':
+        next_image_url = user_settings['next_image_url']
+        if selected_option == 'graphic':
+            randomizer = request.session.get('randomizer', "ad")
+            if randomizer == "ad":
+                random_int = random.randint(global_variables['random_ad_int_min'], global_variables['random_ad_int_max'])
+                image_folder_path = f'ad_image_library/'
+                color = user_settings['brand_color']
+                secondary_colors = ast.literal_eval(user_settings['secondary_colors'])
+                img = create_ad_creative(biz, biz_name, color, secondary_colors, next_image_url, random_int, logo_path)
+                url = upload_png_to_google(img, settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, image_folder_path)
+            else:
+                random_int = random.randint(global_variables['random_int_min'], global_variables['random_int_max'])
+                image_folder_path = f'graphic_image_library/'
+                color = user_settings['brand_color']
+                secondary_colors = ast.literal_eval(user_settings['secondary_colors'])
+                img = create_call_to_action(biz, biz_name, color, secondary_colors, next_image_url, random_int, logo_path)
+                url = upload_png_to_google(img, settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, image_folder_path)
+
+        elif selected_option == "ad":
+            random_int = random.randint(global_variables['random_ad_int_min'], global_variables['random_ad_int_max'])
+            image_folder_path = f'ad_image_library/'
+            color = user_settings['brand_color']
+            secondary_colors = ast.literal_eval(user_settings['secondary_colors'])
+            img = create_ad_creative(biz, biz_name, color, secondary_colors, next_image_url, random_int, logo_path)
+            url = upload_png_to_google(img, settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, image_folder_path)
+        else:
+            image_folder_path = f'stock_image_library/'
+            if isLogo:
+                if logo_path:
+                    image_data = add_logo(next_image_url, logo_path)
+            else:
+                image_data = download_and_save_image_as_seek(next_image_url)
+            url = upload_png_to_google(image_data, settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, image_folder_path)
+        firestore_data = {'next_image_url': url, 'progress': 100}
+        user_settings_ref.set(firestore_data, merge=True)
+    return JsonResponse({'url': url})
 
 def schedule(request):
     try:
@@ -983,6 +1050,83 @@ def schedule(request):
         'user_id': user_id
     }
     return render(request, 'calendar.html', context)
+
+def library(request):
+    try:
+        # ----- Get the Firestore document reference for the user settings ----- #
+        db = firestore.client()
+        user_id = request.session.get('user_id')
+        user_settings_ref = db.collection('users').document(user_id)
+        global_variables_ref = db.collection('variables').document('global_variables')
+        try:
+            user_settings_doc = user_settings_ref.get()
+            user_settings = user_settings_doc.to_dict()
+            global_variables_doc = global_variables_ref.get()
+            global_variables = global_variables_doc.to_dict()
+        except firestore.NotFound:
+            return redirect('login') 
+        # ---------------------------------------------------------------------- #
+        pass
+    
+    except:
+        return redirect('login') 
+    # ---------------------------------------------------------------------- #s
+
+    if request.method == 'POST':
+        form_name = request.POST.get('form')
+        if form_name == 'image-tags':
+            stock_image_folder_path = f'stock_image_library/'
+            user_image_folder_path = f'user_image_library/'
+            post_image_tags = request.POST.get('imageTags')
+            if post_image_tags:
+                image_tags = []
+                output_list = [item.strip() for item in post_image_tags.split(',')]
+                image_tags.extend(output_list)
+            else:
+                image_tags = []
+
+            post_image_files = request.FILES.get('file')
+            if post_image_files:
+                uploaded_image_url = upload_and_crop_image(post_image_files, user_image_folder_path)
+                image_tags.append(uploaded_image_url)
+
+            is_generate_stock_images_clicked = request.POST.get('isGenerateStockImagesClicked', 'false') == 'true'
+            if is_generate_stock_images_clicked:
+                image_tags = add_stock_tags(user_settings['tags'], image_tags, settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, stock_image_folder_path)
+            image_tags_string = json.dumps(image_tags)
+            image_tags_string = image_tags_string.replace("'", '"')
+            firestore_data = {
+                'image_tags': image_tags_string,
+            }
+
+        # Save the data to Firestore
+        user_settings_ref.set(firestore_data, merge=True)
+
+         # ----- Get the Firestore document reference for the user settings ----- #
+        db = firestore.client()
+        user_id = request.session.get('user_id')
+        user_settings_ref = db.collection('users').document(user_id)
+        try:
+            user_settings_doc = user_settings_ref.get()
+            user_settings = user_settings_doc.to_dict()
+        except firestore.NotFound:
+            return redirect('login') 
+        # ---------------------------------------------------------------------- #
+        messages.success(request, 'Settings Updated.')
+        return redirect('library')
+    if user_settings is None:
+        user_settings_strings = {}
+    else:
+        user_settings_strings = {
+            key: value.isoformat() if isinstance(value, datetime) else value
+            for key, value in user_settings.items()
+        }
+    context = {
+        'user_settings_json': json.dumps(user_settings_strings),
+        'user_settings': user_settings,
+        'user_id' : user_id
+    }
+    return render(request, 'library.html', context)
 
 def brand_settings(request):
     try:
@@ -1025,26 +1169,6 @@ def brand_settings(request):
     if request.method == 'POST':
         form_name = request.POST.get('form')
         if form_name == 'brand-settings':
-            logo = request.FILES.get('logo')
-            if logo:
-                try:
-                    delete_from_google(user_settings['logo'], settings.GS_CREDENTIALS)
-                except:
-                    pass
-                credentials = service_account.Credentials.from_service_account_file(settings.GS_CREDENTIALS)
-                client = storage.Client(project=credentials.project_id, credentials=credentials)
-                bucket = client.bucket(settings.GS_BUCKET_NAME)
-                logo_folder_path = f'user_folders/{user_id}/logo/'
-                filename = str(uuid.uuid4()) + ".png"
-                blob = bucket.blob(logo_folder_path + filename)
-                blob.upload_from_file(logo)
-                blob.make_public()
-                logo_url = blob.public_url
-            else:
-                try:
-                    logo_url = user_settings['logo']
-                except (TypeError, KeyError):
-                    logo_url = None
 
 # ------------------ TAGS ---------------#
             if request.POST.get('tags'):
@@ -1061,132 +1185,129 @@ def brand_settings(request):
                 else:
                     tags = ''
 
-# ------------------ COLORS ---------------#
-            colors = user_settings['secondary_colors']
-            color_array = ast.literal_eval(colors)
-            color2 = color_array[0]
-            color3 = color_array[1]
-            color4 = color_array[2]
-            color5 = color_array[3]
-
-            if request.POST.get('brand_color') != user_settings['brand_color']:
-                colors = generate_secondary_colors(request.POST.get('brand_color'))
-                color_array = ast.literal_eval(colors)
-            
-            if request.POST.get('color2') != color2:
-                color_array[0] = request.POST.get('color2')
-            if request.POST.get('color3') != color3:
-                color_array[1] = request.POST.get('color3')
-            if request.POST.get('color4') != color4:
-                color_array[2] = request.POST.get('color4')
-            if request.POST.get('color5') != color5:
-                color_array[3] = request.POST.get('color5')
-            
-            colors = str(color_array)
-# ------------------ ------------ ---------------#
-
             firestore_data = {
                 'business_name': request.POST.get('business_name'),
                 'business_description': request.POST.get('business_description'),
-                'brand_color': request.POST.get('brand_color'),
                 'website': request.POST.get('website'),
-                'logo': logo_url,
-                'tags': tags,
-                'secondary_colors': colors
-            }
-        
-# ------------------ IMAGE TAGS ---------------#
-
-        elif form_name == 'image-tags':
-            stock_image_folder_path = f'stock_image_library/'
-            user_image_folder_path = f'user_image_library/'
-            post_image_tags = request.POST.get('imageTags')
-            if post_image_tags:
-                image_tags = []
-                output_list = [item.strip() for item in post_image_tags.split(',')]
-                image_tags.extend(output_list)
-            else:
-                image_tags = []
-
-            post_image_files = request.FILES.get('file')
-            if post_image_files:
-                uploaded_image_url = upload_and_crop_image(post_image_files, user_image_folder_path)
-                image_tags.append(uploaded_image_url)
-
-            is_generate_stock_images_clicked = request.POST.get('isGenerateStockImagesClicked', 'false') == 'true'
-            if is_generate_stock_images_clicked:
-                image_tags = add_stock_tags(user_settings['tags'], image_tags, settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, stock_image_folder_path)
-            image_tags_string = json.dumps(image_tags)
-            image_tags_string = image_tags_string.replace("'", '"')
-            firestore_data = {
-                'image_tags': image_tags_string,
+                'tags': tags
             }
 
-        elif form_name == 'user-settings':
-            pfp = request.FILES.get('pfp')
-            if pfp:
-                try:
-                    delete_from_google(user_settings['pfp'], settings.GS_CREDENTIALS)
-                except:
-                    pass
-                credentials = service_account.Credentials.from_service_account_file(settings.GS_CREDENTIALS)
-                client = storage.Client(project=credentials.project_id, credentials=credentials)
-                bucket = client.bucket(settings.GS_BUCKET_NAME)
-                pfp_folder_path = f'user_folders/{user_id}/pfp/'
-                pfp_content = pfp.read()
-                image_type = imghdr.what(None, h=pfp_content)
-                if image_type == 'jpeg':
-                    extension = '.jpg'
-                elif image_type == 'png':
-                    extension = '.png'
+        elif form_name == 'branding':
+            # ------------------ COLORS ---------------#
+            try:
+                logo = request.FILES.get('logo')
+                if logo:
+                    try:
+                        delete_from_google(user_settings['logo'], settings.GS_CREDENTIALS)
+                    except:
+                        pass
+                    credentials = service_account.Credentials.from_service_account_file(settings.GS_CREDENTIALS)
+                    client = storage.Client(project=credentials.project_id, credentials=credentials)
+                    bucket = client.bucket(settings.GS_BUCKET_NAME)
+                    logo_folder_path = f'user_folders/{user_id}/logo/'
+                    filename = str(uuid.uuid4()) + ".png"
+                    blob = bucket.blob(logo_folder_path + filename)
+                    blob.upload_from_file(logo)
+                    blob.make_public()
+                    logo_url = blob.public_url
                 else:
-                    raise ValueError("Unsupported image type")
+                    try:
+                        logo_url = user_settings['logo']
+                    except (TypeError, KeyError):
+                        logo_url = None
 
-                blob_name = pfp_folder_path + 'pfp' + extension
-                blob = bucket.blob(blob_name)
-                pfp.seek(0)
-                blob.upload_from_file(pfp, content_type=f'image/{image_type}')
-                blob.make_public()
-                pfp_url = blob.public_url
-            else:
-                try:
-                    pfp_url = user_settings['pfp']
-                except (TypeError, KeyError):
-                    pfp_url = ''
-            
-            firestore_data = {
-                'user_name': request.POST.get('user_name'),
-                'pfp': pfp_url,
-            }
+                firestore_data = {
+                    'logo': logo_url
+                }
+                user_settings_ref.set(firestore_data, merge=True)
+            except:
+                pass
+
+            try:
+                def get_color(array, index):
+                    try:
+                        return array[index]
+                    except IndexError:
+                        return '#000000'
+                
+                colors = user_settings['secondary_colors']
+                color_array = ast.literal_eval(colors)
+                color2 = get_color(color_array, 0)
+                color3 = get_color(color_array, 1)
+                color4 = get_color(color_array, 2)
+                color5 = get_color(color_array, 3)
+
+                if request.POST.get('brand_color') != user_settings['brand_color']:
+                    colors = generate_secondary_colors(request.POST.get('brand_color'))
+                    color_array = ast.literal_eval(colors)
+                
+                if request.POST.get('color2') != color2:
+                    color_array[0] = request.POST.get('color2', '#000000')
+                if request.POST.get('color3') != color3:
+                    color_array[1] = request.POST.get('color3', '#000000')
+                if request.POST.get('color4') != color4:
+                    color_array[2] = request.POST.get('color4', '#000000')
+                if request.POST.get('color5') != color5:
+                    color_array[3] = request.POST.get('color5', '#000000')
+                
+                colors = str(color_array)
+                # ------------------ ------------ ---------------#
+                
+                firestore_data = {
+                    'brand_color': request.POST.get('brand_color'),
+                    'secondary_colors': colors
+                }
+                user_settings_ref.set(firestore_data, merge=True)
+
+            except:
+                pass
+
+            try:
+                pfp = request.FILES.get('pfp')
+                if pfp:
+                    try:
+                        delete_from_google(user_settings['pfp'], settings.GS_CREDENTIALS)
+                    except:
+                        pass
+                    credentials = service_account.Credentials.from_service_account_file(settings.GS_CREDENTIALS)
+                    client = storage.Client(project=credentials.project_id, credentials=credentials)
+                    bucket = client.bucket(settings.GS_BUCKET_NAME)
+                    pfp_folder_path = f'user_folders/{user_id}/pfp/'
+                    pfp_content = pfp.read()
+                    image_type = imghdr.what(None, h=pfp_content)
+                    if image_type == 'jpeg':
+                        extension = '.jpg'
+                    elif image_type == 'png':
+                        extension = '.png'
+                    else:
+                        raise ValueError("Unsupported image type")
+
+                    blob_name = pfp_folder_path + 'pfp' + extension
+                    blob = bucket.blob(blob_name)
+                    pfp.seek(0)
+                    blob.upload_from_file(pfp, content_type=f'image/{image_type}')
+                    blob.make_public()
+                    pfp_url = blob.public_url
+                else:
+                    try:
+                        pfp_url = user_settings['pfp']
+                    except (TypeError, KeyError):
+                        pfp_url = ''
+                
+                firestore_data = {
+                    'user_name': request.POST.get('user_name'),
+                    'pfp': pfp_url,
+                }
+
+                user_settings_ref.set(firestore_data, merge=True)
+            except:
+                pass
 
         # Save the data to Firestore
         user_settings_ref.set(firestore_data, merge=True)
 
-         # ----- Get the Firestore document reference for the user settings ----- #
-        db = firestore.client()
-        user_id = request.session.get('user_id')
-        user_settings_ref = db.collection('users').document(user_id)
-        try:
-            user_settings_doc = user_settings_ref.get()
-            user_settings = user_settings_doc.to_dict()
-        except firestore.NotFound:
-            return redirect('login') 
-        # ---------------------------------------------------------------------- #
-        if user_settings is None:
-            user_settings_strings = {}
-        else:
-            user_settings_strings = {
-                key: value.isoformat() if isinstance(value, datetime) else value
-                for key, value in user_settings.items()
-            }
-        context = {
-        'user_settings_json': json.dumps(user_settings_strings),
-        'user_settings': user_settings,
-        'user_id' : user_id,
-        'success': 'Settings Updated',
-        'cooldown': cooldown
-        }
-        return render(request, 'brand_settings.html', context)
+        messages.success(request, 'Settings Have Been Updated.')
+        return redirect('brand_settings')
     if user_settings is None:
         user_settings_strings = {}
     else:
@@ -1215,14 +1336,14 @@ def all_auth(request):
         if form_name == 'formLinkedin':
             request.session['provider'] = 'linkedin'
             auth_url = f'https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id={settings.LINKEDIN_CLIENT_ID}&redirect_uri={redirect_uri}&scope=w_member_social openid profile email&state={state}'
-        elif form_name == 'formGoogle':
-            request.session['provider'] = 'google_business'
-            AUTHORIZATION_URL = 'https://accounts.google.com/o/oauth2/auth'
-            CLIENT_ID = settings.GOOGLE_APP_ID
-            REDIRECT_URI = redirect_uri
-            SCOPES = ['https://www.googleapis.com/auth/business.manage']
-            STATE = state
-            auth_url = f'{AUTHORIZATION_URL}?response_type=code&client_id={CLIENT_ID}&redirect_uri={REDIRECT_URI}&scope={"+".join(SCOPES)}&state={STATE}'
+        # elif form_name == 'formGoogle':
+        #     request.session['provider'] = 'google_business'
+        #     AUTHORIZATION_URL = 'https://accounts.google.com/o/oauth2/auth'
+        #     CLIENT_ID = settings.GOOGLE_APP_ID
+        #     REDIRECT_URI = redirect_uri
+        #     SCOPES = ['https://www.googleapis.com/auth/business.manage']
+        #     STATE = state
+        #     auth_url = f'{AUTHORIZATION_URL}?response_type=code&client_id={CLIENT_ID}&redirect_uri={REDIRECT_URI}&scope={"+".join(SCOPES)}&state={STATE}'
         elif form_name == 'formFacebook':
             request.session['provider'] = 'facebook'
             AUTHORIZATION_URL = 'https://www.facebook.com/v13.0/dialog/oauth'
@@ -1232,8 +1353,7 @@ def all_auth(request):
             SCOPES = [
             'pages_show_list',
             'pages_read_engagement',
-            'pages_manage_posts',
-            'publish_to_groups'
+            'pages_manage_posts'
             ]
             auth_url = f'{AUTHORIZATION_URL}?response_type=code&client_id={CLIENT_ID}&redirect_uri={REDIRECT_URI}&scope={"+".join(SCOPES)}&state={STATE}'
         elif form_name == 'formInstagram':
@@ -1258,6 +1378,7 @@ def callback(request):
     try:
         state = request.GET.get('state')
         provider = request.session.get('provider')
+        print(provider)
             # ----- Get the Firestore document reference for the user settings ----- #
         try:
             db = firestore.client()
@@ -1312,15 +1433,29 @@ def callback(request):
             response = requests.get(access_token_url, params=params, verify=False)
             data = response.json()
             access_token = data.get('access_token')
-            facebook_page_id = get_facebook_page_id(access_token)
-            firestore_data = {
-                f'{provider}_token': access_token,
-                f'{provider}_page_id': facebook_page_id,
-                f'is{isCheck}': True,
-            }
-
-            user_settings_ref.set(firestore_data, merge=True)
-            pass
+            facebook_pages_and_groups, has_multiple = get_facebook_pages_and_groups(access_token)
+            if has_multiple:
+                firestore_data = {
+                    f'{provider}_token': access_token,
+                    f'is{isCheck}': True,
+                }
+                user_settings_ref.set(firestore_data, merge=True)
+                return render(request, 'page_selection_popup.html', {'pages': facebook_pages_and_groups, 'provider': provider,})
+            else:
+                facebook_page_id = facebook_pages_and_groups[0]['id'] if facebook_pages_and_groups else None
+                facebook_page_token = facebook_pages_and_groups[0]['access_token'] if facebook_pages_and_groups else None
+                facebook_page_type = facebook_pages_and_groups[0]['type'] if facebook_pages_and_groups else None
+                facebook_page_name = facebook_pages_and_groups[0]['name'] if facebook_pages_and_groups else None
+                firestore_data = {
+                    f'{provider}_token': access_token,
+                    f'{provider}_page_id': facebook_page_id,
+                    f'{provider}_page_name': facebook_page_name,
+                    f'{provider}_page_token': facebook_page_token,
+                    f'{provider}_page_type': facebook_page_type,
+                    f'is{isCheck}': True,
+                }
+                user_settings_ref.set(firestore_data, merge=True)
+                pass
         elif provider == 'instagram':
             isCheck = 'Instagram'
             code = request.GET.get('code')
@@ -1334,15 +1469,21 @@ def callback(request):
             response = requests.get(access_token_url, params=params, verify=False)
             data = response.json()
             access_token = data.get('access_token')
-            facebook_page_id = get_facebook_page_id(access_token)
-            instagram_user_id = get_instagram_user_id(facebook_page_id, access_token)
-            firestore_data = {
-                f'{provider}_token': access_token,
-                f'{provider}_user_id': instagram_user_id,
-                f'is{isCheck}': True,
-            }
+            facebook_page_ids, has_multiple = get_facebook_pages_and_groups(access_token)
+            for facebook_page_id in facebook_page_ids:
+                instagram_id = get_instagram_user_id(facebook_page_id, access_token)
+                if instagram_id:
+                    instagram_user_id = instagram_id
+            if instagram_user_id:
+                firestore_data = {
+                    f'{provider}_token': access_token,
+                    f'{provider}_user_id': instagram_user_id,
+                    f'is{isCheck}': True,
+                }
 
-            user_settings_ref.set(firestore_data, merge=True)
+                user_settings_ref.set(firestore_data, merge=True)
+            else:
+                return render(request, 'instagram_error.html')
             pass
         elif provider == 'google_business':
             isCheck = 'Google'
@@ -1369,6 +1510,68 @@ def callback(request):
         return redirect('brand_settings')
     except:
         return redirect('brand_settings')
+    
+def process_page_selection(request):
+    # ----- Get the Firestore document reference for the user settings ----- #
+    try:
+        db = firestore.client()
+        user_id = request.session.get('user_id')
+        user_settings_ref = db.collection('users').document(user_id)
+        try:
+            user_settings_doc = user_settings_ref.get()
+            user_settings = user_settings_doc.to_dict()
+            
+        except firestore.NotFound:
+            return render(request, 'error.html', {'error_message': 'Please Try Logging in Again.'})
+    except AttributeError as e:
+        return render(request, 'error.html', {'error_message': 'Please Try Logging in Again.'})
+    
+    # ---------------------------------------------------------------------- #
+    selected_page_id = request.POST.get('pageId')
+    provider = request.POST.get('provider')
+    page_name = request.POST.get('pageName')
+    page_token = request.POST.get('pageToken')
+    page_type = request.POST.get('pageType')
+
+    if not selected_page_id:
+        return JsonResponse({'error': 'No page selected'}, status=400)
+    else:
+        firestore_data = {
+            f'{provider}_page_id': selected_page_id,
+            f'{provider}_page_name': page_name,
+            f'{provider}_page_token': page_token,
+            f'{provider}_page_type': page_type,
+        }       
+        user_settings_ref.set(firestore_data, merge=True)
+        return redirect('brand_settings')
+    
+def unlink(request):
+    # ----- Get the Firestore document reference for the user settings ----- #
+    try:
+        db = firestore.client()
+        user_id = request.session.get('user_id')
+        user_settings_ref = db.collection('users').document(user_id)
+        try:
+            user_settings_doc = user_settings_ref.get()
+            user_settings = user_settings_doc.to_dict()
+            
+        except firestore.NotFound:
+            return render(request, 'error.html', {'error_message': 'Please Try Logging in Again.'})
+    except AttributeError as e:
+        return render(request, 'error.html', {'error_message': 'Please Try Logging in Again.'})
+    provider = request.POST.get('provider')
+    isCheck = request.POST.get('isCheck')
+    firestore_data = {
+        f'{provider}_token': None,
+        f'{provider}_page_id': None,
+        f'{provider}_page_name': None,
+        f'{provider}_page_token': None,
+        f'{provider}_page_type': None,
+        f'is{isCheck}': False,
+    }    
+    user_settings_ref.set(firestore_data, merge=True)
+    return redirect('brand_settings')
+    
 ## ------------------ STRIPE ------------------------- ##
 
 @csrf_exempt  
@@ -1459,6 +1662,7 @@ def cancel(request):
 def stripe_webhook(request):
     payload = request.body
     sig_header = request.headers.get('Stripe-Signature')
+
     try:
         event = stripe.Webhook.construct_event(
             payload, sig_header, endpoint_secret
@@ -1471,33 +1675,87 @@ def stripe_webhook(request):
     # ----- Get the Firestore document reference for the user settings ----- #
     try:
         session = event['data']['object']
-        customer_id = session.get('customer')
         db = firestore.client()
-        docs = (
-            db.collection('users')
-            .where(filter=FieldFilter("customer_id", "==", customer_id))
-            .stream()
-        )
-        for doc in docs:
-            user_id = doc.id
-            print('User ID:', user_id)
-            user_settings_ref = db.collection('users').document(user_id)
-            print('Got Ref!')
+
+        if event['type'] == 'checkout.session.completed':
+            uid = session.get("client_reference_id", None)
+            customer_id = event['data']['object']['customer']
+            subscription_id = event['data']['object']['subscription']
+            user_settings_ref = db.collection('users').document(uid)
+            subscription = stripe.Subscription.retrieve(subscription_id)
+            subscription_items = subscription.get('items')
+            if subscription_items:
+                for item in subscription_items.data:
+                    subscription_item_id = item.id
+            firestore_data = {'customer_id': customer_id, 'subscription_id': subscription_id, 'subscription_item_id': subscription_item_id, 'isSubscriber': True, 'subscription_status': 'Subscribed'}
+            user_settings_ref.set(firestore_data, merge=True)
+            print('subscription_item_id: ', subscription_item_id)
+            print('Checkout Session Complete!')
+            return JsonResponse({'status': 'Checkout Complete'})
+        
+        if event['type'] == 'customer.subscription.created':
+            customer_id = event['data']['object']['customer']
+            docs = (
+                db.collection('users')
+                .where(filter=FieldFilter("customer_id", "==", customer_id))
+                .stream()
+            )
+            for doc in docs:
+                user_id = doc.id
+                user_settings_ref = db.collection('users').document(user_id)
+                subscription_id = event['data']['object']['items']['data'][0]['subscription']
+                firestore_data = {'subscription_id': subscription_id, 'isSubscriber': True, 'subscription_status': 'Subscribed'}
+                user_settings_ref.set(firestore_data, merge=True)
+                print('Subscription Added!')
+            return JsonResponse({'status': 'Checkout Complete'})
+        
+        if event['type'] == 'invoice.payment_succeeded':
+            customer_id = event['data']['object']['customer']
+            docs = (
+                db.collection('users')
+                .where(filter=FieldFilter("customer_id", "==", customer_id))
+                .stream()
+            )
+            for doc in docs:
+                user_id = doc.id
+                user_settings_ref = db.collection('users').document(user_id)
+                firestore_data = {'subscription_status': 'Invoice Paid'}
+                user_settings_ref.set(firestore_data, merge=True)
+                print('Invoice Paid!')
+            return JsonResponse({'status': 'Invoice Paid'})
+
+        if event['type'] == 'invoice.marked_uncollectible' or event['type'] == 'invoice.payment_action_required' or event['type'] == 'invoice.payment_failed':
+            customer_id = event['data']['object']['customer']
+            docs = (
+                db.collection('users')
+                .where(filter=FieldFilter("customer_id", "==", customer_id))
+                .stream()
+            )
+            for doc in docs:
+                user_id = doc.id
+                user_settings_ref = db.collection('users').document(user_id)
+                firestore_data = {'isSubscriber': False, 'subscription_status': 'Payment Failed'}
+                user_settings_ref.set(firestore_data, merge=True)
+                print('Payment Failed!')
+            return JsonResponse({'status': 'Payment Failed'})
+        
+        if event['type'] == 'subscription_schedule.canceled' or event['type'] == 'plan.deleted' or event['type'] == 'customer.subscription.deleted':
+            customer_id = event['data']['object']['customer']
+            docs = (
+                db.collection('users')
+                .where(filter=FieldFilter("customer_id", "==", customer_id))
+                .stream()
+            )
+            for doc in docs:
+                user_id = doc.id
+                user_settings_ref = db.collection('users').document(user_id)
+                firestore_data = {'isSubscriber': False, 'subscription_status': 'Subscription Canceled'}
+                user_settings_ref.set(firestore_data, merge=True)
+                print('Subscription Canceled!')
+            return JsonResponse({'status': 'Subscription Canceled'})
+        return JsonResponse({'status': 'nothing'})
+        
     except Exception as e:
         return render(request, 'error.html', {'error': str(e)})
     # ---------------------------------------------------------------------- #
-    
-    if event['type'] == 'checkout.session.completed':
-        firestore_data = {'isSubscriber': True}
-        user_settings_ref.set(firestore_data, merge=True)
-        print('Checkout Session Complete!')
-        return JsonResponse({'status': 'Checkout Complete'})
-
-    if event['type'] == 'subscription_schedule.canceled':
-        firestore_data = {'isSubscriber': False}
-        user_settings_ref.set(firestore_data, merge=True)
-        print('Subscription Canceled!')
-        return JsonResponse({'status': 'Subscription Checked and Canceled'})
-
-    return JsonResponse({'status': 'nothing'})
 

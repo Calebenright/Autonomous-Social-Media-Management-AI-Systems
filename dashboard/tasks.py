@@ -3,7 +3,6 @@ from google.cloud import tasks_v2
 from django.conf import settings
 from google.protobuf import timestamp_pb2
 from google.protobuf import duration_pb2
-from django.conf import settings
 import json
 
 def enqueue_task(payload, queue_name, queue_url):

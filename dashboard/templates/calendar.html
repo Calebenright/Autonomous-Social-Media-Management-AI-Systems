@@ -82,7 +82,7 @@
                             <!-- item-->
                             <a href="javascript:void(0);" class="dropdown-item notify-item active">
                                 <div class="notify-icon">
-                                    <img src="{% static 'dashboard/images/users/user-1.jpg' %}"
+                                    <img src="{% static 'dashboard/images/users/aiCj.jpg' %}"
                                         class="img-fluid rounded-circle" alt="" />
                                 </div>
                                 <p class="notify-details">AI CJ</p>
@@ -102,10 +102,10 @@
                 <li class="dropdown notification-list topbar-dropdown">
                     <a class="nav-link dropdown-toggle nav-user me-0 waves-effect waves-light" data-bs-toggle="dropdown"
                         href="#" role="button" aria-haspopup="false" aria-expanded="false">
-                        {% if user_settings.pfp %}
-                        <img src="{{ user_settings.pfp }}" alt="user-img" title="pfp" class="rounded-circle">
+                        {% if user_settings.logo %}
+                        <img src="{{ user_settings.logo }}" alt="user-img" title="profile-picture" class="rounded-circle">
                         {% else %}
-                        <img src="{% static 'dashboard/images/users/default.png' %}" alt="user-img" title="cj" class="rounded-circle">
+                        <img src="{% static 'dashboard/images/users/default.png' %}" alt="user-img" title="default" class="rounded-circle">
                         {% endif %}
                         {% if user_settings.business_name %}
                         <span class="pro-user-name ms-1">{{ user_settings.business_name }}<i class="mdi mdi-chevron-down"></i>
@@ -149,18 +149,18 @@
             <div class="logo-box">
                 <a href="{% url 'dashboard' %}" class="logo logo-light text-center">
                     <span class="logo-sm">
-                        <img src="{% static 'dashboard/images/logo-sm.png' %}" alt="" height="22">
+                        <img src="{% static 'dashboard/images/brand/logo-sm.png' %}" alt="" height="22">
                     </span>
                     <span class="logo-lg">
-                        <img src="{% static 'dashboard/images/logo-light.png' %}" alt="" height="16">
+                        <img src="{% static 'dashboard/images/brand/logo-light.png' %}" alt="" height="16">
                     </span>
                 </a>
                 <a href="{% url 'dashboard' %}" class="logo logo-dark text-center">
                     <span class="logo-sm">
-                        <img src="{% static 'dashboard/images/logo-sm.png' %}" alt="" height="22">
+                        <img src="{% static 'dashboard/images/brand/logo-sm.png' %}" alt="" height="22">
                     </span>
                     <span class="logo-lg">
-                        <img src="{% static 'dashboard/images/logo-dark.png' %}" alt="" height="16">
+                        <img src="{% static 'dashboard/images/brand/logo-dark.png' %}" alt="" height="16">
                     </span>
                 </a>
             </div>
@@ -180,7 +180,7 @@
                         <!-- item-->
                         <a href="{% url 'dashboard' %}" class="dropdown-item notify-item">
                             <i class="mdi mdi-view-dashboard-outline"></i>
-                            <span>Dashboard</span>
+                            <span>Social Media Agent</span>
                         </a>
 
                         <!-- item-->
@@ -198,7 +198,13 @@
                         <!-- item-->
                         <a href="{% url 'brand_settings' %}" class="dropdown-item notify-item">
                             <i class="fe-settings"></i>
-                            <span>Settings</span>
+                            <span>Account</span>
+                        </a>
+
+                        <!-- item-->
+                        <a href="{% url 'library' %}" class="dropdown-item notify-item">
+                            <i class="fe-grid"></i>
+                            <span>Library</span>
                         </a>
 
                         <div class="dropdown-divider"></div>
@@ -213,7 +219,7 @@
                 </li>
 
                 <li>
-                    <h4 class="page-title-main">Post Schedular</h4>
+                    <h4 class="page-title-main">Schedule</h4>
                 </li>
 
             </ul>
@@ -230,10 +236,10 @@
 
                 <!-- User box -->
                 <div class="user-box text-center">
-                    {% if user_settings.pfp %}
-                    <img src="{{ user_settings.pfp }}" alt="user-img" title="pfp" class="rounded-circle img-thumbnail avatar-md">
+                    {% if user_settings.logo %}
+                    <img src="{{ user_settings.logo }}" alt="user-img" title="profile-picture" class="rounded-circle img-thumbnail avatar-md">
                     {% else %}
-                    <img src="{% static 'dashboard/images/users/default.png' %}" alt="user-img" title="cj" class="rounded-circle img-thumbnail avatar-md">
+                    <img src="{% static 'dashboard/images/users/default.png' %}" alt="user-img" title="default" class="rounded-circle img-thumbnail avatar-md">
                     {% endif %}
                     <div class="dropdown">
                         {% if user_settings.business_name %}
@@ -280,13 +286,13 @@
 
                     <ul id="side-menu">
 
-                        <li class="menu-title">Feadl.io</li>
+                        <li class="menu-title">Agents</li>
 
                         <li>
                             <a href="{% url 'dashboard' %}">
                                 <i class="mdi mdi-view-dashboard-outline"></i>
                                 <!-- <span class="badge bg-success rounded-pill float-end">9+</span> -->
-                                <span> Dashboard </span>
+                                <span> Social Media Manager </span>
                             </a>
                         </li>
 
@@ -318,7 +324,14 @@
                         <li>
                             <a href="{% url 'brand_settings' %}">
                                 <i class="fe-settings"></i>
-                                <span> Settings </span>
+                                <span> Account </span>
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="{% url 'library' %}">
+                                <i class="fe-grid"></i>
+                                <span> Library </span>
                             </a>
                         </li>
                     </ul>
@@ -345,30 +358,16 @@
                     <div class="container-fluid">
 
                         <div class="row">
-                            {% if error %}
-                            <div class="error-message">
-                            <span>{{ error }}</span>
-                            <button class="close-button" onclick="closeErrorMessage()">&times;</button>
-                            </div>
-                            <script>
-                            function closeErrorMessage() {
-                                const errorDiv = document.querySelector('.error-message');
-                                errorDiv.style.display = 'none';
-                            }
-                            </script>                   
-                            {% endif %}
-                            {% if success %}
-                            <div class="success-message">
-                                <span>{{ success }}</span>
-                                <button class="close-button" onclick="closeSuccessMessage()">&times;</button>
-                            </div>
-                            <script>
-                            function closeSuccessMessage() {
-                                const successDiv = document.querySelector('.success-message');
-                                successDiv.style.display = 'none';
-                            }
-                            </script>
-                            {% endif %}    
+                            {% if messages %}
+                        <ul class="messages">
+                            {% for message in messages %}
+                                <li class="{{ message.tags }}" data-message-id="{{ forloop.counter }}">
+                                    {{ message }}
+                                    <span class="closebtn" onclick="closeMessage(this);">&times;</span>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                        {% endif %}         
                             <div class="col-12">
                                 <div class="row"></div>
                                     <div class="card">
@@ -406,11 +405,10 @@
                                                             <div class="mb-3">
                                                                 <label class="form-label">Pages</label>
                                                                 <div style="display: inline-block;">
-                                                                    <img src="https://cdn-icons-png.flaticon.com/512/4400/4400507.png" style="max-width: 10%; border-radius: 10px; margin: 10px;" id="social_reset">
-                                                                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/fb/Facebook_icon_2013.svg/800px-Facebook_icon_2013.svg.png" style="max-width: 10%; border-radius: 10px; margin: 10px;" id="facebook">
-                                                                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Instagram_logo_2016.svg/768px-Instagram_logo_2016.svg.png" style="max-width: 10%; border-radius: 10px; margin: 10px;" id="instagram">
-                                                                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/LinkedIn_icon.svg/1200px-LinkedIn_icon.svg.png" style="max-width: 10%; border-radius: 10px; margin: 10px;" id="linkedin">
-                                                                    <img src="https://seeklogo.com/images/G/google-my-bussines-logo-554E98BE88-seeklogo.com.png" style="max-width: 10%; border-radius: 10px; margin: 10px;" id="google_business">
+                                                                    <img src="{% static 'dashboard\images\icon\reset_icon.png' %}" style="max-width: 13%; border-radius: 10px; margin: 10px;" id="social_reset">
+                                                                    <img src="{% static 'dashboard\images\icon\facebook_logo.png' %}" style="max-width: 13%; border-radius: 10px; margin: 10px;" id="facebook">
+                                                                    <img src="{% static 'dashboard\images\icon\instagram_logo.png' %}" style="max-width: 13%; border-radius: 10px; margin: 10px;" id="instagram">
+                                                                    <img src="{% static 'dashboard\images\icon\linkedin_logo.png' %}" style="max-width: 13%; border-radius: 10px; margin: 10px;" id="linkedin">
                                                                 </div>
                                                             </div>
                                                         </div>

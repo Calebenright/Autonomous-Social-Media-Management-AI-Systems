@@ -102,8 +102,8 @@
                 <li class="dropdown notification-list topbar-dropdown">
                     <a class="nav-link dropdown-toggle nav-user me-0 waves-effect waves-light" data-bs-toggle="dropdown"
                         href="#" role="button" aria-haspopup="false" aria-expanded="false">
-                        {% if user_settings.pfp %}
-                        <img src="{{ user_settings.pfp }}" alt="user-img" title="pfp" class="rounded-circle">
+                        {% if user_settings.logo %}
+                        <img src="{{ user_settings.logo }}" alt="user-img" title="pfp" class="rounded-circle">
                         {% else %}
                         <img src="{% static 'dashboard/images/users/default.png' %}" alt="user-img" title="cj" class="rounded-circle">
                         {% endif %}
@@ -230,8 +230,8 @@
 
                 <!-- User box -->
                 <div class="user-box text-center">
-                    {% if user_settings.pfp %}
-                    <img src="{{ user_settings.pfp }}" alt="user-img" title="pfp" class="rounded-circle img-thumbnail avatar-md">
+                    {% if user_settings.logo %}
+                    <img src="{{ user_settings.logo }}" alt="user-img" title="pfp" class="rounded-circle img-thumbnail avatar-md">
                     {% else %}
                     <img src="{% static 'dashboard/images/users/default.png' %}" alt="user-img" title="cj" class="rounded-circle img-thumbnail avatar-md">
                     {% endif %}
@@ -345,6 +345,16 @@
                 <!-- Start Content-->
                 <div class="container-fluid">
                     <div class="row">
+                        {% if messages %}
+                        <ul class="messages">
+                            {% for message in messages %}
+                                <li class="{{ message.tags }}" data-message-id="{{ forloop.counter }}">
+                                    {{ message }}
+                                    <span class="closebtn" onclick="closeMessage(this);">&times;</span>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                        {% endif %}  
                         <div class="col-lg-6">
                             <div class="row">
                                 <div class="col-lg-6">

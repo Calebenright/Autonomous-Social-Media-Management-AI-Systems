@@ -7,7 +7,7 @@
     <meta charset="utf-8" />
     <title>Dashboard | Feadl.io</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta content="A automonomous social media managing app and ad agency" name="description" />
+    <meta content="An automonomous social media managing app and ad agency" name="description" />
     <meta content="CJ Enright" name="author" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
@@ -90,7 +90,7 @@
                             <!-- item-->
                             <a href="javascript:void(0);" class="dropdown-item notify-item active">
                                 <div class="notify-icon">
-                                    <img src="{% static 'dashboard/images/users/user-1.jpg' %}"
+                                    <img src="{% static 'dashboard/images/users/aiCj.jpg' %}"
                                         class="img-fluid rounded-circle" alt="" />
                                 </div>
                                 <p class="notify-details">AI CJ</p>
@@ -112,10 +112,10 @@
                 <li class="dropdown notification-list topbar-dropdown">
                     <a class="nav-link dropdown-toggle nav-user me-0 waves-effect waves-light" data-bs-toggle="dropdown"
                         href="#" role="button" aria-haspopup="false" aria-expanded="false">
-                        {% if user_settings.pfp %}
-                        <img src="{{ user_settings.pfp }}" alt="user-img" title="pfp" class="rounded-circle">
+                        {% if user_settings.logo %}
+                        <img src="{{ user_settings.logo }}" alt="user-img" title="profile-picture" class="rounded-circle">
                         {% else %}
-                        <img src="{% static 'dashboard/images/users/default.png' %}" alt="user-img" title="cj" class="rounded-circle">
+                        <img src="{% static 'dashboard/images/users/default.png' %}" alt="user-img" title="default" class="rounded-circle">
                         {% endif %}
                         {% if user_settings.business_name %}
                         <span class="pro-user-name ms-1">{{ user_settings.business_name }}<i class="mdi mdi-chevron-down"></i>
@@ -159,18 +159,18 @@
             <div class="logo-box">
                 <a href="{% url 'dashboard' %}" class="logo logo-light text-center">
                     <span class="logo-sm">
-                        <img src="{% static 'dashboard/images/logo-sm.png' %}" alt="" height="22">
+                        <img src="{% static 'dashboard/images/brand/logo-sm.png' %}" alt="" height="22">
                     </span>
                     <span class="logo-lg">
-                        <img src="{% static 'dashboard/images/logo-light.png' %}" alt="" height="16">
+                        <img src="{% static 'dashboard/images/brand/logo-light.png' %}" alt="" height="16">
                     </span>
                 </a>
                 <a href="{% url 'dashboard' %}" class="logo logo-dark text-center">
                     <span class="logo-sm">
-                        <img src="{% static 'dashboard/images/logo-sm.png' %}" alt="" height="22">
+                        <img src="{% static 'dashboard/images/brand/logo-sm.png' %}" alt="" height="22">
                     </span>
                     <span class="logo-lg">
-                        <img src="{% static 'dashboard/images/logo-dark.png' %}" alt="" height="16">
+                        <img src="{% static 'dashboard/images/brand/logo-dark.png' %}" alt="" height="16">
                     </span>
                 </a>
             </div>
@@ -191,7 +191,7 @@
                         <!-- item-->
                         <a href="{% url 'dashboard' %}" class="dropdown-item notify-item">
                             <i class="mdi mdi-view-dashboard-outline"></i>
-                            <span>Dashboard</span>
+                            <span>Social Media Agent</span>
                         </a>
 
                         <!-- item-->
@@ -209,7 +209,13 @@
                         <!-- item-->
                         <a href="{% url 'brand_settings' %}" class="dropdown-item notify-item">
                             <i class="fe-settings"></i>
-                            <span>Settings</span>
+                            <span>Account</span>
+                        </a>
+
+                        <!-- item-->
+                        <a href="{% url 'library' %}" class="dropdown-item notify-item">
+                            <i class="fe-grid"></i>
+                            <span>Library</span>
                         </a>
 
                         <div class="dropdown-divider"></div>
@@ -224,7 +230,7 @@
                 </li>
 
                 <li>
-                    <h4 class="page-title-main">Dashboard</h4>
+                    <h4 class="page-title-main">Social Media Manager</h4>
                 </li>
 
             </ul>
@@ -241,10 +247,10 @@
 
                 <!-- User box -->
                 <div class="user-box text-center">
-                    {% if user_settings.pfp %}
-                    <img src="{{ user_settings.pfp }}" alt="user-img" title="pfp" class="rounded-circle img-thumbnail avatar-md">
+                    {% if user_settings.logo %}
+                    <img src="{{ user_settings.logo }}" alt="user-img" title="profile-picture" class="rounded-circle img-thumbnail avatar-md">
                     {% else %}
-                    <img src="{% static 'dashboard/images/users/default.png' %}" alt="user-img" title="cj" class="rounded-circle img-thumbnail avatar-md">
+                    <img src="{% static 'dashboard/images/users/default.png' %}" alt="user-img" title="default" class="rounded-circle img-thumbnail avatar-md">
                     {% endif %}
                     <div class="dropdown">
                         {% if user_settings.business_name %}
@@ -291,13 +297,13 @@
 
                     <ul id="side-menu">
 
-                        <li class="menu-title">Feadl.io</li>
+                        <li class="menu-title">Agents</li>
 
                         <li>
                             <a href="{% url 'dashboard' %}">
                                 <i class="mdi mdi-view-dashboard-outline"></i>
                                 <!-- <span class="badge bg-success rounded-pill float-end">9+</span> -->
-                                <span> Dashboard </span>
+                                <span> Social Media Manager </span>
                             </a>
                         </li>
 
@@ -329,7 +335,14 @@
                         <li>
                             <a href="{% url 'brand_settings' %}">
                                 <i class="fe-settings"></i>
-                                <span> Settings </span>
+                                <span> Account </span>
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="{% url 'library' %}">
+                                <i class="fe-grid"></i>
+                                <span> Library </span>
                             </a>
                         </li>
                     </ul>
@@ -354,236 +367,19 @@
                 <!-- Start Content-->
                 <div class="container-fluid">
                     <div class="row">
-                        {% if error %}
-                        <div class="error-message">
-                          <span>{{ error }}</span>
-                          <button class="close-button" onclick="closeErrorMessage()">&times;</button>
-                        </div>
-                        <script>
-                        function closeErrorMessage() {
-                            const errorDiv = document.querySelector('.error-message');
-                            errorDiv.style.display = 'none';
-                        }
-                        </script>                      
+                        {% if messages %}
+                        <ul class="messages">
+                            {% for message in messages %}
+                                <li class="{{ message.tags }}" data-message-id="{{ forloop.counter }}">
+                                    {{ message }}
+                                    <span class="closebtn" onclick="closeMessage(this);">&times;</span>
+                                </li>
+                            {% endfor %}
+                        </ul>
                         {% endif %}
-                        <!-- FTUE Start -->
                         {% if user_settings.ftue %}
-                        <div class="ftue-overlay" id="overlayContainer">
-                            <div class="ftue-modal" id="ftueOverlay">
-                                <img class="animatedCharacter" src="#" alt="Animated Character" id="animatedCharacter">
-                                <div class="card" id="ftueFormContainer">
-                                    <div class="card-body">
-                                        <form id="formFtue" method="post" action="{% url 'dashboard' %}">
-                                            {% csrf_token %}
-                                            <input type="hidden" name="form" value="formFtue">
-                                            <div class="button-container">
-                                                <br>
-                                                <img src="{% static 'dashboard/images/elaineButton.png' %}" alt="Generated Image" class="rounded" style="width: 50%;">
-                                                <br><br>
-                                                <button class="btn btn-custom btn-lg waves-effect waves-light rounded-pill centerButton"
-                                                    id="automate" onclick="showSpinner()">Generate Feed</button>
-                                                <br><br>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        {% endif %}
-                        {% if user_settings.ftue2 %}
-                        <div class="ftue-overlay" id="overlayContainer">
-                            <div class="ftue-modal" id="ftueOverlay">
-                                <img class="animatedCharacter" src="#" alt="Animated Character" id="animatedCharacter2">
-                            </div>
-                        </div>
-                        <form method="post" action="{% url 'dashboard' %}">
-                            {% csrf_token %}
-                            <input type="hidden" name="form" value="formFtue">
-                            <div class="row">
-                                <div class="col-xl-3 col-md-6">
-                                    <div class="card">
-                                        <div class="card-body">
-                                            <div class="generated-post">
-                                                <p class="form-label">Image</p>
-                                                <img src="{% static 'ftue_animation/JalsCoffee1.png' %}" alt="Generated Image" class="generated-image-lg rounded">
-                                                <br>
-                                                <p class="form-label">Caption</p>
-                                                <div class="mb-3">
-                                                        <div class="text-box-wrapper">
-                                                        <div id="prompt" contenteditable="false" class="text-box">Pouring passion into every cup at Jal's Coffee. Join us for your daily brew of happiness! ☕️🌟 #JalsCoffeeJourney"</div>
-                                                        </div>
-                                                </div>
-                                                <div class="mb-3">
-                                                    <label class="form-check-label" for="ftueCheck" style="margin-bottom: 7%;">Add To Schedule</label>
-                                                    <br>
-                                                    <input type="checkbox" data-switchery="true" data-plugin="switchery" data-color="#039cfd" name="ftueCheck" value="ftueCheck1" id="ftueCheck"/>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-xl-3 col-md-6">
-                                    <div class="card">
-                                        <div class="card-body">
-                                            <div class="generated-post">
-                                                <p class="form-label">Image</p>
-                                                <img src="{% static 'ftue_animation/JalsCoffee2.png' %}" alt="Generated Image" class="generated-image-lg rounded">
-                                                <br>
-                                                <p class="form-label">Caption</p>
-                                                <div class="mb-3">
-                                                        <div class="text-box-wrapper">
-                                                        <div id="prompt" contenteditable="false" class="text-box">Indulge in aromatic brews and cozy vibes at our Coffee Shop. Join us for your daily caffeine fix and experience true bliss! ☕️🤩 #CoffeeLovers #CafeLife #MorningRitual</div>
-                                                        </div>
-                                                </div>
-                                                <div class="mb-3">
-                                                    <label class="form-check-label" for="ftueCheck" style="margin-bottom: 7%;">Add To Schedule</label>
-                                                    <br>
-                                                    <input type="checkbox" data-switchery="true" data-plugin="switchery" data-color="#039cfd" name="ftueCheck" value="ftueCheck2" id="ftueCheck"/>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-xl-3 col-md-6">
-                                    <div class="card">
-                                        <div class="card-body">
-                                            <div class="generated-post">
-                                                <p class="form-label">Image</p>
-                                                <img src="{% static 'ftue_animation/JalsCoffee3.png' %}" alt="Generated Image" class="generated-image-lg rounded">
-                                                <br>
-                                                <p class="form-label">Caption</p>
-                                                <div class="mb-3">
-                                                    <div class="text-box-wrapper">
-                                                        <div id="prompt" contenteditable="false" class="text-box">Indulge in the most delectable pastries that will leave you craving for more. #PastryLove #SweetTreats #DeliciousDelights</div>
-                                                    </div>
-                                                </div>
-                                                <div class="mb-3">
-                                                    <label class="form-check-label" for="ftueCheck" style="margin-bottom: 7%;">Add To Schedule</label>
-                                                    <br>
-                                                    <input type="checkbox" data-switchery="true" data-plugin="switchery" data-color="#039cfd" name="ftueCheck" value="ftueCheck3" id="ftueCheck"/>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-xl-3 col-md-6">
-                                    <div class="card">
-                                        <div class="card-body">
-                                            <div class="generated-post">
-                                                <p class="form-label">Image</p>
-                                                <img src="{% static 'ftue_animation/JalsCoffee4.png' %}" alt="Generated Image" class="generated-image-lg rounded">
-                                                <br>
-                                                <p class="form-label">Caption</p>
-                                                <div class="mb-3">
-                                                    <div class="text-box-wrapper">
-                                                        <div id="prompt" contenteditable="false" class="text-box">Feeling the cozy vibes at our local coffee shop ☕✨ Come join us for your daily caffeine fix and let the aroma of freshly brewed coffee awaken your senses! #CoffeeLovers #LocalHangout #CozyVibes</div>
-                                                    </div>
-                                                </div>
-                                                <div class="mb-3">
-                                                    <label class="form-check-label" for="ftueCheck" style="margin-bottom: 7%;">Add To Schedule</label>
-                                                    <br>
-                                                    <input type="checkbox" data-switchery="true" data-plugin="switchery" data-color="#039cfd" name="ftueCheck" value="ftueCheck4" id="ftueCheck"/>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-xl-3 col-md-6">
-                                    <div class="card">
-                                        <div class="card-body">
-                                            <div class="generated-post">
-                                                <p class="form-label">Image</p>
-                                                <img src="{% static 'ftue_animation/JalsCoffee5.png' %}" alt="Generated Image" class="generated-image-lg rounded">
-                                                <br>
-                                                <p class="form-label">Caption</p>
-                                                <div class="mb-3">
-                                                    <div class="text-box-wrapper">
-                                                        <div id="prompt" contenteditable="false" class="text-box">Introducing the exquisite Barista Creations, where art meets coffee. Experience the perfect blend with rich flavors and velvety textures. #BaristaCreations #CoffeeArt #FlavorfulDelights</div>
-                                                    </div>
-                                                </div>
-                                                <div class="mb-3">
-                                                    <label class="form-check-label" for="ftueCheck" style="margin-bottom: 7%;">Add To Schedule</label>
-                                                    <br>
-                                                    <input type="checkbox" data-switchery="true" data-plugin="switchery" data-color="#039cfd" name="ftueCheck" value="ftueCheck4" id="ftueCheck"/>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-xl-3 col-md-6">
-                                    <div class="card">
-                                        <div class="card-body">
-                                            <div class="generated-post">
-                                                <p class="form-label">Image</p>
-                                                <img src="{% static 'ftue_animation/JalsCoffee6.jpg' %}" alt="Generated Image" class="generated-image-lg rounded">
-                                                <br>
-                                                <p class="form-label">Caption</p>
-                                                <div class="mb-3">
-                                                    <div class="text-box-wrapper">
-                                                        <div id="prompt" contenteditable="false" class="text-box">Steaming moments, brewed with love ☕️🌟 #JalsCoffeeDelights</div>
-                                                    </div>
-                                                </div>
-                                                <div class="mb-3">
-                                                    <label class="form-check-label" for="ftueCheck" style="margin-bottom: 7%;">Add To Schedule</label>
-                                                    <br>
-                                                    <input type="checkbox" data-switchery="true" data-plugin="switchery" data-color="#039cfd" name="ftueCheck" value="ftueCheck4" id="ftueCheck"/>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-xl-3 col-md-6">
-                                    <div class="card">
-                                        <div class="card-body">
-                                            <div class="generated-post">
-                                                <p class="form-label">Image</p>
-                                                <img src="{% static 'ftue_animation/JalsCoffee7.jpg' %}" alt="Generated Image" class="generated-image-lg rounded">
-                                                <br>
-                                                <p class="form-label">Caption</p>
-                                                <div class="mb-3">
-                                                    <div class="text-box-wrapper">
-                                                        <div id="prompt" contenteditable="false" class="text-box">Sip, savor, and share the warmth of Jal's Coffee ☕️✨ #BrewingConnections</div>
-                                                    </div>
-                                                </div>
-                                                <div class="mb-3">
-                                                    <label class="form-check-label" for="ftueCheck" style="margin-bottom: 7%;">Add To Schedule</label>
-                                                    <br>
-                                                    <input type="checkbox" data-switchery="true" data-plugin="switchery" data-color="#039cfd" name="ftueCheck" value="ftueCheck4" id="ftueCheck"/>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-xl-3 col-md-6">
-                                    <div class="card">
-                                        <div class="card-body">
-                                            <div class="generated-post">
-                                                <p class="form-label">Image</p>
-                                                <img src="{% static 'ftue_animation/JalsCoffee8.jpg' %}" alt="Generated Image" class="generated-image-lg rounded">
-                                                <br>
-                                                <p class="form-label">Caption</p>
-                                                <div class="mb-3">
-                                                    <div class="text-box-wrapper">
-                                                        <div id="prompt" contenteditable="false" class="text-box">Fueling your days, one cup of perfection at a time. Welcome to Jal's Coffee! ☕️🌟 #BrewingJoy</div>
-                                                    </div>
-                                                </div>
-                                                <div class="mb-3">
-                                                    <label class="form-check-label" for="ftueCheck" style="margin-bottom: 7%;">Add To Schedule</label>
-                                                    <br>
-                                                    <input type="checkbox" data-switchery="true" data-plugin="switchery" data-color="#039cfd" name="ftueCheck" value="ftueCheck4" id="ftueCheck"/>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <button type="submit" class="btn btn-purple rounded-pill w-md waves-effect waves-light mb-3" onclick="showSpinner()">
-                                <i class="mdi mdi-plus"></i> Schedule</button>
-                        </form>
-                        {% endif %}
-                        {% if user_settings.ftue3 %}
                         <div class="ftue-modal" id="ftueOverlay">
-                            <img class="animatedCharacter" src="#" alt="Animated Character" id="animatedCharacter3">
+                            <img class="animatedCharacter" src="#" alt="Animated Character" id="animatedCharacter">
                             <div class="card" id="ftueFormContainer">
                                 <div class="card-body">
                                     <form method="post" action="{% url 'dashboard' %}">
@@ -606,70 +402,50 @@
                                 </div>
                             </div>
                         </div>
-                        {% endif %}
-                        {% if user_settings.ftue4 %}
-                        <div class="ftue-overlay" id="overlayContainer">
-                            <div class="ftue-modal" id="ftueOverlay">
-                                <img class="animatedCharacter" src="#" alt="Animated Character" id="animatedCharacter4">
-                                <div class="card" id="ftueFormContainer3">
-                                    <div class="card-body">
-                                        <form method="post" action="{% url 'dashboard' %}">
-                                            {% csrf_token %}
-                                            <input type="hidden" name="form" value="formFtue">
-                                            <input type="hidden" name="link" value="post_creator">
-                                            <div class="button-container">
-                                                <img src="{% static 'dashboard/images/createButton.png' %}" alt="Generated Image" class="rounded" style="width: 60%;">
-                                                <br><br>
-                                                <button class="btn btn-warning btn-small waves-effect waves-light rounded-pill centerButton" >Create A Post</button>
-                                                <br>
-                                            </div>
-                                        </form>
+                        {% else %}
+                        <div class="col-xl-9 col-lg-8">
+                            <div class="conversation-list-card card">
+                                <div class="card-body">
+                                    <div class="dropdown float-end">
+                                        <a href="javascript:void(0);" class="dropdown-toggle arrow-none card-drop font-20" id="clearChat">
+                                            <i class="fe-refresh-cw"></i>
+                                        </a>
+                                    </div>
+                                    <div class="d-flex">
+                                        <div class="flex-grow-1">
+                                            <h5 class="mt-0 mb-1 text-truncate">Elaine</h5>
+                                        </div>
+                                    </div>
+                                    <hr class="my-3">
+
+                                    <div>
+                                        <ul class="conversation-list slimscroll" style="height: 60vh;" data-simplebar>
+                                            
+
+                                        </ul>
                                     </div>
                                 </div>
-                                <div class="card" id="ftueFormContainer2">
-                                    <div class="card-body">
-                                        <form method="post" action="{% url 'dashboard' %}">
-                                            {% csrf_token %}
-                                            <input type="hidden" name="form" value="formFtue">
-                                            <input type="hidden" name="link" value="brand_settings">
-                                            <div class="button-container">
-                                                <img src="{% static 'dashboard/images/settingsButton.png' %}" alt="Generated Image" class="rounded" style="width: 60%;">
-                                                <br><br>
-                                                <button class="btn btn-primary btn-small waves-effect waves-light rounded-pill centerButton" >Finalize Settings</button>
-                                                <br>
+                                <div class="p-3 conversation-input border-top">
+                                    <div class="row">
+                                        <div class="col">
+                                            <div>
+                                                <input type="text" name="input" class="form-control" placeholder="Enter Message...">
                                             </div>
-                                        </form>
+                                        </div>
+                                        <div class="col-auto">
+                                            <button type="button" class="btn btn-primary chat-send width-md waves-effect waves-light"><span class="d-none d-sm-inline-block me-2">Send</span> <i class="mdi mdi-send"></i></button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        {% endif %}
-                        {% if user_settings.endFtue %}
-                        {% if user_settings.autoState == 1 %}
-                        <!-- <div class="col-lg-3">
-                            <div class="card">
-                                <div class="card-body">
-                                    <form method="post" action="{% url 'dashboard' %}">
-                                        {% csrf_token %}
-                                        <input type="hidden" name="form" value="formAutomate">
-                                        <div class="button-container">
-                                            <br>
-                                            <img src="{% static 'dashboard/images/elaineButton.png' %}" alt="Generated Image" class="rounded" style="width: 55%;">
-                                            <br><br>
-                                            <button class="btn btn-custom btn-lg waves-effect waves-light rounded-pill centerButton" id="automate" onclick="showSpinner()">Generate Feed</button>
-                                            <br><br>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        </div> -->
                         <div class="col-lg-3">
                             <div class="card">
                                 <div class="card-body">
                                     <div class="button-container">
                                         <br>
                                         <a href="{% url 'post_creator' %}">
-                                            <img src="{% static 'dashboard/images/createButton.png' %}" alt="Generated Image" class="rounded" style="width: 55%;">
+                                            <img src="{% static 'dashboard/images/button/createButton.png' %}" alt="Generated Image" class="rounded" style="width: 55%;">
                                         </a>
                                         <br><br>
                                         <a href="{% url 'post_creator' %}" class="btn btn-warning btn-small waves-effect waves-light rounded-pill centerButton">Create A Post</a>
@@ -677,15 +453,12 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        {% if not user_settings.website and not user_settings.logo %}
-                        <div class="col-lg-3">
                             <div class="card">
                                 <div class="card-body">
                                     <div class="button-container">
                                         <br>
                                         <a href="{% url 'brand_settings' %}">
-                                            <img src="{% static 'dashboard/images/settingsButton.png' %}" alt="Generated Image" class="rounded" style="width: 55%;">
+                                            <img src="{% static 'dashboard/images/button/settingsButton.png' %}" alt="Generated Image" class="rounded" style="width: 55%;">
                                         </a>
                                         <br><br>
                                         <a href="{% url 'brand_settings' %}" class="btn btn-primary btn-sm waves-effect waves-light rounded-pill centerButton">Finalize Settings</a>
@@ -694,243 +467,6 @@
                                 </div>
                             </div>
                         </div>
-                        {% endif %}
-                        <!-- <div class="row">
-                            <div class="col-lg-3">
-                                <div class="card">
-                                    <div class="card-body">
-                                        <div class="generated-post">
-                                            <img src="{% static 'dashboard\images\JerryButton.png' %}" alt="Generated Image"
-                                                class="generated-image-lg rounded">
-                                            <br>
-                                            <a href="{% url 'ad_manager' %}" class="btn btn-dark btn-lg waves-effect waves-light rounded-pill centerButton">Create Ad</a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div> -->
-                        {% elif user_settings.autoState == 2 %}
-                        <div id="load-start">
-                            <div class="col-lg-3">
-                                <div class="card-center">
-                                    <div class="card-body">
-                                        <div class="center-card-content">
-                                            <img id="loading-gif" src="" alt="Loaded Image">
-                                            <div id="progress-bar">
-                                                <div class="progress" id="progress"></div>
-                                            </div>
-                                            <br>
-                                            <div id="resetButton">
-                                                <form method="post" action="{% url 'dashboard' %}">
-                                                    {% csrf_token %}
-                                                    <input type="hidden" name="form" value="formReset">
-                                                        <p>Taking Too Long?</p>
-                                                        <button class="btn btn-coffee btn-xs waves-effect waves-light rounded-pill" onclick="showSpinner()">Reset By Clicking Here</button>
-                                                </form>
-                                            </div>
-                                            <div id="load-done">
-                                                <form method="post" action="{% url 'dashboard' %}">
-                                                    {% csrf_token %}
-                                                    <input type="hidden" name="form" value="formView">
-                                                    <br>
-                                                    <button class="btn btn-coffee btn-lg waves-effect waves-light rounded-pill centerButton" onclick="showSpinner()">View Posts</button>
-                                                </form>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        {% else %}
-                        <div id="load-img">
-                            <form method="post" action="{% url 'dashboard' %}">
-                                {% csrf_token %}
-                                <input type="hidden" name="form" value="formSchedule">
-                                <div class="row">
-                                    <div class="col-xl-3 col-md-6">
-                                        <div class="card">
-                                            <div class="card-body">
-                                                <div class="generated-post">
-                                                    <p class="form-label">Image</p>
-                                                    <img class="loaded-image" id="loaded-image" src="{{ user_settings.schedule_image_1 }}" alt="Loaded Image">
-                                                    <br>
-                                                    <p class="form-label">Caption</p>
-                                                    <div class="mb-3">
-                                                        <div class="text-box-wrapper">
-                                                            <div id="caption" contenteditable="false" class="text-box">{{ user_settings.schedule_cap_1 }}</div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="mb-3">
-                                                        <label class="form-check-label" for="ftueCheck" style="margin-bottom: 7%;">Add To Schedule</label>
-                                                        <br>
-                                                        <input type="checkbox" data-switchery="true" data-plugin="switchery" data-color="#039cfd" name="ftueCheck" id="ftueCheck"/>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-xl-3 col-md-6">
-                                        <div class="card">
-                                            <div class="card-body">
-                                                <div class="generated-post">
-                                                    <p class="form-label">Image</p>
-                                                    <img class="loaded-image" id="loaded-image2" src="{{ user_settings.schedule_image_2 }}" alt="Loaded Image">
-                                                    <br>
-                                                    <p class="form-label">Caption</p>
-                                                    <div class="mb-3">
-                                                        <div class="text-box-wrapper">
-                                                            <div id="caption2" contenteditable="false" class="text-box">{{ user_settings.schedule_cap_2 }}</div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="mb-3">
-                                                        <label class="form-check-label" for="ftueCheck" style="margin-bottom: 7%;">Add To Schedule</label>
-                                                        <br>
-                                                        <input type="checkbox" data-switchery="true" data-plugin="switchery" data-color="#039cfd" name="ftueCheck2" id="ftueCheck"/>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-xl-3 col-md-6">
-                                        <div class="card">
-                                            <div class="card-body">
-                                                <div class="generated-post">
-                                                    <p class="form-label">Image</p>
-                                                    <img class="loaded-image" id="loaded-image3" src="{{ user_settings.schedule_image_3 }}" alt="Loaded Image">
-                                                    <br>
-                                                    <p class="form-label">Caption</p>
-                                                    <div class="mb-3">
-                                                        <div class="text-box-wrapper">
-                                                            <div id="caption3" contenteditable="false" class="text-box">{{ user_settings.schedule_cap_3 }}</div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="mb-3">
-                                                        <label class="form-check-label" for="ftueCheck" style="margin-bottom: 7%;">Add To Schedule</label>
-                                                        <br>
-                                                        <input type="checkbox" data-switchery="true" data-plugin="switchery" data-color="#039cfd" name="ftueCheck3" id="ftueCheck"/>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-xl-3 col-md-6">
-                                        <div class="card">
-                                            <div class="card-body">
-                                                <div class="generated-post">
-                                                    <p class="form-label">Image</p>
-                                                    <img class="loaded-image" id="loaded-image4" src="{{ user_settings.schedule_image_4 }}" alt="Loaded Image">
-                                                    <br>
-                                                    <p class="form-label">Caption</p>
-                                                    <div class="mb-3">
-                                                        <div class="text-box-wrapper">
-                                                            <div id="caption4" contenteditable="false" class="text-box">{{ user_settings.schedule_cap_4 }}</div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="mb-3">
-                                                        <label class="form-check-label" for="ftueCheck" style="margin-bottom: 7%;">Add To Schedule</label>
-                                                        <br>
-                                                        <input type="checkbox" data-switchery="true" data-plugin="switchery" data-color="#039cfd" name="ftueCheck4" id="ftueCheck"/>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-xl-3 col-md-6">
-                                        <div class="card">
-                                            <div class="card-body">
-                                                <div class="generated-post">
-                                                    <p class="form-label">Image</p>
-                                                    <img class="loaded-image" id="loaded-image5" src="{{ user_settings.schedule_image_5 }}" alt="Loaded Image">
-                                                    <br>
-                                                    <p class="form-label">Caption</p>
-                                                    <div class="mb-3">
-                                                        <div class="text-box-wrapper">
-                                                            <div id="caption5" contenteditable="false" class="text-box">{{ user_settings.schedule_cap_5 }}</div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="mb-3">
-                                                        <label class="form-check-label" for="ftueCheck" style="margin-bottom: 7%;">Add To Schedule</label>
-                                                        <br>
-                                                        <input type="checkbox" data-switchery="true" data-plugin="switchery" data-color="#039cfd" name="ftueCheck5" id="ftueCheck"/>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-xl-3 col-md-6">
-                                        <div class="card">
-                                            <div class="card-body">
-                                                <div class="generated-post">
-                                                    <p class="form-label">Image</p>
-                                                    <img class="loaded-image" id="loaded-image6" src="{{ user_settings.schedule_image_6 }}" alt="Loaded Image">
-                                                    <br>
-                                                    <p class="form-label">Caption</p>
-                                                    <div class="mb-3">
-                                                        <div class="text-box-wrapper">
-                                                            <div id="caption6" contenteditable="false" class="text-box">{{ user_settings.schedule_cap_6 }}</div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="mb-3">
-                                                        <label class="form-check-label" for="ftueCheck" style="margin-bottom: 7%;">Add To Schedule</label>
-                                                        <br>
-                                                        <input type="checkbox" data-switchery="true" data-plugin="switchery" data-color="#039cfd" name="ftueCheck6" id="ftueCheck"/>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-xl-3 col-md-6">
-                                        <div class="card">
-                                            <div class="card-body">
-                                                <div class="generated-post">
-                                                    <p class="form-label">Image</p>
-                                                    <img class="loaded-image" id="loaded-image7" src="{{ user_settings.schedule_image_7 }}" alt="Loaded Image">
-                                                    <br>
-                                                    <p class="form-label">Caption</p>
-                                                    <div class="mb-3">
-                                                        <div class="text-box-wrapper">
-                                                            <div id="caption7" contenteditable="false" class="text-box">{{ user_settings.schedule_cap_7 }}</div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="mb-3">
-                                                        <label class="form-check-label" for="ftueCheck" style="margin-bottom: 7%;">Add To Schedule</label>
-                                                        <br>
-                                                        <input type="checkbox" data-switchery="true" data-plugin="switchery" data-color="#039cfd" name="ftueCheck7" id="ftueCheck"/>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-xl-3 col-md-6">
-                                        <div class="card">
-                                            <div class="card-body">
-                                                <div class="generated-post">
-                                                    <p class="form-label">Image</p>
-                                                    <img class="loaded-image" id="loaded-image8" src="{{ user_settings.schedule_image_8 }}" alt="Loaded Image">
-                                                    <br>
-                                                    <p class="form-label">Caption</p>
-                                                    <div class="mb-3">
-                                                        <div class="text-box-wrapper">
-                                                            <div id="caption8" contenteditable="false" class="text-box">{{ user_settings.schedule_cap_8 }}</div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="mb-3">
-                                                        <label class="form-check-label" for="ftueCheck" style="margin-bottom: 7%;">Add To Schedule</label>
-                                                        <br>
-                                                        <input type="checkbox" data-switchery="true" data-plugin="switchery" data-color="#039cfd" name="ftueCheck8" id="ftueCheck"/>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <button type="submit" class="btn btn-purple rounded-pill w-md waves-effect waves-light mb-3" onclick="showSpinner()">
-                                    <i class="mdi mdi-plus"></i> Schedule</button>
-                            </form>
-                        </div>
-                        {% endif %}
                         {% endif %}
 
                         <div id="loading-overlay">
@@ -952,31 +488,10 @@
                             }
 
                             const animationGifPaths = [
-                                "{% static 'ftue_animation/FeedAI_FTUE_Animation_1.gif' %}",
-                                "{% static 'ftue_animation/FeedAI_FTUE_Animation_2.png' %}",
-                                "{% static 'ftue_animation/FeedAI_FTUE_Animation_3.png' %}",
-                                "{% static 'ftue_animation/FeedAI_FTUE_Animation_4.png' %}",
-                                "{% static 'ftue_animation/FeedAI_FTUE_Animation_5.png' %}",
-                                "{% static 'ftue_animation/FeedAI_FTUE_Animation_6.png' %}",
-                                "{% static 'ftue_animation/FeedAI_FTUE_Animation_7.png' %}",
-                                "{% static 'ftue_animation/FeedAI_FTUE_Animation_8.png' %}",
-                                "{% static 'ftue_animation/FeedAI_FTUE_Animation_9.png' %}",
-                            ];
-                            const animationGifPaths2 = [
-                                "{% static 'ftue_animation/FeedAI_FTUE_Animation_10.png' %}",
-                                "{% static 'ftue_animation/FeedAI_FTUE_Animation_11.png' %}",
-                                "{% static 'ftue_animation/FeedAI_FTUE_Animation_12.png' %}",
-                            ];
-                            const animationGifPaths3 = [
-                                "{% static 'ftue_animation/FeedAI_FTUE_Animation_13.png' %}",
-                                "{% static 'ftue_animation/FeedAI_FTUE_Animation_14.png' %}",
-                                "{% static 'ftue_animation/FeedAI_FTUE_Animation_15.png' %}",
-                                "{% static 'ftue_animation/FeedAI_FTUE_Animation_16.png' %}",
-                                "{% static 'ftue_animation/FeedAI_FTUE_Animation_18.png' %}",
-                            ];
-                            const animationGifPaths4 = [
-                                "{% static 'ftue_animation/FeedAI_FTUE_Animation_19.png' %}",
-                                "{% static 'ftue_animation/FeedAI_FTUE_Animation_17.png' %}",
+                                "{% static 'dashboard/images/FTUE/FTUE1.gif' %}",
+                                "{% static 'dashboard/images/FTUE/FTUE2.png' %}",
+                                "{% static 'dashboard/images/FTUE/FTUE3.png' %}",
+                                "{% static 'dashboard/images/FTUE/FTUE4.png' %}",
                             ];
                         </script>
                     </div>
@@ -1041,7 +556,9 @@
     
     <!-- Init js-->
     <script src="{% static 'dashboard/js/pages/form-pickers.init.js' %}"></script>
+    <script src="{% static 'dashboard/js/chatbot.js' %}"></script>
     <script type="module" src="{% static 'dashboard/js/pages/dashboard.init.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script>
     const gifStart = "{% static 'dashboard/gifs/load-start.gif' %}"
     const gifDone = "{% static 'dashboard/gifs/load-done.gif' %}"
@@ -1049,10 +566,10 @@
     var jsonDump = {
         userId: '{{ user_id }}',
     };
+    var userLogo = "{{ user_settings.logo }}"
+    var botAvatar = "{% static 'dashboard/images/icon/elaineChatIcon2.png' %}"
+    var storedChatMessages = {{ all_messages|safe }};
     </script>
-
-
-        
     
 
 </body>

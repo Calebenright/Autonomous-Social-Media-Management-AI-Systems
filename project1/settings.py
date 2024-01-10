@@ -15,6 +15,7 @@ from pathlib import Path
 from decouple import config
 import firebase_admin
 from firebase_admin import credentials
+from django.contrib.messages import constants as messages
 
 # # If using GCP SECRETS_MANAGER
 # from project1.secrets_manager import get_secret_value
@@ -43,9 +44,13 @@ SECRET_KEY = config('DJANGO_KEY')
 
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'starter-web-app-389316.uc.r.appspot.com', 'getfeed.info', 'www.getfeed.info', 'feadl.io', 'www.feadl.io']
 
-# DATABASES = {}
-
-# Application definition
+MESSAGE_TAGS = {
+    messages.DEBUG: 'secondary',
+    messages.INFO: 'info',
+    messages.SUCCESS: 'success',
+    messages.WARNING: 'warning',
+    messages.ERROR: 'error-message',
+}
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -153,6 +158,7 @@ GS_TASK_HANDLER_URL = config('GS_TASK_HANDLER_URL')
 GS_GENERATE_CAPTIONS_URL = config('GS_GENERATE_CAPTIONS_URL')
 GS_GENERATE_AI_IMAGE_URL = config('GS_GENERATE_AI_IMAGE_URL')
 GS_GENERATE_STOCK_URL = config('GS_GENERATE_STOCK_URL')
+GS_DALLE3 = config('GS_DALLE3')
 
 
 EMAIL_BACKEND = config('EMAIL_BACKEND')
@@ -176,16 +182,21 @@ GOOGLE_APP_SECRET = config('GOOGLE_APP_SECRET')
 FACEBOOK_APP_ID = config('FACEBOOK_APP_ID')
 FACEBOOK_APP_SECRET = config('FACEBOOK_APP_SECRET')
 
-# ##------------ DEPLOY -------------##
-DEBUG = False
+OPENAI_API_KEY = config('OPENAI_API_KEY')
+REDIRECT_URI = config('REDIRECT_URI')
+
 STRIPE_CANCEL_URL = config('STRIPE_CANCEL_URL')
 STRIPE_SUCCESS_URL = config('STRIPE_SUCCESS_URL')
 STRIPE_WEBHOOK_URL = config('STRIPE_WEBHOOK_URL')
-REDIRECT_URI = config('REDIRECT_URI')
+STRIPE_ENDPOINT = config('STRIPE_ENDPOINT')
 
-##------------ DEV -------------##
-# DEBUG = True
 # STRIPE_CANCEL_URL = config('STRIPE_DEV_CANCEL_URL')
 # STRIPE_SUCCESS_URL = config('STRIPE_DEV_SUCCESS_URL')
 # STRIPE_WEBHOOK_URL = config('STRIPE_DEV_WEBHOOK_URL')
-# REDIRECT_URI = config('DEV_REDIRECT_URI')
+# STRIPE_ENDPOINT = config('STRIPE_DEV_ENDPOINT')
+
+# ##------------ DEPLOY -------------##
+# DEBUG = False
+
+##------------ DEV -------------##
+DEBUG = True

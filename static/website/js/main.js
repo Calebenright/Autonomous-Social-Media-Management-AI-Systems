@@ -33,3 +33,13 @@ Array.from(document.getElementsByClassName('nav-toggle')).forEach(function(el) {
 document.addEventListener('touchmove', function(evt) {
   evt.preventDefault();
 });
+
+function closeMessage(element) {
+  element.parentElement.style.display = 'none'; // Hide the message
+  const messageId = element.parentElement.getAttribute('data-message-id');
+  
+  // Store the closed message ID in local storage
+  const closedMessages = JSON.parse(localStorage.getItem('closed_messages')) || [];
+  closedMessages.push(messageId);
+  localStorage.setItem('closed_messages', JSON.stringify(closedMessages));
+}

@@ -4,7 +4,6 @@
 
 ## This Script uses a prompt to generate an image, convert it to jpg, and upload to instagram.
 
-import openai
 import os
 import re
 import requests
@@ -21,66 +20,82 @@ import random
 import json
 import base64
 import uuid
-
 from decouple import config
-openai.api_key = config('OPENAI_API_KEY')
+from openai import OpenAI
+
 UNSPLASH_API_KEY = config('UNSPLASH_API_KEY')
 STABILITY_API_KEY = config('STABILITY_API_KEY')
 
 def create_caption (business_description, business_name):
-    # Define the Business We Are Creating Media For
+    client = OpenAI(api_key=config('OPENAI_API_KEY'))
     prompts = [
     f"Create a short social media caption for (BUSINESS NAME = {business_name}) and (BUSINESS DESCRIPTION = {business_description}) | Remove quotations.",
     f"Create a goofy toned, short social media caption for (BUSINESS NAME = {business_name}) and (BUSINESS DESCRIPTION = {business_description}) | Remove quotations.",
     f"Create a sophisticated toned, short social media caption for (BUSINESS NAME = {business_name}) and (BUSINESS DESCRIPTION = {business_description}) | Remove quotations.",
     ]
     prompt = random.choice(prompts)
-    response = openai.Completion.create(
-        model="gpt-3.5-turbo-instruct",
-        prompt=prompt,
-        max_tokens=300,
-        temperature=1
-    )
-    original_string = response.choices[0].text.strip()
+    response = client.chat.completions.create(
+            model="gpt-3.5-turbo-1106",
+            messages=[
+                {
+                "role": "system",
+                "content": "you are not a person. respond with just the output."
+                },
+                {
+                "role": "user",
+                "content": prompt
+                }
+            ],
+            temperature=1,
+            max_tokens=200
+        )
+    original_string = response.choices[0].message.content.strip()
     caption = re.sub(r'"+', '', original_string)
     return caption
 
 def create_dalle_post (key):
+    client = OpenAI(api_key=config('OPENAI_API_KEY'))
+
     ## GENERATE iMAGE
     prompt = f"describe one image you would find on social media that relates to {key} and make it a prompt so that i can generate that image in my image generator."
-    response = openai.Completion.create(
-        model="gpt-3.5-turbo-instruct",
+    response = client.images.generate(
+        model="dall-e-3",
         prompt=prompt,
-        max_tokens=300,
-        temperature=1
-    )
-    img = response.choices[0].text.strip()
-    response = openai.Image.create(
-        prompt= img,
-        n=1,
         size="1024x1024",
+        quality="standard",
+        n=1,
     )
-    image_url = response['data'][0]['url']
+
+    image_url = response.data[0].url
     image_response = requests.get(image_url)
     image_data = BytesIO(image_response.content)
 
     return image_data
 
 def create_stable_dif_post (key):
+    client = OpenAI(api_key=config('OPENAI_API_KEY'))
+
     ## GENERATE iMAGE
     prompt = f"I want you to create an image description based on these tags: {key}. The response should be less than 300 characters."
 
-    # Make a request to the OpenAI API
-    response = openai.Completion.create(
-        model="gpt-3.5-turbo-instruct",
-        prompt=prompt,
-        max_tokens=300,
-        temperature=1
-    )
+    response = client.chat.completions.create(
+            model="gpt-3.5-turbo-1106",
+            messages=[
+                {
+                "role": "system",
+                "content": "you are not a person. respond with just the output."
+                },
+                {
+                "role": "user",
+                "content": prompt
+                }
+            ],
+            temperature=1,
+            max_tokens=200
+        )
 
-    img = response.choices[0].text.strip()
+    img = response.choices[0].message.content.strip()
 
-    ## CREATE IMAGE USING STABLE DIFFUSION
     url = "https://api.stability.ai/v1/generation/stable-diffusion-xl-beta-v2-2-2/text-to-image"
 
     body = {
@@ -118,6 +133,7 @@ def create_stable_dif_post (key):
     image_io.seek(0)
 
     return image_io
+    
 
 def create_stock_post (key):
     ## CREATE IMAGE USING Unsplash
@@ -243,20 +259,31 @@ def create_placeholder(business_description, bucket_name, bucket_credentials, us
     return image_io
 
 def create_ad_headline (business_description, business_name):
+    client = OpenAI(api_key=config('OPENAI_API_KEY'))
     ad_headline_prompt = f"Write me a maximum 30 character persuasive PAS-based Facebook Ad Headline call to action based on the business named [BUSINESS NAME = {business_name}] and has a business description [BUSINESS DESCRIPTION = {business_description}]"
-    response = openai.Completion.create(
-        model="gpt-3.5-turbo-instruct",
-        prompt=ad_headline_prompt,
-        max_tokens=50,
-        temperature=1
-    )
-    ad_headline = response.choices[0].text.strip()
+    response = client.chat.completions.create(
+            model="gpt-3.5-turbo-1106",
+            messages=[
+                {
+                "role": "system",
+                "content": "you are not a person. respond with just the output."
+                },
+                {
+                "role": "user",
+                "content": ad_headline_prompt
+                }
+            ],
+            temperature=1,
+            max_tokens=200
+        )
+    ad_headline = response.choices[0].message.content.strip()
     ad_headline_str = re.sub(r'"+', '', ad_headline)
 
     return ad_headline_str
 
 def create_ad_copy (business_description, biz_name, platform):
     # Define the Business We Are Creating Media For
+    client = OpenAI(api_key=config('OPENAI_API_KEY'))
 
     ad_copy_prompt = f"Write me a persuasive PAS-based {platform} Ad that promotes {business_description}. The name of my business is {biz_name}\
     \
@@ -274,31 +301,39 @@ def create_ad_copy (business_description, biz_name, platform):
     \
     Make sure this ad is less than either 100, 75, or 50 words and is written at a Grade 4 readability level."
     
-    response = openai.Completion.create(
-        model="gpt-3.5-turbo-instruct",
-        prompt=ad_copy_prompt,
-        max_tokens=500,
-        temperature=1
+    response = client.chat.completions.create(
+        model="gpt-3.5-turbo-1106",
+        messages=[
+            {
+            "role": "system",
+            "content": "you are not a person. respond with just the output."
+            },
+            {
+            "role": "user",
+            "content": ad_copy_prompt
+            }
+        ],
+        temperature=1,
+        max_tokens=1000
     )
-
-    original_string = response.choices[0].text.strip()
+    original_string = response.choices[0].message.content.strip()
     ad_copy = re.sub(r'"+', '', original_string)
 
     return ad_copy
 
-def add_watermark (image, logo_path):
-
-    image = Image.open(image)
+def add_logo (img, logo_path):
+    image_url = requests.get(img)
+    image = Image.open(BytesIO(image_url.content))
     response2 = requests.get(logo_path)
     logo = Image.open(BytesIO(response2.content))
-    logo_width = int(0.24 * 1024)
+    logo_width = int(0.14 * 1024)
     logo_height = int(logo_width * logo.size[1] / logo.size[0])
     logo = logo.resize((logo_width, logo_height), Image.LANCZOS)
-    position = (1010 - logo.width, 1010 - logo.height)
+    position = (1005 - logo.width, 1005 - logo.height)
     image.paste(logo, position, logo)
 
     image_io = BytesIO()
-    image.save(image_io, format='JPEG')
+    image.save(image_io, format='PNG')
     image_io.seek(0) 
 
     return image_io
@@ -329,6 +364,38 @@ def upload_png_to_google (image, bucket_name, bucket_credentials, user_folder_pa
 
     return blob.public_url
 
-# create_post('roofing', 'starter_web_app_bucket', 'credentials.json')
-# DONE :)
+def send_task (key, uid, dimensions, number):
+    client = OpenAI(api_key=config('OPENAI_API_KEY'))
+
+    ## GENERATE iMAGE
+    prompt = f"I want you to create an image description based on these tags: {key}. The response should be less than 300 characters."
+
+    response = client.chat.completions.create(
+            model="gpt-3.5-turbo-1106",
+            messages=[
+                {
+                "role": "system",
+                "content": "you are not a person. respond with just the output."
+                },
+                {
+                "role": "user",
+                "content": prompt
+                }
+            ],
+            temperature=1,
+            max_tokens=200
+        )
+
+    img_description = response.choices[0].message.content.strip()
+    payload = {'uid': uid, 'prompt': prompt, 'dimensions': dimensions, 'number': number}
+    DALLE3_URL = config('DALLE3_URL')
+    def trigger_cloud_function_async():
+        def send_request():
+            requests.post(DALLE3_URL, json=payload)
+        thread = threading.Thread(target=send_request)
+        thread.start()
+
+    trigger_cloud_function_async()
+
+    return print('done')
 
