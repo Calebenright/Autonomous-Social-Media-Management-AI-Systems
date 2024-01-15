@@ -62,6 +62,15 @@ def change_email(request):
                 user = auth.get_user_by_email(old_email)
                 auth.update_user(user.uid, email=new_email)
 
+                # ----- Get the Firestore document reference for the user settings ----- #
+                db = firestore.client()
+                user_settings_ref = db.collection('users').document(user.uid)
+                user_settings_doc = user_settings_ref.get()
+                user_settings = user_settings_doc.to_dict()
+                # ---------------------------------------------------------------------- #
+                firestore_data = {'email': new_email}
+                user_settings_ref.set(firestore_data, merge=True)
+
                 subject = 'Email Address Changed'
                 message = (
                     f"<p>Hello,</p>"
@@ -129,6 +138,7 @@ def signup(request):
                     'ftue': False,
                     'autoState': 1,
                     'isSubscriber': False,
+                    'isLogo': False,
                     'brand_color': '#000000',
                     'business_description': '',
                     'business_name': '',
@@ -136,6 +146,7 @@ def signup(request):
                     'images_generated': 0,
                     'progress': 100,
                     'admin': False,
+                    'email': email
                 }
                 user_settings_ref.set(firestore_data, merge=True)
                 messages.success(request, f'Account created. You can now log in.')

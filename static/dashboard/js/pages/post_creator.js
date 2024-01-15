@@ -19,6 +19,7 @@ const firebaseApp = initializeApp(firebaseConfig);
 const db = getFirestore(firebaseApp);
 const statusDocRef = doc(collection(db, 'users'), jsonDump.userId);
 const loadedImage = document.getElementById('loaded-image');
+var dynamicUrl = document.getElementById('dynamicUrl')
 
 const unsubscribe = onSnapshot(statusDocRef, (docSnapshot) => {
     if (docSnapshot.exists()) {
@@ -26,32 +27,16 @@ const unsubscribe = onSnapshot(statusDocRef, (docSnapshot) => {
         const progress = docSnapshot.data().progress;
         const nextImage = docSnapshot.data().next_image_url;
 
-        console.log(progress)
-        console.log(nextImage)
-
         if (progress === 90) {
-            // if (jsonDump.selectedOption === 'graphic' || jsonDump.selectedOption === 'ad') {
             addGraphics(nextImage)
-            // } else {
-            //     statusDocRef.update({
-            //         100: progress,
-            //         next_image_url: nextImage
-            //     })
-            //     .then(() => {
-            //         console.log("Document successfully updated!");
-            //     })
-            //     .catch((error) => {
-            //         console.error("Error updating document: ", error);
-            //     });
-            //     if (loadedImage) {
-            //         loadedImage.src = nextImage;
-            //     }
-            // }
         }
 
         if (progress === 100) {
             if (loadedImage) {
                 loadedImage.src = nextImage;
+            }
+            if (dynamicUrl) {
+                dynamicUrl.value = nextImage;
             }
         }
     }

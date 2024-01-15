@@ -386,7 +386,7 @@
                                             <p></p>
                                             <div class="post-type-thumbnails">
 
-                                                <div class="thumbnail-container" onclick="selectPostType('text')">
+                                                <!-- <div class="thumbnail-container" onclick="selectPostType('text')">
                                                     <img class="post-type-thumbnail" data-value="text" src="https://storage.googleapis.com/starter_web_app_bucket/assets/text.png" alt="Text Blurb">
                                                     <p class="poppins">Text Post</p>
                                                 </div>
@@ -396,17 +396,17 @@
                                                     <p class="poppins">Stock Photo Post</p>
                                                 </div>
                                             
-                                                <div class="thumbnail-container selected" onclick="selectPostType('graphic')">
-                                                    <img class="post-type-thumbnail selected" data-value="graphic" src="https://storage.googleapis.com/starter_web_app_bucket/assets/graphic.png" alt="Graphic Design">
+                                                <div class="thumbnail-container" onclick="selectPostType('graphic')">
+                                                    <img class="post-type-thumbnail" data-value="graphic" src="https://storage.googleapis.com/starter_web_app_bucket/assets/graphic.png" alt="Graphic Design">
                                                     <p class="poppins">Social Media Graphic Post</p>
-                                                </div>
+                                                </div> -->
                                             
                                                 <div class="thumbnail-container" onclick="selectPostType('ad')">
                                                     <img class="post-type-thumbnail" data-value="ad" src="https://storage.googleapis.com/starter_web_app_bucket/assets/ad.png" alt="Ad Creative">
                                                     <p class="poppins">Ad Creative</p>
                                                 </div>
                                             
-                                                <div class="thumbnail-container" onclick="selectPostType('up')">
+                                                <div class="thumbnail-container selected" onclick="selectPostType('up')">
                                                     <img class="post-type-thumbnail selected" data-value="up" src="https://storage.googleapis.com/starter_web_app_bucket/assets/up.png" alt="Upload Photo">
                                                     <p class="poppins">Upload Photo</p>
                                                 </div>
@@ -451,36 +451,98 @@
                                         </div>
 
                                         <div id="content-card-photo" class="content-card">
-                                            <h4 class="header-title">Add Elements</h4>
+                                            
+                                            <div id="ai-stock-image">
+                                                <br>
+                                                <h4 class="header-title">Tags:</h4>
+                                                <p></p> 
+                                                <div class="tag-input-container">
+                                                    <input type="hidden" name="tags" value="">
+                                                    <input type="text" id="tagInput" class="form-control" placeholder="Enter tags separated by a comma...">
+                                                    <div class="tag-bubbles" id="tagBubbles"></div>
+                                                </div>
+                                                <br>
+                                            </div>
+                                            <h4 class="header-title">Add Elements:</h4>
                                             {% if user_settings.logo %}
                                             <p></p>
                                             <div class="form-check mb-2 form-check-success">
                                                 <input class="form-check-input" type="checkbox" name="isLogo" value="true" id="logo" >
                                                 <label class="form-check-label" for="logo">Logo</label>
                                             </div>
-                                            {% endif %}              
-                                            <br>
-                                            <h4 class="header-title">Tags</h4>
-                                            <p></p> 
-                                            <div class="tag-input-container">
-                                                <input type="hidden" name="tags" value="">
-                                                <input type="text" id="tagInput" class="form-control" placeholder="Enter tags separated by a comma...">
-                                                <div class="tag-bubbles" id="tagBubbles"></div>
+                                            <p></p>
+                                            {% endif %}
+                                            <!-- Thumbnails Display -->
+                                            <h4 class="header-title">Select Image:</h4>
+                                            <div class="stock-thumbnails">
+                                                <div class="thumbnail none-thumbnail" onclick="selectNoneStock()">
+                                                    <span class="ai-text">AI</span>
+                                                </div>
                                             </div>
                                             <br>
+                                            <input type="hidden" name="selected_stock_image_url" id="selected_stock_image_url">
                                         </div>
                                         
+                                        
+                                        <script>
+                                            function decodeHtmlEntities(str) {
+                                                const parser = new DOMParser();
+                                                return parser.parseFromString(str, 'text/html').documentElement.textContent;
+                                            }
+
+                                            let imageStockURLsString = decodeHtmlEntities("{{ user_settings.image_tags }}");
+                                            let imageStockURLs = JSON.parse(imageStockURLsString);
+                                            let previouslySelectedStockImage = null;
+                                            const aiStockImage = document.getElementById('ai-stock-image')
+                                        
+                                            function selectStockImage(imgStockElement, url) {
+                                                document.getElementById('selected_stock_image_url').value = url;
+                                        
+                                                if (previouslySelectedStockImage) {
+                                                    previouslySelectedStockImage.classList.remove('selected');
+                                                }
+                                                imgStockElement.classList.add('selected');
+                                                previouslySelectedStockImage = imgStockElement;
+                                                aiStockImage.style.display = "none";
+                                            }
+
+                                            function selectNoneStock() {
+                                                document.getElementById('selected_stock_image_url').value = "None";
+                                                
+                                                if (previouslySelectedStockImage) {
+                                                    previouslySelectedStockImage.classList.remove('selected');
+                                                }
+                                                let noneStockThumbnail = document.querySelector('.none-thumbnail');
+                                                noneStockThumbnail.classList.add('selected');
+                                                previouslySelectedStockImage = noneStockThumbnail;
+                                                aiStockImage.style.display = "block";
+                                                
+                                            }
+                                        
+                                            // Generate image thumbnails
+                                            let thumbnailsStockDiv = document.querySelector('.stock-thumbnails');
+                                            imageStockURLs.forEach(url => {
+                                                let imgStockElement = document.createElement('img');
+                                                imgStockElement.src = url;
+                                                imgStockElement.alt = "Thumbnail";
+                                                imgStockElement.classList.add('thumbnail');
+                                                imgStockElement.addEventListener('click', () => selectStockImage(imgStockElement, url));
+                                                thumbnailsStockDiv.appendChild(imgStockElement);
+                                            });
+
+                                        </script>
+                                        
                                         <div id="content-card-stock" class="content-card">
-                                            <h4 class="header-title">Add Elements</h4>
+                                            <h4 class="header-title">Add Elements:</h4>
                                             {% if user_settings.logo %}
                                             <p></p>
                                             <div class="form-check mb-2 form-check-success">
                                                 <input class="form-check-input" type="checkbox" name="isLogo" value="true" id="logo" >
                                                 <label class="form-check-label" for="logo">Logo</label>
                                             </div>
-                                            {% endif %}  
+                                            {% endif %}
                                             <br>
-                                            <h4 class="header-title">Search Keyword</h4>
+                                            <h4 class="header-title">Search Keyword:</h4>
                                             <p></p> 
                                             <div class="mb-3">
                                                 <input type="text" name="stock-description" class="form-control" placeholder="Enter Search Keyword...">
@@ -489,25 +551,21 @@
                                         </div>
                                         
                                         <div id="content-card-graphic" class="content-card">
-                                        
-                                            <p>Select an image:</p>
-
-                                            <!-- Thumbnails Display -->
-                                            <div class="graphic-thumbnails">
-                                                <div class="thumbnail none-thumbnail" onclick="selectNone()">
-                                                    <!-- <div class="red-line"></div> -->
-                                                    <span class="ai-text">AI</span>
-                                                </div>
-                                            </div>
-                                            <br>
+                                            
                                             <div id="ai-image">
-                                                <h4 class="header-title">AI Image Keyword</h4>
+                                                <h4 class="header-title">AI Image Keyword:</h4>
                                                 <p></p>
                                                 <div class="mb-3">
                                                     <input type="text" name="graphic-description" class="form-control" placeholder="Enter Background Image Keyword...">
                                                 </div>
                                             </div>
-                                        
+                                            <!-- Thumbnails Display -->
+                                            <h4 class="header-title">Select Image:</h4>
+                                            <div class="graphic-thumbnails">
+                                                <div class="thumbnail none-thumbnail" onclick="selectNone()">
+                                                    <span class="ai-text">AI</span>
+                                                </div>
+                                            </div>
                                             <!-- Hidden input to store selected image URL -->
                                             <input type="hidden" name="selected_image_url" id="selected_image_url">
                                         </div>
@@ -561,24 +619,9 @@
                                         </script>
                                         
                                         <div id="content-card-ad" class="content-card">
-                                        
-                                            <p>Select an image:</p>
-
-                                            <div class="ad-creative-thumbnails">
-                                                <div class="thumbnail none-ad-thumbnail" onclick="selectNoneAd()">
-                                                    <!-- <div class="red-line"></div> -->
-                                                    <span class="ai-text">AI</span>
-                                                </div>
-                                            </div>
-                                            <br>
-                                            <div id="ai-ad-image">
-                                                <h4 class="header-title">AI Image Keyword</h4>
-                                                <p></p>
-                                                <div class="mb-3">
-                                                    <input type="text" name="ad-creative-description" class="form-control" placeholder="Enter Background Image for Ad Creative...">
-                                                </div>
-                                            </div>
-                                            <h4 class="header-title">Platform</h4>
+                                            
+                                            
+                                            <h4 class="header-title">Platform:</h4>
                                             <p></p> 
                                             <div class="mb-3">
                                                 <select class="form-select" id="text-platform" name="text-platform">
@@ -588,7 +631,20 @@
                                                     <option>Google My Business</option>
                                                 </select>
                                             </div>
-
+                                            <div id="ai-ad-image">
+                                                <h4 class="header-title">AI Image Keyword:</h4>
+                                                <p></p>
+                                                <div class="mb-3">
+                                                    <input type="text" name="ad-creative-description" class="form-control" placeholder="Enter Background Image for Ad Creative...">
+                                                </div>
+                                            </div>
+                                            <h4 class="header-title">Select Image:</h4>
+                                            <div class="ad-creative-thumbnails">
+                                                <div class="thumbnail none-ad-thumbnail" onclick="selectNoneAd()">
+                                                    <!-- <div class="red-line"></div> -->
+                                                    <span class="ai-text">AI</span>
+                                                </div>
+                                            </div>
                                             <input type="hidden" name="selected_ad_creative_image_url" id="selected_ad_creative_image_url">
                                         </div>
                                         
@@ -710,14 +766,15 @@
                                             <br>
                                             <br>
                                         </form>
-                                        <form method="post" action="{% url 'post_creator' %}">
+                                        <!-- Form -->
+                                        <form id="sendPost" method="post" action="{% url 'post_creator' %}">
                                             {% csrf_token %}
-                                            <input type="hidden" name="form" value="formPostPost">
-                                            <input type="hidden" name="caption2" value="{{ user_settings.next_caption }}">
-                                            <input type="hidden" id="editedCaption2" name="edited_caption2" value="">
+                                            <input type="hidden" name="form" id="formAction" value="">
                                             {% if user_settings.lastType != 'image' %}
-                                            <input type="hidden" name="url2" value="{{ user_settings.next_image_url }}">
+                                            <input type="hidden" name="url" id="dynamicUrl" value="">
                                             {% endif %}
+                                            <input type="hidden" name="caption" value="{{ user_settings.next_caption }}">
+                                            <input type="hidden" id="editedCaption" name="edited_caption" value="">
                                             {% if user_settings.isFacebook %}
                                             <input type="hidden" id="facebook_visible" name="facebook_visible" value="true">
                                             {% endif %}
@@ -741,43 +798,28 @@
                                                     {% endif %}
                                                 </div>
                                             </div>
-                                            <button type="submit" class="btn btn-gold rounded-pill w-md waves-effect waves-light mb-3" onclick="updateAndSubmitForm2(); showSpinner()">
-                                                <i class="mdi mdi-plus"></i> Post to Feed!</button>
                                         </form>
-                                        <form method="post" action="{% url 'post_creator' %}">
-                                            {% csrf_token %}
-                                            <input type="hidden" name="form" value="formPostSchedule">
-                                            <input type="hidden" name="caption" value="{{ user_settings.next_caption }}">
-                                            <input type="hidden" id="editedCaption" name="edited_caption" value="">
-                                            {% if user_settings.lastType != 'image' %}
-                                            <input type="hidden" name="url" value="{{ user_settings.next_image_url }}">
-                                            {% endif %}
-                                            {% if user_settings.isFacebook %}
-                                            <input type="hidden" id="facebook_visible2" name="facebook_visible2" value="true">
-                                            {% endif %}
-                                            {% if user_settings.isInstagram %}
-                                            <input type="hidden" id="instagram_visible2" name="instagram_visible2" value="true">
-                                            {% endif %}
-                                            {% if user_settings.isLinkedin %}
-                                            <input type="hidden" id="linkedin_visible2" name="linkedin_visible2" value="true">
-                                            {% endif %}
-                                            <button type="submit" class="btn btn-success rounded-pill w-md waves-effect waves-light mb-3" onclick="updateAndSubmitForm(); showSpinner()">
-                                                <i class="mdi mdi-plus"></i> Add To Schedule!</button>
-                                        </form>
+                                        <!-- Buttons -->
+                                        <button type="button" class="btn btn-gold rounded-pill w-md waves-effect waves-light mb-3" onclick="setFormValueAndShowSpinner('formPostFeed', 'sendPost')">
+                                            <i class="mdi mdi-plus"></i> Post to Feed!
+                                        </button>
+
+                                        <button type="button" class="btn btn-success rounded-pill w-md waves-effect waves-light mb-3" onclick="setFormValueAndShowSpinner('formPostSchedule', 'sendPost')">
+                                            <i class="mdi mdi-plus"></i> Add To Schedule!
+                                        </button>
+
                                         <script>
-                                            function updateAndSubmitForm() {
+                                            function setFormValueAndShowSpinner(formType, formId) {
                                                 var updatedCaption = document.getElementById('prompt').innerText;
                                                 document.getElementById('editedCaption').value = updatedCaption;
-                                            }
-                                            function updateAndSubmitForm2() {
-                                                var updatedCaption = document.getElementById('prompt').innerText;
-                                                document.getElementById('editedCaption2').value = updatedCaption;
+                                                document.getElementById('formAction').value = formType;
+                                                showSpinner();
+                                                document.getElementById(formId).submit();
                                             }
                                             function toggleSocialMedia(media) {
                                                 var element = document.getElementById(media);
                                                 var isVisible = element.style.display != "none";
                                                 document.getElementById(media + '_visible').value = isVisible ? "false" : "true";
-                                                document.getElementById(media + '_visible2').value = isVisible ? "false" : "true";
                                                 element.style.display = isVisible ? "none" : "inline";
                                             }
                                             function resetSocialMedia() {
@@ -789,7 +831,7 @@
                                                 }
                                                 });
                                             }
-                                        </script>   
+                                        </script>
                                     </div>
                                 </div> <!-- end card-body -->
                             </div> <!-- end card -->
@@ -807,10 +849,7 @@
             <script>
                 function showSpinner() {
                     var loadingOverlay = document.getElementById('loading-overlay');
-                    var submitButton = document.querySelector('#myForm button[type="submit"]');
-
                     loadingOverlay.style.display = 'flex';
-                    submitButton.disabled = true;
                 }
                 
                 const tagsArray = '{{ user_settings.tags|safe }}' !== '' ?
@@ -829,7 +868,7 @@
                 </div>
                 <div class="col-md-6">
                     <div class="text-md-end footer-links d-none d-sm-block">
-                        <a href="{% url 'contact' %}">About Us</a>
+                        <a href="{% url 'contact' %}">Contact Us</a>
                     </div>
                 </div>
             </div>

@@ -58,7 +58,6 @@ await getDocs(eventsCollectionRef)
         this.$facebook = l("#facebook"),
         this.$linkedin = l("#linkedin"),
         this.$instagram = l("#instagram"),
-        this.$googleBusiness = l("#google_business"),
         this.$socialReset = l("#social_reset"),
         this.$darkButton = l("#dark-button"),
         this.$downloadForm = l("#downloadForm"),
@@ -81,13 +80,11 @@ await getDocs(eventsCollectionRef)
         const socialElements = {
             'facebook': this.$facebook,
             'instagram': this.$instagram,
-            'linkedin': this.$linkedin,
-            'google_business': this.$googleBusiness
+            'linkedin': this.$linkedin
         };
         this.$facebook.hide();
         this.$instagram.hide();
         this.$linkedin.hide();
-        this.$googleBusiness.hide();
         
         const socials = e.event.extendedProps.socials || [];
         for (let social of socials) {
@@ -166,36 +163,6 @@ await getDocs(eventsCollectionRef)
                     imgEventWrap.innerHTML = imgEvent;
                 }
 
-                // // title event (caption)
-                // let titleEvent = document.createElement('div');
-                // if (arg.event.extendedProps.caption) {
-                //     const words = arg.event.extendedProps.caption.split(' ');
-            
-                //     // Take the first few words (e.g., the first two words)
-                //     const numberOfWordsToDisplay = 5;
-                //     const caption = words.slice(0, numberOfWordsToDisplay).join(' ');
-            
-                //     // Create a square element for the caption
-                //     const captionSquare = document.createElement('div');
-                //     captionSquare.textContent = caption;
-                //     captionSquare.classList = "fc-event-caption";
-                //     captionSquare.style.fontWeight = "bold";
-                //     captionSquare.style.fontSize = "10px";  
-                //     captionSquare.style.color = "#000000";  
-                //     captionSquare.style.padding = "5px";   
-                //     captionSquare.style.backgroundColor = "#ffffff"; 
-                //     captionSquare.style.borderRadius = "5px";
-                //     captionSquare.style.whiteSpace = "normal";
-                //     captionSquare.style.margin = "10px";   
-
-                //     titleEvent.appendChild(captionSquare);
-        
-                // }
-            
-                // arrayOfDomNodes = [imgEventWrap, titleEvent];
-            
-                // return { domNodes: arrayOfDomNodes };
-
                 arrayOfDomNodes = [imgEventWrap];
 
                 return { domNodes: arrayOfDomNodes };
@@ -258,18 +225,11 @@ await getDocs(eventsCollectionRef)
             }
         });
 
-        a.$googleBusiness.on("click", function(e) {
-            if (a.$selectedEvent) {
-                a.$googleBusiness.hide();
-            }
-        });
-
         a.$socialReset.on("click", function(e) {
             if (a.$selectedEvent) {
                 a.$instagram.show();
                 a.$facebook.show();
                 a.$linkedin.show();
-                a.$googleBusiness.show();
             }
         });
         
@@ -289,8 +249,7 @@ await getDocs(eventsCollectionRef)
                     const socialElements = {
                         'facebook': a.$facebook,
                         'linkedin': a.$linkedin,
-                        'instagram': a.$instagram,
-                        'google_business': a.$googleBusiness
+                        'instagram': a.$instagram
                     };
                     
                     const socials = [];

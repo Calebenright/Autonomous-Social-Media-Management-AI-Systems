@@ -73,7 +73,7 @@
                       <img id="dynamicProfile" src="https://storage.googleapis.com/starter_web_app_bucket/user_folders/stock_image_library/0495ceee-1eb1-4887-84a1-1b23cf1d9adb.jpg" alt="Profile" class="profile-pic">
                       <span class="username">Username</span>
                   </div> -->
-                  <img id="dynamicImage" src="https://storage.googleapis.com/starter_web_app_bucket/user_folders/assets/index.png" alt="Dynamic Image" class="post-image">
+                  <img id="dynamicImage" src="{% static 'website/media/bg/indexPost7.png' %}" alt="Dynamic Image" class="post-image">
                   <!-- <p id="dynamicCaption" class="post-caption">Default caption</p>9 -->
               </div>
               <br>
@@ -94,22 +94,25 @@
 
                   switch (selectedBusiness) {
                       case 'business1':
-                          dynamicImage.src = 'https://storage.googleapis.com/starter_web_app_bucket/assets/index.png';
+                          dynamicImage.src = "{% static 'website/media/bg/indexPost7.png' %}";
                           break;
                       case 'business2':
-                          dynamicImage.src = 'https://storage.googleapis.com/starter_web_app_bucket/assets/index2.png';
+                          dynamicImage.src = "{% static 'website/media/bg/indexPost2.png' %}";
                           break;
                       case 'business3':
-                          dynamicImage.src = 'https://storage.googleapis.com/starter_web_app_bucket/assets/index3.png';
+                          dynamicImage.src = "{% static 'website/media/bg/indexPost3.png' %}";
                           break;
                       case 'business4':
-                          dynamicImage.src = 'https://storage.googleapis.com/starter_web_app_bucket/assets/index4.png';
+                          dynamicImage.src = "{% static 'website/media/bg/indexPost4.png' %}";
                           break;
                       case 'business5':
-                          dynamicImage.src = 'https://storage.googleapis.com/starter_web_app_bucket/assets/index5.png';
+                          dynamicImage.src = "{% static 'website/media/bg/indexPost5.png' %}";
                           break;
                       case 'business6':
-                          dynamicImage.src = 'https://storage.googleapis.com/starter_web_app_bucket/assets/index6.png';
+                          dynamicImage.src = "{% static 'website/media/bg/indexPost6.png' %}";
+                          break;
+                      default:
+                          dynamicImage.src = "{% static 'website/media/bg/indexPost1.png' %}";
                           break;
                   }
               });
@@ -134,11 +137,12 @@
            market online, reach new customers, and generate more business.<br>Wrapped into a beautiful, user-friendly dashboard.
         </p>
       </div>
+      <!-- <br>
       <div class="margin-top max-width-l">
         <img class="rounded shadow-l" src="{% static 'website/media/content/dashboard.png' %}"
           srcset="{% static 'website/media/content/dashboard.png' %} 1x, {% static 'website/media/content/dashboard@2x.png' %} 2x"
           alt="Opalin Dashboard">
-      </div>
+      </div> -->
     </section>
     <section class="padding"></section>
   

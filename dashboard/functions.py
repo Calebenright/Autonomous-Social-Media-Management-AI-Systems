@@ -1,7 +1,7 @@
 import uuid
 import random
 from datetime import datetime, timedelta
-from PIL import Image, ImageDraw, ImageFont, ImageEnhance, ImageFilter, ImageChops, ImageOps
+from PIL import Image, ImageDraw, ImageFont, ImageEnhance, ImageFilter, ImageChops, ImageOps, ExifTags
 from io import BytesIO
 import requests
 import re
@@ -57,7 +57,7 @@ def create_text_post(platform, business_description, business_name):
 
 def create_stock_image_description (key):
     client = OpenAI(api_key=config('OPENAI_API_KEY'))
-    prompt = f"Create an image tag based on these tags: [{key}]. Then use the tag you made to create a description for a stock image based on it. The description should include the type of camera, the MM lens, and the settings. The description should be realistic and photographic."
+    prompt = f"Choose one of these tags: [{key}]. Then use the tag to create a description for a stock image based on it. The description should include the type of camera, the MM lens, and the settings. The description should be realistic and photographic."
     response = client.chat.completions.create(
             model="gpt-3.5-turbo-1106",
             messages=[
@@ -213,9 +213,22 @@ def generate_secondary_colors(color):
 
     return colors_str
 
+def read_image(post_image_files):
+    image_data = post_image_files.read()
+    img = Image.open(BytesIO(image_data))
+    return img
+
+def convert_to_bytes(image, format):
+    image_io = BytesIO()
+    image.save(image_io, format=format)
+    image_io.seek(0)
+
+    return image_io
+
 def upload_and_crop_image(post_image_files, user_image_folder_path):
     image_data = post_image_files.read()
     img = Image.open(BytesIO(image_data))
+    img = correct_orientation(img)
     if img.format != 'JPEG':
         img = img.convert('RGB')
     width, height = img.size
@@ -240,6 +253,38 @@ def upload_and_crop_image(post_image_files, user_image_folder_path):
     
     return uploaded_image_url
 
+def crop_image(image,):
+    img = correct_orientation(image)
+    if img.format != 'JPEG':
+        img = img.convert('RGB')
+    width, height = img.size
+    size = min(width, height)
+    left = (width - size) / 2
+    top = (height - size) / 2
+    right = (width + size) / 2
+    bottom = (height + size) / 2
+    cropped_img = img.crop((left, top, right, bottom))
+    
+    return cropped_img
+
+def correct_orientation(img):
+    try:
+        for orientation in ExifTags.TAGS.keys():
+            if ExifTags.TAGS[orientation] == 'Orientation':
+                break
+        exif = dict(img._getexif().items())
+
+        if exif[orientation] == 3:
+            img = img.rotate(180, expand=True)
+        elif exif[orientation] == 6:
+            img = img.rotate(270, expand=True)
+        elif exif[orientation] == 8:
+            img = img.rotate(90, expand=True)
+    except (AttributeError, KeyError, IndexError):
+        # cases: image doesn't have getexif
+        pass
+    return img
+
 def download_and_save_image_as_seek(url):
     image_url = requests.get(url)
     image_data = image_url.content
@@ -261,19 +306,13 @@ def delete_from_google(public_url, bucket_credentials):
     print(f"The file {object_name} was deleted from bucket {bucket_name}.")
 
 def reupload_gcs_image(source_url, new_folder):
-    parse_result = urlparse(source_url)
-    bucket_name = parse_result.netloc.split(".")[0]
-    blob_name = parse_result.path.lstrip('/')
-    if bucket_name == 'storage':
-        bucket_name = parse_result.path.split('/')[1]
-        blob_name = '/'.join(parse_result.path.split('/')[2:])
-    parts = blob_name.split('/')
-    if len(parts) > 1 and parts[1].endswith('_image_library'):
-        parts[1] = new_folder
-    destination_blob_name = 'scheduled_image_library/' + parts[1]
+    path_parts = source_url.replace("https://storage.googleapis.com/", "").split("/")
+    bucket_name = path_parts[0]
+    object_name = "/".join(path_parts[1:])
+    destination_blob_name = 'scheduled_image_library/' + str(uuid.uuid4()) + ".png"
     storage_client = storage.Client()
-    source_bucket = storage_client.bucket(bucket_name)
-    source_blob = source_bucket.blob(blob_name)
+    source_bucket = storage_client.bucket(settings.GS_BUCKET_NAME)
+    source_blob = source_bucket.blob(object_name)
     destination_blob = source_bucket.blob(destination_blob_name)
     source_bucket.copy_blob(source_blob, source_bucket, destination_blob_name)
     destination_blob.make_public()

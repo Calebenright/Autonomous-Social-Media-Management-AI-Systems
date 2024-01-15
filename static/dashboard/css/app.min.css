@@ -25502,6 +25502,11 @@ body[data-layout-color=dark] .datepicker tfoot tr th:hover {
     flex-wrap: wrap;
 }
 
+.stock-thumbnails {
+    display: flex;
+    flex-wrap: wrap;
+}
+
 .graphic-thumbnails {
     display: flex;
     flex-wrap: wrap;

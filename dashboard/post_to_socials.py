@@ -2,6 +2,46 @@ import requests
 import json
 import tempfile
 
+# --------------------- GET --------------------------- #
+
+def get_instagram_user_id(facebook_page_id, access_token):
+    endpoint = f"https://graph.facebook.com/v17.0/{facebook_page_id}"
+    params = {
+        "fields": "instagram_business_account",
+        "access_token": access_token
+    }
+
+    response = requests.get(endpoint, params=params)
+    data = response.json()
+
+    if 'instagram_business_account' in data:
+        return data['instagram_business_account']['id']
+    else:
+        return None
+
+def get_facebook_pages_and_groups(access_token):
+    combined_data = []
+
+    pages_endpoint = f"https://graph.facebook.com/v18.0/me/accounts?access_token={access_token}"
+
+    try:
+        pages_response = requests.get(pages_endpoint).json()
+    except:
+        pass
+
+    # Process pages
+    if 'data' in pages_response and len(pages_response['data']) > 0:
+        for page in pages_response['data']:
+            combined_data.append({'access_token': page['access_token'], 'id': page['id'], 'name': page['name'], 'type': 'page'})
+
+    if combined_data:
+        return combined_data, len(combined_data) > 1
+    else:
+        print("No page or group data found in the response")
+        return None, False
+
+# --------------------- GET --------------------------- #
+
 # ----------- LINKEDIN -------------- #
 
 def upload_image_from_url_to_linkedin(image_url, access_token, access_id):
@@ -112,33 +152,6 @@ def post_to_google_mybusiness(caption, image_url, access_token):
 
 # ----------- INSTAGRAM -------------- #
     
-def get_instagram_user_id(facebook_page_id, access_token):
-    endpoint = f"https://graph.facebook.com/v13.0/{facebook_page_id}"
-    params = {
-        "fields": "instagram_business_account",
-        "access_token": access_token
-    }
-
-    response = requests.get(endpoint, params=params)
-    data = response.json()
-
-    if 'instagram_business_account' in data:
-        return data['instagram_business_account']['id']
-    else:
-        print("Error:", data.get('error', {}).get('message', 'Unknown error'))
-        return None
-    
-def get_instagram_account_id_via_pages(access_token):
-    endpoint = f"https://graph.facebook.com/v17.0/me/accounts?access_token={access_token}"
-    response = requests.get(endpoint).json()
-    
-    for page in response.get('data', []):
-        if 'instagram_business_account' in page:
-            return page['instagram_business_account']['id']
-    
-    print("No associated Instagram Business Account found.")
-    return None
-
 def post_to_instagram(access_token, image_url, caption, instagram_user_id):
 
     endpoint = f"https://graph.facebook.com/{instagram_user_id}/media"
@@ -191,53 +204,11 @@ def post_to_facebook_page_feed(caption, image_url, page_id, page_access_token):
             }
 
             photo_response = requests.post(photo_endpoint, params=photo_params, files=files).json()
-            print(photo_response)
+            print("Successfully published post to Facebook: ", photo_response)
             return photo_response
     else:
         print("Failed to download the image.")
         return {"error": "Failed to download the image."}
-
-def post_to_facebook_group_feed(caption, image_url, group_id, user_access_token):
-    response = requests.get(image_url, stream=True)
-    if response.status_code == 200:
-        with tempfile.NamedTemporaryFile() as temp_file:
-            for chunk in response.iter_content(chunk_size=8192):
-                temp_file.write(chunk)
-            temp_file.flush()
-            temp_file.seek(0)
-
-            photo_endpoint = f"https://graph.facebook.com/{group_id}/photos"
-            photo_params = {
-                "caption": caption,
-                "access_token": user_access_token,
-            }
-            files = {
-                'source': temp_file
-            }
-
-            photo_response = requests.post(photo_endpoint, params=photo_params, files=files).json()
-            print(photo_response)
-            return photo_response
-    else:
-        print("Failed to download the image.")
-        return {"error": "Failed to download the image."}
-    
-def post_text_to_facebook_group_feed(caption, group_id, user_access_token):
-    # Endpoint to post text to the group's feed
-    post_endpoint = f"https://graph.facebook.com/{group_id}/feed"
-
-    # Parameters for the post
-    post_params = {
-        "message": caption,
-        "access_token": user_access_token,
-    }
-
-    # Make the post request and get the response
-    post_response = requests.post(post_endpoint, data=post_params).json()
-
-    # Print and return the response
-    print(post_response)
-    return post_response
 
 def post_text_to_facebook_page_feed(caption, page_id, page_access_token):
     # Endpoint to post text to the page's feed
@@ -256,64 +227,14 @@ def post_text_to_facebook_page_feed(caption, page_id, page_access_token):
     print(post_response)
     return post_response
 
-def get_facebook_pages_and_groups(access_token):
-    combined_data = []
-
-# --------- PAGES -------- #
-    pages_endpoint = f"https://graph.facebook.com/v18.0/me/accounts?access_token={access_token}"
-
-    try:
-        pages_response = requests.get(pages_endpoint).json()
-    except:
-        pass
-
-    # Process pages
-    if 'data' in pages_response and len(pages_response['data']) > 0:
-        print('PAGE: ', pages_response['data'])
-        for page in pages_response['data']:
-            combined_data.append({'access_token': page['access_token'], 'id': page['id'], 'name': page['name'], 'type': 'page'})
-
-# --------- GROUPS -------- #
-
-    # groups_endpoint = f"https://graph.facebook.com/v18.0/me/groups?access_token={access_token}"
-
-    # try:
-    #     groups_response = requests.get(groups_endpoint).json()
-    # except:
-    #     pass
-
-    # # Process groups
-    # if 'data' in groups_response and len(groups_response['data']) > 0:
-    #     print('GROUP: ', groups_response['data'])
-    #     for group in groups_response['data']:
-    #         combined_data.append({'id': group['id'], 'name': group['name'], 'type': 'group'})
-
-# ------------------------- #
-
-    if combined_data:
-        print(combined_data)
-        return combined_data, len(combined_data) > 1
-    else:
-        print("No page or group data found in the response")
-        return None, False
-
-def post_to_socials(platform, caption, image_url, access_token, access_id):
-    if platform == "facebook":
-        return post_to_facebook_page_feed(caption, image_url, access_id, access_token)
-    elif platform == "instagram":
-        return post_to_instagram(access_token, image_url, caption)
-    elif platform == "linkedin":
-        return post_to_linkedin(caption, image_url, access_token, access_id)
-    elif platform == "google_mybusiness":
-        return post_to_google_mybusiness(caption, image_url, access_token)
-    else:
-        raise ValueError(f"Unsupported platform: {platform}")
-
 if __name__ == "__main__":
-    facebook_token = "EAADFIOXHRl4BOxuSmoDfNfkrhWC0ZCXMZCuEjaRZC85X0ZB5P77G7rFv12zIMtRZCOfs1e4m6KgDDyqekdfHZA4QO0wwhF2vpzbvxtfmAArCw3ZAPWFeipAw0rvv6WOGUJnpWZB0ereGLdSBY1aZCc61U2daP5dkKfQKI4Ft4j3oqRpoPZBtrZBYipmAZBg3dnKPth3aZBXVo9mZBO0BIqFFaBhSCyEOKveY0ubh89t6Hq7xiM81WT8lZAkpxf3"
-    new_instagram_user_id(facebook_token)
-   
-   
+    access_token = "EAADFIOXHRl4BOyJKofENTNDZB31XSvfqzLFlodZCp1Bp77cUvTMF2dwKqWjWOCskLu0QbuRacFxfEuIwZAnxqTGAXZAUhIW6n4wscmZBoX38Tj0vQua96Qgnp2r6jpdLyZA6g3smWUtPiyyg6xZC0uNXbO0OVQoxRWdAgYixJLZBAOSNztX2ADFqJbl3Rp6tGOWkGnXyJDMEEHBmdNpKNkdiIK5jyggOeMwcDSowE0rIppsldmgCiX6ZBqUGE5yAlkFgYTQZDZD"
+    id = '193140963873691'
+    CAPTION = "Testing....."
+    IMAGE_URL = "https://storage.googleapis.com/starter_web_app_bucket/testing.png"
+    # print(get_instagram_user_id(id, access_token))
+    print(get_facebook_pages_and_groups(access_token))
+    # print(post_to_instagram(access_token, IMAGE_URL, CAPTION, id))
     # facebook_id = '108830535605871'
     # linkedin_token = 'AQWkp5YGkAF8YMEV6mamPNbOG22-LoUIYLBEZzXXmetr91pZwFa6yhPRDtiZhFNIHzvmMpdagQ3jGXPf0EnR4gznpm6_RwExYWlXevEMXLgI59G08edmKFokBboJoZtHWirewepn0ozKVhi-r-yJKgBbNg9p3eUZwh3mhMBgAudHeeTWn6bXolA9VLr_CyY1RgHBxUAOjs_8pgNaC8X19TkKkblzPGmdsfCSTqqGL7upQKz6h4CmCJu51ddQoyo-ovfiJ_kD70PKsvBrtEgPzqUQHAAtp8bhjr3ttzU-PcG1r9BcaA1hCdQinEq5sc8Zf2O0W7WX1A1cwUfqrvUbWSAdz3uxRg'
     # linkedin_id = 'xFUUk10kPj'

@@ -227,7 +227,7 @@
                 </li>
 
                 <li>
-                    <h4 class="page-title-main">Settings</h4>
+                    <h4 class="page-title-main">Account</h4>
                 </li>
 
             </ul>
@@ -485,21 +485,27 @@
                                         <div class="mb-3">
                                             <input type="file" id="logo" name="logo" class="form-control" accept=".png">
                                         </div>
+                                        <p></p>
                                         {% if user_settings.logo %}
-                                        <div class="mb-3">
-                                            <img src="{{ user_settings.logo }}" alt="Generated Image"
-                                                class="generated-image-xs rounded">
+                                        <div class="social-button">
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar-lg me-3 flex-shrink-0">
+                                                    <img src="{{ user_settings.logo }}" class="img-fluid" alt="Generated Image">
+                                                </div>
+                                                <div class="me-3 flex-shrink-0" style="align-items: center;">
+                                                    <input id="logo_switch" type="checkbox" {% if user_settings.isLogo %}checked{% endif %} data-plugin="switchery" data-color="#039cfd"/>
+                                                </div>
+                                            <script>
+                                                var switcheryInput = document.getElementById('logo_switch');
+
+                                                switcheryInput.addEventListener('click', function(event) {
+                                                    event.stopPropagation();
+                                                });
+                                            </script>
+                                            </div>
                                         </div>
                                         {% endif %}
-                                        <!-- <label class="form-label">Profile Image</label>
-                                        <input type="file" id="pfp" name="pfp" class="form-control" accept=".jpg, .png">
                                         <br>
-                                        {% if user_settings.pfp %}
-                                        <div class="mb-3">
-                                            <img src="{{ user_settings.pfp }}" alt="Generated Image"
-                                                class="generated-image-small rounded">
-                                        </div> -->
-                                        {% endif %}
                                         <button type="submit"
                                             class="btn btn-primary waves-effect waves-light">Save</button>
                                         <br>
