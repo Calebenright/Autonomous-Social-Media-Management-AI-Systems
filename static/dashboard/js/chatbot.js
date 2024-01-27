@@ -85,10 +85,18 @@ document.addEventListener('DOMContentLoaded', function() {
                     appendMessage(data.botMessage, botAvatar);
                 }
             },
-            error: function(error) {
-                // stopLoading();
-                // displayErrorMessage('An error occurred. Please try again. If the problem persists, please contact us.');
-                console.log('Error:', error)
+            error: function(xhr) {
+                removeLoadingMessage();
+                if (xhr.status == 400 && xhr.responseJSON && xhr.responseJSON.error) {
+                    console.log('Error:', xhr.responseJSON.error);
+                    var $errorMessagesContainer = $('#error-messages-container');
+                    if ($errorMessagesContainer.find('.messages').length === 0) {
+                        $errorMessagesContainer.append('<ul class="messages"></ul>');
+                    }
+                    var errorMessage = '<li class="danger" data-message-id="ajaxError">' + xhr.responseJSON.error +
+                        '<span class="closebtn" onclick="closeMessage(this);">&times;</span></li>';
+                    $errorMessagesContainer.find('.messages').append(errorMessage);
+                }
             }
         });
     }

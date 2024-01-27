@@ -23,7 +23,6 @@ var dynamicUrl = document.getElementById('dynamicUrl')
 
 const unsubscribe = onSnapshot(statusDocRef, (docSnapshot) => {
     if (docSnapshot.exists()) {
-        console.log('exists')
         const progress = docSnapshot.data().progress;
         const nextImage = docSnapshot.data().next_image_url;
 
@@ -66,6 +65,17 @@ function addGraphics(imageUrl) {
         },
         error: function(error) {
             console.log('Error:', error)
+            loadedImage.src = 'https://storage.googleapis.com/starter_web_app_bucket/assets/error.png';
+            if (error.status == 400 && error.responseJSON && error.responseJSON.error) {
+                console.log('Error:', error.responseJSON.error);
+                var $errorMessagesContainer = $('#error-messages-container');
+                if ($errorMessagesContainer.find('.messages').length === 0) {
+                    $errorMessagesContainer.append('<ul class="messages"></ul>');
+                }
+                var errorMessage = '<li class="danger" data-message-id="ajaxError">' + error.responseJSON.error +
+                    '<span class="closebtn" onclick="closeMessage(this);">&times;</span></li>';
+                $errorMessagesContainer.find('.messages').append(errorMessage);
+            }
         }
     });
 }
@@ -169,7 +179,5 @@ tagForm.addEventListener('submit', function(event) {
 
 updateTagBubbles();
 
-window.onload = function() {
-    selectNoneAd();
-    selectNone();
-};
+
+// ----------------- POST TYPE ----------------- //

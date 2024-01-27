@@ -126,21 +126,21 @@ def process_images(FOLDER_NUM, primary_color, shuffle_colors, isImage, base_imag
         random_files = [blob.name for blob in random_blobs if blob.name.endswith('.png')]
 
         if random_files:
-                file_path = random.choice(random_files)
-                blob = bucket.blob(file_path)
-                img_data = blob.download_as_bytes()
-                img = Image.open(BytesIO(img_data)).convert('RGBA')
-                file_name = os.path.basename(file_path).lower()
-                if 'black' in file_name:
-                    recolored_img = recolor_image(img, (0, 0, 0, 255))
-                elif 'white' in file_name:
-                    recolored_img = recolor_image(img, (255, 255, 255, 255))
-                elif 'gray' in file_name:
-                    recolored_img = recolor_image(img, (225, 225, 225, 255))
-                else:
-                    recolored_img = recolor_image(img, shuffled_colors[0])
-                
-                base_image = Image.alpha_composite(base_image, recolored_img)
+            file_path = random.choice(random_files)
+            blob = bucket.blob(file_path)
+            img_data = blob.download_as_bytes()
+            img = Image.open(BytesIO(img_data)).convert('RGBA')
+            file_name = os.path.basename(file_path).lower()
+            if 'black' in file_name:
+                recolored_img = recolor_image(img, (0, 0, 0, 255))
+            elif 'white' in file_name:
+                recolored_img = recolor_image(img, (255, 255, 255, 255))
+            elif 'gray' in file_name:
+                recolored_img = recolor_image(img, (225, 225, 225, 255))
+            else:
+                recolored_img = recolor_image(img, shuffled_colors[0])
+            
+            base_image = Image.alpha_composite(base_image, recolored_img)
         else:
             print("No PNG files found in the directory.")
     except:
@@ -158,22 +158,36 @@ def process_images(FOLDER_NUM, primary_color, shuffle_colors, isImage, base_imag
         img = Image.open(BytesIO(img_data))
         file_name = os.path.basename(file_path)
         color_index = idx % len(shuffled_colors)
-
-        if 'multiply' in file_name:
-            recolored_img = blend_multiply(base_image, img)
-        if 'screen' in file_name:
-            recolored_img = blend_screen(base_image, img)
-        elif 'white' in file_name:
-            recolored_img = recolor_image(img, (255, 255, 255, 255))
-        elif 'gray' in file_name:
-            recolored_img = recolor_image(img, (225, 225, 225, 255))
-        elif 'black' in file_name:
-            recolored_img = recolor_image(img, (0, 0, 0, 255))
-        elif 'logo' in file_name and isLogo and logo_path:
-            recolored_img = recolor_image(img, shuffled_colors[color_index])
+        if 'logo' in file_name:
+            print('In file_name: ', isLogo)
+            if isLogo and logo_path:
+                print('In logo_path: ', isLogo)
+                if 'white' in file_name:
+                    print('In white: ', isLogo)
+                    recolored_img = recolor_image(img, (255, 255, 255, 255))
+                elif 'black' in file_name:
+                    recolored_img = recolor_image(img, (0, 0, 0, 255))
+                elif 'primary' in file_name:
+                    recolored_img = recolor_image(img, primary_rgb)
+                else:
+                    recolored_img = recolor_image(img, shuffled_colors[color_index])
+            base_image = Image.alpha_composite(base_image, recolored_img)
         else:
-            recolored_img = recolor_image(img, shuffled_colors[color_index])
-        base_image = Image.alpha_composite(base_image, recolored_img)
+            if 'multiply' in file_name:
+                recolored_img = blend_multiply(base_image, img)
+            elif 'screen' in file_name:
+                recolored_img = blend_screen(base_image, img)
+            elif 'primary' in file_name:
+                recolored_img = recolor_image(img, primary_rgb)
+            elif 'white' in file_name:
+                recolored_img = recolor_image(img, (255, 255, 255, 255))
+            elif 'gray' in file_name:
+                recolored_img = recolor_image(img, (225, 225, 225, 255))
+            elif 'black' in file_name:
+                recolored_img = recolor_image(img, (0, 0, 0, 255))
+            else:
+                recolored_img = recolor_image(img, shuffled_colors[color_index])
+            base_image = Image.alpha_composite(base_image, recolored_img)
 
     if isLogo:
         response = requests.get(logo_path)
@@ -264,14 +278,12 @@ def add_text_to_image(img, text, font_io, font_size, start_x, start_y, width, he
     
 def generate_text(business_description, business_name, max_title_char_count, key):
     client = OpenAI(api_key=config('OPENAI_API_KEY'))
-    print(key)
     if key == 'Call-to-action':
         prompt = f"Imagine you're an advertiser for my company named {business_name} and our description is {business_description}. Create a ad creative headline like, 'local, personal service at a fraction of the cost.', 'Your next home could be right around the corner?', 'Name brands are so out of style.', etc.. Be creative and try to think about what might make a person click on the ad. It has to be less than {max_title_char_count} characters and don't use any social media hashtags."
     if key == 'Headline':
         prompt = f"Imagine you're an advertiser for my company named {business_name} and our description is {business_description}. Create a ad creative call-to-action like, 'Looking to improve your style?', 'Want a Safer Home?', 'Shop our newest collection!', etc.. It has to be less than {max_title_char_count} characters and don't use any social media hashtags."
     if key == 'Description':
         prompt = f"Imagine you're a social media manager for my company named {business_name} and our description is {business_description}. Create a catchy description that makes people understand and want us. It has to be less than {max_title_char_count} characters and exclude any hashtags."
-    print(prompt)
     response = client.chat.completions.create(
         model="gpt-3.5-turbo-1106",
         messages=[
@@ -300,7 +312,7 @@ def generate_text(business_description, business_name, max_title_char_count, key
 
 # ---------------------- Utility Functions ----------------------#
 
-def generate_image_from_params(FOLDER_NUM, business_description, business_name, primary_color, specified_colors, base_image_url, logo_path, classify):
+def generate_image_from_params(FOLDER_NUM, business_description, business_name, primary_color, specified_colors, base_image_url, logo_path, classify, isLogo):
 
     credentials = service_account.Credentials.from_service_account_file(settings.GS_CREDENTIALS)
     client = storage.Client(project=credentials.project_id, credentials=credentials)
@@ -332,8 +344,10 @@ def generate_image_from_params(FOLDER_NUM, business_description, business_name, 
         'text_color': 'ai',
         'line_height': '1.2',
     }
+    
+    if isLogo:
+        isLogo = params.get('isLogo', False)
 
-    isLogo = params.get('isLogo', False)
     logoX = params.get('logo_start_x', 0)
     logoY = params.get('logo_start_y', 0)
     logoWidth = params.get('logo_width', 150)

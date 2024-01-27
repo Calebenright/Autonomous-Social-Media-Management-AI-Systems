@@ -367,6 +367,25 @@
 
                 <!-- Start Content-->
 
+                <div id="popup">
+                    <div class="popup-content">
+                        <span class="close-button" onclick="hidePopup()">&times;</span>
+                        <h3>To Connect to Instagram</h3>
+                        <p>An Instagram business or creator profile must be linked to a Facebook page in order to connect.</p>
+                        
+                        <h4>Have a Personal Instagram Profile?</h4>
+                        <ol>
+                            <li>Convert your Instagram profile into a business or creator profile.</li>
+                            <li>Link to a Facebook page.</li>
+                            <li>Come back and connect.</li>
+                        </ol>
+                
+                        <button onclick="submitForm()" class="popup-button">Yes, connect</button>
+                        <button onclick="hidePopup()" class="popup-button cancel">Cancel</button>
+                    </div>
+                </div>
+                
+
                 <div class="container-fluid">
                     <div class="row">
                         {% if messages %}
@@ -561,7 +580,7 @@
                                     <form id="instagram" method="post" action="{% url 'all_auth' %}" enctype="multipart/form-data">
                                         {% csrf_token %}
                                         <input type="hidden" name="form" value="formInstagram">
-                                        <button class="social-button">
+                                        <button class="social-button" onclick="showPopup(event)">
                                             <div class="d-flex align-items-center">
                                                 <div class="avatar-sm me-3 flex-shrink-0">
                                                     <img src="{% static 'dashboard/images/icon/instagram_logo.png' %}" class="img-fluid rounded-circle" alt="Instagram">
@@ -569,6 +588,9 @@
                                                 <div class="flex-grow-1 overflow-hidden">
                                                     <h5 class="mt-0 mb-1"> Instagram</h5>
                                                     {% if user_settings.instagram_token %}
+                                                        {% if user_settings.instagram_name %}
+                                                        <small class="text-pink"><b>{{ user_settings.instagram_name }}</b></small><br>
+                                                        {% endif %}
                                                     <small class="text-pink"><b>Linked</b></small>
                                                     {% else %}
                                                     <small class="text-pink"><b>Not Linked</b></small>
@@ -585,14 +607,31 @@
                                             var instagramForm = document.getElementById('instagram');
                                             var unlinkUrl = "{% url 'unlink' %}";
 
-                                            instagramForm.addEventListener('submit', function(event) {
-                                                event.preventDefault();
-                                                var userConfirmed = confirm("Are you sure you want to unlink?");
-                                                if (userConfirmed) {
-                                                    instagramForm.action = unlinkUrl;
-                                                    instagramForm.submit();
-                                                }
-                                            });
+                                            function showPopup(event) {
+                                                instagramForm.addEventListener('submit', function(event) {
+                                                    event.preventDefault();
+                                                    var userConfirmed = confirm("Are you sure you want to unlink?");
+                                                    if (userConfirmed) {
+                                                        instagramForm.action = unlinkUrl;
+                                                        instagramForm.submit();
+                                                    }
+                                                });
+                                            }
+                                        </script>
+                                        {% else %}
+                                        <script>
+                                            function showPopup(event) {
+                                                event.preventDefault(); // Prevent form submission
+                                                document.getElementById('popup').style.display = 'block'; // Show the popup
+                                            }
+
+                                            function hidePopup() {
+                                                document.getElementById('popup').style.display = 'none'; // Hide the popup
+                                            }
+
+                                            function submitForm() {
+                                                document.getElementById('instagram').submit(); // Submit the form
+                                            }
                                         </script>
                                         {% endif %}
                                     </form>

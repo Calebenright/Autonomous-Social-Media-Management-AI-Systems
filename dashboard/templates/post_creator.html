@@ -364,6 +364,7 @@
                 <div class="container-fluid">
 
                     <div class="row">
+                        <div id="error-messages-container"></div>
                         {% if messages %}
                         <ul class="messages">
                             {% for message in messages %}
@@ -386,53 +387,33 @@
                                             <p></p>
                                             <div class="post-type-thumbnails">
 
-                                                <!-- <div class="thumbnail-container" onclick="selectPostType('text')">
-                                                    <img class="post-type-thumbnail" data-value="text" src="https://storage.googleapis.com/starter_web_app_bucket/assets/text.png" alt="Text Blurb">
+                                                <div class="thumbnail-container " onclick="initThumbnailSelection('text')">
+                                                    <img class="post-type-thumbnail {% if selected_option == 'text' %}selected{% endif %}" data-value="text" src="https://storage.googleapis.com/starter_web_app_bucket/assets/text.png" alt="Text Blurb">
                                                     <p class="poppins">Text Post</p>
                                                 </div>
 
-                                                <div class="thumbnail-container" onclick="selectPostType('photo')">
-                                                    <img class="post-type-thumbnail" data-value="photo" src="https://storage.googleapis.com/starter_web_app_bucket/assets/stock.png" alt="Photo">
+                                                <div class="thumbnail-container" onclick='initThumbnailSelection("photo", {{ tags | safe}}, ".stock-thumbnails", "photo-none")'>
+                                                    <img class="post-type-thumbnail {% if selected_option == 'photo' %}selected{% endif %}" data-value="photo" src="https://storage.googleapis.com/starter_web_app_bucket/assets/stock.png" alt="Photo">
                                                     <p class="poppins">Stock Photo Post</p>
                                                 </div>
                                             
-                                                <div class="thumbnail-container" onclick="selectPostType('graphic')">
-                                                    <img class="post-type-thumbnail" data-value="graphic" src="https://storage.googleapis.com/starter_web_app_bucket/assets/graphic.png" alt="Graphic Design">
+                                                <div class="thumbnail-container" onclick='initThumbnailSelection("graphic", {{ tags | safe}}, ".graphic-thumbnails", "graphic-none")'>
+                                                    <img class="post-type-thumbnail {% if selected_option == 'graphic' %}selected{% endif %}" data-value="graphic" src="https://storage.googleapis.com/starter_web_app_bucket/assets/graphic.png" alt="Graphic Design">
                                                     <p class="poppins">Social Media Graphic Post</p>
-                                                </div> -->
-                                            
-                                                <div class="thumbnail-container" onclick="selectPostType('ad')">
-                                                    <img class="post-type-thumbnail" data-value="ad" src="https://storage.googleapis.com/starter_web_app_bucket/assets/ad.png" alt="Ad Creative">
+                                                </div>
+                                                <div class="thumbnail-container" onclick='initThumbnailSelection("ad", {{ tags | safe}}, ".ad-creative-thumbnails", "ad-none")'>
+                                                    <img class="post-type-thumbnail {% if selected_option == 'ad' %}selected{% endif %}" data-value="ad" src="https://storage.googleapis.com/starter_web_app_bucket/assets/ad.png" alt="Ad Creative">
                                                     <p class="poppins">Ad Creative</p>
                                                 </div>
-                                            
-                                                <div class="thumbnail-container selected" onclick="selectPostType('up')">
-                                                    <img class="post-type-thumbnail selected" data-value="up" src="https://storage.googleapis.com/starter_web_app_bucket/assets/up.png" alt="Upload Photo">
+                                                <div class="thumbnail-container" onclick="initThumbnailSelection('up')">
+                                                    <img class="post-type-thumbnail  {% if selected_option != 'ad' and selected_option != 'photo' and selected_option != 'text' and selected_option != 'graphic' %}selected{% endif %}" data-value="up" src="https://storage.googleapis.com/starter_web_app_bucket/assets/up.png" alt="Upload Photo">
                                                     <p class="poppins">Upload Photo</p>
                                                 </div>
                                             
                                             </div>
                                             
                                             <input type="hidden" name="selected_post_type" id="selected_post_type">
-                                        </div>
-                                        <script>
-                                            let previouslySelectedPostType = null;
-
-                                            function selectPostType(postType) {
-                                                document.getElementById('selected_post_type').value = postType;
-
-                                                if (previouslySelectedPostType) {
-                                                    previouslySelectedPostType.classList.remove('selected');
-                                                }
-
-                                                let selectedThumbnail = document.querySelector(`.thumbnail[data-value="${postType}"]`);
-                                                if (selectedThumbnail){
-                                                    selectedThumbnail.classList.add('selected');
-                                                    previouslySelectedPostType = selectedThumbnail;
-                                                }
-                                            }
-
-                                        </script>                                        
+                                        </div>                                     
                                     </div>
                                 </div> 
                                 <div class="card">
@@ -445,14 +426,12 @@
                                                     <option>Facebook</option>
                                                     <option>Instagram</option>
                                                     <option>LinkedIn</option>
-                                                    <option>Google My Business</option>
                                                 </select>
                                             </div>
                                         </div>
 
                                         <div id="content-card-photo" class="content-card">
-                                            
-                                            <div id="ai-stock-image">
+                                            <div id="photo-none">
                                                 <br>
                                                 <h4 class="header-title">Tags:</h4>
                                                 <p></p> 
@@ -463,11 +442,11 @@
                                                 </div>
                                                 <br>
                                             </div>
-                                            <h4 class="header-title">Add Elements:</h4>
                                             {% if user_settings.logo %}
+                                            <h4 class="header-title">Add Elements:</h4>
                                             <p></p>
                                             <div class="form-check mb-2 form-check-success">
-                                                <input class="form-check-input" type="checkbox" name="isLogo" value="true" id="logo" >
+                                                <input class="form-check-input" type="checkbox" name="isLogo" value="true" id="logo">
                                                 <label class="form-check-label" for="logo">Logo</label>
                                             </div>
                                             <p></p>
@@ -475,84 +454,16 @@
                                             <!-- Thumbnails Display -->
                                             <h4 class="header-title">Select Image:</h4>
                                             <div class="stock-thumbnails">
-                                                <div class="thumbnail none-thumbnail" onclick="selectNoneStock()">
+                                                <div class="thumbnail none-thumbnail photo-none" onclick="selectNone('photo', 'photo-none')">
                                                     <span class="ai-text">AI</span>
                                                 </div>
                                             </div>
                                             <br>
-                                            <input type="hidden" name="selected_stock_image_url" id="selected_stock_image_url">
-                                        </div>
-                                        
-                                        
-                                        <script>
-                                            function decodeHtmlEntities(str) {
-                                                const parser = new DOMParser();
-                                                return parser.parseFromString(str, 'text/html').documentElement.textContent;
-                                            }
-
-                                            let imageStockURLsString = decodeHtmlEntities("{{ user_settings.image_tags }}");
-                                            let imageStockURLs = JSON.parse(imageStockURLsString);
-                                            let previouslySelectedStockImage = null;
-                                            const aiStockImage = document.getElementById('ai-stock-image')
-                                        
-                                            function selectStockImage(imgStockElement, url) {
-                                                document.getElementById('selected_stock_image_url').value = url;
-                                        
-                                                if (previouslySelectedStockImage) {
-                                                    previouslySelectedStockImage.classList.remove('selected');
-                                                }
-                                                imgStockElement.classList.add('selected');
-                                                previouslySelectedStockImage = imgStockElement;
-                                                aiStockImage.style.display = "none";
-                                            }
-
-                                            function selectNoneStock() {
-                                                document.getElementById('selected_stock_image_url').value = "None";
-                                                
-                                                if (previouslySelectedStockImage) {
-                                                    previouslySelectedStockImage.classList.remove('selected');
-                                                }
-                                                let noneStockThumbnail = document.querySelector('.none-thumbnail');
-                                                noneStockThumbnail.classList.add('selected');
-                                                previouslySelectedStockImage = noneStockThumbnail;
-                                                aiStockImage.style.display = "block";
-                                                
-                                            }
-                                        
-                                            // Generate image thumbnails
-                                            let thumbnailsStockDiv = document.querySelector('.stock-thumbnails');
-                                            imageStockURLs.forEach(url => {
-                                                let imgStockElement = document.createElement('img');
-                                                imgStockElement.src = url;
-                                                imgStockElement.alt = "Thumbnail";
-                                                imgStockElement.classList.add('thumbnail');
-                                                imgStockElement.addEventListener('click', () => selectStockImage(imgStockElement, url));
-                                                thumbnailsStockDiv.appendChild(imgStockElement);
-                                            });
-
-                                        </script>
-                                        
-                                        <div id="content-card-stock" class="content-card">
-                                            <h4 class="header-title">Add Elements:</h4>
-                                            {% if user_settings.logo %}
-                                            <p></p>
-                                            <div class="form-check mb-2 form-check-success">
-                                                <input class="form-check-input" type="checkbox" name="isLogo" value="true" id="logo" >
-                                                <label class="form-check-label" for="logo">Logo</label>
-                                            </div>
-                                            {% endif %}
-                                            <br>
-                                            <h4 class="header-title">Search Keyword:</h4>
-                                            <p></p> 
-                                            <div class="mb-3">
-                                                <input type="text" name="stock-description" class="form-control" placeholder="Enter Search Keyword...">
-                                            </div>
-                                            <br>
+                                            <input type="hidden" name="selected_photo_url" id="selected_photo_url" value="None">
                                         </div>
                                         
                                         <div id="content-card-graphic" class="content-card">
-                                            
-                                            <div id="ai-image">
+                                            <div id="graphic-none">
                                                 <h4 class="header-title">AI Image Keyword:</h4>
                                                 <p></p>
                                                 <div class="mb-3">
@@ -562,64 +473,15 @@
                                             <!-- Thumbnails Display -->
                                             <h4 class="header-title">Select Image:</h4>
                                             <div class="graphic-thumbnails">
-                                                <div class="thumbnail none-thumbnail" onclick="selectNone()">
+                                                <div class="thumbnail none-thumbnail graphic-none" onclick="selectNone('graphic', 'graphic-none')">
                                                     <span class="ai-text">AI</span>
                                                 </div>
                                             </div>
                                             <!-- Hidden input to store selected image URL -->
-                                            <input type="hidden" name="selected_image_url" id="selected_image_url">
+                                            <input type="hidden" name="selected_graphic_url" id="selected_graphic_url" value="None">
                                         </div>
                                         
-                                        <script>
-                                            function decodeHtmlEntities(str) {
-                                                const parser = new DOMParser();
-                                                return parser.parseFromString(str, 'text/html').documentElement.textContent;
-                                            }
-
-                                            let imageURLsString = decodeHtmlEntities("{{ user_settings.image_tags }}");
-                                            let imageURLs = JSON.parse(imageURLsString);
-                                            let previouslySelectedImage = null;
-                                            const aiImage = document.getElementById('ai-image')
-                                        
-                                            function selectImage(imgElement, url) {
-                                                document.getElementById('selected_image_url').value = url;
-                                        
-                                                if (previouslySelectedImage) {
-                                                    previouslySelectedImage.classList.remove('selected');
-                                                }
-                                                imgElement.classList.add('selected');
-                                                previouslySelectedImage = imgElement;
-                                                aiImage.style.display = "none";
-                                            }
-
-                                            function selectNone() {
-                                                document.getElementById('selected_image_url').value = "None";
-                                                
-                                                if (previouslySelectedImage) {
-                                                    previouslySelectedImage.classList.remove('selected');
-                                                }
-                                                let noneThumbnail = document.querySelector('.none-thumbnail');
-                                                noneThumbnail.classList.add('selected');
-                                                previouslySelectedImage = noneThumbnail;
-                                                aiImage.style.display = "block";
-                                                
-                                            }
-                                        
-                                            // Generate image thumbnails
-                                            let thumbnailsDiv = document.querySelector('.graphic-thumbnails');
-                                            imageURLs.forEach(url => {
-                                                let imgElement = document.createElement('img');
-                                                imgElement.src = url;
-                                                imgElement.alt = "Thumbnail";
-                                                imgElement.classList.add('thumbnail');
-                                                imgElement.addEventListener('click', () => selectImage(imgElement, url));
-                                                thumbnailsDiv.appendChild(imgElement);
-                                            });
-
-                                        </script>
-                                        
                                         <div id="content-card-ad" class="content-card">
-                                            
                                             
                                             <h4 class="header-title">Platform:</h4>
                                             <p></p> 
@@ -628,10 +490,9 @@
                                                     <option>Facebook</option>
                                                     <option>Instagram</option>
                                                     <option>LinkedIn</option>
-                                                    <option>Google My Business</option>
                                                 </select>
                                             </div>
-                                            <div id="ai-ad-image">
+                                            <div id="ad-none">
                                                 <h4 class="header-title">AI Image Keyword:</h4>
                                                 <p></p>
                                                 <div class="mb-3">
@@ -640,82 +501,23 @@
                                             </div>
                                             <h4 class="header-title">Select Image:</h4>
                                             <div class="ad-creative-thumbnails">
-                                                <div class="thumbnail none-ad-thumbnail" onclick="selectNoneAd()">
+                                                <div class="thumbnail none-thumbnail ad-none" onclick="selectNone('ad', 'ad-none')">
                                                     <!-- <div class="red-line"></div> -->
                                                     <span class="ai-text">AI</span>
                                                 </div>
                                             </div>
-                                            <input type="hidden" name="selected_ad_creative_image_url" id="selected_ad_creative_image_url">
+                                            <input type="hidden" name="selected_ad_url" id="selected_ad_url" value="None">
                                         </div>
                                         
-                                        <script>
-                                            function decodeHtmlEntities(str) {
-                                                const parser = new DOMParser();
-                                                return parser.parseFromString(str, 'text/html').documentElement.textContent;
-                                            }
-                                        
-                                            let adCreativeImageURLsString = decodeHtmlEntities("{{ user_settings.image_tags }}");
-                                            let adCreativeImageURLs = JSON.parse(adCreativeImageURLsString);
-                                            const aiAdImage = document.getElementById('ai-ad-image')
-                                            let previouslySelectedAdCreativeImage = null;
-                                        
-                                            function selectAdImage(imgAdElement, url) {
-                                                document.getElementById('selected_ad_creative_image_url').value = url;
-                                        
-                                                if (previouslySelectedAdCreativeImage) {
-                                                    previouslySelectedAdCreativeImage.classList.remove('selected');
-                                                }
-                                                imgAdElement.classList.add('selected');
-                                                previouslySelectedAdCreativeImage = imgAdElement;
-                                                aiAdImage.style.display = "none";
-                                            }
-
-                                            function selectNoneAd() {
-                                                document.getElementById('selected_ad_creative_image_url').value = "None";
-                                                
-                                                if (previouslySelectedAdCreativeImage) {
-                                                    previouslySelectedAdCreativeImage.classList.remove('selected');
-                                                }
-                                                let noneAdThumbnail = document.querySelector('.none-ad-thumbnail');
-                                                noneAdThumbnail.classList.add('selected');
-                                                previouslySelectedAdCreativeImage = noneAdThumbnail;
-                                                aiAdImage.style.display = "block";
-                                            }
-
-                                            // Generate image thumbnails for ad creative
-                                            let adCreativeThumbnailsDiv = document.querySelector('.ad-creative-thumbnails');
-                                            adCreativeImageURLs.forEach(url => {
-                                                let imgAdElement = document.createElement('img');
-                                                imgAdElement.src = url;
-                                                imgAdElement.alt = "Thumbnail";
-                                                imgAdElement.classList.add('thumbnail');
-                                                imgAdElement.addEventListener('click', () => selectAdImage(imgAdElement, url));
-                                                adCreativeThumbnailsDiv.appendChild(imgAdElement);
-                                            });
-
-
-                                        </script>
-                                            
-                                        
                                         <div id="content-card-up" class="content-card">
+                                            {% if user_settings.logo %}
                                             <h4 class="header-title">Add Elements</h4>
                                             <p></p>
-                                            {% if user_settings.logo %}
                                             <div class="form-check mb-2 form-check-success">
                                                 <input class="form-check-input" type="checkbox" name="isLogo" value="true" id="logo" >
                                                 <label class="form-check-label" for="logo">Logo</label>
                                             </div>
-                                            {% endif %}  
-                                            <!-- <div class="form-check mb-2 form-check-success">
-                                                <input class="form-check-input" type="checkbox" name="isGraphic" value="true">
-                                                <label class="form-check-label">Graphic</label>
-                                            </div>
-                                            <br>
-                                            <h4 class="header-title">Photo Attribution</h4>
-                                            <p></p> 
-                                            <div class="mb-3">
-                                                <input type="text" name="photo-attribution" class="form-control" value="{{ user_settings.business_name }}" placeholder="Enter Attribution...">
-                                            </div> -->
+                                            {% endif %}
                                             <br>
                                             <h4 class="header-title">File Upload</h4>
                                             <p class="sub-header">
@@ -808,30 +610,6 @@
                                             <i class="mdi mdi-plus"></i> Add To Schedule!
                                         </button>
 
-                                        <script>
-                                            function setFormValueAndShowSpinner(formType, formId) {
-                                                var updatedCaption = document.getElementById('prompt').innerText;
-                                                document.getElementById('editedCaption').value = updatedCaption;
-                                                document.getElementById('formAction').value = formType;
-                                                showSpinner();
-                                                document.getElementById(formId).submit();
-                                            }
-                                            function toggleSocialMedia(media) {
-                                                var element = document.getElementById(media);
-                                                var isVisible = element.style.display != "none";
-                                                document.getElementById(media + '_visible').value = isVisible ? "false" : "true";
-                                                element.style.display = isVisible ? "none" : "inline";
-                                            }
-                                            function resetSocialMedia() {
-                                                ['facebook', 'instagram', 'linkedin', 'google_business'].forEach(media => {
-                                                    var element = document.getElementById(media);
-                                                    if (element) {
-                                                        element.style.display = "inline";
-                                                        document.getElementById(media + '_visible').value = "true";
-                                                }
-                                                });
-                                            }
-                                        </script>
                                     </div>
                                 </div> <!-- end card-body -->
                             </div> <!-- end card -->
@@ -851,10 +629,11 @@
                     var loadingOverlay = document.getElementById('loading-overlay');
                     loadingOverlay.style.display = 'flex';
                 }
-                
+
                 const tagsArray = '{{ user_settings.tags|safe }}' !== '' ?
                     JSON.parse('{{ user_settings.tags|safe }}') : [];
             </script>
+            <script src="{% static 'dashboard/js/pages/post_switcher.js' %}"></script>
 
         </div>
     </div><!-- content -->

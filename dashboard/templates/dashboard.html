@@ -367,6 +367,7 @@
                 <!-- Start Content-->
                 <div class="container-fluid">
                     <div class="row">
+                        <div id="error-messages-container"></div>
                         {% if messages %}
                         <ul class="messages">
                             {% for message in messages %}
@@ -476,15 +477,18 @@
                         <!-- FTUE Script -->
                         <script>
                             function showSpinner() {
-                                var loadingOverlay = document.getElementById('loading-overlay');
-                                var submitButton = document.querySelector('#myForm button[type="submit"]');
-                                loadingOverlay.style.display = 'flex';
-                                submitButton.disabled = true;
-                                var spinnerDuration = 5000;
-                                setTimeout(function() {
-                                    loadingOverlay.style.display = 'none';
-                                    submitButton.disabled = false;
-                                }, spinnerDuration);
+                                var form = document.querySelector('form');
+                                if (form.checkValidity()) {
+                                    var loadingOverlay = document.getElementById('loading-overlay');
+                                    var submitButton = document.querySelector('#myForm button[type="submit"]');
+                                    loadingOverlay.style.display = 'flex';
+                                    submitButton.disabled = true;
+                                    var spinnerDuration = 5000;
+                                    setTimeout(function() {
+                                        loadingOverlay.style.display = 'none';
+                                        submitButton.disabled = false;
+                                    }, spinnerDuration);
+                                }
                             }
 
                             const animationGifPaths = [
@@ -560,12 +564,12 @@
     <script type="module" src="{% static 'dashboard/js/pages/dashboard.init.js' %}"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script>
-    const gifStart = "{% static 'dashboard/gifs/load-start.gif' %}"
-    const gifDone = "{% static 'dashboard/gifs/load-done.gif' %}"
-    var userSettings = JSON.parse('{{ user_settings_json|escapejs }}');
+    const gifStart = "{% static 'dashboard/gifs/load-start.gif' %}";
+    const gifDone = "{% static 'dashboard/gifs/load-done.gif' %}";
     var jsonDump = {
         userId: '{{ user_id }}',
     };
+    var userSettings = JSON.parse('{{ user_settings_json|escapejs }}');
     var userLogo = "{{ user_settings.logo }}"
     var botAvatar = "{% static 'dashboard/images/icon/elaineChatIcon2.png' %}"
     var storedChatMessages = {{ all_messages|safe }};

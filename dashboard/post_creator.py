@@ -363,39 +363,3 @@ def upload_png_to_google (image, bucket_name, bucket_credentials, user_folder_pa
     blob.make_public()
 
     return blob.public_url
-
-def send_task (key, uid, dimensions, number):
-    client = OpenAI(api_key=config('OPENAI_API_KEY'))
-
-    ## GENERATE iMAGE
-    prompt = f"I want you to create an image description based on these tags: {key}. The response should be less than 300 characters."
-
-    response = client.chat.completions.create(
-            model="gpt-3.5-turbo-1106",
-            messages=[
-                {
-                "role": "system",
-                "content": "you are not a person. respond with just the output."
-                },
-                {
-                "role": "user",
-                "content": prompt
-                }
-            ],
-            temperature=1,
-            max_tokens=200
-        )
-
-    img_description = response.choices[0].message.content.strip()
-    payload = {'uid': uid, 'prompt': prompt, 'dimensions': dimensions, 'number': number}
-    DALLE3_URL = config('DALLE3_URL')
-    def trigger_cloud_function_async():
-        def send_request():
-            requests.post(DALLE3_URL, json=payload)
-        thread = threading.Thread(target=send_request)
-        thread.start()
-
-    trigger_cloud_function_async()
-
-    return print('done')
-

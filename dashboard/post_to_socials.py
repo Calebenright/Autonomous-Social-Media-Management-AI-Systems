@@ -39,7 +39,39 @@ def get_facebook_pages_and_groups(access_token):
     else:
         print("No page or group data found in the response")
         return None, False
+    
+def get_instagram_username(instagram_business_account_id, access_token):
+    try:
+        url = f'https://graph.facebook.com/v17.0/{instagram_business_account_id}?fields=username&access_token={access_token}'
+        response = requests.get(url)
+        response.raise_for_status()
 
+        data = response.json()
+        return data.get('username')
+    except requests.RequestException as e:
+        print(f"An error occurred: {e}")
+        return None
+
+def get_linkedin_account_name(access_token):
+    url = 'https://api.linkedin.com/v2/me'
+
+    headers = {
+        'Authorization': f'Bearer {access_token}',
+        'X-Restli-Protocol-Version': '2.0.0'
+    }
+
+    try:
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()
+
+        data = response.json()
+        first_name = data.get('localizedFirstName', '')
+        last_name = data.get('localizedLastName', '')
+        return f"{first_name} {last_name}".strip()
+    except requests.RequestException as e:
+        print(f"An error occurred: {e}")
+        return None
+    
 # --------------------- GET --------------------------- #
 
 # ----------- LINKEDIN -------------- #
@@ -123,6 +155,35 @@ def post_to_linkedin(caption, image_url, access_token, access_id):
         json=payload
     ).json()
     return response
+
+
+def post_text_to_linkedin(access_token, user_id, message):
+    url = 'https://api.linkedin.com/v2/ugcPosts'
+
+    headers = {
+        'Authorization': f'Bearer {access_token}',
+        'X-Restli-Protocol-Version': '2.0.0',
+        'Content-Type': 'application/json'
+    }
+
+    post_data = {
+        "author": f"urn:li:person:{user_id}",
+        "lifecycleState": "PUBLISHED",
+        "specificContent": {
+            "com.linkedin.ugc.ShareContent": {
+                "shareCommentary": {
+                    "text": message
+                },
+                "shareMediaCategory": "NONE"
+            }
+        },
+        "visibility": {
+            "com.linkedin.ugc.MemberNetworkVisibility": "PUBLIC"
+        }
+    }
+
+    response = requests.post(url, headers=headers, json=post_data)
+    return response.json()
 
 # ----------- GOOGLE MY BUSINESS -------------- #
 
@@ -228,12 +289,13 @@ def post_text_to_facebook_page_feed(caption, page_id, page_access_token):
     return post_response
 
 if __name__ == "__main__":
-    access_token = "EAADFIOXHRl4BOyJKofENTNDZB31XSvfqzLFlodZCp1Bp77cUvTMF2dwKqWjWOCskLu0QbuRacFxfEuIwZAnxqTGAXZAUhIW6n4wscmZBoX38Tj0vQua96Qgnp2r6jpdLyZA6g3smWUtPiyyg6xZC0uNXbO0OVQoxRWdAgYixJLZBAOSNztX2ADFqJbl3Rp6tGOWkGnXyJDMEEHBmdNpKNkdiIK5jyggOeMwcDSowE0rIppsldmgCiX6ZBqUGE5yAlkFgYTQZDZD"
-    id = '193140963873691'
+    access_token = "AQVrLItHPm2b47TPOPzxpPBZO_CQeaLEfoWkBuXe81HHwMm2ukAdQVjCntCdkNtI7Fw31J6zfSJ0S-Ou5pOiDn4GalcHhd0qGVn-IR6Uwquce8OjFEFuU9LKBStxz6_-GofMcyeWjdm9PKixzpcsP-BFqiyoewqvei3xLj-dwcpOvRC7E2RLH2PqBfpdsqNgmfkqO044dgH8vb6l1jm0ZP5ODxKvSpPsscWa0kUwOQxOL-r5fR_kD8Ly0s-r_FnXUeTeijqeFX8m_XI-oDcjThRYdkDmdW8mIA2XerXuI09AxlCGDpFp79H5kAtHByP3eyR7YDItYwPoSn11zOsXUJVrTRJs9g"
+    id = '17841431479346652'
     CAPTION = "Testing....."
     IMAGE_URL = "https://storage.googleapis.com/starter_web_app_bucket/testing.png"
     # print(get_instagram_user_id(id, access_token))
-    print(get_facebook_pages_and_groups(access_token))
+    print(get_linkedin_account_name(access_token))
+    
     # print(post_to_instagram(access_token, IMAGE_URL, CAPTION, id))
     # facebook_id = '108830535605871'
     # linkedin_token = 'AQWkp5YGkAF8YMEV6mamPNbOG22-LoUIYLBEZzXXmetr91pZwFa6yhPRDtiZhFNIHzvmMpdagQ3jGXPf0EnR4gznpm6_RwExYWlXevEMXLgI59G08edmKFokBboJoZtHWirewepn0ozKVhi-r-yJKgBbNg9p3eUZwh3mhMBgAudHeeTWn6bXolA9VLr_CyY1RgHBxUAOjs_8pgNaC8X19TkKkblzPGmdsfCSTqqGL7upQKz6h4CmCJu51ddQoyo-ovfiJ_kD70PKsvBrtEgPzqUQHAAtp8bhjr3ttzU-PcG1r9BcaA1hCdQinEq5sc8Zf2O0W7WX1A1cwUfqrvUbWSAdz3uxRg'

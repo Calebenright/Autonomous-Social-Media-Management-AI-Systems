@@ -14,11 +14,11 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport import requests
 from urllib.parse import urlparse
 import os
-from .post_to_socials import post_to_facebook_page_feed, post_text_to_facebook_page_feed, post_to_instagram, post_to_linkedin, post_to_google_mybusiness, get_instagram_user_id, get_facebook_pages_and_groups
+from .post_to_socials import post_to_facebook_page_feed, post_text_to_facebook_page_feed, post_to_instagram, post_to_linkedin, post_to_google_mybusiness, get_instagram_user_id, get_facebook_pages_and_groups, get_instagram_username, post_text_to_linkedin, get_linkedin_account_name
 from django.http import JsonResponse
 from django.core.files.uploadedfile import InMemoryUploadedFile
 import time
-from .functions import generate_random_date, create_tags, generate_secondary_colors, create_text_post, add_stock_tags, upload_and_crop_image, delete_from_google, reupload_gcs_image, download_and_save_image_as_seek, create_stock_image_description, create_stock_post, create_call_to_action, create_caption, create_dalle_post, create_stable_dif_post, create_ad_copy, create_ad_headline, create_placeholder, upload_jpg_to_google, add_logo, create_upload, create_ad_creative, upload_png_to_google
+from .functions import generate_random_date, create_tags, generate_secondary_colors, create_text_post, add_stock_tags, upload_and_crop_image, delete_from_google, reupload_gcs_image, download_and_save_image_as_seek, create_stock_image_description, create_background_image_description, create_stock_post, create_call_to_action, create_caption, create_dalle_post, create_stable_dif_post, create_ad_copy, create_ad_headline, create_placeholder, upload_jpg_to_google, add_logo, create_upload, create_ad_creative, upload_png_to_google, convert_color_to_hex
 from firebase_admin import firestore, auth, credentials
 import base64
 import ast
@@ -46,9 +46,6 @@ logger = logging.getLogger(__name__)
 
 client = OpenAI(api_key=config('OPENAI_API_KEY'))
 assistant_ids = {'elaine': 'asst_KIHRjofgKB36hQkJt2IqXF51'}
-
-stripe.api_key = settings.STRIPE_SECRET_KEY
-endpoint_secret = settings.STRIPE_ENDPOINT
 
 def dashboard(request):
     try:
@@ -373,7 +370,7 @@ def ad_manager(request):
                 user_settings_ref.set(firestore_data, merge=True)
                 user_settings_doc = user_settings_ref.get()
                 user_settings = user_settings_doc.to_dict()
-                isLogo = request.session.get('isLogo', None)
+                isLogo = request.session.get('isLogo', False)
                 context = {
                     'user_settings': user_settings,
                     'user_id': user_id,
@@ -381,7 +378,7 @@ def ad_manager(request):
                     'success': "You're request was sent! We will get back to you with an email shortly.",
                 }
             except Exception as e:
-                isLogo = request.session.get('isLogo', None)
+                isLogo = request.session.get('isLogo', False)
                 context = {
                     'user_settings': user_settings,
                     'user_id': user_id,
@@ -392,13 +389,13 @@ def ad_manager(request):
             return render(request, 'ad_manager.html', context)
 
         elif form_name == 'formImg':
-            isLogo = request.POST.get('isLogo', None)
+            isLogo = request.POST.get('isLogo', False)
             request.session['isLogo'] = isLogo
             ad_image_url = create_call_to_action(isLogo, logo_path, biz, settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, ads_folder_path, num_ad)
             if num_ad <= 5:
                 num_ad += 1
         else:
-            isLogo = request.POST.get('isLogo', None)
+            isLogo = request.POST.get('isLogo', False)
             request.session['isLogo'] = isLogo
             ad_image_url = create_call_to_action(isLogo, logo_path, biz, settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, ads_folder_path, num_ad)
             ad_copy = create_ad_copy(biz, user_settings['business_name'])
@@ -418,7 +415,7 @@ def ad_manager(request):
         user_settings_doc = user_settings_ref.get()
         user_settings = user_settings_doc.to_dict()
         
-    isLogo = request.session.get('isLogo', None)
+    isLogo = request.session.get('isLogo', False)
     context = {
         'user_settings': user_settings,
         'user_id': user_id,
@@ -472,7 +469,7 @@ def post_creator(request):
             tags = ''
 
     selected_option = request.session.get('selected_radio', 'photo')
-    isLogo = request.session.get('isLogo', None)
+    isLogo = request.session.get('isLogo', False)
 
     if request.method == 'POST':
         form_name = request.POST.get('form')
@@ -581,18 +578,16 @@ def post_creator(request):
                 facebook_checked = request.POST.get('facebook_visible', 'false') == 'true'
                 instagram_checked = request.POST.get('instagram_visible', 'false') == 'true'
                 linkedin_checked = request.POST.get('linkedin_visible', 'false') == 'true'
-                print('CHECKS: ', facebook_checked, instagram_checked, linkedin_checked)
-                print('LAST TYPE: ', lastType)
-                print('IMAGE URL: ', image_url)
-                print('CAPTION: ', caption)
+
                 if lastType == 'text' or image_url == '':
                     if facebook_checked:
                         page_id = user_settings['facebook_page_id']
                         facebook_page_token = user_settings['facebook_page_token']
                         post_text_to_facebook_page_feed(caption, page_id, facebook_page_token)
                     if linkedin_checked:
+                        page_id = user_settings['linkedin_id']
                         access_token = user_settings['linkedin_token']
-                        post_to_linkedin(caption, image_url, access_token, page_id)
+                        post_text_to_linkedin(access_token, page_id, caption)
                 else:
                     if facebook_checked:
                         page_id = user_settings['facebook_page_id']
@@ -604,6 +599,7 @@ def post_creator(request):
                         post_to_instagram(access_token, image_url, caption, instagram_user_id)
                     if linkedin_checked:
                         access_token = user_settings['linkedin_token']
+                        page_id = user_settings['linkedin_id']
                         post_to_linkedin(caption, image_url, access_token, page_id)
                 messages.success(request, 'Post has been successfully uploaded to your feed!')
                 return redirect('post_creator')
@@ -612,8 +608,7 @@ def post_creator(request):
         # ------------------- Get Selected Post Type --------------------------- #
                 selected_option = request.POST.get('selected_post_type')
                 request.session['selected_radio'] = selected_option
-                isLogo = request.POST.get('isLogo', None)
-                request.session['isLogo'] = isLogo
+                isLogo = request.session.get('isLogo', False)
         # ---------------------------------------------------------------------- #
 
                 if 'total_allowed_images' in global_variables and 'images_generated' in user_settings and 'cooldown_expiry' in user_settings:
@@ -653,28 +648,30 @@ def post_creator(request):
                         cooldown_duration = timedelta(days=global_variables['cooldown_duration'])
                         cooldown_expiry = datetime.now() + cooldown_duration
 
-
                     if selected_option == 'up':
                         progress = 100
-                        image = request.FILES.get('file')
-                        isGraphic = request.POST.get('isGraphic')
-                        isLogo = request.POST.get('isLogo')
-                        name = request.POST.get('photo-attribution')
-                        file_extension = image.name.split('.')[-1].lower()
-                        if file_extension not in ['jpg', 'jpeg', 'png']:
-                            messages.error(request, 'ONLY ACCEPTED FILE FORMATS: .jpg, .jpeg, .png')
-                            return redirect('post_creator')
                         try:
-                            img = create_upload(image, logo_path, isLogo, isGraphic, color, name)
-                            url = upload_png_to_google(img, settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, image_folder_path)
+                            image = request.FILES.get('file')
+                            isGraphic = request.POST.get('isGraphic')
+                            name = request.POST.get('photo-attribution')
+                            file_extension = image.name.split('.')[-1].lower()
+                            isLogo = request.POST.get('isLogo', False)
+                            if file_extension not in ['jpg', 'jpeg', 'png']:
+                                messages.error(request, 'ONLY ACCEPTED FILE FORMATS: .jpg, .jpeg, .png')
+                                return redirect('post_creator')
+                            try:
+                                img = create_upload(image, logo_path, isLogo, isGraphic, color, name)
+                                url = upload_png_to_google(img, settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, image_folder_path)
+                            except:
+                                messages.error(request, 'Image failed to generate. If the problem persists, please contact us at https://feadl.io/contact/')
+                                return redirect('post_creator')
                         except:
-                            messages.error(request, 'Image failed to generate. If the problem persists, please contact us at https://feadl.io/contact/')
+                            messages.error(request, 'No image was uploaded or there was an error. Please try again.')
                             return redirect('post_creator')
-                        
 
                     elif selected_option == 'text':
                         progress = 100
-                        platform = request.POST.get('text-platfrom')
+                        platform = request.POST.get('text-platform')
                         try:
                             post = create_text_post(platform, biz, biz_name)
                             url = "https://storage.googleapis.com/starter_web_app_bucket/user_folders/assets/textPost.png"
@@ -685,10 +682,9 @@ def post_creator(request):
 
                     elif selected_option == 'photo':
                         progress = 0
-                        img_url = request.POST.get('selected_stock_image_url', None)
-                        isLogo = request.POST.get('isLogo')
-                        request.session['isLogo'] = isLogo
-                        if img_url:
+                        img_url = request.POST.get('selected_photo_url', 'None')
+                        isLogo = request.POST.get('isLogo', False)
+                        if img_url != 'None':
                             progress = 90
                             url = img_url
                         else:
@@ -712,42 +708,47 @@ def post_creator(request):
                         
                     elif selected_option == 'graphic':
                         key = request.POST.get('graphic-description')
-                        img_url = request.POST.get('selected_image_url', None)
+                        img_url = request.POST.get('selected_graphic_url', 'None')
+                        isLogo = user_settings.get('isLogo', False)
                         randomizer_choices = ["graphic", "ad"]
                         randomizer = random.choice(randomizer_choices)
                         request.session['randomizer'] = randomizer
 
-                        if randomizer == "ad":
-                            random_int = random.randint(global_variables['random_ad_int_min'], global_variables['random_ad_int_max'])
-                            image_folder_path = f'ad_image_library/'
-                        else:
-                            random_int = random.randint(global_variables['random_int_min'], global_variables['random_int_max'])
-                            image_folder_path = f'graphic_image_library/'
+                        # if randomizer == "ad":
+                        #     random_int = random.randint(global_variables['random_ad_int_min'], global_variables['random_ad_int_max'])
+                        #     image_folder_path = f'ad_image_library/'
+                        # else:
+                        #     random_int = random.randint(global_variables['random_int_min'], global_variables['random_int_max'])
+                        #     image_folder_path = f'graphic_image_library/'
+
+                        random_int = random.randint(global_variables['random_int_min'], global_variables['random_int_max'])
+                        image_folder_path = f'graphic_image_library/'
 
                         color = user_settings['brand_color']
                         secondary_colors = ast.literal_eval(user_settings['secondary_colors'])
                         if img_url == 'None':
-                            try:
-                                prompt_string = create_stock_image_description(key)
-                                payload = {
-                                    "prompt": prompt_string, 
-                                    "uid": user_id, 
-                                    "dimensions": "1024x1024", 
-                                    "number": 1
-                                }
-                                enqueue_task(payload, settings.GS_IMAGE_QUEUE_NAME, settings.GS_DALLE3)
-                                url = ''
-                                progress = 0    
-                            except:
-                                messages.error(request, 'Image failed to generate. If the problem persists, please contact us at https://feadl.io/contact/')
-                                return redirect('post_creator')
+                            # try:
+                            prompt_string = create_background_image_description(key)
+                            payload = {
+                                "prompt": prompt_string, 
+                                "uid": user_id, 
+                                "dimensions": "1024x1024", 
+                                "number": 1
+                            }
+                            enqueue_task(payload, settings.GS_IMAGE_QUEUE_NAME, settings.GS_DALLE3)
+                            url = ''
+                            progress = 0    
+                            # except:
+                            #     messages.error(request, 'Image failed to generate. If the problem persists, please contact us at https://feadl.io/contact/')
+                            #     return redirect('post_creator')
                         else:
                             progress = 100
                             try:
-                                if randomizer == "ad":
-                                    img = create_ad_creative(biz, biz_name, color, secondary_colors, img_url, random_int, logo_path)
-                                else:
-                                    img = create_call_to_action(biz, biz_name, color, secondary_colors, img_url, random_int, logo_path)
+                                # if randomizer == "ad":
+                                #     img = create_ad_creative(biz, biz_name, color, secondary_colors, img_url, random_int, logo_path, isLogo)
+                                # else:
+                                #     img = create_call_to_action(biz, biz_name, color, secondary_colors, img_url, random_int, logo_path, isLogo)
+                                img = create_call_to_action(biz, biz_name, color, secondary_colors, img_url, random_int, logo_path, isLogo)
                                 url = upload_png_to_google(img, settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, image_folder_path)
                             except:
                                 messages.error(request, 'Image failed to generate. If the problem persists, please contact us at https://feadl.io/contact/')
@@ -755,15 +756,16 @@ def post_creator(request):
 
                     elif selected_option == 'ad':
                         key = request.POST.get('ad-creative-description')
-                        img_url = request.POST.get('selected_ad_creative_image_url', None)
+                        img_url = request.POST.get('selected_ad_url', 'None')
                         platform = request.POST.get('text-platform')
                         random_int = random.randint(global_variables['random_ad_int_min'], global_variables['random_ad_int_max'])
                         image_folder_path = f'ad_image_library/'
-                        color = user_settings['brand_color']
+                        isLogo = user_settings.get('isLogo', False)
+                        color = user_settings.get('brand_color')
                         secondary_colors = ast.literal_eval(user_settings['secondary_colors'])
                         if img_url == 'None':
                             try:
-                                prompt_string = create_stock_image_description(key)
+                                prompt_string = create_background_image_description(key)
                                 payload = {
                                     "prompt": prompt_string, 
                                     "uid": user_id, 
@@ -779,7 +781,7 @@ def post_creator(request):
                         else:
                             progress = 100
                             try:
-                                img = create_ad_creative(biz, biz_name, color, secondary_colors, img_url, random_int, logo_path)
+                                img = create_ad_creative(biz, biz_name, color, secondary_colors, img_url, random_int, logo_path, isLogo)
                                 url = upload_png_to_google(img, settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, image_folder_path)
                             except:
                                 messages.error(request, 'Image failed to generate. If the problem persists, please contact us at https://feadl.io/contact/')
@@ -802,6 +804,7 @@ def post_creator(request):
                     return redirect('post_creator')
                 
                 post_type = selected_option
+                request.session['isLogo'] = isLogo
 
                 try:
                     delete_from_google(user_settings['next_image_url'], settings.GS_CREDENTIALS)
@@ -828,7 +831,7 @@ def post_creator(request):
             messages.error(request, 'We are here to help your business. Our generators are in high demand and accrue a cost. Please subscribe to utilize our amazing app!')
             return redirect('post_creator')
         
-    context = {'user_id': user_id,  'user_settings': user_settings, 'selected_radio': selected_option, 'isLogo': isLogo,}
+    context = {'user_id': user_id,  'user_settings': user_settings, 'selected_radio': selected_option, 'isLogo': isLogo, 'tags': json.dumps(user_settings.get('image_tags'))}
     return render(request, 'post_creator.html', context)
 
 def add_graphics(request):
@@ -849,7 +852,7 @@ def add_graphics(request):
         pass
     
     except:
-        return JsonResponse({'error': 'Invalid rlogin'}, status=400)
+        return JsonResponse({'error': 'Invalid login'}, status=400)
     # ---------------------------------------------------------------------- #
 
     try:
@@ -868,39 +871,39 @@ def add_graphics(request):
             tags = ''
 
     logo_path = user_settings.get('logo', None)
+    isLogo = request.session.get('isLogo', False)
     selected_option = request.session.get('selected_radio', 'photo')
-    isLogo = request.session.get('isLogo', None)
-    print('ISLOGO: ', isLogo)
-
     if request.method == 'POST':
-        next_image_url = user_settings['next_image_url']
+        next_image_url = user_settings.get('next_image_url')
+        if next_image_url == 'None':
+            return JsonResponse({'error': 'Image response empty.'}, status=400)
         if selected_option == 'graphic':
             randomizer = request.session.get('randomizer', "ad")
-            if randomizer == "ad":
-                random_int = random.randint(global_variables['random_ad_int_min'], global_variables['random_ad_int_max'])
-                image_folder_path = f'ad_image_library/'
-                color = user_settings['brand_color']
-                secondary_colors = ast.literal_eval(user_settings['secondary_colors'])
-                img = create_ad_creative(biz, biz_name, color, secondary_colors, next_image_url, random_int, logo_path)
-                url = upload_png_to_google(img, settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, image_folder_path)
-            else:
-                random_int = random.randint(global_variables['random_int_min'], global_variables['random_int_max'])
-                image_folder_path = f'graphic_image_library/'
-                color = user_settings['brand_color']
-                secondary_colors = ast.literal_eval(user_settings['secondary_colors'])
-                img = create_call_to_action(biz, biz_name, color, secondary_colors, next_image_url, random_int, logo_path)
-                url = upload_png_to_google(img, settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, image_folder_path)
+            # if randomizer == "ad":
+            #     random_int = random.randint(global_variables['random_ad_int_min'], global_variables['random_ad_int_max'])
+            #     image_folder_path = f'ad_image_library/'
+            #     color = user_settings['brand_color']
+            #     secondary_colors = ast.literal_eval(user_settings['secondary_colors'])
+            #     img = create_ad_creative(biz, biz_name, color, secondary_colors, next_image_url, random_int, logo_path, isLogo)
+            #     url = upload_png_to_google(img, settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, image_folder_path)
+            # else:
+            random_int = random.randint(global_variables['random_int_min'], global_variables['random_int_max'])
+            image_folder_path = f'graphic_image_library/'
+            color = user_settings['brand_color']
+            secondary_colors = ast.literal_eval(user_settings['secondary_colors'])
+            img = create_call_to_action(biz, biz_name, color, secondary_colors, next_image_url, random_int, logo_path, isLogo)
+            url = upload_png_to_google(img, settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, image_folder_path)
 
         elif selected_option == "ad":
             random_int = random.randint(global_variables['random_ad_int_min'], global_variables['random_ad_int_max'])
             image_folder_path = f'ad_image_library/'
             color = user_settings['brand_color']
             secondary_colors = ast.literal_eval(user_settings['secondary_colors'])
-            img = create_ad_creative(biz, biz_name, color, secondary_colors, next_image_url, random_int, logo_path)
+            img = create_ad_creative(biz, biz_name, color, secondary_colors, next_image_url, random_int, logo_path, isLogo)
             url = upload_png_to_google(img, settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, image_folder_path)
         else:
             image_folder_path = f'stock_image_library/'
-            if user_settings['isLogo']:
+            if user_settings.get('isLogo', False):
                 if isLogo:
                     if logo_path:
                         image_data = add_logo(next_image_url, logo_path)
@@ -1065,9 +1068,9 @@ def brand_settings(request):
         form_name = request.POST.get('form')
         if form_name == 'brand-settings':
 
-# ------------------ TAGS ---------------#
+            # ------------------ TAGS ---------------#
             if request.POST.get('tags'):
-                if request.POST.get('business_description') == user_settings['business_description']:
+                if request.POST.get('business_description') == user_settings.get('business_description'):
                     input_string = request.POST.get('tags')
                     output_list = [item.strip() for item in input_string.split(',')]
                     output_string = json.dumps(output_list)
@@ -1088,7 +1091,7 @@ def brand_settings(request):
             }
 
         elif form_name == 'branding':
-            # ------------------ COLORS ---------------#
+            # ------------------ LOGO ---------------#
             try:
                 logo = request.FILES.get('logo')
                 if logo:
@@ -1117,6 +1120,7 @@ def brand_settings(request):
                 user_settings_ref.set(firestore_data, merge=True)
             except:
                 pass
+            # ------------------ COLORS ---------------#
 
             try:
                 def get_color(array, index):
@@ -1125,7 +1129,7 @@ def brand_settings(request):
                     except IndexError:
                         return '#000000'
                 
-                colors = user_settings['secondary_colors']
+                colors = user_settings.get("secondary_colors", "['#000000', '#000000', '#000000', '#000000']")
                 color_array = ast.literal_eval(colors)
                 color2 = get_color(color_array, 0)
                 color3 = get_color(color_array, 1)
@@ -1137,13 +1141,13 @@ def brand_settings(request):
                     color_array = ast.literal_eval(colors)
                 
                 if request.POST.get('color2') != color2:
-                    color_array[0] = request.POST.get('color2', '#000000')
+                    color_array[0] = convert_color_to_hex(request.POST.get('color2', '#000000'))
                 if request.POST.get('color3') != color3:
-                    color_array[1] = request.POST.get('color3', '#000000')
+                    color_array[1] = convert_color_to_hex(request.POST.get('color3', '#000000'))
                 if request.POST.get('color4') != color4:
-                    color_array[2] = request.POST.get('color4', '#000000')
+                    color_array[2] = convert_color_to_hex(request.POST.get('color4', '#000000'))
                 if request.POST.get('color5') != color5:
-                    color_array[3] = request.POST.get('color5', '#000000')
+                    color_array[3] = convert_color_to_hex(request.POST.get('color5', '#000000'))
                 
                 colors = str(color_array)
                 # ------------------ ------------ ---------------#
@@ -1308,10 +1312,11 @@ def callback(request):
             id_token = data.get('id_token')
             decoded_id_token = jwt.decode(id_token, options={"verify_signature": False})
             user_id = decoded_id_token.get("sub")
+            # username = get_linkedin_account_name(access_token)
             firestore_data = {
                 f'{provider}_id': user_id,
                 f'{provider}_token': access_token,
-                f'is{isCheck}': True,
+                f'is{isCheck}': True
             }
 
             user_settings_ref.set(firestore_data, merge=True)
@@ -1376,11 +1381,13 @@ def callback(request):
                 pass
 
             if got_instagram_id:
+                username = get_instagram_username(got_instagram_id, access_token)
                 firestore_data = {
                     f'{provider}_token': access_token,
                     f'{provider}_user_id': got_instagram_id,
                     f'{provider}_facebook_page_id': got_facebook_page_id,
-                    f'is{isCheck}': True,
+                    f'{provider}_name': username,
+                    f'is{isCheck}': True
                 }
                 user_settings_ref.set(firestore_data, merge=True)
             else:
@@ -1487,6 +1494,7 @@ def unlink(request):
             f'{provider}_token': None,
             f'{provider}_facebook_page_id': None,
             f'{provider}_user_id': None,
+            f'{provider}_name': None,
             f'is{isCheck}': False,
         }    
         user_settings_ref.set(firestore_data, merge=True)
@@ -1563,6 +1571,8 @@ def cancel(request):
 
 @csrf_exempt
 def stripe_webhook(request):
+    stripe.api_key = settings.STRIPE_SECRET_KEY
+    endpoint_secret = settings.STRIPE_ENDPOINT
     payload = request.body
     sig_header = request.headers.get('Stripe-Signature')
 

@@ -25052,7 +25052,6 @@ body[data-layout-color=dark] .datepicker tfoot tr th:hover {
 .ftue-modal {
     background-color: #fff;
     padding: 20px;
-    border-radius: 5px;
     box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.2);
     justify-content: center;
     align-items: center;
@@ -25535,7 +25534,7 @@ body[data-layout-color=dark] .datepicker tfoot tr th:hover {
         width: 30%;
     }
 
-    .post-type-thumbnails, .graphic-thumbnails {
+    .post-type-thumbnails{
         justify-content: center;
     }
 
@@ -25616,4 +25615,69 @@ ul.messages li {
 .danger {
     background-color: var(--ct-danger);
     color: #e0e0e0;
+}
+
+#popup {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+    border-radius: 10px;
+    z-index: 9999; /* Sit on top */
+}
+
+/* Popup Content */
+.popup-content {
+    background-color: #fefefe;
+    margin: 15% auto; /* 15% from the top and centered */
+    padding: 20px;
+    border: 1px solid #888;
+    width: 30%; /* Could be more or less, depending on screen size */
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+    text-align: center;
+    border-radius: 10px;
+}
+
+/* The Close Button */
+.close-button {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    border-radius: 10px;
+}
+
+.close-button:hover,
+.close-button:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* Add styles for the submit and cancel buttons */
+.popup-button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: #4CAF50; /* Green */
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 2px;
+}
+
+.popup-button.cancel {
+    background-color: #f44336; /* Red */
+}
+
+.popup-button:hover {
+    opacity: 0.8;
+}
+
+.popup-content p,
+.popup-content ol {
+    text-align: left;
 }

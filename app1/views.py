@@ -135,14 +135,14 @@ def signup(request):
                 # ---------------------------------------------------------------------- #
 
                 firestore_data = {
-                    'ftue': False,
+                    'ftue': True,
                     'autoState': 1,
                     'isSubscriber': False,
                     'isLogo': False,
                     'brand_color': '#000000',
                     'business_description': '',
                     'business_name': '',
-                    'secpndary_colors': "['#000000', '#000000', '#000000', '#000000', '#000000']",
+                    'secondary_colors': "['#000000', '#000000', '#000000', '#000000']",
                     'images_generated': 0,
                     'progress': 100,
                     'admin': False,

@@ -2736,3 +2736,28 @@ ul.messages li {
   font-size: 20px;
   cursor: pointer;
 }
+
+.debug {
+  background-color: var(--ct-debug);
+  color: #e0e0e0;
+}
+
+.info {
+  background-color: var(--ct-info);
+  color: #e0e0e0;
+}
+
+.success {
+  background-color: var(--ct-success);
+  color: #e0e0e0; 
+}
+
+.warning {
+  background-color: var(--ct-warning);
+  color: #e0e0e0;
+}
+
+.danger {
+  background-color: var(--ct-danger);
+  color: #e0e0e0;
+}

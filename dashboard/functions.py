@@ -55,15 +55,17 @@ def create_text_post(platform, business_description, business_name):
     original_string = original_string.replace('"', '').replace("'", "")
     return original_string
 
-def create_stock_image_description (key):
+def create_background_image_description (key):
     client = OpenAI(api_key=config('OPENAI_API_KEY'))
-    prompt = f"Choose one of these tags: [{key}]. Then use the tag to create a description for a stock image based on it. The description should include the type of camera, the MM lens, and the settings. The description should be realistic and photographic."
+    prompt = f"Choose one of these tags: [{key}]. Then use the tag to create a creative description that is based on it. Choose one. only have a single subject or element to highlight"
+    randTypes = ["Photo", "Photo", "Photo", "Stock Image", "Stock Image", "Stock Image", "3D Render", "Graphic", "Advertisement"]
+    randType = random.choice(randTypes)
     response = client.chat.completions.create(
             model="gpt-3.5-turbo-1106",
             messages=[
                 {
                 "role": "system",
-                "content": "Make a detailed technical description as if you were a photographer. Keep it short, simple and below 50 words."
+                "content": f"Match this syntax: Type: [{randType}] - Style: [STYLE] - Scene: [SCENE] - Subject: [SUBJECT] - Description: [DESCRIPTION] - Elements: [ELEMENTS]"
                 },
                 {
                 "role": "user",
@@ -74,7 +76,30 @@ def create_stock_image_description (key):
             max_tokens=200
         )
     original_string = response.choices[0].message.content.strip()
+    print("--------------------")
     print(original_string)
+    print("--------------------")
+    return original_string
+
+def create_stock_image_description (key):
+    client = OpenAI(api_key=config('OPENAI_API_KEY'))
+    prompt = f"Choose one of these tags: [{key}]. Then use the tag to create a description for a stock image or a realistic photo that is based on it. the image should have a clear subject or element. It should be simple."
+    response = client.chat.completions.create(
+            model="gpt-3.5-turbo-1106",
+            messages=[
+                {
+                "role": "system",
+                "content": "Match this syntax: Scene: [SCENE] - Description: [DESCRIPTION] - Elements: [ELEMENTS] Aperture: [APERTURE] Lens: [LENS] - Lighting: [LIGHTING]"
+                },
+                {
+                "role": "user",
+                "content": prompt
+                }
+            ],
+            temperature=1,
+            max_tokens=200
+        )
+    original_string = response.choices[0].message.content.strip()
     return original_string
 
 def add_stock_tags(tags, stock_images, bucket_name, bucket_credentials, user_folder_path):
@@ -461,16 +486,16 @@ def create_stock_post (key):
 
     return image_io
 
-def create_call_to_action(business_description, business_name, primary_color, colors_as_array, img_url, random_int, logo_path):
-    bg = generate_image_from_params(str(random_int), business_description, business_name, primary_color, colors_as_array, img_url, logo_path, 'graphic')
+def create_call_to_action(business_description, business_name, primary_color, colors_as_array, img_url, random_int, logo_path, isLogo):
+    bg = generate_image_from_params(str(random_int), business_description, business_name, primary_color, colors_as_array, img_url, logo_path, 'graphic', isLogo)
     image_io = BytesIO()
     bg.save(image_io, format='PNG')
     image_io.seek(0)
 
     return image_io
 
-def create_ad_creative(business_description, business_name, primary_color, colors_as_array, img_url, random_int, logo_path):
-    bg = generate_image_from_params(str(random_int), business_description, business_name, primary_color, colors_as_array, img_url, logo_path, 'ad')
+def create_ad_creative(business_description, business_name, primary_color, colors_as_array, img_url, random_int, logo_path, isLogo):
+    bg = generate_image_from_params(str(random_int), business_description, business_name, primary_color, colors_as_array, img_url, logo_path, 'ad', isLogo)
     image_io = BytesIO()
     bg.save(image_io, format='PNG')
     image_io.seek(0)
@@ -692,3 +717,52 @@ def send_task (key, uid, dimensions, number):
     trigger_cloud_function_async()
 
     return print('done')
+
+def convert_color_to_hex(color):
+    colors = {
+    "white": "#FFFFFF",
+    "black": "#000000",
+    "red": "#FF0000",
+    "green": "#008000",
+    "blue": "#0000FF",
+    "yellow": "#FFFF00",
+    "cyan": "#00FFFF",
+    "magenta": "#FF00FF",
+    "silver": "#C0C0C0",
+    "gray": "#808080",
+    "grey": "#808080",
+    "maroon": "#800000",
+    "olive": "#808000",
+    "purple": "#800080",
+    "teal": "#008080",
+    "navy": "#000080",
+    "fuchsia": "#FF00FF",
+    "aqua": "#00FFFF",
+    "lime": "#00FF00",
+    "orange": "#FFA500",
+    "brown": "#A52A2A",
+    "pink": "#FFC0CB",
+    "gold": "#FFD700",
+    "beige": "#F5F5DC",
+    "coral": "#FF7F50",
+    "ivory": "#FFFFF0",
+    "khaki": "#F0E68C",
+    "lavender": "#E6E6FA",
+    "turquoise": "#40E0D0",
+    }
+
+    if color.lower() in colors:
+        return colors[color.lower()]
+
+    if re.match(r'^#(?:[0-9a-fA-F]{3}){1,2}$', color):
+        return color
+
+    if color.startswith("rgb"):
+        rgb_values = color[4:-1].split(",")
+        if all(value.strip().isdigit() for value in rgb_values):
+            rgb_values = [int(value.strip()) for value in rgb_values]
+            # Convert RGB to hex
+            hex_color = "#{:02x}{:02x}{:02x}".format(*rgb_values)
+            return hex_color
+
+    return "#000000"

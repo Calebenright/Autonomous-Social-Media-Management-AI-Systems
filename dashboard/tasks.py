@@ -9,7 +9,6 @@ def enqueue_task(payload, queue_name, queue_url):
     client = tasks_v2.CloudTasksClient()
     parent = client.queue_path(settings.GS_PROJECT_ID, settings.GS_QUEUE_REGION, queue_name)
 
-    # Construct the task payload
     task_payload = {
         "http_request": {
             "http_method": tasks_v2.HttpMethod.POST,
@@ -21,9 +20,27 @@ def enqueue_task(payload, queue_name, queue_url):
         }
     }
 
-    # Set the task schedule time (optional)
-    # task_schedule_time = timestamp_pb2.Timestamp(seconds=int(time.time()) + 60)  # Task will be scheduled to run after 1 minute
-    # task_payload["schedule_time"] = task_schedule_time
+    task = client.create_task(parent=parent, task=task_payload)
+    print(f"Task created: {task.name}")
+
+def post_task(payload, queue_name, queue_url):
+    client = tasks_v2.CloudTasksClient()
+    parent = client.queue_path(settings.GS_PROJECT_ID, settings.GS_QUEUE_REGION, queue_name)
+
+    task_payload = {
+        "http_request": {
+            "http_method": tasks_v2.HttpMethod.POST,
+            "url": queue_url,
+            "oidc_token": {
+                "service_account_email": "main-service@starter-web-app-389316.iam.gserviceaccount.com",
+                "audience": "https://us-central1-feed-ai-c379d.cloudfunctions.net/post_to_social",
+            },
+            "headers": {
+                "Content-Type": "application/json"
+            },
+            "body": json.dumps(payload).encode(),
+        }
+    }
 
     task = client.create_task(parent=parent, task=task_payload)
     print(f"Task created: {task.name}")
