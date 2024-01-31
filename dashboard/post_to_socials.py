@@ -1,7 +1,8 @@
 import requests
 import json
 import tempfile
-
+from moviepy.editor import VideoFileClip
+import os
 # --------------------- GET --------------------------- #
 
 def get_instagram_user_id(facebook_page_id, access_token):
@@ -244,6 +245,46 @@ def post_to_instagram(access_token, image_url, caption, instagram_user_id):
     else:
         print("Failed to publish post to Instagram:", publish_result)
 
+def extract_first_frame(video_url):
+    with VideoFileClip(video_url) as clip:
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.jpg') as temp_img:
+            clip.save_frame(temp_img.name, t=0)
+            return temp_img.name
+
+def post_video_to_instagram(access_token, video_url, caption, instagram_user_id):
+    endpoint = f"https://graph.facebook.com/{instagram_user_id}/media"
+    payload = {
+        "media_type": "VIDEO",
+        "video_url": video_url,
+        "caption": caption,
+        "access_token": access_token
+    }
+    
+    response = requests.post(endpoint, data=payload)
+    result = response.json()
+
+    if 'id' not in result:
+        print("Failed to create media object:", result)
+        return
+
+    creation_id = result['id']
+
+    # Step 2: Publish the media object
+    publish_endpoint = f"https://graph.facebook.com/{instagram_user_id}/media_publish"
+    publish_payload = {
+        "creation_id": creation_id,
+        "access_token": access_token
+    }
+
+    publish_response = requests.post(publish_endpoint, data=publish_payload)
+    publish_result = publish_response.json()
+
+    if 'id' in publish_result:
+        print(f"Successfully posted to Instagram with ID: {publish_result['id']}")
+    else:
+        print("Failed to publish post to Instagram:", publish_result)
+
+
 # ----------- FACEBOOK -------------- #
 
 def post_to_facebook_page_feed(caption, image_url, page_id, page_access_token):
@@ -255,7 +296,7 @@ def post_to_facebook_page_feed(caption, image_url, page_id, page_access_token):
             temp_file.flush()
             temp_file.seek(0)
 
-            photo_endpoint = f"https://graph.facebook.com/v13.0/{page_id}/photos"
+            photo_endpoint = f"https://graph.facebook.com/v17.0/{page_id}/photos"
             photo_params = {
                 "caption": caption,
                 "access_token": page_access_token,
@@ -287,6 +328,88 @@ def post_text_to_facebook_page_feed(caption, page_id, page_access_token):
     # Print and return the response
     print(post_response)
     return post_response
+
+def post_video_to_facebook_page_feed(caption, video_url, page_id, page_access_token):
+    # Step 1: Initialize An Upload Session
+    def initialize_upload_session(file_size):
+        params = {
+            "upload_phase": "start",
+            "file_size": file_size,
+            "access_token": page_access_token
+        }
+        init_url = f"https://graph-video.facebook.com/v19.0/{page_id}/videos"
+        response = requests.post(init_url, params=params).json()
+        return response
+
+    # Step 2: Upload Chunks Individually
+    def upload_video_chunk(upload_session_id, start_offset, chunk):
+        params = {
+            "upload_phase": "transfer",
+            "start_offset": start_offset,
+            "upload_session_id": upload_session_id,
+            "access_token": page_access_token
+        }
+        files = {
+            "video_file_chunk": chunk
+        }
+        chunk_url = f"https://graph-video.facebook.com/v19.0/{page_id}/videos"
+        response = requests.post(chunk_url, params=params, files=files).json()
+        return response
+
+    # Step 3: End The Upload Session
+    def end_upload_session(upload_session_id):
+        params = {
+            "upload_phase": "finish",
+            "upload_session_id": upload_session_id,
+            "access_token": page_access_token
+        }
+        finish_url = f"https://graph-video.facebook.com/v19.0/{page_id}/videos"
+        response = requests.post(finish_url, params=params).json()
+        return response
+
+    # Download the video and split into chunks
+    response = requests.get(video_url, stream=True)
+    if response.status_code == 200:
+        with tempfile.NamedTemporaryFile(delete=False) as temp_file:
+            for chunk in response.iter_content(chunk_size=8192):
+                temp_file.write(chunk)
+            temp_file_path = temp_file.name
+
+        file_size = os.path.getsize(temp_file_path)
+        init_response = initialize_upload_session(file_size)
+
+        if "upload_session_id" in init_response:
+            upload_session_id = init_response["upload_session_id"]
+            start_offset = init_response["start_offset"]
+            end_offset = init_response["end_offset"]
+
+            # Upload video in chunks
+            with open(temp_file_path, "rb") as f:
+                f.seek(int(start_offset))
+                while int(start_offset) < int(end_offset):
+                    chunk = f.read(min(8192, int(end_offset) - int(start_offset)))
+                    chunk_response = upload_video_chunk(upload_session_id, start_offset, chunk)
+                    start_offset = chunk_response["start_offset"]
+                    end_offset = chunk_response["end_offset"]
+
+            # Remove the temporary file
+            os.remove(temp_file_path)
+
+            # End the upload session
+            end_response = end_upload_session(upload_session_id)
+            if end_response.get("success"):
+                print("Video successfully uploaded.")
+                return end_response
+            else:
+                print("Failed to end the upload session.")
+                return end_response
+        else:
+            print("Failed to initialize the upload session.")
+            return init_response
+    else:
+        print("Failed to download the video.")
+        return {"error": "Failed to download the video."}
+
 
 if __name__ == "__main__":
     access_token = "AQVrLItHPm2b47TPOPzxpPBZO_CQeaLEfoWkBuXe81HHwMm2ukAdQVjCntCdkNtI7Fw31J6zfSJ0S-Ou5pOiDn4GalcHhd0qGVn-IR6Uwquce8OjFEFuU9LKBStxz6_-GofMcyeWjdm9PKixzpcsP-BFqiyoewqvei3xLj-dwcpOvRC7E2RLH2PqBfpdsqNgmfkqO044dgH8vb6l1jm0ZP5ODxKvSpPsscWa0kUwOQxOL-r5fR_kD8Ly0s-r_FnXUeTeijqeFX8m_XI-oDcjThRYdkDmdW8mIA2XerXuI09AxlCGDpFp79H5kAtHByP3eyR7YDItYwPoSn11zOsXUJVrTRJs9g"

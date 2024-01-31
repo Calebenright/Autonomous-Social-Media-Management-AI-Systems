@@ -11,6 +11,7 @@ urlpatterns = [
     path('library/', views.library, name='library'),
     path('callback/', views.callback, name='callback'),
     path('add_graphics/', views.add_graphics, name='add_graphics'),
+    path('master_switch/', views.master_switch, name='master_switch'),
     path('all_auth/', views.all_auth, name='all_auth'),
     path('checkout/', views.checkout, name='checkout'),
     path('stripe_webhook/', views.stripe_webhook, name='stripe_webhook'),
@@ -21,5 +22,6 @@ urlpatterns = [
     path('get_chat/', views.get_chat, name='get_chat'),
     path('clear_chat/', views.clear_chat, name='clear_chat'),
     path('unlink/', views.unlink, name='unlink'),
+    path('logout_view/', views.logout_view, name='logout_view'),
     path('process_page_selection/', views.process_page_selection, name='process_page_selection'),
 ]

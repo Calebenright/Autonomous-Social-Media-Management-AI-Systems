@@ -199,15 +199,15 @@
                         </a>
 
                         <!-- item-->
-                        <a href="{% url 'brand_settings' %}" class="dropdown-item notify-item">
-                            <i class="fe-settings"></i>
-                            <span>Account</span>
-                        </a>
-
-                        <!-- item-->
                         <a href="{% url 'library' %}" class="dropdown-item notify-item">
                             <i class="fe-grid"></i>
                             <span>Library</span>
+                        </a>
+
+                        <!-- item-->
+                        <a href="{% url 'brand_settings' %}" class="dropdown-item notify-item">
+                            <i class="fe-settings"></i>
+                            <span>Account</span>
                         </a>
 
                         <div class="dropdown-divider"></div>
@@ -280,7 +280,7 @@
                         </li>
 
                         <li class="list-inline-item">
-                            <a href="{% url 'index' %}">
+                            <a href="{% url 'logout_view' %}">
                                 <i class="mdi mdi-power"></i>
                             </a>
                         </li>
@@ -328,16 +328,16 @@
                         <li class="menu-title mt-2">Settings</li>
 
                         <li>
-                            <a href="{% url 'brand_settings' %}">
-                                <i class="fe-settings"></i>
-                                <span> Account </span>
+                            <a href="{% url 'library' %}">
+                                <i class="fe-grid"></i>
+                                <span> Library </span>
                             </a>
                         </li>
 
                         <li>
-                            <a href="{% url 'library' %}">
-                                <i class="fe-grid"></i>
-                                <span> Library </span>
+                            <a href="{% url 'brand_settings' %}">
+                                <i class="fe-settings"></i>
+                                <span> Account </span>
                             </a>
                         </li>
                     </ul>
@@ -373,7 +373,69 @@
                                 </li>
                             {% endfor %}
                         </ul>
-                        {% endif %}                   
+                        {% endif %}
+                        
+                        <div class="col-md-12">
+                            <div class="card">
+                                <div class="card-body">     
+                                    <div class="row">
+                                        <div class="discount-banner">
+                                            <div class="banner-content">
+                                                <p>Hurry up! Start your <span class="discount-code">7-Day FREE TRIAL</span> now!!! Use code <span class="discount-code">FEADLIO20</span> for <span class="discount-code">20$</span> Off your first 3 Months!</p>
+                                                <p>Offer ends in <span id="countdown"></span></p>
+                                            </div>
+                                        </div>
+                                        <style>
+                                            .discount-banner {
+                                                background-color: #0ab830; /* Red background */
+                                                color: white;
+                                                text-align: center;
+                                                padding: 10px 0;
+                                                position: relative;
+                                                width: 100%;
+                                                border-radius: 10px;
+                                            }
+
+                                            .banner-content p {
+                                                margin: 5px 0;
+                                                font-size: 18px;
+                                            }
+
+                                            .discount-code {
+                                                font-weight: bold;
+                                                font-size: 20px;
+                                            }
+                                        </style>
+                                        <script>
+                                            // Set the end date for the countdown
+                                            var countDownDate = new Date("March 15, 2024 23:59:59").getTime();
+                                        
+                                            // Update the countdown every 1 second
+                                            var x = setInterval(function() {
+                                                var now = new Date().getTime();
+                                                var distance = countDownDate - now;
+                                        
+                                                // Time calculations for days, hours, minutes and seconds
+                                                var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                                                var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                                                var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                                                var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                                        
+                                                // Display the result in the element with id="countdown"
+                                                document.getElementById("countdown").innerHTML = days + "d " + hours + "h "
+                                                + minutes + "m " + seconds + "s ";
+                                        
+                                                // If the countdown is finished, write some text
+                                                if (distance < 0) {
+                                                    clearInterval(x);
+                                                    document.getElementById("countdown").innerHTML = "EXPIRED";
+                                                }
+                                            }, 1000);
+                                        </script>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         <div class="col-md-12">
                             <div class="card">
                                 <div class="card-body">
@@ -381,17 +443,32 @@
                                     <p class="sub-header">
                                         This is your library of images used in creating your personalized content. Add more for even better results!
                                     </p> -->
+                                    
                                     <div class="row">
-                                        {% if isStripeDev %}
-                                        <script async src="https://js.stripe.com/v3/pricing-table.js"></script>
-                                        <stripe-pricing-table pricing-table-id="prctbl_1OXW1lAy1fGRWtyhpFyTrCYi"
-                                        publishable-key="pk_test_51N3DeEAy1fGRWtyhZ7ES8AlLzBVVqkCPrdzhGIapo1C5HZycH1dW2GxUR7JQU4pPEHDAaFZLQdRuRQsGLvdApkbi00OdqH2Gqp" client-reference-id="{{ user_id }}">
-                                        </stripe-pricing-table>
+                                        {% if user_settings.isBusiness %}
+                                            {% if isStripeDev %}
+                                            <script async src="https://js.stripe.com/v3/pricing-table.js"></script>
+                                            <stripe-pricing-table pricing-table-id="prctbl_1OeAYEAy1fGRWtyhfDtpOt0b"
+                                            publishable-key="pk_test_51N3DeEAy1fGRWtyhZ7ES8AlLzBVVqkCPrdzhGIapo1C5HZycH1dW2GxUR7JQU4pPEHDAaFZLQdRuRQsGLvdApkbi00OdqH2Gqp" client-reference-id="{{ user_id }}">
+                                            </stripe-pricing-table>
+                                            {% else %}
+                                            <script async src="https://js.stripe.com/v3/pricing-table.js"></script>
+                                            <stripe-pricing-table pricing-table-id="prctbl_1OeAVtAy1fGRWtyhkKVEVju0"
+                                            publishable-key="pk_live_51N3DeEAy1fGRWtyhxwVX6U0p08QZ0iZqnAKlzWpOgScJZQfMbtmQjxhYddqLrKMadth9LKxQPfJp8iGoLvQeVHoP00Fy2GlpzL" client-reference-id="{{ user_id }}">
+                                            </stripe-pricing-table>
+                                            {% endif %}
                                         {% else %}
-                                        <script async src="https://js.stripe.com/v3/pricing-table.js"></script>
-                                        <stripe-pricing-table pricing-table-id="prctbl_1OXVvpAy1fGRWtyhblej85bh"
-                                        publishable-key="pk_live_51N3DeEAy1fGRWtyhxwVX6U0p08QZ0iZqnAKlzWpOgScJZQfMbtmQjxhYddqLrKMadth9LKxQPfJp8iGoLvQeVHoP00Fy2GlpzL" client-reference-id="{{ user_id }}">
-                                        </stripe-pricing-table>
+                                            {% if isStripeDev %}
+                                            <script async src="https://js.stripe.com/v3/pricing-table.js"></script>
+                                            <stripe-pricing-table pricing-table-id="prctbl_1OXW1lAy1fGRWtyhpFyTrCYi"
+                                            publishable-key="pk_test_51N3DeEAy1fGRWtyhZ7ES8AlLzBVVqkCPrdzhGIapo1C5HZycH1dW2GxUR7JQU4pPEHDAaFZLQdRuRQsGLvdApkbi00OdqH2Gqp" client-reference-id="{{ user_id }}">
+                                            </stripe-pricing-table>
+                                            {% else %}
+                                            <script async src="https://js.stripe.com/v3/pricing-table.js"></script>
+                                            <stripe-pricing-table pricing-table-id="prctbl_1OXVvpAy1fGRWtyhblej85bh"
+                                            publishable-key="pk_live_51N3DeEAy1fGRWtyhxwVX6U0p08QZ0iZqnAKlzWpOgScJZQfMbtmQjxhYddqLrKMadth9LKxQPfJp8iGoLvQeVHoP00Fy2GlpzL" client-reference-id="{{ user_id }}">
+                                            </stripe-pricing-table>
+                                            {% endif %}
                                         {% endif %}
                                     </div>
                                     <!-- end row-->

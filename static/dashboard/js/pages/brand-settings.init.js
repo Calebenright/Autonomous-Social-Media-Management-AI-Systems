@@ -4,6 +4,7 @@
 
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.6.6/firebase-app.js';
 import { getFirestore, collection, doc, setDoc, getDoc, onSnapshot } from 'https://www.gstatic.com/firebasejs/9.6.6/firebase-firestore.js';
+import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.6.6/firebase-auth.js';
 
 var firebaseConfig = {
 apiKey: "AIzaSyCJTdpRMOwfhDosa6MTPbsh38kxxiqllc4",
@@ -16,9 +17,18 @@ measurementId: "G-0K43VDRKJP"
 };
 
 const firebaseApp = initializeApp(firebaseConfig);
+const auth = getAuth(firebaseApp);
 const db = getFirestore(firebaseApp);
 const statusDocRef = doc(collection(db, 'users'), jsonDump.userId);
 const logoSwitch = document.getElementById('logo_switch');
+
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        console.log('User is signed in.');
+    } else {
+        window.location.href = '/login/';
+    }
+});
 
 function updateStatusInFirestore() {
     onSnapshot(statusDocRef, (docSnapshot) => {

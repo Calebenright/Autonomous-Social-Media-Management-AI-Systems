@@ -4,7 +4,7 @@
 
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.6.6/firebase-app.js';
 import { getFirestore, collection, doc, setDoc, getDoc, onSnapshot } from 'https://www.gstatic.com/firebasejs/9.6.6/firebase-firestore.js';
-import { getAuth, GoogleAuthProvider, signInWithPopup, FacebookAuthProvider } from 'https://www.gstatic.com/firebasejs/9.6.6/firebase-auth.js';
+import { getAuth, GoogleAuthProvider, signInWithPopup, FacebookAuthProvider, signInWithEmailAndPassword, setPersistence} from 'https://www.gstatic.com/firebasejs/9.6.6/firebase-auth.js';
 
 var firebaseConfig = {
   apiKey: "AIzaSyCJTdpRMOwfhDosa6MTPbsh38kxxiqllc4",
@@ -19,6 +19,30 @@ var firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+
+setPersistence(authInstance, firebase.auth.Auth.Persistence.LOCAL)
+  .catch((error) => {
+    console.error("Error setting persistence: ", error.message);
+  });
+
+document.addEventListener('DOMContentLoaded', function () {
+  const loginForm = document.querySelector('form');
+  loginForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      signInWithEmailAndPassword(auth, email, password)
+          .then((userCredential) => {
+              console.error("Successful Login");
+              loginForm.submit();
+          })
+          .catch((error) => {
+              console.error("Error with Firebase Auth: ", error.message);
+          });
+  });
+});
 
 // Google Sign-In
 function signInWithGoogle() {

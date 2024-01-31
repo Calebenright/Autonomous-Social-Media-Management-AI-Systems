@@ -2,6 +2,7 @@
 
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.6.6/firebase-app.js';
 import { getFirestore, collection, doc, setDoc, updateDoc, getDocs, onSnapshot, deleteDoc } from 'https://www.gstatic.com/firebasejs/9.6.6/firebase-firestore.js';
+import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.6.6/firebase-auth.js';
 
 var firebaseConfig = {
     apiKey: "AIzaSyCJTdpRMOwfhDosa6MTPbsh38kxxiqllc4",
@@ -14,12 +15,20 @@ var firebaseConfig = {
     };
 
 const firebaseApp = initializeApp(firebaseConfig);
+const auth = getAuth(firebaseApp);
 const db = getFirestore(firebaseApp);
 const userDocRef = doc(collection(db, 'users'), user_id);
 const ev = [];
 const eventsCollectionRef = collection(userDocRef, "events");
 
 // new Date('2023-12-02T14:30:00')
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        console.log('User is signed in.');
+    } else {
+        window.location.href = '/login/';
+    }
+});
 
 await getDocs(eventsCollectionRef)
 .then((querySnapshot) => {
@@ -35,6 +44,7 @@ await getDocs(eventsCollectionRef)
             socials: eventData.socials,
             type: eventData.type,
             status: eventData.status,
+            firebase_id_token: eventData.firebase_id_token,
         };
 
         ev.push(eventObject);
@@ -76,7 +86,7 @@ await getDocs(eventsCollectionRef)
         this.$eventImg = l("#event-image");
         this.$selectedEvent = e.event;
         const caption = e.event.extendedProps.caption || "";
-        const img = e.event.extendedProps.image_url || "https://user-images.githubusercontent.com/101482/29592647-40da86ca-875a-11e7-8bc3-941700b0a323.png";
+        const img = e.event.extendedProps.image_url || "https://storage.googleapis.com/starter_web_app_bucket/assets/ScheduleTextPostCalendarImagePlaceholder.png";
         const socialElements = {
             'facebook': this.$facebook,
             'instagram': this.$instagram,
@@ -113,6 +123,7 @@ await getDocs(eventsCollectionRef)
                     socials: l(eventEl).data("socials"),
                     type: l(eventEl).data("type"),
                     status: l(eventEl).data("status"),
+                    firebase_id_token: l(eventEl).data("firebase_id_token"),
                 };
             }
         });
@@ -161,6 +172,11 @@ await getDocs(eventsCollectionRef)
                     imgEventWrap.classList = "fc-event-img";
                     imgEventWrap.style.padding = "5%";
                     imgEventWrap.innerHTML = imgEvent;
+                } else {
+                    let imgEvent = '<img src="' + 'https://storage.googleapis.com/starter_web_app_bucket/assets/ScheduleTextPostCalendarImagePlaceholder.png' + '" style="max-width: 95%; height: auto; border-radius: 5px;">';
+                    imgEventWrap.classList = "fc-event-img";
+                    imgEventWrap.style.padding = "5%";
+                    imgEventWrap.innerHTML = imgEvent;
                 }
 
                 arrayOfDomNodes = [imgEventWrap];
@@ -177,6 +193,7 @@ await getDocs(eventsCollectionRef)
                 var socials = info.event.extendedProps.socials;
                 var type = info.event.extendedProps.type;
                 var status = info.event.extendedProps.status;
+                var firebase_id_token = info.event.extendedProps.firebase_id_token;
 
                 const eventDocRef = doc(collection(userDocRef, 'events'), eid);
 
@@ -188,6 +205,7 @@ await getDocs(eventsCollectionRef)
                     socials:  socials,
                     type: type,
                     status: status,
+                    firebase_id_token: firebase_id_token
                 };
 
                 setDoc(eventDocRef, eventData, { merge: true })

@@ -14881,7 +14881,7 @@ body[data-layout-color=dark] .user-pro-dropdown {
 }
 
 .nav-user img {
-    height: 32px;
+    height: auto;
     width: 32px
 }
 
@@ -15645,32 +15645,32 @@ body[data-layout-mode=horizontal][data-layout-size=boxed] .topnav {
 }
 
 .avatar-xs {
-    height: 1.5rem;
+    height: auto;
     width: 1.5rem
 }
 
 .avatar-sm {
-    height: 2.25rem;
+    height: auto;
     width: 2.25rem
 }
 
 .avatar-md {
-    height: 3.5rem;
+    height: auto;
     width: 3.5rem
 }
 
 .avatar-lg {
-    height: 4.5rem;
+    height: auto;
     width: 4.5rem
 }
 
 .avatar-xl {
-    height: 6rem;
+    height: auto;
     width: 6rem
 }
 
 .avatar-xxl {
-    height: 7.5rem;
+    height: auto;
     width: 7.5rem
 }
 
@@ -25386,7 +25386,7 @@ body[data-layout-color=dark] .datepicker tfoot tr th:hover {
 }
 
 .thumbnail {
-    width: 95px; 
+    width: fit-content; 
     height: 95px;
     margin: 5px;
     cursor: pointer;

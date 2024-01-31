@@ -204,15 +204,15 @@
                         </a>
 
                         <!-- item-->
-                        <a href="{% url 'brand_settings' %}" class="dropdown-item notify-item">
-                            <i class="fe-settings"></i>
-                            <span>Account</span>
-                        </a>
-
-                        <!-- item-->
                         <a href="{% url 'library' %}" class="dropdown-item notify-item">
                             <i class="fe-grid"></i>
                             <span>Library</span>
+                        </a>
+
+                        <!-- item-->
+                        <a href="{% url 'brand_settings' %}" class="dropdown-item notify-item">
+                            <i class="fe-settings"></i>
+                            <span>Account</span>
                         </a>
 
                         <div class="dropdown-divider"></div>
@@ -285,7 +285,7 @@
                         </li>
 
                         <li class="list-inline-item">
-                            <a href="{% url 'index' %}">
+                            <a href="{% url 'logout_view' %}">
                                 <i class="mdi mdi-power"></i>
                             </a>
                         </li>
@@ -333,16 +333,16 @@
                         <li class="menu-title mt-2">Settings</li>
 
                         <li>
-                            <a href="{% url 'brand_settings' %}">
-                                <i class="fe-settings"></i>
-                                <span> Account </span>
+                            <a href="{% url 'library' %}">
+                                <i class="fe-grid"></i>
+                                <span> Library </span>
                             </a>
                         </li>
 
                         <li>
-                            <a href="{% url 'library' %}">
-                                <i class="fe-grid"></i>
-                                <span> Library </span>
+                            <a href="{% url 'brand_settings' %}">
+                                <i class="fe-settings"></i>
+                                <span> Account </span>
                             </a>
                         </li>
                     </ul>
@@ -502,16 +502,18 @@
                                             ( .PNG Files Only )
                                         </p>
                                         <div class="mb-3">
-                                            <input type="file" id="logo" name="logo" class="form-control" accept=".png">
+                                            <input type="file" id="logo" name="logo" data-plugins="dropify" data-height="100" accept=".png"/>
                                         </div>
                                         <p></p>
                                         {% if user_settings.logo %}
                                         <div class="social-button">
                                             <div class="d-flex align-items-center">
-                                                <div class="avatar-lg me-3 flex-shrink-0">
+                                                <div class="avatar-lg me-3 flex-shrink-0" style="margin-right: 0 1rem;">
                                                     <img src="{{ user_settings.logo }}" class="img-fluid" alt="Generated Image">
                                                 </div>
-                                                <div class="me-3 flex-shrink-0" style="align-items: center;">
+                                                <p style="color: #71b6f9; text-align: center; font-size: 16px; align-items: center; margin: 0;"><b>Add Logo To Images</b></p>
+
+                                                <div class="me-3 flex-shrink-0" style="align-items: center; margin: 0 1rem;">
                                                     <input id="logo_switch" type="checkbox" {% if user_settings.isLogo %}checked{% endif %} data-plugin="switchery" data-color="#039cfd"/>
                                                 </div>
                                             <script>
@@ -646,11 +648,12 @@
                                                 </div>
                                                 <div class="flex-grow-1 overflow-hidden">
                                                     <h5 class="mt-0 mb-1"> LinkedIn</h5>
-                                                    {% if user_settings.linkedin_token %}
+                                                    <small class="text-primary"><b>Coming Soon</b></small>
+                                                    <!-- {% if user_settings.linkedin_token %}
                                                     <small class="text-primary"><b>Linked</b></small>
                                                     {% else %}
                                                     <small class="text-primary"><b>Not Linked</b></small>
-                                                    {% endif %}
+                                                    {% endif %} -->
                                                 </div>
                                                 {% if user_settings.linkedin_token %}
                                                 <input type="hidden" name="provider" value="linkedin">

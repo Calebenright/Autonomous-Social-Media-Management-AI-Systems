@@ -207,15 +207,15 @@
                         </a>
 
                         <!-- item-->
-                        <a href="{% url 'brand_settings' %}" class="dropdown-item notify-item">
-                            <i class="fe-settings"></i>
-                            <span>Account</span>
-                        </a>
-
-                        <!-- item-->
                         <a href="{% url 'library' %}" class="dropdown-item notify-item">
                             <i class="fe-grid"></i>
                             <span>Library</span>
+                        </a>
+
+                        <!-- item-->
+                        <a href="{% url 'brand_settings' %}" class="dropdown-item notify-item">
+                            <i class="fe-settings"></i>
+                            <span>Account</span>
                         </a>
 
                         <div class="dropdown-divider"></div>
@@ -285,7 +285,7 @@
                         </li>
 
                         <li class="list-inline-item">
-                            <a href="{% url 'index' %}">
+                            <a href="{% url 'logout_view' %}">
                                 <i class="mdi mdi-power"></i>
                             </a>
                         </li>
@@ -333,16 +333,16 @@
                         <li class="menu-title mt-2">Settings</li>
 
                         <li>
-                            <a href="{% url 'brand_settings' %}">
-                                <i class="fe-settings"></i>
-                                <span> Account </span>
+                            <a href="{% url 'library' %}">
+                                <i class="fe-grid"></i>
+                                <span> Library </span>
                             </a>
                         </li>
 
                         <li>
-                            <a href="{% url 'library' %}">
-                                <i class="fe-grid"></i>
-                                <span> Library </span>
+                            <a href="{% url 'brand_settings' %}">
+                                <i class="fe-settings"></i>
+                                <span> Account </span>
                             </a>
                         </li>
                     </ul>

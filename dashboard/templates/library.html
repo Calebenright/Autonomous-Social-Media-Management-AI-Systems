@@ -204,15 +204,15 @@
                         </a>
 
                         <!-- item-->
-                        <a href="{% url 'brand_settings' %}" class="dropdown-item notify-item">
-                            <i class="fe-settings"></i>
-                            <span>Account</span>
-                        </a>
-
-                        <!-- item-->
                         <a href="{% url 'library' %}" class="dropdown-item notify-item">
                             <i class="fe-grid"></i>
                             <span>Library</span>
+                        </a>
+
+                        <!-- item-->
+                        <a href="{% url 'brand_settings' %}" class="dropdown-item notify-item">
+                            <i class="fe-settings"></i>
+                            <span>Account</span>
                         </a>
 
                         <div class="dropdown-divider"></div>
@@ -285,7 +285,7 @@
                         </li>
 
                         <li class="list-inline-item">
-                            <a href="{% url 'index' %}">
+                            <a href="{% url 'logout_view' %}">
                                 <i class="mdi mdi-power"></i>
                             </a>
                         </li>
@@ -333,16 +333,16 @@
                         <li class="menu-title mt-2">Settings</li>
 
                         <li>
-                            <a href="{% url 'brand_settings' %}">
-                                <i class="fe-settings"></i>
-                                <span> Account </span>
+                            <a href="{% url 'library' %}">
+                                <i class="fe-grid"></i>
+                                <span> Library </span>
                             </a>
                         </li>
 
                         <li>
-                            <a href="{% url 'library' %}">
-                                <i class="fe-grid"></i>
-                                <span> Library </span>
+                            <a href="{% url 'brand_settings' %}">
+                                <i class="fe-settings"></i>
+                                <span> Account </span>
                             </a>
                         </li>
                     </ul>
@@ -412,14 +412,46 @@
                                             </div>
                                         </div> <!-- end col -->
                                     </div>
-                                    <!-- end row-->
-
                                 </div> <!-- end card-body -->
                             </div> <!-- end card -->
                         </div><!-- end col -->
+                        <!-- {% if user_settings.isBusiness %}
+                        <div class="col-md-12">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h4 class="header-title">Video Library</h4>
+                                    <p class="sub-header">
+                                        This is your library of videos used in creating your personalized content. Add more for our team to use!
+                                    </p>
+                                    <div class="row">
+                                        <div class="col-lg-12">
+                                            <div class="mb-6">
+                                                <div class="video-tag-input-container">
+                                                    <form id="videoTagForm" method="post" action="{% url 'library' %}" enctype="multipart/form-data">
+                                                        {% csrf_token %}
+                                                        <input type="file" name="file" id="videoUpload" data-plugins="dropify" data-height="200" accept=".mov, .mp4" />
+                                                        <input type="hidden" name="form" value="video-tags">
+                                                        <input type="hidden" name="videoTags" value="">
+                                                        <br>
+                                                        <div class="generated-post">
+                                                            <div style="display: inline-block;">
+                                                                <button type="submit" id="videoTagFormSubmit" class="btn btn-success waves-effect waves-light">Add Video To Library</button>
+                                                            </div>
+                                                        </div>
+                                                        <br>
+                                                        <div class="video-tag-thumbnails" id="videoTagThumbnails"></div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %} -->
                     </div>
                     <!-- end row -->
-
+                                    
                     <div id="loading-overlay">
                         <div class="spinner-grow text-info" role="status"></div>
                     </div>

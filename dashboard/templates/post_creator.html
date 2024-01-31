@@ -200,15 +200,15 @@
                         </a>
 
                         <!-- item-->
-                        <a href="{% url 'brand_settings' %}" class="dropdown-item notify-item">
-                            <i class="fe-settings"></i>
-                            <span>Account</span>
-                        </a>
-
-                        <!-- item-->
                         <a href="{% url 'library' %}" class="dropdown-item notify-item">
                             <i class="fe-grid"></i>
                             <span>Library</span>
+                        </a>
+
+                        <!-- item-->
+                        <a href="{% url 'brand_settings' %}" class="dropdown-item notify-item">
+                            <i class="fe-settings"></i>
+                            <span>Account</span>
                         </a>
 
                         <div class="dropdown-divider"></div>
@@ -226,7 +226,29 @@
                     <h4 class="page-title-main">Create Post</h4>
                 </li>
 
-            </ul>
+                {% if request.session.master %}
+                <style>
+                    @media screen and (max-width: 1024px) {
+                        .desktop-only {
+                            display: none;
+                        }
+                    }
+                </style>
+                <form enctype="multipart/form-data" method="post" action="{% url 'master_switch' %}" class="desktop-only" style="display: flex;">
+                {% csrf_token %}
+                    <li>
+                        <select id="accountSelect" class="form-select" name="newId" style="margin: 15px 10px;">
+                        </select>
+                    </li>
+                    <li>
+                        <button type="submit" class="btn btn-dark w-md waves-effect waves-light" style="margin: 15px 30px;">
+                            <i class="mdi mdi-plus"></i> Switch</button>
+                    </li>
+                </form>
+                <script type="module" src="{% static 'dashboard/js/pages/master.js' %}"></script>
+                {% endif %}
+
+        </ul>
 
             <div class="clearfix"></div>
 
@@ -278,7 +300,7 @@
                         </li>
 
                         <li class="list-inline-item">
-                            <a href="{% url 'index' %}">
+                            <a href="{% url 'logout_view' %}">
                                 <i class="mdi mdi-power"></i>
                             </a>
                         </li>
@@ -327,16 +349,16 @@
                         <li class="menu-title mt-2">Settings</li>
 
                         <li>
-                            <a href="{% url 'brand_settings' %}">
-                                <i class="fe-settings"></i>
-                                <span> Account </span>
+                            <a href="{% url 'library' %}">
+                                <i class="fe-grid"></i>
+                                <span> Library </span>
                             </a>
                         </li>
 
                         <li>
-                            <a href="{% url 'library' %}">
-                                <i class="fe-grid"></i>
-                                <span> Library </span>
+                            <a href="{% url 'brand_settings' %}">
+                                <i class="fe-settings"></i>
+                                <span> Account </span>
                             </a>
                         </li>
                     </ul>
@@ -393,21 +415,21 @@
                                                 </div>
 
                                                 <div class="thumbnail-container" onclick='initThumbnailSelection("photo", {{ tags | safe}}, ".stock-thumbnails", "photo-none")'>
-                                                    <img class="post-type-thumbnail {% if selected_option == 'photo' %}selected{% endif %}" data-value="photo" src="https://storage.googleapis.com/starter_web_app_bucket/assets/stock.png" alt="Photo">
+                                                    <img class="post-type-thumbnail {% if selected_option == 'photo' %}selected{% endif %}" data-value="photo" src="https://storage.googleapis.com/starter_web_app_bucket/assets/stock.png" alt="Stock Photo">
                                                     <p class="poppins">Stock Photo Post</p>
                                                 </div>
                                             
                                                 <div class="thumbnail-container" onclick='initThumbnailSelection("graphic", {{ tags | safe}}, ".graphic-thumbnails", "graphic-none")'>
-                                                    <img class="post-type-thumbnail {% if selected_option == 'graphic' %}selected{% endif %}" data-value="graphic" src="https://storage.googleapis.com/starter_web_app_bucket/assets/graphic.png" alt="Graphic Design">
+                                                    <img class="post-type-thumbnail {% if selected_option == 'graphic' %}selected{% endif %}" data-value="graphic" src="https://storage.googleapis.com/starter_web_app_bucket/assets/graphic.png" alt="Graphic Post">
                                                     <p class="poppins">Social Media Graphic Post</p>
                                                 </div>
                                                 <div class="thumbnail-container" onclick='initThumbnailSelection("ad", {{ tags | safe}}, ".ad-creative-thumbnails", "ad-none")'>
-                                                    <img class="post-type-thumbnail {% if selected_option == 'ad' %}selected{% endif %}" data-value="ad" src="https://storage.googleapis.com/starter_web_app_bucket/assets/ad.png" alt="Ad Creative">
-                                                    <p class="poppins">Ad Creative</p>
+                                                    <img class="post-type-thumbnail {% if selected_option == 'ad' %}selected{% endif %}" data-value="ad" src="https://storage.googleapis.com/starter_web_app_bucket/assets/ad.png" alt="Ad Post">
+                                                    <p class="poppins">Ad Post</p>
                                                 </div>
                                                 <div class="thumbnail-container" onclick="initThumbnailSelection('up')">
-                                                    <img class="post-type-thumbnail  {% if selected_option != 'ad' and selected_option != 'photo' and selected_option != 'text' and selected_option != 'graphic' %}selected{% endif %}" data-value="up" src="https://storage.googleapis.com/starter_web_app_bucket/assets/up.png" alt="Upload Photo">
-                                                    <p class="poppins">Upload Photo</p>
+                                                    <img class="post-type-thumbnail  {% if selected_option != 'ad' and selected_option != 'photo' and selected_option != 'text' and selected_option != 'graphic' %}selected{% endif %}" data-value="up" src="https://storage.googleapis.com/starter_web_app_bucket/assets/up.png" alt="Upload File">
+                                                    <p class="poppins">Upload File</p>
                                                 </div>
                                             
                                             </div>
@@ -425,7 +447,6 @@
                                                 <select class="form-select" id="text-platform" name="text-platform">
                                                     <option>Facebook</option>
                                                     <option>Instagram</option>
-                                                    <option>LinkedIn</option>
                                                 </select>
                                             </div>
                                         </div>
@@ -442,15 +463,6 @@
                                                 </div>
                                                 <br>
                                             </div>
-                                            {% if user_settings.logo %}
-                                            <h4 class="header-title">Add Elements:</h4>
-                                            <p></p>
-                                            <div class="form-check mb-2 form-check-success">
-                                                <input class="form-check-input" type="checkbox" name="isLogo" value="true" id="logo">
-                                                <label class="form-check-label" for="logo">Logo</label>
-                                            </div>
-                                            <p></p>
-                                            {% endif %}
                                             <!-- Thumbnails Display -->
                                             <h4 class="header-title">Select Image:</h4>
                                             <div class="stock-thumbnails">
@@ -482,16 +494,6 @@
                                         </div>
                                         
                                         <div id="content-card-ad" class="content-card">
-                                            
-                                            <h4 class="header-title">Platform:</h4>
-                                            <p></p> 
-                                            <div class="mb-3">
-                                                <select class="form-select" id="text-platform" name="text-platform">
-                                                    <option>Facebook</option>
-                                                    <option>Instagram</option>
-                                                    <option>LinkedIn</option>
-                                                </select>
-                                            </div>
                                             <div id="ad-none">
                                                 <h4 class="header-title">AI Image Keyword:</h4>
                                                 <p></p>
@@ -524,7 +526,7 @@
                                                 Upload an image and we will turn it into a post!
                                             </p>
                 
-                                            <input type="file" name="file" data-plugins="dropify" data-height="300" accept=".jpg, .png" />
+                                            <input type="file" name="file" data-plugins="dropify" data-height="300" accept=".jpg, .png, .jpeg" />
                                         </div>
                                         
                                     </div>
@@ -549,6 +551,10 @@
                                         {% if user_settings.lastType != 'text' %}
                                         <br>
                                         <img id="loaded-image" src="{% static 'dashboard\gifs\load-start.gif' %}" alt="Generated Image" class="generated-image-small rounded">
+                                        <video id="loaded-video" controls style="display: none;" class="generated-image-small rounded">
+                                            <source id="video-source" src="" type="video/mp4">
+                                            Your browser does not support the video tag.
+                                        </video>
                                         <br>
                                         <form method="post" action="{% url 'download' %}">
                                             {% csrf_token %}
@@ -601,15 +607,23 @@
                                                 </div>
                                             </div>
                                         </form>
+
                                         <!-- Buttons -->
                                         <button type="button" class="btn btn-gold rounded-pill w-md waves-effect waves-light mb-3" onclick="setFormValueAndShowSpinner('formPostFeed', 'sendPost')">
-                                            <i class="mdi mdi-plus"></i> Post to Feed!
+                                            <i class="mdi mdi-grid"></i> Post to Feed!
                                         </button>
 
-                                        <button type="button" class="btn btn-success rounded-pill w-md waves-effect waves-light mb-3" onclick="setFormValueAndShowSpinner('formPostSchedule', 'sendPost')">
-                                            <i class="mdi mdi-plus"></i> Add To Schedule!
-                                        </button>
+                                        <div style="display: inline-block; align-items: center; text-align: center;">
+                                            <button type="button" class="btn btn-success w-md waves-effect waves-light mb-3" onclick="setFormValueAndShowSpinner('formPostSchedule', 'sendPost')">
+                                               <i class="mdi mdi-calendar"></i> Add To Schedule!
+                                            </button>
 
+                                            {% if user_settings.lastType != 'text' %}
+                                            <button type="button" class="btn btn-purple w-md waves-effect waves-light mb-3" onclick="setFormValueAndShowSpinner('formPostLibrary', 'sendPost')">
+                                                <i class="mdi mdi-bookshelf"></i> Add Image To Library!
+                                            </button>
+                                            {% endif %}
+                                        </div>
                                     </div>
                                 </div> <!-- end card-body -->
                             </div> <!-- end card -->
@@ -688,7 +702,7 @@
         const gifDone = "{% static 'dashboard/gifs/load-done.gif' %}"
         var jsonDump = {
             userId: '{{ user_id }}',
-            selectedOption: '{{ selected_radio }}',
+            selectedOption: '{{ selected_option }}',
         };
     </script>
 

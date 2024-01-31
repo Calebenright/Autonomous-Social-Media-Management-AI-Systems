@@ -4,6 +4,7 @@
 
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.6.6/firebase-app.js';
 import { getFirestore, collection, doc, setDoc, getDoc, onSnapshot } from 'https://www.gstatic.com/firebasejs/9.6.6/firebase-firestore.js';
+import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.6.6/firebase-auth.js';
 
 var firebaseConfig = {
 apiKey: "AIzaSyCJTdpRMOwfhDosa6MTPbsh38kxxiqllc4",
@@ -16,10 +17,19 @@ measurementId: "G-0K43VDRKJP"
 };
 
 const firebaseApp = initializeApp(firebaseConfig);
+const auth = getAuth(firebaseApp);
 const db = getFirestore(firebaseApp);
 const statusDocRef = doc(collection(db, 'users'), jsonDump.userId);
 const loadedImage = document.getElementById('loaded-image');
 var dynamicUrl = document.getElementById('dynamicUrl')
+
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        console.log('User is signed in.');
+    } else {
+        window.location.href = '/login/';
+    }
+});
 
 const unsubscribe = onSnapshot(statusDocRef, (docSnapshot) => {
     if (docSnapshot.exists()) {
@@ -32,7 +42,7 @@ const unsubscribe = onSnapshot(statusDocRef, (docSnapshot) => {
 
         if (progress === 100) {
             if (loadedImage) {
-                loadedImage.src = nextImage;
+                loadMedia(nextImage);
             }
             if (dynamicUrl) {
                 dynamicUrl.value = nextImage;
@@ -42,6 +52,26 @@ const unsubscribe = onSnapshot(statusDocRef, (docSnapshot) => {
 }, (error) => {
     console.error('Error in realtime listener:', error);
 });
+
+function loadMedia(nextMedia) {
+    var loadedImage = document.getElementById('loaded-image');
+    var loadedVideo = document.getElementById('loaded-video');
+    var videoSource = document.getElementById('video-source');
+
+    // Check if the media is a video by its extension
+    if (nextMedia.endsWith('.mp4') || nextMedia.endsWith('.avi') || nextMedia.endsWith('.mov')) {
+        // It's a video
+        loadedImage.style.display = 'none'; // Hide the image element
+        videoSource.src = nextMedia;        // Set the video source
+        loadedVideo.load();                 // Load the video
+        loadedVideo.style.display = 'block';// Show the video element
+    } else {
+        // It's an image
+        loadedVideo.style.display = 'none'; // Hide the video element
+        loadedImage.src = nextMedia;        // Set the image source
+        loadedImage.style.display = 'block';// Show the image element
+    }
+}
 
 function getCookie(name) {
     const cookieValue = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');

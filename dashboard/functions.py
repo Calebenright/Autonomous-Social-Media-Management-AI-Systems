@@ -30,18 +30,21 @@ STABILITY_API_KEY = config('STABILITY_API_KEY')
 def create_text_post(platform, business_description, business_name):
     client = OpenAI(api_key=config('OPENAI_API_KEY'))
     prompts = [
-    f"Create a social media post for the business named [BUSINESS NAME = {business_name}] and has a business description [BUSINESS DESCRIPTION = {business_description}] and is specific to the social media platform [PLATFORM = {platform}].",
-    f"Create a business-toned social media post for the business named [BUSINESS NAME = {business_name}] and has a business description [BUSINESS DESCRIPTION = {business_description}] and is specific to the social media platform [PLATFORM = {platform}].",
-    f"Create a proffesional-toned social media post for the business named [BUSINESS NAME = {business_name}] and has a business description [BUSINESS DESCRIPTION = {business_description}] and is specific to the social media platform [PLATFORM = {platform}].",
-    f"Create a goofy-toned social media post for the business named [BUSINESS NAME = {business_name}] and has a business description [BUSINESS DESCRIPTION = {business_description}] and is specific to the social media platform [PLATFORM = {platform}].",
-    f"Create a fun-toned social media post for the business named [BUSINESS NAME = {business_name}] and has a business description [BUSINESS DESCRIPTION = {business_description}] and is specific to the social media platform [PLATFORM = {platform}].",]
+    f"Create a detailed social media text post for the business named [BUSINESS NAME = {business_name}] and has a business description [BUSINESS DESCRIPTION = {business_description}] and is specific to the social media platform [PLATFORM = {platform}].",
+    f"Create a business-toned social text media post for the business named [BUSINESS NAME = {business_name}] and has a business description [BUSINESS DESCRIPTION = {business_description}] and is specific to the social media platform [PLATFORM = {platform}].",
+    f"Create a professional-toned social media text post for the business named [BUSINESS NAME = {business_name}] and has a business description [BUSINESS DESCRIPTION = {business_description}] and is specific to the social media platform [PLATFORM = {platform}].",
+    f"Create a goofy-toned social media text post for the business named [BUSINESS NAME = {business_name}] and has a business description [BUSINESS DESCRIPTION = {business_description}] and is specific to the social media platform [PLATFORM = {platform}].",
+    f"Create a fun-toned social media text post for the business named [BUSINESS NAME = {business_name}] and has a business description [BUSINESS DESCRIPTION = {business_description}] and is specific to the social media platform [PLATFORM = {platform}].",]
     prompt = random.choice(prompts)
+    options = [25, 50, 75, 100]
+    weights = [30, 30, 20, 20]
+    selected_number = random.choices(options, weights, k=1)[0]
     response = client.chat.completions.create(
             model="gpt-3.5-turbo-1106",
             messages=[
                 {
                 "role": "system",
-                "content": "you are not a person. respond with just the output."
+                "content": f"It should be less than {selected_number} words."
                 },
                 {
                 "role": "user",
@@ -52,8 +55,8 @@ def create_text_post(platform, business_description, business_name):
             max_tokens=300
         )
     original_string = response.choices[0].message.content.strip()
-    original_string = original_string.replace('"', '').replace("'", "")
-    return original_string
+    caption = original_string.strip('"')
+    return caption
 
 def create_background_image_description (key):
     client = OpenAI(api_key=config('OPENAI_API_KEY'))
@@ -76,9 +79,6 @@ def create_background_image_description (key):
             max_tokens=200
         )
     original_string = response.choices[0].message.content.strip()
-    print("--------------------")
-    print(original_string)
-    print("--------------------")
     return original_string
 
 def create_stock_image_description (key):
@@ -131,16 +131,8 @@ def add_stock_tags(tags, stock_images, bucket_name, bucket_credentials, user_fol
             image_response = requests.get(image_url)
             image_data = image_response.content
             img = Image.open(BytesIO(image_data))
-            width, height = img.size
-            size = min(width, height)
-            left = (width - size) / 2
-            top = (height - size) / 2
-            right = (width + size) / 2
-            bottom = (height + size) / 2
-            cropped_img = img.crop((left, top, right, bottom))
-            resized_img = cropped_img.resize((1024, 1024))
             image_io = BytesIO()
-            resized_img.save(image_io, format='JPEG')
+            img.save(image_io, format='JPEG')
             image_io.seek(0)
             
             filename = str(uuid.uuid4()) + ".jpg"
@@ -348,9 +340,8 @@ def reupload_gcs_image(source_url, new_folder):
 def create_caption (business_description, business_name):
     client = OpenAI(api_key=config('OPENAI_API_KEY'))
     prompts = [
-    f"Create a short social media caption for (BUSINESS NAME = {business_name}) and (BUSINESS DESCRIPTION = {business_description}) | Remove quotations.",
-    f"Create a goofy toned, short social media caption for (BUSINESS NAME = {business_name}) and (BUSINESS DESCRIPTION = {business_description}) | Remove quotations.",
-    f"Create a sophisticated toned, short social media caption for (BUSINESS NAME = {business_name}) and (BUSINESS DESCRIPTION = {business_description}) | Remove quotations.",
+    f"Create a caption for a social media post for a (BUSINESS NAMED = {business_name}) and (BUSINESS DESCRIPTION = {business_description})",
+    f"Create a goofy toneda caption for a social media post for a (BUSINESS NAME = {business_name}) and (BUSINESS DESCRIPTION = {business_description})",
     ]
     prompt = random.choice(prompts)
     response = client.chat.completions.create(
@@ -358,7 +349,7 @@ def create_caption (business_description, business_name):
             messages=[
                 {
                 "role": "system",
-                "content": "you are not a person. respond with just the output."
+                "content": "Keep it relatively short."
                 },
                 {
                 "role": "user",
@@ -369,7 +360,7 @@ def create_caption (business_description, business_name):
             max_tokens=200
         )
     original_string = response.choices[0].message.content.strip()
-    caption = re.sub(r'"+', '', original_string)
+    caption = original_string.strip('"')
     return caption
 
 def create_dalle_post (key):
@@ -502,66 +493,41 @@ def create_ad_creative(business_description, business_name, primary_color, color
 
     return image_io
 
-def create_upload(image_name, logo_path, isLogo, isGraphic, color, name):
-    def add_drop_shadow(img, blur_radius=110, alpha=255):
-        shadow = Image.new('RGBA', img.size, (0, 0, 0, alpha))
-        expanded_shadow = Image.new('RGBA', (img.width + 2*blur_radius, img.height + 2*blur_radius), (0, 0, 0, 0))
-        position = (blur_radius, blur_radius)
-        expanded_shadow.paste(shadow, position)
-        blurred_shadow = expanded_shadow.filter(ImageFilter.GaussianBlur(blur_radius))
-        shadow_img = Image.new('RGBA', (img.width + 2*blur_radius, img.height + 2*blur_radius), (0, 0, 0, 0))
-        shadow_img.paste(blurred_shadow, (0, 0), blurred_shadow)
-        if img.mode == 'RGBA':
-            mask = img.split()[3]
-        else:
-            mask = None
-        shadow_img.paste(img, position, mask)
-
-        return shadow_img
-
+def create_upload(image_name, logo_path, isLogo, isCrop=False, coverage=0.015, gap_percentage=0.03):
     image_data = image_name.read()
     img = Image.open(BytesIO(image_data))
+    img = correct_orientation(img)
     if img.format != 'JPEG':
         img = img.convert('RGB')
-    width, height = img.size
-    size = min(width, height)
-    left = (width - size) / 2
-    top = (height - size) / 2
-    right = (width + size) / 2
-    bottom = (height + size) / 2
-    cropped_img = img.crop((left, top, right, bottom))
-    cropped_img = cropped_img.resize((1024, 1024))
-    
-    if isGraphic:
-        new_size = (int(cropped_img.width * 0.85), int(cropped_img.height * 0.85))
-        cropped_img = cropped_img.resize(new_size, Image.Resampling.LANCZOS)
-        cropped_img = add_drop_shadow(cropped_img)
-        font_size = 40
-        font = ImageFont.truetype("arial.ttf", font_size)
-        name = "@" + name
-        bg = Image.new('RGB', (1024, 1024), color)
-        paste_position = ((bg.width - cropped_img.width) // 2, (bg.height - cropped_img.height) // 2)
-        bg.paste(cropped_img.convert('RGB'), paste_position, cropped_img.split()[3])
-        # r, g, b = hex_to_rgb(color)
-        draw = ImageDraw.Draw(bg)
-        draw.text((int(cropped_img.width * 0.15)/2 + 5, int(cropped_img.height * 0.85) - font_size * 1), name, font=font, fill=(255, 255, 255, 50))
-        cropped_img = bg
+
+    if isCrop:
+        width, height = img.size
+        size = min(width, height)
+        left = (width - size) / 2
+        top = (height - size) / 2
+        right = (width + size) / 2
+        bottom = (height + size) / 2
+        img = img.crop((left, top, right, bottom))
+        img = img.resize((1024, 1024))
+
     if isLogo:
         response = requests.get(logo_path)
         logo = Image.open(BytesIO(response.content)).convert("RGBA")
-        if isGraphic:
-            logo_width = int(0.14 * 1024)
-            logo_height = int(logo_width * logo.size[1] / logo.size[0])
-            logo = logo.resize((logo_width, logo_height), Image.LANCZOS)
-            position = (1024 - logo_width - 120, 1024 - logo_height - 120)
-        else:
-            logo_width = int(0.24 * 1024)
-            logo_height = int(logo_width * logo.size[1] / logo.size[0])
-            logo = logo.resize((logo_width, logo_height), Image.LANCZOS)
-            position = (1024 - logo_width - 20, 1024 - logo_height - 20)
-        cropped_img.paste(logo, position, logo)
+        img_area = img.width * img.height
+        logo_area = img_area * coverage
+        logo_side = int((logo_area ** 0.5))
+        logo_resized = logo.resize((logo_side, logo_side), Image.LANCZOS)
+        smaller_dimension = min(img.width, img.height)
+        gap = int(smaller_dimension * gap_percentage)
+        position = (img.width - logo_side - gap, img.height - logo_side - gap)
+        img.paste(logo_resized, position, logo_resized)
+        print(gap)
+        print(img.width)
+        print(img_area)
+        print('------------------')
+
     image_io = BytesIO()
-    cropped_img.save(image_io, format='JPEG')
+    img.save(image_io, format='JPEG')
     image_io.seek(0) 
 
     return image_io
@@ -614,9 +580,9 @@ def create_ad_copy (business_description, biz_name, platform):
     \
     Motivate the reader to take the [A desired action based on {business_description}] and emphasize [An offer based on {business_description}] to create a sense of urgency.\
     \
-    Ensure that the output is a ready-to-use Facebook Ad that can be published immediately.\
+    Ensure that the output is a ready-to-use {platform} Ad that can be published immediately.\
     \
-    Remember, this Facebook Ad needs to be persuasive and compelling and entices the market to take action.\
+    Remember, this {platform} Ad needs to be persuasive and compelling and entices the market to take action.\
     \
     Make sure this ad is less than either 100, 75, or 50 words and is written at a Grade 4 readability level."
     
@@ -625,7 +591,7 @@ def create_ad_copy (business_description, biz_name, platform):
         messages=[
             {
             "role": "system",
-            "content": "you are not a person. respond with just the output."
+            "content": "Respond with just the output."
             },
             {
             "role": "user",
@@ -660,6 +626,7 @@ def add_logo (img, logo_path):
 def upload_jpg_to_google (image, bucket_name, bucket_credentials, user_folder_path):
 
     # Upload the image to Google Cloud Storage
+    image = correct_orientation(image)
     credentials = service_account.Credentials.from_service_account_file(bucket_credentials)
     client = storage.Client(project=credentials.project_id, credentials=credentials)
     bucket = client.bucket(bucket_name)
@@ -671,14 +638,33 @@ def upload_jpg_to_google (image, bucket_name, bucket_credentials, user_folder_pa
     return blob.public_url
 
 def upload_png_to_google (image, bucket_name, bucket_credentials, user_folder_path):
-
-    # Upload the image to Google Cloud Storage
     credentials = service_account.Credentials.from_service_account_file(bucket_credentials)
     client = storage.Client(project=credentials.project_id, credentials=credentials)
     bucket = client.bucket(bucket_name)
     filename = str(uuid.uuid4()) + ".png"
     blob = bucket.blob(user_folder_path + filename)
     blob.upload_from_file(image, content_type='image/png')
+    blob.make_public()
+
+    return blob.public_url
+
+def upload_video_to_google(video, bucket_name, bucket_credentials, user_folder_path, file_extension):
+    credentials = service_account.Credentials.from_service_account_file(bucket_credentials)
+    print(1)
+    client = storage.Client(project=credentials.project_id, credentials=credentials)
+    print(2)
+    bucket = client.bucket(bucket_name)
+    print(3)
+    filename = str(uuid.uuid4()) + "." + file_extension
+    print(4)
+    blob = bucket.blob(user_folder_path + filename)
+    print(5)
+    content_type = 'video/' + file_extension
+    chunk_size = 1024 * 1024
+    blob.chunk_size = chunk_size
+    print(6)
+    blob.upload_from_file(video, content_type=content_type)
+    print(7)
     blob.make_public()
 
     return blob.public_url

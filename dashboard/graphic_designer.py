@@ -96,6 +96,17 @@ def process_images(FOLDER_NUM, primary_color, shuffle_colors, isImage, base_imag
         response = requests.get(base_image_url)
         raw_image = Image.open(BytesIO(response.content))
         raw_image = raw_image.convert('RGBA')
+        width, height = raw_image.size
+
+        if width != 1024 or height != 1024:
+            size = min(width, height)
+            left = (width - size) / 2
+            top = (height - size) / 2
+            right = (width + size) / 2
+            bottom = (height + size) / 2
+            cropped_img = raw_image.crop((left, top, right, bottom))
+            raw_image = cropped_img.resize((1024, 1024))
+
         base_image = Image.new('RGBA', (1024, 1024), (255, 255, 255, 0))
         if isBlur:
             raw_image = raw_image.filter(ImageFilter.GaussianBlur(radius=float(blur_amount)))

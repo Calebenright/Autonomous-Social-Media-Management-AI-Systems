@@ -5,7 +5,6 @@ from django.core.mail import EmailMessage
 from dashboard.views import dashboard
 from google.cloud import storage
 from firebase_admin import firestore, auth, credentials
-from firebase_admin import auth
 from .login import user_login
 from decouple import config
 from django.conf import settings
@@ -146,6 +145,7 @@ def signup(request):
                     'images_generated': 0,
                     'progress': 100,
                     'admin': False,
+                    'isBusiness': False,
                     'email': email
                 }
                 user_settings_ref.set(firestore_data, merge=True)
@@ -167,10 +167,18 @@ def login(request):
         email = request.POST.get('email')
         password = request.POST.get('password')
         try:
-            user = auth.get_user_by_email(email)
             id_token = user_login(email, password)
-            user_id = user.uid
+            decoded_token = auth.verify_id_token(id_token)
+            user_id = decoded_token['uid']
+            request.session['firebase_id_token'] = id_token
             request.session['user_id'] = user_id
+            db = firestore.client()
+            master_ref = db.collection('variables').document('master')
+            master_doc = master_ref.get()
+            master_settings = master_doc.to_dict()
+            if user_id == master_settings['id']:
+                print('Master')
+                request.session['master'] = True
             return redirect('dashboard') 
         except Exception as e:
             messages.error(request, 'Credentials Invalid.')
