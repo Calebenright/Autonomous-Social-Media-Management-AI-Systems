@@ -745,7 +745,7 @@
 }
 
 body {
-    transform: scale(0.67);
+    transform: scale(0.60);
     transform-origin: top left;
     width: 150%; /* Adjust as needed to fit content */
     height: 150%; /* Adjust as needed to fit content */

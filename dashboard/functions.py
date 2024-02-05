@@ -27,17 +27,22 @@ pixabay_api_key = config('PIXABAY_API_KEY')
 UNSPLASH_API_KEY = config('UNSPLASH_API_KEY')
 STABILITY_API_KEY = config('STABILITY_API_KEY')
 
-def create_text_post(platform, business_description, business_name):
+def create_text_post(select, business_description, business_name):
     client = OpenAI(api_key=config('OPENAI_API_KEY'))
     prompts = [
-    f"Create a detailed social media text post for the business named [BUSINESS NAME = {business_name}] and has a business description [BUSINESS DESCRIPTION = {business_description}] and is specific to the social media platform [PLATFORM = {platform}].",
-    f"Create a business-toned social text media post for the business named [BUSINESS NAME = {business_name}] and has a business description [BUSINESS DESCRIPTION = {business_description}] and is specific to the social media platform [PLATFORM = {platform}].",
-    f"Create a professional-toned social media text post for the business named [BUSINESS NAME = {business_name}] and has a business description [BUSINESS DESCRIPTION = {business_description}] and is specific to the social media platform [PLATFORM = {platform}].",
-    f"Create a goofy-toned social media text post for the business named [BUSINESS NAME = {business_name}] and has a business description [BUSINESS DESCRIPTION = {business_description}] and is specific to the social media platform [PLATFORM = {platform}].",
-    f"Create a fun-toned social media text post for the business named [BUSINESS NAME = {business_name}] and has a business description [BUSINESS DESCRIPTION = {business_description}] and is specific to the social media platform [PLATFORM = {platform}].",]
+    f"I need copy for social media that is a meme, pop culture, joke, or humor that relates to the business named [BUSINESS NAME = {business_name}] and has a business description [BUSINESS DESCRIPTION = {business_description}].",
+    f"I need some educational copy with a social media cta for the business named [BUSINESS NAME = {business_name}] and has a business description [BUSINESS DESCRIPTION = {business_description}].",
+    f"Create copy thats relevant on this date {datetime.now().date()}, and is themed and is for the business named [BUSINESS NAME = {business_name}] and has a business description [BUSINESS DESCRIPTION = {business_description}].",
+    f"I need an engaging question, poll, quiz, fact, statistic, etc. to post on social media for the business named [BUSINESS NAME = {business_name}] and has a business description [BUSINESS DESCRIPTION = {business_description}].",
+    f"Generate copy for a detailed social media post for the business named [BUSINESS NAME = {business_name}] and has a business description [BUSINESS DESCRIPTION = {business_description}].",
+    f"Generate copy for a business-toned social media post for the business named [BUSINESS NAME = {business_name}] and has a business description [BUSINESS DESCRIPTION = {business_description}].",
+    f"Generate copy for a professional-toned social media post for the business named [BUSINESS NAME = {business_name}] and has a business description [BUSINESS DESCRIPTION = {business_description}].",
+    f"Generate copy for a goofy-toned social media post for the business named [BUSINESS NAME = {business_name}] and has a business description [BUSINESS DESCRIPTION = {business_description}].",
+    f"Generate copy for a fun-toned social media post for the business named [BUSINESS NAME = {business_name}] and has a business description [BUSINESS DESCRIPTION = {business_description}].",
+    ]
     prompt = random.choice(prompts)
-    options = [25, 50, 75, 100]
-    weights = [30, 30, 20, 20]
+    options = [15, 25, 50, 75, 100]
+    weights = [5, 20, 45, 20, 10]
     selected_number = random.choices(options, weights, k=1)[0]
     response = client.chat.completions.create(
             model="gpt-3.5-turbo-1106",
@@ -169,7 +174,7 @@ def generate_unique_filename(extension):
     return unique_filename
 
 def generate_random_date(last_date, existing_dates):
-    days_to_add = random.randint(2, 6)
+    days_to_add = random.randint(2, 5)
     new_datetime = last_date + timedelta(days=days_to_add)
     new_date = new_datetime.strftime('%Y-%m-%d')
 
@@ -270,8 +275,10 @@ def upload_and_crop_image(post_image_files, user_image_folder_path):
     
     return uploaded_image_url
 
-def crop_image(image,):
-    img = correct_orientation(image)
+def crop_image(image):
+    image_data = image.read()
+    img = Image.open(BytesIO(image_data))
+    img = correct_orientation(img)
     if img.format != 'JPEG':
         img = img.convert('RGB')
     width, height = img.size
@@ -341,7 +348,10 @@ def create_caption (business_description, business_name):
     client = OpenAI(api_key=config('OPENAI_API_KEY'))
     prompts = [
     f"Create a caption for a social media post for a (BUSINESS NAMED = {business_name}) and (BUSINESS DESCRIPTION = {business_description})",
-    f"Create a goofy toneda caption for a social media post for a (BUSINESS NAME = {business_name}) and (BUSINESS DESCRIPTION = {business_description})",
+    f"Create a cta for a social media post for a (BUSINESS NAMED = {business_name}) and (BUSINESS DESCRIPTION = {business_description})",
+    f"Create a creative for a social media post for a (BUSINESS NAMED = {business_name}) and (BUSINESS DESCRIPTION = {business_description})",
+    f"Create a fun caption for a social media post for a (BUSINESS NAME = {business_name}) and (BUSINESS DESCRIPTION = {business_description})",
+    f"Create a business toned caption for a social media post for a (BUSINESS NAME = {business_name}) and (BUSINESS DESCRIPTION = {business_description})",
     ]
     prompt = random.choice(prompts)
     response = client.chat.completions.create(
@@ -521,10 +531,6 @@ def create_upload(image_name, logo_path, isLogo, isCrop=False, coverage=0.015, g
         gap = int(smaller_dimension * gap_percentage)
         position = (img.width - logo_side - gap, img.height - logo_side - gap)
         img.paste(logo_resized, position, logo_resized)
-        print(gap)
-        print(img.width)
-        print(img_area)
-        print('------------------')
 
     image_io = BytesIO()
     img.save(image_io, format='JPEG')
@@ -566,32 +572,30 @@ def create_ad_headline (business_description, business_name):
 
     return ad_headline_str
 
-def create_ad_copy (business_description, biz_name, platform):
+def create_ad_copy (business_description, biz_name):
     # Define the Business We Are Creating Media For
     client = OpenAI(api_key=config('OPENAI_API_KEY'))
-
+    platform = "Social Media"
     ad_copy_prompt = f"Write me a persuasive PAS-based {platform} Ad that promotes {business_description}. The name of my business is {biz_name}\
     \
     Start by calling out the main problem, outlining the market's pain points, and providing details on the impacts that the [Create a Main Problem or Pain Point based on {business_description}] has on their life or business. Write this first part in 1 to 2 sentences max.\
     \
     Next, present the Agitation by digging deeper into the consequences and the emotional discomfort the reader experiences due to the problem, emphasizing the urgency to find a solution. Write this next part in 1 to 2 sentences max.\
     \
-    Then, present the Solution by showcasing [{business_description}] as the answer to their needs. Introduce the Solution by starting with: “Don't worry. We've got you covered. Our {business_description} will help you:” Then highlight the benefits [1-3 benefits based on {business_description}] that make it stand out.\
+    Then, present the Solution by showcasing [{business_description}] as the answer to their needs. Then highlight the benefits [1-3 benefits based on {business_description}] that make it stand out.\
     \
-    Motivate the reader to take the [A desired action based on {business_description}] and emphasize [An offer based on {business_description}] to create a sense of urgency.\
+    Motivate the reader to take the [A desired action based on {business_description}] and create a sense of urgency.\
     \
     Ensure that the output is a ready-to-use {platform} Ad that can be published immediately.\
     \
-    Remember, this {platform} Ad needs to be persuasive and compelling and entices the market to take action.\
-    \
-    Make sure this ad is less than either 100, 75, or 50 words and is written at a Grade 4 readability level."
+    Remember, this {platform} Ad needs to be persuasive and compelling and entices the market to take action."
     
     response = client.chat.completions.create(
         model="gpt-3.5-turbo-1106",
         messages=[
             {
             "role": "system",
-            "content": "Respond with just the output."
+            "content": "Respond with text that is less than than either 100, 75, or 50 words and is written at a Grade 4 readability level."
             },
             {
             "role": "user",
@@ -606,27 +610,30 @@ def create_ad_copy (business_description, biz_name, platform):
 
     return ad_copy
 
-def add_logo (img, logo_path):
+def add_logo (img, logo_path, coverage=0.015, gap_percentage=0.03):
     image_url = requests.get(img)
-    image = Image.open(BytesIO(image_url.content))
-    response2 = requests.get(logo_path)
-    logo = Image.open(BytesIO(response2.content))
-    logo_width = int(0.14 * 1024)
-    logo_height = int(logo_width * logo.size[1] / logo.size[0])
-    logo = logo.resize((logo_width, logo_height), Image.LANCZOS)
-    position = (1005 - logo.width, 1005 - logo.height)
-    image.paste(logo, position, logo)
+    img = Image.open(BytesIO(image_url.content))
+    response = requests.get(logo_path)
+    logo = Image.open(BytesIO(response.content)).convert("RGBA")
+    img_area = img.width * img.height
+    logo_area = img_area * coverage
+    logo_side = int((logo_area ** 0.5))
+    logo_resized = logo.resize((logo_side, logo_side), Image.LANCZOS)
+    smaller_dimension = min(img.width, img.height)
+    gap = int(smaller_dimension * gap_percentage)
+    position = (img.width - logo_side - gap, img.height - logo_side - gap)
+    img.paste(logo_resized, position, logo_resized)
 
     image_io = BytesIO()
-    image.save(image_io, format='PNG')
+    img.save(image_io, format='PNG')
     image_io.seek(0) 
 
     return image_io
 
 def upload_jpg_to_google (image, bucket_name, bucket_credentials, user_folder_path):
-
-    # Upload the image to Google Cloud Storage
-    image = correct_orientation(image)
+    image_data = image.read()
+    img = Image.open(BytesIO(image_data))
+    image = correct_orientation(img)
     credentials = service_account.Credentials.from_service_account_file(bucket_credentials)
     client = storage.Client(project=credentials.project_id, credentials=credentials)
     bucket = client.bucket(bucket_name)
@@ -644,6 +651,47 @@ def upload_png_to_google (image, bucket_name, bucket_credentials, user_folder_pa
     filename = str(uuid.uuid4()) + ".png"
     blob = bucket.blob(user_folder_path + filename)
     blob.upload_from_file(image, content_type='image/png')
+    blob.make_public()
+
+    return blob.public_url
+
+def upload_image_to_library (image, bucket_name, bucket_credentials, user_folder_path):
+    image_data = image.read()
+    img = Image.open(BytesIO(image_data))
+    image = correct_orientation(img)
+    if image.format != 'JPEG':
+        image = image.convert('RGB')
+
+    max_size = 1900
+
+    # Open the image using PIL if it's not already an Image object
+    if not isinstance(image, Image.Image):
+        image = Image.open(image)
+
+    # Resize the image if it's larger than the max size
+    if image.width > max_size or image.height > max_size:
+        if image.width > image.height:
+            new_height = int(max_size * (image.height / image.width))
+            new_size = (max_size, new_height)
+        else:
+            new_width = int(max_size * (image.width / image.height))
+            new_size = (new_width, max_size)
+        image = image.resize(new_size, Image.LANCZOS)
+
+    # Convert the image to JPEG format
+    image_bytes = BytesIO()
+    image.save(image_bytes, format='JPEG')
+    image_bytes.seek(0)
+
+    # Setup Google Cloud Storage client
+    credentials = service_account.Credentials.from_service_account_file(bucket_credentials)
+    client = storage.Client(project=credentials.project_id, credentials=credentials)
+    bucket = client.bucket(bucket_name)
+
+    # Upload the image to GCS
+    filename = str(uuid.uuid4()) + ".jpg"
+    blob = bucket.blob(user_folder_path + filename)
+    blob.upload_from_file(image_bytes, content_type='image/jpeg')
     blob.make_public()
 
     return blob.public_url

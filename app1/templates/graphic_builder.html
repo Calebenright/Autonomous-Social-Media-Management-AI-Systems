@@ -2,15 +2,13 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <title>Feadl.io | Graphic builder</title>
-  <meta name="facebook-domain-verification" content="m3huzef5sh3ryj8yb7k340eh1mi4yc" />
+  <title>Feadl.io | Graphic builder</title> 
   <meta charset="utf-8">
   <meta name="description"
     content="An Autonomous, AI driven, marketing and social media web based application.">
   <meta name="viewport" content="width=device-width">
-  <meta name="facebook-domain-verification" content="m3huzef5sh3ryj8yb7k340eh1mi4yc" />
-  <link rel="apple-touch-icon-precomposed" href="{% static 'website/media/favicon.png' %}">
-  <link rel="icon" href="{% static 'website/media/favicon.png' %}">
+  <link rel="apple-touch-icon-precomposed" href="{% static 'website/media/favicon.ico' %}">
+  <link rel="icon" href="{% static 'website/media/favicon.ico' %}">
   <link rel="mask-icon" href="{% static 'website/media/favicon.svg' %}" color="rgb(36,38,58)">
   <link rel="shortcut icon" href="{% static 'website/media/favicon.png' %}">
   <link rel="stylesheet" href="{% static 'website/css/main.css' %}">
@@ -59,7 +57,7 @@
     </nav>
   </header>
     <main>
-        <section class="bg-gradient-light -margin-bottom-2 overlay padding">
+        <section class="-margin-bottom-2 overlay padding">
          <div class="parent-container">
             <div class="left-side">
                 <canvas id="canvas" width="1024" height="1024"></canvas>
@@ -68,7 +66,16 @@
                 
                 <div class="div-container">
                     <input type="file" id="imageUpload" accept="image/png, image/jpeg, image/svg+xml">
-
+                    <div id="dimensionSelector">
+                      <label for="canvasDimensions">Select Canvas Size:</label>
+                      <select id="canvasDimensions">
+                          <option value="1024x1024">1024x1024</option>
+                          <option value="1080x1080">1080x1080</option>
+                          <option value="1080x1350">1080x1350</option>
+                          <option value="1280x720">1280x720</option>
+                      </select>
+                    </div>
+                    <br>
                     <div id="textBoxControls">
                         <button id="createTextBox">Create Text Box</button>
                         <button id="deleteTextBox">Delete Selected Text Box</button>
@@ -190,54 +197,6 @@
         </div>
         </section>
     </main>
-
-  <footer class="footer-main bg-gradient-primary dark overlay-shape-06">
-    <div class="padding">
-      <div class="center margin-bottom max-width-m">
-        <h3>Welcome to the new era of online marketing.</h3>
-      </div>
-      <div class="card card-content dark margin-bottom max-width-l">
-        <form class="row reduce-spacing">
-          <div class="col-two-thirds center-tablet middle">
-            <h3 class="space-none">Ready to get started?</h3>
-            <p class="paragraph">Love it or your money back!</p>
-          </div>
-          <div class="col-one-third middle">
-            <a href="{% url 'signup' %}" class="button button-primary" role="button">Create An Account</a>
-          </div>
-        </form>
-      </div>
-      <div class="row center-desktop max-width-l">
-        <div class="col-two-fifths">
-          <h6>Feadl.io ®</h6>
-          <p>Leading a new era of artificial intelligence driven online marketing.</p>
-        </div>
-        <div class="col-one-fifth">
-          <h6>Info</h6>
-          <ul class="blank">
-            <li><a href="{% url 'privacy_policy' %}">Privacy Policy</a></li>
-            <li><a href="{% url 'terms_of_service' %}">Terms Of Service</a></li>
-          </ul>
-        </div>
-        <div class="col-one-fifth">
-          <h6>Support</h6>
-          <ul class="blank">
-            <li><a href="{% url 'contact' %}">Contact</a></li>
-          </ul>
-        </div>
-        <div class="col-one-fifth">
-          <h6>Connect</h6>
-          <ul class="blank">
-            <li><a href="{% url 'contact' %}">Contact</a></li>
-            <!-- <li><a href="#">Twitter</a></li> -->
-            <!-- <li><a href="#">Facebook</a></li>
-            <li><a href="#">Instagram</a></li> -->
-          </ul>
-        </div>
-      </div>
-    </div>
-    <p class="copyright"><span>Copyright </span><a href="www.theenrightgroup.org" target="_blank">© Enright Group</a><span> - 2024, all rights reserved.</span></p>
-  </footer>
   <script src="{% static 'website/js/builder.init.js' %}"></script>
   <script src="{% static 'website/js/main.js' %}"></script>
 </body>

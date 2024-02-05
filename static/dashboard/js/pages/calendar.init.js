@@ -21,11 +21,8 @@ const userDocRef = doc(collection(db, 'users'), user_id);
 const ev = [];
 const eventsCollectionRef = collection(userDocRef, "events");
 
-// new Date('2023-12-02T14:30:00')
 onAuthStateChanged(auth, (user) => {
-    if (user) {
-        console.log('User is signed in.');
-    } else {
+    if (user) {} else {
         window.location.href = '/login/';
     }
 });
@@ -101,7 +98,6 @@ await getDocs(eventsCollectionRef)
             const element = socialElements[social];
             if (element) {
                 element.show();
-                console.log("Showing:", element);
             }
         }
         this.$eventCaption.text(caption);
@@ -127,8 +123,6 @@ await getDocs(eventsCollectionRef)
                 };
             }
         });
-        
-        console.log("Events from Firestore:", ev);
 
         var a = this;
         
@@ -209,9 +203,7 @@ await getDocs(eventsCollectionRef)
                 };
 
                 setDoc(eventDocRef, eventData, { merge: true })
-                    .then(() => {
-                        console.log("Event updated or set in Firestore");
-                    })
+                    .then(() => {})
                     .catch(error => {
                         console.error("Error updating or setting event in Firestore: ", error);
                     });
@@ -281,9 +273,7 @@ await getDocs(eventsCollectionRef)
                         socials: socials,
                     };
                     setDoc(eventDocRef, eventData, { merge: true })
-                        .then(() => {
-                            console.log('Event updated');
-                        })
+                        .then(() => {})
                         .catch((error) => {
                             console.error('Error updating event to Firestore:', error);
                         });
@@ -302,9 +292,7 @@ await getDocs(eventsCollectionRef)
                 const eid = a.$selectedEvent.extendedProps.eid;
                 const eventDocRef = doc(collection(userDocRef, 'events'), eid);
                 deleteDoc(eventDocRef)
-                    .then(() => {
-                        console.log('Event removed from Firestore');
-                    })
+                    .then(() => {})
                     .catch((error) => {
                         console.error('Error removing event from Firestore:', error);
                     });

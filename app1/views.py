@@ -27,8 +27,6 @@ def forgot_password(request):
             email = request.POST.get('email')
             user = auth.get_user_by_email(email)
             link = auth.generate_password_reset_link(email)
-            print(link)
-
             subject = 'Reset Your Feadl.io Password'
             message = (
                 f"<p>Hello, {user}</p>"
@@ -122,33 +120,6 @@ def signup(request):
         if confirm_email == email:
             try:
                 user = auth.create_user(email=email, password=password)
-                user_id = user.uid
-                # ----- Get the Firestore document reference for the user settings ----- #
-                db = firestore.client()
-                user_settings_ref = db.collection('users').document(user_id)
-                try:
-                    user_settings_doc = user_settings_ref.get()
-                    user_settings = user_settings_doc.to_dict()
-                except firestore.NotFound:
-                    user_settings = {}
-                # ---------------------------------------------------------------------- #
-
-                firestore_data = {
-                    'ftue': True,
-                    'autoState': 1,
-                    'isSubscriber': False,
-                    'isLogo': False,
-                    'brand_color': '#000000',
-                    'business_description': '',
-                    'business_name': '',
-                    'secondary_colors': "['#000000', '#000000', '#000000', '#000000']",
-                    'images_generated': 0,
-                    'progress': 100,
-                    'admin': False,
-                    'isBusiness': False,
-                    'email': email
-                }
-                user_settings_ref.set(firestore_data, merge=True)
                 messages.success(request, f'Account created. You can now log in.')
                 return redirect('login')
             
@@ -166,10 +137,17 @@ def login(request):
     if request.method == 'POST':
         email = request.POST.get('email')
         password = request.POST.get('password')
+        provider = request.POST.get('provider')
         try:
-            id_token = user_login(email, password)
-            decoded_token = auth.verify_id_token(id_token)
-            user_id = decoded_token['uid']
+            if provider == 'feadlio.com':
+                id_token = user_login(email, password)
+                decoded_token = auth.verify_id_token(id_token)
+                user_id = decoded_token['uid']
+            else:
+                id_token = request.POST.get('id_token')
+                decoded_token = auth.verify_id_token(id_token)
+                user_id = request.POST.get('uid')
+            
             request.session['firebase_id_token'] = id_token
             request.session['user_id'] = user_id
             db = firestore.client()
@@ -177,7 +155,6 @@ def login(request):
             master_doc = master_ref.get()
             master_settings = master_doc.to_dict()
             if user_id == master_settings['id']:
-                print('Master')
                 request.session['master'] = True
             return redirect('dashboard') 
         except Exception as e:

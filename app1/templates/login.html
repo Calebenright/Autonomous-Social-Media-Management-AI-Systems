@@ -10,20 +10,20 @@
   <meta name="description"
    content="An Autonomous, AI driven, marketing and social media web based application.">
   <meta name="viewport" content="width=device-width">
-  <link rel="apple-touch-icon-precomposed" href="{% static 'website/media/favicon.png' %}">
-  <link rel="icon" href="{% static 'website/media/favicon.png' %}">
+  <link rel="apple-touch-icon-precomposed" href="{% static 'website/media/favicon.ico' %}">
+  <link rel="icon" href="{% static 'website/media/favicon.ico' %}">
   <link rel="mask-icon" href="{% static 'website/media/favicon.svg' %}" color="rgb(36,38,58)">
   <link rel="shortcut icon" href="{% static 'website/media/favicon.png' %}">
   <link rel="stylesheet" href="{% static 'website/css/main.css' %}">
+  
 </head>
 
 <body class="page page-onboarding preload">
-  <main>
-
     <a href="{% url 'index' %}" class="button button-close" role="button"></a>
 
     <section class="row no-gutter reverse-order">
       <div class="col-one-half middle padding">
+        <div id="error-messages-container"></div>
         {% if messages %}
         <ul class="messages">
             {% for message in messages %}
@@ -39,8 +39,11 @@
 
           <h1>Feadl.io</h1>
           <p class="paragraph">Welcome back to your Feadl.io!</p>
-          <form method="POST" action="{% url 'login' %}">
+          <form method="POST" action="{% url 'login' %}" id="loginForm">
             {% csrf_token %}
+            <input type="hidden" id="providerField" name="provider" value="">
+            <input type="hidden" id="uidField" name="uid" value="">
+            <input type="hidden" id="tokenField" name="id_token" value="">
             <div class="form-group">
               <label for="email">Email:</label>
               <input id="email" type="text" name="email" required>
@@ -54,11 +57,67 @@
               <input id="remember-me" type="checkbox" name="remember-me">
               <label for="remember-me" class="checkbox">Remember Me</label>
             </div>
-            <button type="submit" class="button button-primary full-width" role="button">Log In</button>
           </form>
+          <style>
+            .auth-button {
+              padding: 10px; /* Adjust overall padding */
+              border: none;
+              border-radius: 4px;
+              font-size: 16px;
+              font-weight: Bold;
+              cursor: pointer;
+              font-family: Arial, sans-serif;
+              color: white;
+              width: 100%;
+              display: flex;
+              align-items: center;
+              justify-content: flex-start; /* Align items to the left */
+              margin-top: 10px;
+              overflow: hidden; /* Ensures the border-radius applies to children */
+            }
 
-          <!-- <button id="google-sign-in">Sign in with Google</button>
-          <button id="facebook-sign-in">Sign in with Facebook</button> -->
+            .icon-container {
+              background-color: white;
+              border-radius: 4px 0 0 4px; /* Rounded on the left side */
+              padding: 10px; /* Adjust to your preference */
+              display: flex;
+              justify-content: center;
+              align-items: center;
+            }
+
+            .button-text {
+              flex-grow: 1; /* Makes the text span take up the rest of the button space */
+              text-align: center; /* Centers the text */
+            }
+
+            #google-sign-in {
+              background-color: #4285F4; /* Google's brand color */
+            }
+
+            #facebook-sign-in {
+              background-color: #3b5998; /* Facebook's brand color */
+            }
+
+            /* Adjust the icon colors if necessary */
+            #google-sign-in .icon-container i,
+            #facebook-sign-in .icon-container i {
+              color: #4285F4; /* You might want to set this to a color that's visible on white, possibly the brand color or just black */
+            }
+
+          </style>
+          <button type="submit" class="button button-primary full-width" role="button" id="feadlio-sign-in">Log In</button>
+          <br>
+          <br>
+          <button id="google-sign-in" class="auth-button">
+            <span class="icon-container"><i class="fab fa-google"></i></span>
+            <span class="button-text">Sign in with Google</span>
+          </button>
+          
+          <!-- <button id="facebook-sign-in" class="auth-button">
+            <span class="icon-container"><i class="fab fa-facebook-f"></i></span>
+            <span class="button-text">Sign in with Facebook</span>
+          </button> -->
+          <br>
         </div>
         <div class="center max-width-s space-top">
           <span class="muted">Don't have an account?   </span><a href="{% url 'signup' %}">Sign Up</a>
@@ -70,7 +129,8 @@
     </section>
 
   </main>
-    <script type="module" src="{% static 'dashboard/js/pages/login.init.js' %}"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <script type="module" src="{% static 'website/js/login.init.js' %}"></script>
     <script src="{% static 'website/js/main.js' %}"></script>
 </body>
 

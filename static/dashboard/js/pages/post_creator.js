@@ -24,33 +24,9 @@ const loadedImage = document.getElementById('loaded-image');
 var dynamicUrl = document.getElementById('dynamicUrl')
 
 onAuthStateChanged(auth, (user) => {
-    if (user) {
-        console.log('User is signed in.');
-    } else {
+    if (user) {} else {
         window.location.href = '/login/';
     }
-});
-
-const unsubscribe = onSnapshot(statusDocRef, (docSnapshot) => {
-    if (docSnapshot.exists()) {
-        const progress = docSnapshot.data().progress;
-        const nextImage = docSnapshot.data().next_image_url;
-
-        if (progress === 90) {
-            addGraphics(nextImage)
-        }
-
-        if (progress === 100) {
-            if (loadedImage) {
-                loadMedia(nextImage);
-            }
-            if (dynamicUrl) {
-                dynamicUrl.value = nextImage;
-            }
-        }
-    }
-}, (error) => {
-    console.error('Error in realtime listener:', error);
 });
 
 function loadMedia(nextMedia) {
@@ -58,15 +34,12 @@ function loadMedia(nextMedia) {
     var loadedVideo = document.getElementById('loaded-video');
     var videoSource = document.getElementById('video-source');
 
-    // Check if the media is a video by its extension
     if (nextMedia.endsWith('.mp4') || nextMedia.endsWith('.avi') || nextMedia.endsWith('.mov')) {
-        // It's a video
         loadedImage.style.display = 'none'; // Hide the image element
         videoSource.src = nextMedia;        // Set the video source
         loadedVideo.load();                 // Load the video
         loadedVideo.style.display = 'block';// Show the video element
     } else {
-        // It's an image
         loadedVideo.style.display = 'none'; // Hide the video element
         loadedImage.src = nextMedia;        // Set the image source
         loadedImage.style.display = 'block';// Show the image element
@@ -91,21 +64,12 @@ function addGraphics(imageUrl) {
             'image_url': imageUrl
         },
         success: function (data) {
-            console.log('Success:', data)
+            console.log('addGraphics ran')
         },
         error: function(error) {
-            console.log('Error:', error)
             loadedImage.src = 'https://storage.googleapis.com/starter_web_app_bucket/assets/error.png';
-            if (error.status == 400 && error.responseJSON && error.responseJSON.error) {
-                console.log('Error:', error.responseJSON.error);
-                var $errorMessagesContainer = $('#error-messages-container');
-                if ($errorMessagesContainer.find('.messages').length === 0) {
-                    $errorMessagesContainer.append('<ul class="messages"></ul>');
-                }
-                var errorMessage = '<li class="danger" data-message-id="ajaxError">' + error.responseJSON.error +
-                    '<span class="closebtn" onclick="closeMessage(this);">&times;</span></li>';
-                $errorMessagesContainer.find('.messages').append(errorMessage);
-            }
+            document.getElementById('generatePostButton').disabled = false;
+            displayErrorMessage(error.message)
         }
     });
 }
@@ -116,34 +80,118 @@ const tags = tagsArray;
 const randomTag = tags[Math.floor(Math.random() * tags.length)];
 
 document.addEventListener('DOMContentLoaded', () => {
+
+    let previousProgress = null;
+    document.getElementById('generatePostButton').disabled = true;
+
+    const unsubscribe = onSnapshot(statusDocRef, (docSnapshot) => {
+        if (docSnapshot.exists()) {
+            const { progress, next_image_url: nextImage } = docSnapshot.data();
+
+            // Only proceed if progress has changed
+            if (progress !== previousProgress) {
+                console.log('snapped');
+                console.log('progress: ', progress);
+
+                if (progress === 90) {
+                    console.log('run progress graphic');
+                    addGraphics(nextImage);
+                }
+
+                if (progress === 100) {
+                    document.getElementById('generatePostButton').disabled = false;
+                    if (loadedImage) {
+                        loadMedia(nextImage);
+                    }
+                    if (dynamicUrl) {
+                        dynamicUrl.value = nextImage;
+                    }
+                }
+
+                // Update previousProgress with the current progress
+                previousProgress = progress;
+            }
+        }
+    }, (error) => {
+        console.error('Error in realtime listener:', error);
+    });
+
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    getDoc(statusDocRef).then((doc) => {
+        if (doc.exists()) {
+            const progress = doc.data().progress;
+            if (progress === 95) {
+                const nextImage = doc.data().next_image_url;
+                console.log('Running addGraphics with:', nextImage);
+                addGraphics(nextImage);
+            }
+        } else {
+            console.log('No such document!');
+        }
+    }).catch((error) => {
+        console.log('Error getting document:', error);
+    });
+});
+
+document.addEventListener('DOMContentLoaded', () => {
     const thumbnails = document.querySelectorAll('.post-type-thumbnail');
-    const contentCards = document.querySelectorAll('.content-card');
-    const stockDescription = document.querySelector('input[name="stock-description"]');
-    const graphicDescription = document.querySelector('input[name="graphic-description"]');
-    const adDescription = document.querySelector('input[name="ad-creative-description"]');
 
     thumbnails.forEach(thumbnail => {
         thumbnail.addEventListener('click', () => {
             thumbnails.forEach(thumb => thumb.classList.remove('selected'));
             thumbnail.classList.add('selected');
             const selectedValue = thumbnail.getAttribute('data-value');
-            contentCards.forEach(card => {
-                card.style.display = 'none';
-            });
 
-            const correspondingCard = document.getElementById(`content-card-${selectedValue}`);
-            if (correspondingCard) {
-                if (selectedValue == "stock") {
-                    stockDescription.value = randomTag;
-                } else if (selectedValue == "graphic") {
-                    graphicDescription.value = randomTag;
-                } else if (selectedValue == "ad") {
-                    adDescription.value = randomTag;
-                }
-                correspondingCard.style.display = 'block';
+            const photoCard = document.getElementById("photo-none");
+            const keywordCard = document.getElementById("keyword-none");
+            const adDescNone = document.getElementById("ad-desc-none");
+            const thumbnailCard = document.getElementById("thumbnail-none");
+            const fileCard = document.getElementById("file-none");
+
+            if (selectedValue == "text") {
+                fileCard.style.display = 'none';
+                photoCard.style.display = 'none';
+                keywordCard.style.display = 'none';
+                adDescNone.style.display = 'none';
+                thumbnailCard.style.display = 'none';
+            } else if (selectedValue == "photo") {
+                fileCard.style.display = 'none';
+                photoCard.style.display = 'block';
+                keywordCard.style.display = 'none';
+                adDescNone.style.display = 'none';
+                thumbnailCard.style.display = 'block';
+            } else if (selectedValue == "graphic") {
+                fileCard.style.display = 'none';
+                photoCard.style.display = 'none';
+                keywordCard.style.display = 'block';
+                adDescNone.style.display = 'none';
+                thumbnailCard.style.display = 'block';
+            } else if (selectedValue == "ad") {
+                fileCard.style.display = 'none';
+                photoCard.style.display = 'none';
+                keywordCard.style.display = 'none';
+                adDescNone.style.display = 'block';
+                thumbnailCard.style.display = 'block';
+            } else if (selectedValue == "up") {
+                fileCard.style.display = 'block';
+                photoCard.style.display = 'none';
+                keywordCard.style.display = 'none';
+                adDescNone.style.display = 'none';
+                thumbnailCard.style.display = 'none';
+            }
+
+            const aiDescription = document.querySelector('input[name="ai-description"]');
+            if (aiDescription) {
+                aiDescription.value = randomTag;
+            }
+
+            const adDescription = document.querySelector('input[name="ad-description"]');
+            if (adDescription) {
+                adDescription.value = jsonDump.businessDescription;
             }
         });
-
     });
 
     const defaultThumbnail = document.querySelector('.post-type-thumbnail.selected');
@@ -152,6 +200,25 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 });
+
+function displayErrorMessage(errorMsg) {
+    var errorMessagesContainer = document.getElementById('error-messages-container');
+    if (errorMessagesContainer.querySelectorAll('.messages').length === 0) {
+        var messagesUl = document.createElement('ul');
+        messagesUl.className = 'messages';
+        errorMessagesContainer.appendChild(messagesUl);
+    }
+    var errorMessageLi = document.createElement('li');
+    errorMessageLi.className = 'danger';
+    errorMessageLi.setAttribute('data-message-id', 'ajaxError');
+    var closeButton = document.createElement('span');
+    closeButton.className = 'closebtn';
+    closeButton.innerHTML = '&times;';
+    closeButton.onclick = function() { closeMessage(this); };
+    errorMessageLi.appendChild(closeButton);
+    errorMessagesContainer.querySelector('.messages').appendChild(errorMessageLi);
+}
+
 
 tagInput.addEventListener('keydown', function(event) {
 if (event.key === 'Enter' || event.key === ',') {

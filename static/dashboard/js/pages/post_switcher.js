@@ -4,61 +4,106 @@ function decodeHtmlEntities(str) {
     return new DOMParser().parseFromString(str, 'text/html').documentElement.textContent;
 }
 
-let previouslySelected = { ad: null, graphic: null, photo: null };
+let previouslySelected = null;
+let currentPage = 1;
+const imagesPerPage = 16; // Number of images per page
 
-function selectElement(type, element, value, deselectPrevious = true) {
-    document.getElementById(`selected_${type}_url`).value = value;
+function selectElement(element, value, deselectPrevious = true) {
+    document.getElementById(`selected_img_url`).value = value;
 
-    if (deselectPrevious && previouslySelected[type]) {
-        previouslySelected[type].classList.remove('selected');
+    if (deselectPrevious && previouslySelected) {
+        previouslySelected.classList.remove('selected');
     }
 
     if (element) {
         element.classList.add('selected');
-        previouslySelected[type] = element;
+        previouslySelected = element;
     }
 }
 
-function initThumbnailSelection(type, dataString=null, containerClass=null) {
-    let container = document.querySelector(containerClass);
-    if (container) {
-        while (container.firstChild) {
-            container.removeChild(container.firstChild);
-        }
-        
-        let specialDiv = document.createElement('div');
-        specialDiv.classList.add('thumbnail', 'none-thumbnail', `${type}-none`);
-        specialDiv.setAttribute('onclick', `selectNone('${type}', '${type}-none')`);    
-    
-        let aiSpan = document.createElement('span');
-        aiSpan.classList.add('ai-text');
-        aiSpan.textContent = 'AI';
-    
-        specialDiv.appendChild(aiSpan);
-        container.prepend(specialDiv);
+function createImageElement(url) {
+    let imgElement = document.createElement('img');
+    imgElement.src = url;
+    imgElement.alt = "Thumbnail";
+    imgElement.classList.add('thumbnail');
+    imgElement.addEventListener('click', () => selectElement(imgElement, url));
+    return imgElement;
+}
+
+function initThumbnailSelection(type, dataString=null) {
+    let container = document.querySelector('.thumbnails');
+    if (!container) return;
+
+    while (container.children.length > 1) {
+        container.removeChild(container.lastChild);
     }
 
     document.getElementById('selected_post_type').value = type;
 
     if (dataString) {
         let data = decodeHtmlEntities(dataString);
-        JSON.parse(data).forEach(url => {
-            let imgElement = document.createElement('img');
-            imgElement.src = url;
-            imgElement.alt = "Thumbnail";
-            imgElement.classList.add('thumbnail');
-            imgElement.addEventListener('click', () => selectElement(type, imgElement, url));
+        let parsedData = JSON.parse(data);
+        const startIndex = (currentPage - 1) * imagesPerPage;
+        const endIndex = startIndex + imagesPerPage;
+        const pageImages = parsedData.slice(startIndex, endIndex);
+
+        pageImages.forEach(url => {
+            let imgElement = createImageElement(url);
             container.appendChild(imgElement);
         });
+
+        updatePaginationControls(type, parsedData.length, dataString);
     }
 }
 
-function selectNone(type, aiElementId) {
-    selectElement(type, null, "None", true);
-    let noneThumbnail = document.querySelector(`.${type}-none`);
+function updatePaginationControls(type, totalImages, dataString) {
+    const container = document.getElementById(`pagination-controls`);
+    container.innerHTML = '';
+    container.style.display = 'flex';
+    container.style.flexDirection = 'column';
+
+    const buttonContainer = document.createElement('div');
+    buttonContainer.style.display = 'flex';
+    buttonContainer.style.justifyContent = 'space-between';
+    buttonContainer.style.marginBottom = '10px';
+
+    const totalPages = Math.ceil(totalImages / imagesPerPage);
+
+    if (currentPage > 1) {
+        let prevButton = document.createElement(`prev-button`);
+        prevButton.textContent = 'Previous';
+        prevButton.className = 'pagination-button prev-button';
+        prevButton.addEventListener('click', function() {
+            currentPage--;
+            initThumbnailSelection(type, dataString);
+        });
+        buttonContainer.appendChild(prevButton);
+    }
+
+    if (currentPage < totalPages) {
+        let nextButton = document.createElement(`next-button`);
+        nextButton.textContent = 'Next';
+        nextButton.className = 'pagination-button next-button';
+        nextButton.addEventListener('click', function() {
+            currentPage++;
+            initThumbnailSelection(type, dataString);
+        });
+        buttonContainer.appendChild(nextButton);
+    }
+
+    container.appendChild(buttonContainer);
+    let pageInfo = document.createElement('span');
+    pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+    pageInfo.className = 'page-info';
+    container.appendChild(pageInfo);
+}
+
+
+function selectNone() {
+    selectElement(null, "None", true);
+    let noneThumbnail = document.querySelector(`.none-thumbnail`);
     noneThumbnail.classList.add('selected');
-    previouslySelected[type] = noneThumbnail;
-    document.getElementById(aiElementId).style.display = "block";
+    previouslySelected = noneThumbnail;
 }
 
 function setFormValueAndShowSpinner(formType, formId) {
@@ -85,164 +130,3 @@ function resetSocialMedia() {
         }
     });
 }
-
-
-
-// function decodeHtmlEntities(str) {
-//     const parser = new DOMParser();
-//     return parser.parseFromString(str, 'text/html').documentElement.textContent;
-// }
-
-
-// let imageStockURLsString = decodeHtmlEntities("{{ user_settings.image_tags }}");
-// if (imageStockURLsString){
-//     let imageStockURLs = JSON.parse(imageStockURLsString);
-//     let thumbnailsStockDiv = document.querySelector('.stock-thumbnails');
-//     imageStockURLs.forEach(url => {
-//         let imgStockElement = document.createElement('img');
-//         imgStockElement.src = url;
-//         imgStockElement.alt = "Thumbnail";
-//         imgStockElement.classList.add('thumbnail');
-//         imgStockElement.addEventListener('click', () => selectStockImage(imgStockElement, url));
-//         thumbnailsStockDiv.appendChild(imgStockElement);
-//     });
-// } else {
-//     let imageStockURLs = '';
-// }
-// let previouslySelectedStockImage = null;
-// const aiStockImage = document.getElementById('ai-stock-image')
-
-// function selectStockImage(imgStockElement, url) {
-//     document.getElementById('selected_stock_image_url').value = url;
-
-//     if (previouslySelectedStockImage) {
-//         previouslySelectedStockImage.classList.remove('selected');
-//     }
-//     imgStockElement.classList.add('selected');
-//     previouslySelectedStockImage = imgStockElement;
-//     aiStockImage.style.display = "none";
-// }
-
-// function selectNoneStock() {
-//     document.getElementById('selected_stock_image_url').value = "None";
-    
-//     if (previouslySelectedStockImage) {
-//         previouslySelectedStockImage.classList.remove('selected');
-//     }
-//     let noneStockThumbnail = document.querySelector('.none-thumbnail');
-//     noneStockThumbnail.classList.add('selected');
-//     previouslySelectedStockImage = noneStockThumbnail;
-//     aiStockImage.style.display = "block";
-    
-// }
-
-// let imageURLsString = decodeHtmlEntities("{{ user_settings.image_tags }}");
-// if (imageURLsString){
-//     let imageURLs = JSON.parse(imageURLsString);
-//     let thumbnailsDiv = document.querySelector('.graphic-thumbnails');
-//     imageURLs.forEach(url => {
-//         let imgElement = document.createElement('img');
-//         imgElement.src = url;
-//         imgElement.alt = "Thumbnail";
-//         imgElement.classList.add('thumbnail');
-//         imgElement.addEventListener('click', () => selectImage(imgElement, url));
-//         thumbnailsDiv.appendChild(imgElement);
-//     });
-// } else {
-//     let imageURLs = '';
-// }
-
-// let previouslySelectedImage = null;
-// const aiImage = document.getElementById('ai-image')
-
-// function selectImage(imgElement, url) {
-//     document.getElementById('selected_image_url').value = url;
-
-//     if (previouslySelectedImage) {
-//         previouslySelectedImage.classList.remove('selected');
-//     }
-//     imgElement.classList.add('selected');
-//     previouslySelectedImage = imgElement;
-//     aiImage.style.display = "none";
-// }
-
-// function selectNone() {
-//     document.getElementById('selected_image_url').value = "None";
-    
-//     if (previouslySelectedImage) {
-//         previouslySelectedImage.classList.remove('selected');
-//     }
-//     let noneThumbnail = document.querySelector('.none-thumbnail');
-//     noneThumbnail.classList.add('selected');
-//     previouslySelectedImage = noneThumbnail;
-//     aiImage.style.display = "block";
-    
-// }
-
-// let adCreativeImageURLsString = decodeHtmlEntities("{{ user_settings.image_tags }}");
-
-// if (adCreativeImageURLsString){
-//     let adCreativeImageURLs = JSON.parse(adCreativeImageURLsString);
-//     let adCreativeThumbnailsDiv = document.querySelector('.ad-creative-thumbnails');
-//     adCreativeImageURLs.forEach(url => {
-//         let imgAdElement = document.createElement('img');
-//         imgAdElement.src = url;
-//         imgAdElement.alt = "Thumbnail";
-//         imgAdElement.classList.add('thumbnail');
-//         imgAdElement.addEventListener('click', () => selectAdImage(imgAdElement, url));
-//         adCreativeThumbnailsDiv.appendChild(imgAdElement);
-//     });
-// } else {
-//     let adCreativeImageURLs = '';
-// }
-
-// const aiAdImage = document.getElementById('ai-ad-image')
-// let previouslySelectedAdCreativeImage = null;
-
-// function selectAdImage(imgAdElement, url) {
-//     document.getElementById('selected_ad_creative_image_url').value = url;
-
-//     if (previouslySelectedAdCreativeImage) {
-//         previouslySelectedAdCreativeImage.classList.remove('selected');
-//     }
-//     imgAdElement.classList.add('selected');
-//     previouslySelectedAdCreativeImage = imgAdElement;
-//     aiAdImage.style.display = "none";
-// }
-
-// function selectNoneAd() {
-//     document.getElementById('selected_ad_creative_image_url').value = "None";
-    
-//     if (previouslySelectedAdCreativeImage) {
-//         previouslySelectedAdCreativeImage.classList.remove('selected');
-//     }
-//     let noneAdThumbnail = document.querySelector('.none-ad-thumbnail');
-//     noneAdThumbnail.classList.add('selected');
-//     previouslySelectedAdCreativeImage = noneAdThumbnail;
-//     aiAdImage.style.display = "block";
-// }
-
-// function setFormValueAndShowSpinner(formType, formId) {
-//     var updatedCaption = document.getElementById('prompt').innerText;
-//     document.getElementById('editedCaption').value = updatedCaption;
-//     document.getElementById('formAction').value = formType;
-//     showSpinner();
-//     document.getElementById(formId).submit();
-// }
-
-// function toggleSocialMedia(media) {
-//     var element = document.getElementById(media);
-//     var isVisible = element.style.display != "none";
-//     document.getElementById(media + '_visible').value = isVisible ? "false" : "true";
-//     element.style.display = isVisible ? "none" : "inline";
-// }
-
-// function resetSocialMedia() {
-//     ['facebook', 'instagram', 'linkedin', 'google_business'].forEach(media => {
-//         var element = document.getElementById(media);
-//         if (element) {
-//             element.style.display = "inline";
-//             document.getElementById(media + '_visible').value = "true";
-//     }
-//     });
-// }

@@ -22,36 +22,10 @@ const db = getFirestore(firebaseApp);
 const statusDocRef = doc(collection(db, 'users'), jsonDump.userId);
 
 onAuthStateChanged(auth, (user) => {
-    if (user) {
-        console.log('User is signed in.');
-    } else {
+    if (user) {} else {
         window.location.href = '/login/';
     }
 });
-
-!function(i) {
-    function e() {
-        this.$body = i("body")
-    }
-    e.prototype.init = function() {
-        Dropzone.autoDiscover = false;
-        i('[data-plugin="dropzone"]').each(function() {
-            var e = i(this).attr("action"),
-                o = i(this).data("previewsContainer"),
-                e = {
-                    url: e
-                };
-            o && (e.previewsContainer = o);
-            var o = i(this).data("uploadPreviewTemplate");
-            o && (e.previewTemplate = i(o).html());
-            i(this).dropzone(e)
-        })
-    };
-    i.FileUpload = new e();
-    i.FileUpload.Constructor = e;
-}(window.jQuery);
-
-window.jQuery.FileUpload.init();
 
 0 < $('[data-plugins="dropify"]').length && $('[data-plugins="dropify"]').dropify({
     messages: {
@@ -75,61 +49,60 @@ function showSpinner() {
 
 // -------------------- IMAGE TAGS ------------------------ //
 
-
 const imageTagThumbnails = document.getElementById('imageTagThumbnails');
 const imageTags = imageTagsArray;
 
-// document.getElementById('imageUpload').addEventListener('change', function(event) {
-//     // Iterate over all selected files
-//     Array.from(event.target.files).forEach(file => {
-//         const reader = new FileReader();
-//         reader.onload = function() {
-//             addImageTag(reader.result);
-//         }
-//         reader.readAsDataURL(file);
-//     });
-// });
-
-function addImageTag(imageUrl) {
-    imageTags.push(imageUrl);
-    const imageThumbnail = document.createElement('div');
-    imageThumbnail.classList.add('image-tag-thumbnail');
-
-    const imgElement = document.createElement('img');
-    imgElement.src = imageUrl;
-    imgElement.alt = "Image Tag";
-    imageThumbnail.appendChild(imgElement);
-
-    imageTagThumbnails.appendChild(imageThumbnail);
-    imageThumbnail.addEventListener('click', function() {
-        removeImageTag(imageUrl);
-    });
-}
-
 function removeImageTag(imageUrl) {
-const index = imageTags.indexOf(imageUrl);
-if (index !== -1) {
-    imageTags.splice(index, 1);
-    updateImageTagThumbnails();
-}
+    const index = imageTags.indexOf(imageUrl);
+    if (index !== -1) {
+        imageTags.splice(index, 1);
+        updateImageTagThumbnails();
+    }
 }
 
 function updateImageTagThumbnails() {
-imageTagThumbnails.innerHTML = '';
-imageTags.forEach(imageUrl => {
-    const imageThumbnail = document.createElement('div');
-    imageThumbnail.classList.add('image-tag-thumbnail');
+    imageTagThumbnails.innerHTML = '';
+    imageTags.forEach(imageUrl => {
+        const imageThumbnail = document.createElement('div');
+        imageThumbnail.classList.add('image-tag-thumbnail');
 
-    const imgElement = document.createElement('img');
-    imgElement.src = imageUrl;
-    imgElement.alt = "Image Tag";
-    imageThumbnail.appendChild(imgElement);
+        // Create img element for displaying the image
+        const imgElement = document.createElement('img');
+        imgElement.src = imageUrl;
+        imgElement.alt = "Image Tag";
+        imageThumbnail.appendChild(imgElement);
 
-    imageTagThumbnails.appendChild(imageThumbnail);
-    imageThumbnail.addEventListener('click', function() {
-        removeImageTag(imageUrl);
+        // Create a remove button
+        const removeBtn = document.createElement('button');
+        removeBtn.innerHTML = 'X';
+        removeBtn.classList.add('remove-btn');
+        removeBtn.onclick = function(event) {
+            event.stopPropagation(); // Prevent triggering the thumbnail's click
+            removeImageTag(imageUrl);
+        };
+        imageThumbnail.appendChild(removeBtn);
+
+        // Create a download link
+        const downloadLink = document.createElement('a');
+        downloadLink.href = imageUrl;
+        downloadLink.download = imageUrl.split('/').pop(); // Suggest filename from URL
+        downloadLink.innerHTML = 'Download';
+        downloadLink.classList.add('download-link');
+        imageThumbnail.appendChild(downloadLink);
+
+        imageTagThumbnails.appendChild(imageThumbnail);
+
+        // Create overlay div
+        const overlay = document.createElement('div');
+        overlay.classList.add('overlay');
+
+        // Append children (download and remove actions) to overlay
+        overlay.appendChild(removeBtn);
+        overlay.appendChild(downloadLink);
+
+        // Append overlay to imageThumbnail
+        imageThumbnail.appendChild(overlay);
     });
-});
 }
 
 function updateHiddenImageInput() {
@@ -140,11 +113,6 @@ function updateHiddenImageInput() {
 const imageTagForm = document.getElementById('imageTagForm');
 imageTagForm.addEventListener('submit', function(event) {
     updateHiddenImageInput();
-    // let dropzoneInstance = Dropzone.forElement("#imageTagForm");
-
-    // if (dropzoneInstance.getQueuedFiles().length > 0) {
-    //     dropzoneInstance.processQueue();
-    // }
     imageTagForm.submit();
 });
 
@@ -160,15 +128,9 @@ if (generateStockImagesButton) {
     });
 }
 
-
 var imageTagFormSubmit = document.getElementById('imageTagFormSubmit');
 imageTagFormSubmit.addEventListener('click', function() {
     updateHiddenImageInput();
-    // let dropzoneInstance = Dropzone.forElement("#imageTagForm");
-
-    // if (dropzoneInstance.getQueuedFiles().length > 0) {
-    //     dropzoneInstance.processQueue(); 
-    // }
     imageTagForm.submit();
 });
 

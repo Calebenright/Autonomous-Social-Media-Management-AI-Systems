@@ -92,24 +92,25 @@ def process_images(FOLDER_NUM, primary_color, shuffle_colors, isImage, base_imag
     blobs = bucket.list_blobs(prefix=folder_path)
     png_files = [blob.name for blob in blobs if blob.name.endswith('.png')]
 
+    def get_dimensions(bucket, png_files):
+        file_path = random.choice(png_files)
+        blob = bucket.blob(file_path)
+        img_data = blob.download_as_bytes()
+        img = Image.open(BytesIO(img_data)).convert('RGBA')
+        width, height = img.size
+        return width, height
+
+    base_width, base_height = get_dimensions(bucket, png_files)
+
     if isImage:
         response = requests.get(base_image_url)
         raw_image = Image.open(BytesIO(response.content))
         raw_image = raw_image.convert('RGBA')
-        width, height = raw_image.size
+        base_image = Image.new('RGBA', (base_width, base_height), (255, 255, 255, 0))
 
-        if width != 1024 or height != 1024:
-            size = min(width, height)
-            left = (width - size) / 2
-            top = (height - size) / 2
-            right = (width + size) / 2
-            bottom = (height + size) / 2
-            cropped_img = raw_image.crop((left, top, right, bottom))
-            raw_image = cropped_img.resize((1024, 1024))
-
-        base_image = Image.new('RGBA', (1024, 1024), (255, 255, 255, 0))
         if isBlur:
             raw_image = raw_image.filter(ImageFilter.GaussianBlur(radius=float(blur_amount)))
+            
         if imgWidth > 0 and imgHeight > 0:
             img_aspect = raw_image.width / raw_image.height
             box_aspect = imgWidth / imgHeight
@@ -119,14 +120,22 @@ def process_images(FOLDER_NUM, primary_color, shuffle_colors, isImage, base_imag
             else:
                 new_width = imgWidth
                 new_height = int(imgWidth / img_aspect)
+
             resized_image = raw_image.resize((new_width, new_height), Image.Resampling.LANCZOS)
             paste_x = imgX + (imgWidth - new_width) // 2
             paste_y = imgY + (imgHeight - new_height) // 2
             base_image.paste(resized_image, (paste_x, paste_y), resized_image)
-
+        else:
+            if raw_image.width != base_width or raw_image.height != base_height:
+                size = min(raw_image.width, raw_image.height)
+                left = (raw_image.width - size) / 2
+                top = (raw_image.height - size) / 2
+                right = (raw_image.width + size) / 2
+                bottom = (raw_image.height + size) / 2
+                cropped_img = raw_image.crop((left, top, right, bottom))
+                raw_image = cropped_img.resize((base_width, base_height))
     else:
-        width, height = 1024, 1024
-        blank_image = Image.new("RGBA", (width, height), "white")
+        blank_image = Image.new("RGBA", (base_width, base_height), "white")
         img_byte_arr = BytesIO()
         blank_image.save(img_byte_arr, format='PNG')
         img_byte_arr.seek(0)
@@ -152,8 +161,6 @@ def process_images(FOLDER_NUM, primary_color, shuffle_colors, isImage, base_imag
                 recolored_img = recolor_image(img, shuffled_colors[0])
             
             base_image = Image.alpha_composite(base_image, recolored_img)
-        else:
-            print("No PNG files found in the directory.")
     except:
         pass
     
@@ -170,11 +177,8 @@ def process_images(FOLDER_NUM, primary_color, shuffle_colors, isImage, base_imag
         file_name = os.path.basename(file_path)
         color_index = idx % len(shuffled_colors)
         if 'logo' in file_name:
-            print('In file_name: ', isLogo)
             if isLogo and logo_path:
-                print('In logo_path: ', isLogo)
                 if 'white' in file_name:
-                    print('In white: ', isLogo)
                     recolored_img = recolor_image(img, (255, 255, 255, 255))
                 elif 'black' in file_name:
                     recolored_img = recolor_image(img, (0, 0, 0, 255))
@@ -196,6 +200,8 @@ def process_images(FOLDER_NUM, primary_color, shuffle_colors, isImage, base_imag
                 recolored_img = recolor_image(img, (225, 225, 225, 255))
             elif 'black' in file_name:
                 recolored_img = recolor_image(img, (0, 0, 0, 255))
+            elif 'none' in file_name:
+                recolored_img = img
             else:
                 recolored_img = recolor_image(img, shuffled_colors[color_index])
             base_image = Image.alpha_composite(base_image, recolored_img)
@@ -241,7 +247,6 @@ def add_text_to_image(img, text, font_io, font_size, start_x, start_y, width, he
     else:
         choose_color = text_color
 
-
     if anchor_point == "center":
         start_x -= width // 2
         start_y -= height // 2
@@ -253,6 +258,8 @@ def add_text_to_image(img, text, font_io, font_size, start_x, start_y, width, he
         max_line_width = 0
         total_text_height = 0
         spacing_height = int(font_size * line_height - font_size)
+        ascender, descender = font.getmetrics()
+        line_height_adjusted = ascender + abs(descender) + spacing_height
 
         for line in text.split("\n"):
             while len(line) > 0:
@@ -264,9 +271,9 @@ def add_text_to_image(img, text, font_io, font_size, start_x, start_y, width, he
                 wrapped_text += to_draw + "\n"
                 line = line[len(to_draw):].lstrip()
                 max_line_width = max(max_line_width, line_size[0])
-                total_text_height += line_size[1] + spacing_height
+                total_text_height += line_height_adjusted
 
-        total_text_height -= spacing_height
+        total_text_height += spacing_height * (len(text.split("\n")) - 1)
 
         if total_text_height <= height:
             break
@@ -290,9 +297,11 @@ def add_text_to_image(img, text, font_io, font_size, start_x, start_y, width, he
 def generate_text(business_description, business_name, max_title_char_count, key):
     client = OpenAI(api_key=config('OPENAI_API_KEY'))
     if key == 'Call-to-action':
-        prompt = f"Imagine you're an advertiser for my company named {business_name} and our description is {business_description}. Create a ad creative headline like, 'local, personal service at a fraction of the cost.', 'Your next home could be right around the corner?', 'Name brands are so out of style.', etc.. Be creative and try to think about what might make a person click on the ad. It has to be less than {max_title_char_count} characters and don't use any social media hashtags."
+        prompt = f"Imagine you're an advertiser for my company named {business_name} and our description is {business_description}. Create an ad creative headline like, 'local, personal service at a fraction of the cost.', 'Your next home could be right around the corner?', 'Name brands are so out of style.', etc.. Be creative and try to think about what might make a person click on the ad. It has to be less than {max_title_char_count} characters and don't use any social media hashtags."
     if key == 'Headline':
-        prompt = f"Imagine you're an advertiser for my company named {business_name} and our description is {business_description}. Create a ad creative call-to-action like, 'Looking to improve your style?', 'Want a Safer Home?', 'Shop our newest collection!', etc.. It has to be less than {max_title_char_count} characters and don't use any social media hashtags."
+        prompt = f"Imagine you're an advertiser for my company named {business_name} and our description is {business_description}. Create an ad creative call-to-action like, 'Looking to improve your style?', 'Want a Safer Home?', 'Shop our newest collection!', etc.. It has to be less than {max_title_char_count} characters and don't use any social media hashtags."
+    if key == 'Button':
+        prompt = f"Imagine you're an advertiser for my company named {business_name} and our description is {business_description}. I'm creating an ad creative and I need text for a button that takes them to my site. It has to be less than {max_title_char_count} characters and don't use any social media hashtags."
     if key == 'Description':
         prompt = f"Imagine you're a social media manager for my company named {business_name} and our description is {business_description}. Create a catchy description that makes people understand and want us. It has to be less than {max_title_char_count} characters and exclude any hashtags."
     response = client.chat.completions.create(
@@ -366,8 +375,8 @@ def generate_image_from_params(FOLDER_NUM, business_description, business_name, 
     isImage = params.get('isImage', False)
     imgX = params.get('img_start_x', 0)
     imgY = params.get('img_start_y', 0)
-    imgWidth = params.get('img_width', 1024)
-    imgHeight = params.get('img_height', 1024)
+    imgWidth = params.get('img_width', 0)
+    imgHeight = params.get('img_height', 0)
     isBlur = params.get('isBlur', False)
     blur_amount = params.get('blur_amount', 0)
     text_boxes = {}

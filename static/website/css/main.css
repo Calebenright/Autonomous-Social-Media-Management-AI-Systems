@@ -2599,13 +2599,12 @@ table td {
   justify-content: center;
 }
 
-.error-message {
-  background-color: #f8d7da;
-  border: 1px solid #f5c6cb;
+.error-message {  
+  background-color: #ff5b5b;
+  color: #e0e0e0;
   border-radius: 4px;
   padding: 10px;
   margin: 10px 0;
-  color: #721c24;
   font-size: 16px;
   display: flex;
   align-items: center;
@@ -2726,6 +2725,7 @@ ul.messages li {
   text-align: center;
   font-weight: bold;
   font-size: 14px;
+  color: white;
 }
 
 .closebtn {

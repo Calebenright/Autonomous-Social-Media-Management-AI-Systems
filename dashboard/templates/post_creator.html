@@ -13,7 +13,6 @@
     <link rel="shortcut icon" href="{% static 'dashboard/images/favicon.ico' %}">
 
     <!-- Plugins css -->
-    <link href="{% static 'dashboard/libs/dropzone/min/dropzone.min.css' %}" rel="stylesheet" type="text/css" />
     <link href="{% static 'dashboard/libs/dropify/css/dropify.min.css' %}" rel="stylesheet" type="text/css" />
 
     <!-- App css -->
@@ -414,16 +413,16 @@
                                                     <p class="poppins">Text Post</p>
                                                 </div>
 
-                                                <div class="thumbnail-container" onclick='initThumbnailSelection("photo", {{ tags | safe}}, ".stock-thumbnails", "photo-none")'>
+                                                <div class="thumbnail-container" onclick='initThumbnailSelection("photo", {{ tags | safe}})'>
                                                     <img class="post-type-thumbnail {% if selected_option == 'photo' %}selected{% endif %}" data-value="photo" src="https://storage.googleapis.com/starter_web_app_bucket/assets/stock.png" alt="Stock Photo">
                                                     <p class="poppins">Stock Photo Post</p>
                                                 </div>
                                             
-                                                <div class="thumbnail-container" onclick='initThumbnailSelection("graphic", {{ tags | safe}}, ".graphic-thumbnails", "graphic-none")'>
+                                                <div class="thumbnail-container" onclick='initThumbnailSelection("graphic", {{ tags | safe}})'>
                                                     <img class="post-type-thumbnail {% if selected_option == 'graphic' %}selected{% endif %}" data-value="graphic" src="https://storage.googleapis.com/starter_web_app_bucket/assets/graphic.png" alt="Graphic Post">
                                                     <p class="poppins">Social Media Graphic Post</p>
                                                 </div>
-                                                <div class="thumbnail-container" onclick='initThumbnailSelection("ad", {{ tags | safe}}, ".ad-creative-thumbnails", "ad-none")'>
+                                                <div class="thumbnail-container" onclick='initThumbnailSelection("ad", {{ tags | safe}})'>
                                                     <img class="post-type-thumbnail {% if selected_option == 'ad' %}selected{% endif %}" data-value="ad" src="https://storage.googleapis.com/starter_web_app_bucket/assets/ad.png" alt="Ad Post">
                                                     <p class="poppins">Ad Post</p>
                                                 </div>
@@ -440,18 +439,7 @@
                                 </div> 
                                 <div class="card">
                                     <div class="card-body">
-                                        <div id="content-card-text" class="content-card">
-                                            <h4 class="header-title">Platform</h4>
-                                            <p></p> 
-                                            <div class="mb-3">
-                                                <select class="form-select" id="text-platform" name="text-platform">
-                                                    <option>Facebook</option>
-                                                    <option>Instagram</option>
-                                                </select>
-                                            </div>
-                                        </div>
-
-                                        <div id="content-card-photo" class="content-card">
+                                        <div class="content-card">
                                             <div id="photo-none">
                                                 <br>
                                                 <h4 class="header-title">Tags:</h4>
@@ -463,70 +451,47 @@
                                                 </div>
                                                 <br>
                                             </div>
-                                            <!-- Thumbnails Display -->
-                                            <h4 class="header-title">Select Image:</h4>
-                                            <div class="stock-thumbnails">
-                                                <div class="thumbnail none-thumbnail photo-none" onclick="selectNone('photo', 'photo-none')">
-                                                    <span class="ai-text">AI</span>
-                                                </div>
-                                            </div>
-                                            <br>
-                                            <input type="hidden" name="selected_photo_url" id="selected_photo_url" value="None">
-                                        </div>
-                                        
-                                        <div id="content-card-graphic" class="content-card">
-                                            <div id="graphic-none">
-                                                <h4 class="header-title">AI Image Keyword:</h4>
+                                            <div id="keyword-none">
+                                                <h4 class="header-title">AI Image Description:</h4>
                                                 <p></p>
                                                 <div class="mb-3">
-                                                    <input type="text" name="graphic-description" class="form-control" placeholder="Enter Background Image Keyword...">
+                                                    <input type="text" name="ai-description" class="form-control" placeholder="Enter AI Image Description...">
                                                 </div>
                                             </div>
-                                            <!-- Thumbnails Display -->
-                                            <h4 class="header-title">Select Image:</h4>
-                                            <div class="graphic-thumbnails">
-                                                <div class="thumbnail none-thumbnail graphic-none" onclick="selectNone('graphic', 'graphic-none')">
-                                                    <span class="ai-text">AI</span>
-                                                </div>
-                                            </div>
-                                            <!-- Hidden input to store selected image URL -->
-                                            <input type="hidden" name="selected_graphic_url" id="selected_graphic_url" value="None">
-                                        </div>
-                                        
-                                        <div id="content-card-ad" class="content-card">
-                                            <div id="ad-none">
-                                                <h4 class="header-title">AI Image Keyword:</h4>
+                                            <div id="ad-desc-none">
+                                                <h4 class="header-title">Ad Description:</h4>
                                                 <p></p>
                                                 <div class="mb-3">
-                                                    <input type="text" name="ad-creative-description" class="form-control" placeholder="Enter Background Image for Ad Creative...">
+                                                    <input type="text" name="ad-description" class="form-control" placeholder="Enter AD Description...">
                                                 </div>
                                             </div>
-                                            <h4 class="header-title">Select Image:</h4>
-                                            <div class="ad-creative-thumbnails">
-                                                <div class="thumbnail none-thumbnail ad-none" onclick="selectNone('ad', 'ad-none')">
-                                                    <!-- <div class="red-line"></div> -->
-                                                    <span class="ai-text">AI</span>
+                                            <div id="thumbnail-none">
+                                                <h4 class="header-title">Select Image:</h4>
+                                                <div class="thumbnails">
+                                                    <div class="thumbnail none-thumbnail" onclick="selectNone()">
+                                                        <span class="ai-text">AI</span>
+                                                    </div>
                                                 </div>
+                                                <div id="pagination-controls" class="pagination-controls"></div>
+                                                <br>
+                                                <input type="hidden" name="selected_img_url" id="selected_img_url" value="None">
                                             </div>
-                                            <input type="hidden" name="selected_ad_url" id="selected_ad_url" value="None">
-                                        </div>
-                                        
-                                        <div id="content-card-up" class="content-card">
-                                            {% if user_settings.logo %}
-                                            <h4 class="header-title">Add Elements</h4>
-                                            <p></p>
-                                            <div class="form-check mb-2 form-check-success">
-                                                <input class="form-check-input" type="checkbox" name="isLogo" value="true" id="logo" >
-                                                <label class="form-check-label" for="logo">Logo</label>
+                                            <div id="file-none">
+                                                {% if user_settings.logo %}
+                                                <h4 class="header-title">Add Elements</h4>
+                                                <p></p>
+                                                <div class="form-check mb-2 form-check-success">
+                                                    <input class="form-check-input" type="checkbox" name="isLogo" value="true" id="logo" >
+                                                    <label class="form-check-label" for="logo">Logo</label>
+                                                </div>
+                                                {% endif %}
+                                                <br>
+                                                <h4 class="header-title">File Upload</h4>
+                                                <p class="sub-header">
+                                                    Upload an image and we will turn it into a post!
+                                                </p>
+                                                <input type="file" name="file" data-plugins="dropify" data-height="300" accept=".jpg, .png, .jpeg" />
                                             </div>
-                                            {% endif %}
-                                            <br>
-                                            <h4 class="header-title">File Upload</h4>
-                                            <p class="sub-header">
-                                                Upload an image and we will turn it into a post!
-                                            </p>
-                
-                                            <input type="file" name="file" data-plugins="dropify" data-height="300" accept=".jpg, .png, .jpeg" />
                                         </div>
                                         
                                     </div>
@@ -535,7 +500,7 @@
                                 <div class="card">
                                     <div class="card-body">
                                         <div style="display: flex; justify-content: center; padding-top: 15px;">
-                                            <button type="submit" class="btn btn-purple rounded-pill w-md waves-effect waves-light mb-3" onclick="showSpinner()">
+                                            <button type="submit" id="generatePostButton" class="btn btn-purple rounded-pill w-md waves-effect waves-light mb-3" onclick="showSpinner()">
                                                 <i class="mdi mdi-plus"></i> Generate Post</button>
                                         </div>
                                     </div>
@@ -567,7 +532,7 @@
                                                 <div id="prompt" contenteditable="true" class="text-box">{{ user_settings.next_caption }}</div>
                                             </div>
                                         </div>
-                                        <form id="captionForm" method="post" action="{% url 'post_creator' %}">
+                                        <form method="post" action="{% url 'post_creator' %}">
                                             {% csrf_token %}
                                             <input type="hidden" name="form" value="formCaption1">
                                             <button type="submit" class="btn btn-soft-secondary rounded waves-effect btn-xs" onclick="showSpinner()">Re-Generate Copy</button>
@@ -657,7 +622,7 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-md-6">
-                    <script>document.write(new Date().getFullYear())</script> &copy; Copyright <a href="">Feadl.io</a>
+                    <script>document.write(new Date().getFullYear())</script> &copy; Copyright <a href="www.theenrightgroup.org" target="_blank"> Enright Group</a>
                 </div>
                 <div class="col-md-6">
                     <div class="text-md-end footer-links d-none d-sm-block">
@@ -688,7 +653,6 @@
     <script src="{% static 'dashboard/libs/feather-icons/feather.min.js' %}"></script>
 
     <!-- Plugins js -->
-    <script src="{% static 'dashboard/libs/dropzone/min/dropzone.min.js' %}"></script>
     <script src="{% static 'dashboard/libs/dropify/js/dropify.min.js' %}"></script>
 
     <!-- Init js-->
@@ -703,6 +667,7 @@
         var jsonDump = {
             userId: '{{ user_id }}',
             selectedOption: '{{ selected_option }}',
+            businessDescription: '{{ user_settings.business_description }}'
         };
     </script>
 

@@ -11,6 +11,7 @@ const lineHeightInput = document.getElementById('lineHeight');
 const charSpacingInput = document.getElementById('charSpacing');
 const anchorPointInput = document.getElementById('anchorPoint');
 const textColorInput = document.getElementById('textColor');
+const dimensionSelector = document.getElementById('canvasDimensions');
 
 let imageBox = null;
 let logoBox = null;
@@ -43,6 +44,14 @@ let isResizingImg = false;
 let isResizingLogo = false;
 let imageOffsetX, imageOffsetY;
 let logoOffsetX, logoOffsetY;
+
+function updateCanvasSize() {
+    const [width, height] = dimensionSelector.value.split('x');
+    canvas.width = width;
+    canvas.height = height;
+}
+
+dimensionSelector.addEventListener('change', updateCanvasSize);
 
 canvas.addEventListener('mousedown', (e) => {
     const x = e.offsetX;
@@ -519,7 +528,6 @@ function generateJSON() {
 
     return output;
 }
-
 
 function downloadJSON() {
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(generateJSON()));

@@ -19,9 +19,7 @@ const auth = getAuth(firebaseApp);
 const db = getFirestore(firebaseApp);
 
 onAuthStateChanged(auth, (user) => {
-    if (user) {
-        console.log('User is signed in.');
-    } else {
+    if (user) {} else {
         window.location.href = '/login/';
     }
 });

@@ -183,8 +183,8 @@ MASTER_PASSWORD = config('MASTER_PASSWORD')
 if config('ENVIRONMENT') == 'production':
     # ##------------ DEPLOY -------------##
     DEBUG = False
-    # STRIPE_ENDPOINT = config('STRIPE_ENDPOINT')
-    STRIPE_ENDPOINT = config('STRIPE_DEV_ENDPOINT')
+    STRIPE_ENDPOINT = config('STRIPE_ENDPOINT')
+    # STRIPE_ENDPOINT = config('STRIPE_DEV_ENDPOINT')
     STRIPE_CANCEL_URL = config('STRIPE_CANCEL_URL')
     STRIPE_SUCCESS_URL = config('STRIPE_SUCCESS_URL')
     STRIPE_WEBHOOK_URL = config('STRIPE_WEBHOOK_URL')

@@ -1064,6 +1064,37 @@ progress {
     height: auto
 }
 
+.gallery-container {
+    margin: 20px;
+    text-align: center;
+}
+
+.pagination-controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.pagination-button {
+    padding: 5px 10px;
+    cursor: pointer;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    margin: 0 5px;
+}
+
+.pagination-button:hover {
+    background-color: #0056b3;
+}
+
+.page-info {
+    text-align: center;
+    margin-top: 5px; /* Ensures margin between buttons and page info */
+}
+
 .figure {
     display: inline-block
 }
@@ -2980,68 +3011,56 @@ textarea.form-control-lg {
 }
 
 .form-check-input {
-    width: 1.143em;
-    height: 1.143em;
-    margin-top: .1785em;
-    vertical-align: top;
-    background-color: var(--ct-form-check-input-bg);
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: contain;
-    border: var(--ct-form-check-input-border);
+    width: 20px; /* Adjusted for visibility */
+    height: 20px; /* Adjusted for visibility */
+    margin-right: 0.6rem; /* Align with the text */
+    vertical-align: middle; /* Better alignment with labels */
+    background-color: #fff; /* Fallback color */
+    border: 2px solid #ccc; /* Fallback border */
+    border-radius: 4px; /* Rounded corners for checkboxes, adjust for radios */
     -webkit-appearance: none;
     appearance: none;
-    -webkit-print-color-adjust: exact;
-    color-adjust: exact
+    transition: border-color 0.25s ease, box-shadow 0.25s ease; /* Smooth transition for interactions */
+    cursor: pointer; /* Indicate it's clickable */
+    display: inline-block; /* Ensure proper spacing */
 }
 
-.form-check-input[type=checkbox] {
-    border-radius: .25em
+/* Hover state */
+.form-check-input:hover {
+    border-color: #888; /* Darker border on hover */
 }
 
-.form-check-input[type=radio] {
-    border-radius: 50%
-}
-
-.form-check-input:active {
-    filter: brightness(90%)
-}
-
+/* Focus state */
 .form-check-input:focus {
-    border-color: var(--ct-input-focus-border-color);
-    outline: 0;
-    box-shadow: none
+    outline: none; /* Remove default focus outline */
+    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.5); /* Custom focus ring */
 }
 
 .form-check-input:checked {
-    background-color: var(--ct-form-check-input-checked-bg-color);
-    border-color: var(--ct-form-check-input-checked-border-color)
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23ffffff' stroke-width='2'%3E%3Cpath d='M12 5l-7 7-3-3'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 14px 14px; /* Adjust size as needed */
 }
 
-.form-check-input:checked[type=checkbox] {
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='M6 10l3 3l6-6'/%3e%3c/svg%3e")
+
+/* Checked state for radio buttons */
+.form-check-input[type="radio"]:checked {
+    background-color: #28a745; /* Green background for checked radios */
+    border-color: #28a745; /* Matching border color */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3E%3Ccircle r='2' fill='%23ffffff'/%3E%3C/svg%3E"); /* Custom dot */
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 60%; /* Adjust the size of the dot */
 }
 
-.form-check-input:checked[type=radio] {
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='2' fill='%23fff'/%3e%3c/svg%3e")
-}
-
-.form-check-input[type=checkbox]:indeterminate {
-    background-color: var(--ct-component-active-bg);
-    border-color: var(--ct-component-active-bg);
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='M6 10h8'/%3e%3c/svg%3e")
-}
-
+/* Style for disabled input */
 .form-check-input:disabled {
-    pointer-events: none;
-    filter: none;
-    opacity: .5
+    background-color: #e9ecef;
+    border-color: #dee2e6;
+    cursor: not-allowed;
 }
 
-.form-check-input:disabled~.form-check-label,
-.form-check-input[disabled]~.form-check-label {
-    opacity: .5
-}
 
 .form-switch {
     padding-left: 2.5em
@@ -25309,6 +25328,7 @@ body[data-layout-color=dark] .datepicker tfoot tr th:hover {
 }
 
 .image-tag-thumbnail {
+    position: relative; /* This is crucial */
     display: inline-block;
     width: 15%;
     height: 20%;
@@ -25328,6 +25348,54 @@ body[data-layout-color=dark] .datepicker tfoot tr th:hover {
     width: 100%;
     height: 100%;
     object-fit: cover; /* This will ensure images maintain their aspect ratio */
+}
+
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%; /* Overlay covers the entire thumbnail */
+    height: 100%; /* Overlay covers the entire thumbnail */
+    display: flex;
+    justify-content: space-around; /* Adjust if you want more specific positioning */
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black background */
+    opacity: 0; /* Hidden initially */
+    transition: opacity 0.3s ease; /* Smooth transition for the overlay */
+    cursor: pointer; /* Change cursor to indicate interactiveness */
+}
+
+/* Vertical line divider */
+.overlay::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 10%; /* Adjust based on your design */
+    bottom: 10%; /* Adjust based on your design */
+    border-left: 1px solid #fff; /* White divider */
+}
+
+.image-tag-thumbnail:hover .overlay {
+    opacity: 1; /* Show overlay on hover */
+}
+
+.image-tag-thumbnail:hover img {
+    opacity: 0.3; /* Dim the image on hover */
+}
+
+/* Style for download and remove text/icons */
+.remove-btn, .download-link {
+    background: none;
+    color: white;
+    text-decoration: none;
+    border: none;
+    font-size: 14px; /* Adjust as necessary */
+}
+
+/* Enhance visibility on hover */
+.remove-btn:hover, .download-link:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
 }
 
 .social-button {
@@ -25386,7 +25454,7 @@ body[data-layout-color=dark] .datepicker tfoot tr th:hover {
 }
 
 .thumbnail {
-    width: fit-content; 
+    width: auto; 
     height: 95px;
     margin: 5px;
     cursor: pointer;
@@ -25454,12 +25522,12 @@ body[data-layout-color=dark] .datepicker tfoot tr th:hover {
 }
 
 .none-thumbnail {
-    position: relative;
+    display: flex;
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
     background-color: #f5f5f5; /* A light gray background for the "None" option */
-    display: inline-block;
     width: 95px; 
     height: 95px;
-    border-radius: 10px;
 }
 
 .none-ad-thumbnail {
@@ -25486,27 +25554,13 @@ body[data-layout-color=dark] .datepicker tfoot tr th:hover {
 }
 
 .ai-text {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%); /* Center the text */
     font-family: 'Poppins', sans-serif;
     font-weight: 700;
     font-size: 32px; /* Adjust font size as needed */
     letter-spacing: 1px; /* Optional: adds a bit of space between the letters */
 }
 
-.ad-creative-thumbnails {
-    display: flex;
-    flex-wrap: wrap;
-}
-
-.stock-thumbnails {
-    display: flex;
-    flex-wrap: wrap;
-}
-
-.graphic-thumbnails {
+.thumbnails {
     display: flex;
     flex-wrap: wrap;
 }
@@ -25531,7 +25585,7 @@ body[data-layout-color=dark] .datepicker tfoot tr th:hover {
 
 @media (max-width:768px) {
     .image-tag-thumbnail {
-        width: 30%;
+        width: 45%;
     }
 
     .post-type-thumbnails{

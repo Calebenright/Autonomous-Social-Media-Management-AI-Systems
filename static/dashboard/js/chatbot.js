@@ -80,6 +80,7 @@ document.addEventListener('DOMContentLoaded', function() {
             },
             success: function (data) {
                 if (data.status === 'pending') {
+                    console.log(data);
                     pollForResponse();
                 } else if (data.status === 'error') {
                     appendMessage(data.botMessage, botAvatar);
@@ -122,18 +123,20 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
                     } else {
                         removeLoadingMessage();
-                        appendMessage('Error: No response from server.', 'error-avatar.png');
+                        appendMessage('There was an error getting your request. Please refresh and try again or contact us!', botAvatar);
                         pollCount = 0;
                     }
                     
                 },
                 error: function(error) {
-                    console.error('Error:', error);
+                    removeLoadingMessage();
+                    appendMessage('There was an error getting your request. Please refresh and try again or contact us!', botAvatar);
+                    pollCount = 0;
                 }
             });
         } else {
             removeLoadingMessage();
-            appendMessage('Error: No response from server.', 'error-avatar.png');
+            appendMessage('There was an error getting your request. Please refresh and try again or contact us!', botAvatar);
             pollCount = 0;
         }
     }

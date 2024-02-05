@@ -18,13 +18,14 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from django.conf.urls import handler500
-from dashboard.views import error
+from django.conf.urls import handler500, handler404
+from dashboard.views import error500, error404
 
 urlpatterns = [
-    path("admin/", admin.site.urls),
+    path("feadliodev/", admin.site.urls),
     path("", include("app1.urls")),
     path("", include('dashboard.urls')),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
-handler500 = error
+handler500 = error500
+handler404 = error404

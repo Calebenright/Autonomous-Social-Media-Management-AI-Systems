@@ -24,7 +24,6 @@
     <link href="{% static 'dashboard/css/image-style.css' %}" rel="stylesheet" type="text/css" />
 
     <!-- Plugins css -->
-    <link href="{% static 'dashboard/libs/dropzone/min/dropzone.min.css' %}" rel="stylesheet" type="text/css" />
     <link href="{% static 'dashboard/libs/dropify/css/dropify.min.css' %}" rel="stylesheet" type="text/css" />
     <link href="{% static 'dashboard/css/spectrum.min.css' %}" rel="stylesheet" type="text/css">
 
@@ -414,13 +413,13 @@
                                                 {% csrf_token %}
                                                 <input type="hidden" name="form" value="brand-settings">
                                                 <div class="mb-3">
-                                                    <label for="simpleinput" class="form-label">Business Name</label>
+                                                    <label for="business_name" class="form-label">Business Name</label>
                                                     <input type="text" id="business_name" class="form-control"
                                                         name="business_name"
                                                         value="{{ user_settings.business_name }}">
                                                 </div>
                                                 <div class="mb-3">
-                                                    <label for="simpleinput" class="form-label">Business Description</label>
+                                                    <label for="business_description" class="form-label">Business Description</label>
                                                     <input type="text" id="business_description" class="form-control"
                                                         name="business_description"
                                                         value="{{ user_settings.business_description }}">
@@ -462,7 +461,7 @@
                                         {% csrf_token %}
                                         <input type="hidden" name="form" value="branding">
                                         <div class="mb-3">
-                                            <label class="form-label">Primary Brand Color</label>
+                                            <label for="colorpicker-showinput-intial" class="form-label">Primary Brand Color</label>
                                             <input type="text" class="form-control" id="colorpicker-showinput-intial" name="brand_color" value="{{ user_settings.brand_color }}">
                                         </div>
                                         <div class="mb-3">
@@ -833,7 +832,7 @@
                     <div class="row">
                         <div class="col-md-6">
                             <script>document.write(new Date().getFullYear())</script> &copy; Copyright
-                            <a href="">Feadl.io</a>
+                            <a href="www.theenrightgroup.org" target="_blank"> Enright Group</a>
                         </div>
                         <div class="col-md-6">
                             <div class="text-md-end footer-links d-none d-sm-block">
@@ -867,8 +866,8 @@
     <script src="{% static 'dashboard/libs/flatpickr/flatpickr.min.js' %}"></script>
     <script src="{% static 'dashboard/libs/mohithg-switchery/switchery.min.js' %}"></script>
     <script src="{% static 'dashboard/libs/jquery-knob/jquery.knob.min.js' %}"></script>
-    <script src="{% static 'dashboard/js/pages/chart-sparkline.init.js' %}"></script>
     <script src="{% static 'dashboard/js/pages/form-pickers.init.js' %}"></script>
+    <script src="{% static 'dashboard/libs/dropify/js/dropify.min.js' %}"></script>
     <script src="{% static 'dashboard/js/app.min.js' %}"></script>
     <script src="{% static 'dashboard/js/pages/form-advanced.init.js' %}"></script>
     <script type="module" src="{% static 'dashboard/js/pages/brand-settings.init.js' %}"></script>
@@ -878,8 +877,6 @@
         userId: '{{ user_id }}',
     };
     </script>
-    <script src="{% static 'dashboard/libs/dropzone/min/dropzone.min.js' %}"></script>
-    <script src="{% static 'dashboard/libs/dropify/js/dropify.min.js' %}"></script>
 
 </body>
 

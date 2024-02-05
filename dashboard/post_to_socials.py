@@ -22,15 +22,12 @@ def get_instagram_user_id(facebook_page_id, access_token):
 
 def get_facebook_pages_and_groups(access_token):
     combined_data = []
-
     pages_endpoint = f"https://graph.facebook.com/v18.0/me/accounts?access_token={access_token}"
-
     try:
         pages_response = requests.get(pages_endpoint).json()
     except:
         pass
 
-    # Process pages
     if 'data' in pages_response and len(pages_response['data']) > 0:
         for page in pages_response['data']:
             combined_data.append({'access_token': page['access_token'], 'id': page['id'], 'name': page['name'], 'type': 'page'})
@@ -40,6 +37,41 @@ def get_facebook_pages_and_groups(access_token):
     else:
         print("No page or group data found in the response")
         return None, False
+
+def exchange_short_lived_token_for_long_lived(short_lived_access_token, app_id, app_secret):
+    # Endpoint for exchanging tokens
+    url = "https://graph.facebook.com/v17.0/oauth/access_token"
+    
+    # Parameters required for the exchange
+    params = {
+        "grant_type": "fb_exchange_token",
+        "client_id": app_id,
+        "client_secret": app_secret,
+        "fb_exchange_token": short_lived_access_token
+    }
+    
+    try:
+        response = requests.get(url, params=params)
+        response.raise_for_status()
+        data = response.json()
+        long_lived_access_token = data.get("access_token")
+        print(f"data: {data}")
+        print(f"Long-lived access token: {long_lived_access_token}")
+        return long_lived_access_token
+    except requests.RequestException as e:
+        # Handle any errors that occur during the request
+        return f"An error occurred: {e}"
+    
+def check_token_expiration(access_token, app_id, app_secret):
+    url = f"https://graph.facebook.com/debug_token"
+    params = {"input_token": access_token, "access_token": f"{app_id}|{app_secret}"}
+    try:
+        response = requests.get(url, params=params)
+        response.raise_for_status()
+        data = response.json()
+        return data.get("data", {})
+    except requests.RequestException as e:
+        return f"An error occurred: {e}"
     
 def get_instagram_username(instagram_business_account_id, access_token):
     try:
@@ -301,16 +333,22 @@ def post_to_facebook_page_feed(caption, image_url, page_id, page_access_token):
                 "caption": caption,
                 "access_token": page_access_token,
             }
-            files = {
-                'source': temp_file
-            }
+            files = {'source': temp_file}
 
             photo_response = requests.post(photo_endpoint, params=photo_params, files=files).json()
-            print("Successfully published post to Facebook: ", photo_response)
+            if 'error' in photo_response:
+                error_code = photo_response['error'].get('code')
+                error_message = photo_response['error'].get('message', 'Unknown error')
+                
+                # Specific handling for broken access token
+                if error_code == 190:
+                    raise Exception(f"Access token error: {error_message}")
+                else:
+                    raise Exception(f"Error posting to Facebook: {error_message}")
             return photo_response
     else:
-        print("Failed to download the image.")
-        return {"error": "Failed to download the image."}
+        error_msg = f"Failed to download the image. Status code: {response.status_code}"
+        raise Exception(error_msg)
 
 def post_text_to_facebook_page_feed(caption, page_id, page_access_token):
     # Endpoint to post text to the page's feed
@@ -322,11 +360,25 @@ def post_text_to_facebook_page_feed(caption, page_id, page_access_token):
         "access_token": page_access_token,
     }
 
-    # Make the post request and get the response
-    post_response = requests.post(post_endpoint, data=post_params).json()
+    try:
+        post_response = requests.post(post_endpoint, data=post_params).json()
 
-    # Print and return the response
-    print(post_response)
+        # Check for errors in the response
+        if post_response.get("error"):
+            error = post_response["error"]
+            print("Error posting to Facebook:", error)
+
+            if error.get("type") == "OAuthException":
+                error_message = "The access token is invalid or expired."
+                print(error_message)
+                raise Exception(error_message)
+                
+        else:
+            print("Post successful:", post_response)
+
+    except requests.exceptions.RequestException as e:
+        raise Exception(f"Request failed: {e}")
+
     return post_response
 
 def post_video_to_facebook_page_feed(caption, video_url, page_id, page_access_token):
@@ -412,13 +464,16 @@ def post_video_to_facebook_page_feed(caption, video_url, page_id, page_access_to
 
 
 if __name__ == "__main__":
-    access_token = "AQVrLItHPm2b47TPOPzxpPBZO_CQeaLEfoWkBuXe81HHwMm2ukAdQVjCntCdkNtI7Fw31J6zfSJ0S-Ou5pOiDn4GalcHhd0qGVn-IR6Uwquce8OjFEFuU9LKBStxz6_-GofMcyeWjdm9PKixzpcsP-BFqiyoewqvei3xLj-dwcpOvRC7E2RLH2PqBfpdsqNgmfkqO044dgH8vb6l1jm0ZP5ODxKvSpPsscWa0kUwOQxOL-r5fR_kD8Ly0s-r_FnXUeTeijqeFX8m_XI-oDcjThRYdkDmdW8mIA2XerXuI09AxlCGDpFp79H5kAtHByP3eyR7YDItYwPoSn11zOsXUJVrTRJs9g"
+    access_token = "EAADFIOXHRl4BO39vA5AZBRRpCje1GY7pqZAYSWI2rZAITcjqjzZA6EY73SpKIkXo1BJZCvX78YQK54qtEHKlqLZCAD6NtILGwStxQ2lTxKRiZBaZA5JmKZAEW2QoCaleZACi6krsMbg3ua1JRl35AHtZBNfQXXPE2PCdiEWhtutnWFFfbRXjSduA0pxrWdSqBxFxZAYqa2QGZAhzLk0OtfS721AJgRaLxZAQLCAkT9tIQdsvwRrrQ9xX6y7eXC"
     id = '17841431479346652'
     CAPTION = "Testing....."
     IMAGE_URL = "https://storage.googleapis.com/starter_web_app_bucket/testing.png"
     # print(get_instagram_user_id(id, access_token))
-    print(get_linkedin_account_name(access_token))
-    
+    # print(get_linkedin_account_name(access_token))
+    FACEBOOK_APP_ID = '216745084667486'
+    FACEBOOK_APP_SECRET = 'd96b709e954bb40082e95bc9fef4281b'
+    # print(exchange_short_lived_token_for_long_lived(access_token, FACEBOOK_APP_ID, FACEBOOK_APP_SECRET))
+    print(check_token_expiration(access_token, FACEBOOK_APP_ID, FACEBOOK_APP_SECRET))
     # print(post_to_instagram(access_token, IMAGE_URL, CAPTION, id))
     # facebook_id = '108830535605871'
     # linkedin_token = 'AQWkp5YGkAF8YMEV6mamPNbOG22-LoUIYLBEZzXXmetr91pZwFa6yhPRDtiZhFNIHzvmMpdagQ3jGXPf0EnR4gznpm6_RwExYWlXevEMXLgI59G08edmKFokBboJoZtHWirewepn0ozKVhi-r-yJKgBbNg9p3eUZwh3mhMBgAudHeeTWn6bXolA9VLr_CyY1RgHBxUAOjs_8pgNaC8X19TkKkblzPGmdsfCSTqqGL7upQKz6h4CmCJu51ddQoyo-ovfiJ_kD70PKsvBrtEgPzqUQHAAtp8bhjr3ttzU-PcG1r9BcaA1hCdQinEq5sc8Zf2O0W7WX1A1cwUfqrvUbWSAdz3uxRg'

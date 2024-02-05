@@ -4,12 +4,10 @@ const isFtueEnabled = userSettings.ftue === true;
 
 // FTUE CONTROLLER //
 
-if (isFtueEnabled) {
+if (!isFtueEnabled) {
     function ftue() {
-        var overlayContainer = document.getElementById('overlayContainer');
-        var submitButton = document.querySelector('#myForm button[type="submit"]');
+        var overlayContainer = document.getElementById('ftueOverlay');
         overlayContainer.style.display = 'flex';
-        submitButton.disabled = true;
     }
 
     var ftueFormContainer = document.getElementById('ftueFormContainer');
@@ -18,40 +16,38 @@ if (isFtueEnabled) {
     let currentAnimationIndex = 0;
     let isLoading = false;
 
-    if (isFtueEnabled) {
-        animatedCharacter.addEventListener('click', function() {
-            if (!isLoading) {
-                isLoading = true;
+    animatedCharacter.addEventListener('click', function() {
+        if (!isLoading) {
+            isLoading = true;
 
-                if (currentAnimationIndex < animationGifPaths.length - 1) {
+            if (currentAnimationIndex < animationGifPaths.length - 1) {
 
-                    const newImage = new Image();
-                    newImage.onload = function() {
-                        animatedCharacter.src = newImage.src;
-                        isLoading = false; 
-                    };
-                    currentAnimationIndex = (currentAnimationIndex + 1) % animationGifPaths.length;
-                    newImage.src = animationGifPaths[currentAnimationIndex];
-                } else {
-                    ftueFormContainer.style.display = 'block';
-                    var character = document.getElementById('animatedCharacter');
-                    character.style.display = 'none';
-                }
-                
+                const newImage = new Image();
+                newImage.onload = function() {
+                    animatedCharacter.src = newImage.src;
+                    isLoading = false; 
+                };
+                currentAnimationIndex = (currentAnimationIndex + 1) % animationGifPaths.length;
+                newImage.src = animationGifPaths[currentAnimationIndex];
+            } else {
+                ftueFormContainer.style.display = 'block';
+                var character = document.getElementById('animatedCharacter');
+                character.style.display = 'none';
             }
-        });
-        const preloadImages = () => {
-        const preloadImage = new Image();
-        preloadImage.onload = function() {
-            animatedCharacter.src = animationGifPaths[currentAnimationIndex];
-            ftueFormContainer.style.display = 'none';
+            
+        }
+    });
+    const preloadImages = () => {
+    const preloadImage = new Image();
+    preloadImage.onload = function() {
+        animatedCharacter.src = animationGifPaths[currentAnimationIndex];
+        ftueFormContainer.style.display = 'none';
 
-        };
-        preloadImage.src = animationGifPaths[currentAnimationIndex];
-        };
+    };
+    preloadImage.src = animationGifPaths[currentAnimationIndex];
+    };
 
-        window.addEventListener('load', preloadImages);
-    }
+    window.addEventListener('load', preloadImages);
 
     window.onload = function() {
         ftue();
