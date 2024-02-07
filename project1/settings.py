@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.sitemaps",
     "app1",
     "dashboard",
 ]
@@ -92,7 +93,6 @@ TEMPLATES = [
         },
     },
 ]
-
 
 WSGI_APPLICATION = "project1.wsgi.application"
 
@@ -151,7 +151,6 @@ GS_GENERATE_CAPTIONS_URL = config('GS_GENERATE_CAPTIONS_URL')
 GS_GENERATE_AI_IMAGE_URL = config('GS_GENERATE_AI_IMAGE_URL')
 GS_GENERATE_STOCK_URL = config('GS_GENERATE_STOCK_URL')
 GS_DALLE3 = config('GS_DALLE3')
-
 
 EMAIL_BACKEND = config('EMAIL_BACKEND')
 EMAIL_HOST = config('EMAIL_HOST')

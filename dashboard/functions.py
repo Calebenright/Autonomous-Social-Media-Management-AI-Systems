@@ -88,7 +88,7 @@ def create_background_image_description (key):
 
 def create_stock_image_description (key):
     client = OpenAI(api_key=config('OPENAI_API_KEY'))
-    prompt = f"Choose one of these tags: [{key}]. Then use the tag to create a description for a stock image or a realistic photo that is based on it. the image should have a clear subject or element. It should be simple."
+    prompt = f"Choose one of these tags: [{key}]. Then use the tag to create a description for a stock image or a realistic photo that is based on it. the image should have a clear subject or element. It should be simple and should not have anything that could be flagged an innapropraite or a violation."
     response = client.chat.completions.create(
             model="gpt-3.5-turbo-1106",
             messages=[
@@ -327,7 +327,6 @@ def delete_from_google(public_url, bucket_credentials):
     bucket = client.bucket(bucket_name)
     blob = bucket.blob(object_name)
     blob.delete()
-    print(f"The file {object_name} was deleted from bucket {bucket_name}.")
 
 def reupload_gcs_image(source_url, new_folder):
     path_parts = source_url.replace("https://storage.googleapis.com/", "").split("/")
@@ -341,7 +340,6 @@ def reupload_gcs_image(source_url, new_folder):
     source_bucket.copy_blob(source_blob, source_bucket, destination_blob_name)
     destination_blob.make_public()
     new_image_url = destination_blob.public_url
-    print(f"Blob Name: {destination_blob_name}")
     return new_image_url
 
 def create_caption (business_description, business_name):

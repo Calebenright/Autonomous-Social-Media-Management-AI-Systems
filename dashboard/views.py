@@ -855,9 +855,11 @@ def post_creator(request):
                         else:
                             entered_tags = request.POST.get('tags')
                             tags = entered_tags.split(',')
+                            print(tags)
                             request.session['tags'] = tags
                             key = tags
                             prompt_string = create_stock_image_description(key)
+                            print(prompt_string)
                             url = ''
                             try:
                                 payload = {
@@ -954,7 +956,6 @@ def post_creator(request):
                     'images_generated': images_generated,
                     'progress': progress
                 }
-            print(progress)
             user_settings_ref.set(firestore_data, merge=True)
             user_settings_doc = user_settings_ref.get()
             user_settings = user_settings_doc.to_dict()

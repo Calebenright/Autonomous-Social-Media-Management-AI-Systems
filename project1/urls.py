@@ -20,11 +20,19 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.conf.urls import handler500, handler404
 from dashboard.views import error500, error404
+from django.contrib import sitemaps
+from django.contrib.sitemaps.views import sitemap
+from app1.sitemaps import StaticViewSitemap
+
+sitemaps = {
+    'static': StaticViewSitemap,
+}
 
 urlpatterns = [
     path("feadliodev/", admin.site.urls),
     path("", include("app1.urls")),
     path("", include('dashboard.urls')),
+    path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='django.contrib.sitemaps.views.sitemap'),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 handler500 = error500

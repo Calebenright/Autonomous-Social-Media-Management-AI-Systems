@@ -80,18 +80,18 @@ const tags = tagsArray;
 const randomTag = tags[Math.floor(Math.random() * tags.length)];
 
 document.addEventListener('DOMContentLoaded', () => {
-
-    let previousProgress = null;
+    let previousProgress = 0;
+    let progressHasStarted = false;
     document.getElementById('generatePostButton').disabled = true;
 
     const unsubscribe = onSnapshot(statusDocRef, (docSnapshot) => {
         if (docSnapshot.exists()) {
             const { progress, next_image_url: nextImage } = docSnapshot.data();
 
-            // Only proceed if progress has changed
             if (progress !== previousProgress) {
                 console.log('snapped');
                 console.log('progress: ', progress);
+                progressHasStarted = true; // Update flag when progress changes
 
                 if (progress === 90) {
                     console.log('run progress graphic');
@@ -108,15 +108,28 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
 
-                // Update previousProgress with the current progress
                 previousProgress = progress;
             }
         }
     }, (error) => {
         console.error('Error in realtime listener:', error);
+        displayError();
     });
 
+    setTimeout(() => {
+        if (!progressHasStarted) {
+            console.error('Progress stuck at 0.');
+            displayError('An unknown error occurred with our AI. Please try again.');
+        }
+    }, 30000);
+
+    function displayError(errorMessage = 'An unknown error occurred with our AI. Please try again.') {
+        loadedImage.src = 'https://storage.googleapis.com/starter_web_app_bucket/assets/error.png';
+        document.getElementById('generatePostButton').disabled = false;
+        displayErrorMessage(errorMessage);
+    }
 });
+
 
 document.addEventListener('DOMContentLoaded', () => {
     getDoc(statusDocRef).then((doc) => {
@@ -211,14 +224,15 @@ function displayErrorMessage(errorMsg) {
     var errorMessageLi = document.createElement('li');
     errorMessageLi.className = 'danger';
     errorMessageLi.setAttribute('data-message-id', 'ajaxError');
+    var textNode = document.createTextNode(errorMsg); // Create text node with error message
+    errorMessageLi.appendChild(textNode); // Append the text node to the li element
     var closeButton = document.createElement('span');
     closeButton.className = 'closebtn';
     closeButton.innerHTML = '&times;';
-    closeButton.onclick = function() { closeMessage(this); };
+    closeButton.onclick = function() { this.parentElement.style.display = 'none'; }; // Corrected to hide the parent li element
     errorMessageLi.appendChild(closeButton);
     errorMessagesContainer.querySelector('.messages').appendChild(errorMessageLi);
 }
-
 
 tagInput.addEventListener('keydown', function(event) {
 if (event.key === 'Enter' || event.key === ',') {

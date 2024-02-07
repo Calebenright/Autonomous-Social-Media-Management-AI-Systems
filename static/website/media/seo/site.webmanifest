@@ -1,0 +1,20 @@
+{
+    "short_name": "Feadlio",
+    "name": "Feadlio - AI-Driven Marketing",
+    "icons": [
+      {
+        "src": "/static/website/media/icon.png",
+        "type": "image/png",
+        "sizes": "192x192"
+      },
+      {
+        "src": "/static/website/media/icon.png",
+        "type": "image/png",
+        "sizes": "512x512"
+      }
+    ],
+    "start_url": "/",
+    "background_color": "#ffffff",
+    "display": "standalone",
+    "theme_color": "#24263A"
+  }  

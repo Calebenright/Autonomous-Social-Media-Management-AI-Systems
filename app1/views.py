@@ -15,8 +15,41 @@ def index(request):
 def privacy_policy(request):
     return render(request, 'privacy_policy.html')
 
+def pricing(request):
+    return render(request, 'pricing.html')
+
 def terms_of_service(request):
     return render(request, 'terms_of_service.html')
+
+def get_articles(request):
+    try:
+        db = firestore.client()
+        articles_ref = db.collection('articles')
+        docs = articles_ref.stream()
+        articles = [doc.to_dict() for doc in docs]
+        return render(request, 'article_list.html', {'articles': articles})
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return render(request, 'article_list.html', {'error': 'Failed to fetch articles.'})
+
+def article_detail(request, article_slug):
+    try:
+        db = firestore.client()
+        # Assuming each article has a 'slug' field
+        article_ref = db.collection('articles').where('slug', '==', article_slug).limit(1)
+        docs = article_ref.stream()
+
+        article = next(docs, None)
+        if article is not None:
+            article_data = article.to_dict()
+        else:
+            # Article not found
+            article_data = None
+
+        return render(request, 'articles/article_details.html', {'article': article_data})
+    except Exception as e:
+        print(f"An error occurred fetching article {article_slug}: {e}")
+        return render(request, 'articles/article_detail.html', {'error': 'Failed to fetch the article.'})
 
 def graphic_builder(request):
     return render(request, 'graphic_builder.html')
