@@ -24,7 +24,7 @@ def terms_of_service(request):
 def get_articles(request):
     try:
         db = firestore.client()
-        articles_ref = db.collection('articles')
+        articles_ref = db.collection('articles').order_by('publishedDate', direction=firestore.Query.DESCENDING)
         docs = articles_ref.stream()
         articles = [doc.to_dict() for doc in docs]
         return render(request, 'article_list.html', {'articles': articles})

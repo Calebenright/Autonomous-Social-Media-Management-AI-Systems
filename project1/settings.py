@@ -16,6 +16,9 @@ from decouple import config
 import firebase_admin
 from firebase_admin import credentials
 from django.contrib.messages import constants as messages
+import google.cloud.logging
+from google.cloud.logging.handlers import CloudLoggingHandler, setup_logging
+import logging
 
 # # If using GCP SECRETS_MANAGER
 # from project1.secrets_manager import get_secret_value
@@ -42,7 +45,7 @@ AUTHENTICATION_BACKENDS = [
 # FOR DEVELOPMENT
 SECRET_KEY = config('DJANGO_KEY')
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'starter-web-app-389316.uc.r.appspot.com', 'getfeed.info', 'www.getfeed.info', 'feadl.io', 'www.feadl.io']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'starter-web-app-389316.uc.r.appspot.com', 'getfeed.info', 'www.getfeed.info', 'feadl.io', 'www.feadl.io', '.starter-web-app-389316.uc.r.appspot.com']
 
 MESSAGE_TAGS = {
     messages.DEBUG: 'secondary',
@@ -164,8 +167,8 @@ STRIPE_PUBLIC_KEY = config('STRIPE_PUBLIC_KEY')
 STRIPE_SECRET_KEY = config('STRIPE_SECRET_KEY')
 STRIPE_PRICE_ID = config('STRIPE_PRICE_ID')
 
-LINKEDIN_CLIENT_ID = config('LINKEDIN_CLIENT_ID')
-LINKEDIN_CLIENT_SECRET = config('LINKEDIN_CLIENT_SECRET')
+LINKEDIN_CLIENT_ID_BUSINESS = config('LINKEDIN_CLIENT_ID_BUSINESS')
+LINKEDIN_CLIENT_SECRET_BUSINESS = config('LINKEDIN_CLIENT_SECRET_BUSINESS')
 
 GOOGLE_APP_ID = config('GOOGLE_APP_ID')
 GOOGLE_APP_SECRET = config('GOOGLE_APP_SECRET')
@@ -174,10 +177,48 @@ FACEBOOK_APP_ID = config('FACEBOOK_APP_ID')
 FACEBOOK_APP_SECRET = config('FACEBOOK_APP_SECRET')
 
 OPENAI_API_KEY = config('OPENAI_API_KEY')
-REDIRECT_URI = config('REDIRECT_URI')
 
 MASTER_EMAIL = config('MASTER_EMAIL')
 MASTER_PASSWORD = config('MASTER_PASSWORD')
+
+CRON_TOKEN = config('CRON_TOKEN')
+API_TOKEN = config('API_TOKEN')
+
+ELAINE_GENERATE_IMAGE = config('ELAINE_GENERATE_IMAGE')
+ELAINE_AUTOMATE_QUEUE = config('ELAINE_AUTOMATE_QUEUE')
+
+## -------------------- GOOGLE LOGGING ------------------- ##
+
+# # Instantiates a client
+# client = google.cloud.logging.Client()
+
+# # Connects the logger to the root logging handler; by default this captures
+# # all logs at INFO level and higher
+# handler = CloudLoggingHandler(client)
+# logging.getLogger().setLevel(logging.INFO)
+# logging.getLogger().addHandler(handler)
+
+# # You can also configure Django to use Google Cloud Logging for its logs
+# LOGGING = {
+#     'version': 1,
+#     'disable_existing_loggers': False,
+#     'handlers': {
+#         'google_cloud': {
+#             'level': 'INFO',
+#             'class': 'google.cloud.logging.handlers.CloudLoggingHandler',
+#             'client': client,
+#         },
+#     },
+#     'loggers': {
+#         '': {  # This configures logging for the root logger, affecting all logs
+#             'handlers': ['google_cloud'],
+#             'level': 'INFO',
+#             'propagate': True,
+#         },
+#     },
+# }
+
+## -------------------- GOOGLE LOGGING ------------------- ##
 
 if config('ENVIRONMENT') == 'production':
     # ##------------ DEPLOY -------------##
@@ -194,6 +235,7 @@ if config('ENVIRONMENT') == 'production':
     SECURE_HSTS_PRELOAD = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
     X_FRAME_OPTIONS = 'DENY'
+    REDIRECT_URI = config('REDIRECT_URI')
 else:
     ##------------ DEV -------------##
     DEBUG = True
@@ -201,3 +243,4 @@ else:
     STRIPE_CANCEL_URL = config('STRIPE_DEV_CANCEL_URL')
     STRIPE_SUCCESS_URL = config('STRIPE_DEV_SUCCESS_URL')
     STRIPE_WEBHOOK_URL = config('STRIPE_DEV_WEBHOOK_URL')
+    REDIRECT_URI = config('DEV_REDIRECT_URI')

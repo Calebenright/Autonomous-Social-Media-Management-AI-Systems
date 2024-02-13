@@ -24,4 +24,9 @@ urlpatterns = [
     path('unlink/', views.unlink, name='unlink'),
     path('logout_view/', views.logout_view, name='logout_view'),
     path('process_page_selection/', views.process_page_selection, name='process_page_selection'),
+    path('elaine_generate_post/', views.elaine_generate_post, name='elaine_generate_post'),
+    path('elaine_email/', views.elaine_email, name='elaine_email'),
+    path('elaine_functions/', views.elaine_functions, name='elaine_functions'),
+    path('feadlio_automatic_manager_task_creator/', views.feadlio_automatic_manager_task_creator, name='feadlio_automatic_manager_task_creator'),
+    path('cron_delete_images_in_gcp_folder/', views.cron_delete_images_in_gcp_folder, name='cron_delete_images_in_gcp_folder'),
 ]

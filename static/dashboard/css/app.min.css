@@ -2727,7 +2727,9 @@ progress {
     -webkit-appearance: none;
     appearance: none;
     border-radius: .2rem;
-    transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out
+    transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+    resize: none; /* Prevents manual resize */
+    overflow: hidden;
 }
 
 .form-control-constrain {
@@ -25135,7 +25137,7 @@ body[data-layout-color=dark] .datepicker tfoot tr th:hover {
     height: auto;
 }
 
-#loading-overlay {
+#loading-overlay, .backdrop {
     display: none;
     position: fixed;
     top: 0;
@@ -25286,19 +25288,6 @@ body[data-layout-color=dark] .datepicker tfoot tr th:hover {
 .center-all-cards {
     justify-content: center;
     align-items: center;
-}
-
-#loading-overlay {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(255, 255, 255, 0.8);
-    justify-content: center;
-    align-items: center;
-    z-index: 9999;
 }
 
 .tag-input-container {
@@ -25684,6 +25673,19 @@ ul.messages li {
     z-index: 9999; /* Sit on top */
 }
 
+#linkedinPopup  {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+    border-radius: 10px;
+    z-index: 9999; /* Sit on top */
+}
+
 /* Popup Content */
 .popup-content {
     background-color: #fefefe;
@@ -25734,4 +25736,72 @@ ul.messages li {
 .popup-content p,
 .popup-content ol {
     text-align: left;
+}
+
+.backdrop {
+    display: none; /* Initially hidden */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent */
+    z-index: 99; /* Ensures it's behind the textarea */
+}
+
+/* Expanded textarea style */
+.expanded {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    width: 50%; /* Adjust based on preference */
+    min-height: 300px; /* Adjust height to fit content */
+    z-index: 100; /* Ensures it's above the backdrop */
+    transform: translate(-50%, -50%); /* Center it */
+    resize: vertical; /* Allow vertical resize only */
+}
+
+.analyzing-loader p {
+    text-align: center;
+    font-size: 14px;
+    margin-top: 5px;
+}
+
+.circular-loader {
+    animation: rotate 2s linear infinite;
+    height: 25px;
+    width: 25px;
+}
+
+.path {
+    stroke: #ffffff;
+    stroke-linecap: round;
+    animation: dash 1.5s ease-in-out infinite;
+}
+
+.chatbot-img {
+    max-height: 300px;
+    margin: 20px 10px;
+    border-radius: 10px;
+}
+
+@keyframes rotate {
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes dash {
+    0% {
+        stroke-dasharray: 1, 150;
+        stroke-dashoffset: 0;
+    }
+    50% {
+        stroke-dasharray: 90, 150;
+        stroke-dashoffset: -35;
+    }
+    100% {
+        stroke-dasharray: 90, 150;
+        stroke-dashoffset: -124;
+    }
 }

@@ -148,3 +148,32 @@ tagForm.addEventListener('submit', function (event) {
 });
 
 updateTagBubbles();
+
+
+// Description Resize //
+
+document.addEventListener('DOMContentLoaded', function() {
+    const textarea = document.getElementById('business_description');
+    const backdrop = document.getElementById('backdrop');
+
+    // Function to expand the textarea
+    function expandTextarea() {
+        textarea.classList.add('expanded');
+        backdrop.style.display = 'block'; // Show the backdrop
+        // Adjust the height based on content, minimum height to be 38px
+        textarea.style.height = '38px';
+        textarea.style.height = textarea.scrollHeight + 'px';
+    }
+
+    // Function to collapse the textarea
+    function collapseTextarea() {
+        textarea.classList.remove('expanded');
+        backdrop.style.display = 'none'; // Hide the backdrop
+        textarea.style.height = '38px'; // Reset to single line height
+    }
+
+    // Expand textarea on focus or click
+    textarea.addEventListener('focus', expandTextarea);
+    // Collapse the textarea when the backdrop is clicked
+    backdrop.addEventListener('click', collapseTextarea);
+});

@@ -62,6 +62,7 @@ await getDocs(eventsCollectionRef)
         this.$btnDeleteEvent = l("#btn-delete-event"),
         this.$btnSaveEvent = l("#btn-save-event"),
         this.$modalTitle = l("#modal-title"),
+        this.$time = l("#time"),
         this.$facebook = l("#facebook"),
         this.$linkedin = l("#linkedin"),
         this.$instagram = l("#instagram"),
@@ -84,6 +85,10 @@ await getDocs(eventsCollectionRef)
         this.$selectedEvent = e.event;
         const caption = e.event.extendedProps.caption || "";
         const img = e.event.extendedProps.image_url || "https://storage.googleapis.com/starter_web_app_bucket/assets/ScheduleTextPostCalendarImagePlaceholder.png";
+        const time = e.event.startStr
+        const formattedTime = moment(time).format('MMMM D, YYYY [at] h:mm:ss A [UTC]Z');
+        console.log(formattedTime); 
+        this.$time.text(formattedTime);
         const socialElements = {
             'facebook': this.$facebook,
             'instagram': this.$instagram,
@@ -92,7 +97,6 @@ await getDocs(eventsCollectionRef)
         this.$facebook.hide();
         this.$instagram.hide();
         this.$linkedin.hide();
-        
         const socials = e.event.extendedProps.socials || [];
         for (let social of socials) {
             const element = socialElements[social];

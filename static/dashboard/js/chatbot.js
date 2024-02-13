@@ -15,8 +15,27 @@ document.addEventListener('DOMContentLoaded', function() {
     var csrfToken = getCookie('csrftoken');
 
     function convertMarkdownToHtml(markdownText) {
+        // Create a new renderer
+        const renderer = new marked.Renderer();
+    
+        // Override the image renderer method
+        renderer.image = function(href, title, text) {
+            // Use the original image renderer but add a class to the img element
+            let imageHtml = marked.Renderer.prototype.image.call(this, href, title, text);
+            // Add your class by manipulating the HTML string
+            imageHtml = imageHtml.replace('<img', '<img class="chatbot-img"');
+            return imageHtml;
+        };
+    
+        // Set the options, including the custom renderer
+        marked.setOptions({
+            renderer: renderer
+        });
+    
+        // Convert the markdown to HTML using the customized renderer
         return marked.parse(markdownText);
-    }    
+    }
+    
 
     if (storedChatMessages && storedChatMessages.length > 0) {
         storedChatMessages.forEach(function(message) {
@@ -114,9 +133,23 @@ document.addEventListener('DOMContentLoaded', function() {
                 success: function(data) {
                     if (pollCount < maxPollAttempts) {
                         if (data.status === 'completed') {
+                            removeAnalyzingLoader();
                             removeLoadingMessage();
                             appendMessage(data.botMessage, botAvatar);
-                            pollCount = 0; 
+                            pollCount = 0;
+                        } else if (data.status === 'requires_action') {
+                            removeLoadingMessage();
+                            console.log(data)
+                            appendMessage('', botAvatar, false, true);
+                            if (data.function_name === 'get_ai_post' || data.function_name === 'get_stock_post') {
+                                updateContentFromAjax(data.url, data.caption)
+                            } else if (data.function_name === 'get_ai_image' || data.function_name === 'get_stock_image') {
+                                updateContentFromAjax(data.url, null)
+                            } else if (data.function_name === 'get_caption' || data.function_name === 'get_text_post') {
+                                updateContentFromAjax(null, data.caption)
+                            }
+                            pollCount++;
+                            setTimeout(pollForResponse, pollingInterval);
                         } else {
                             pollCount++;
                             setTimeout(pollForResponse, pollingInterval);
@@ -141,12 +174,12 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    function appendMessage(text, avatarSrc, isLoading = false) {
+    function appendMessage(text, avatarSrc, isLoading = false, isAnalyzing = false) {
         let listItem = document.createElement('li');
         listItem.className = avatarSrc === userLogo ? 'odd' : '';
         if (avatarSrc !== userLogo) {
             text = convertMarkdownToHtml(text);
-        }    
+        }
         if (isLoading) {
             listItem.innerHTML = 
                 '<div class="message-list">' +
@@ -159,6 +192,23 @@ document.addEventListener('DOMContentLoaded', function() {
                                 '<div class="loader-dot"></div>' +
                                 '<div class="loader-dot"></div>' +
                                 '<div class="loader-dot"></div>' +
+                            '</div>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>';
+        } else if (isAnalyzing) {
+            listItem.innerHTML =
+                '<div class="message-list">' +
+                    '<div class="chat-avatar">' +
+                        '<img src="' + avatarSrc + '" alt="">' +
+                    '</div>' +
+                    '<div class="conversation-text">' +
+                        '<div class="ctext-wrap">' +
+                            '<div class="analyzing-loader">' +
+                                '<svg class="circular-loader" viewBox="25 25 50 50">' +
+                                    '<circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="2" stroke-miterlimit="10"/>' +
+                                '</svg>' +
+                                '<p>Analyzing...</p>' +
                             '</div>' +
                         '</div>' +
                     '</div>' +
@@ -187,4 +237,61 @@ document.addEventListener('DOMContentLoaded', function() {
             loadingMessages[0].parentNode.parentNode.parentNode.remove();
         }
     }
+
+    function removeAnalyzingLoader() {
+        let analyzingLoader = messageList.getElementsByClassName('analyzing-loader');
+        while (analyzingLoader.length > 0) {
+            analyzingLoader[0].parentNode.parentNode.parentNode.remove();
+        }
+    }
+
+    function updateContentFromAjax(url, caption) {
+        const dynamicContent = document.getElementById('dynamicContent');
+        let imageElement = document.getElementById('dynamicImage');
+        
+        // Clear previous dynamic contents (if any)
+        dynamicContent.innerHTML = '';
+
+        // If the image element does not exist, create it
+        if (!imageElement && url) {
+            imageElement = document.createElement('img');
+            imageElement.id = 'dynamicImage';
+            imageElement.style.width = '55%'; 
+            imageElement.alt = "Dynamic Image";
+            imageElement.className = 'dynamic-img';
+        }
+
+        // Set the image source
+        if (url) {
+            imageElement.src = url;
+            
+            // Append the image and additional elements like breaks
+            dynamicContent.appendChild(imageElement);
+            dynamicContent.appendChild(document.createElement('br'));
+            dynamicContent.appendChild(document.createElement('br'));
+        }
+    
+        if (caption) {
+            // Add the caption as a contenteditable div instead of an input element
+            const captionWrapper = document.createElement('div');
+            captionWrapper.className = 'text-box-wrapper';
+            const captionElement = document.createElement('div');
+            captionElement.id = 'prompt';
+            captionElement.contentEditable = false;
+            captionElement.className = 'text-box';
+            captionElement.textContent = caption; // Set the caption text
+            captionWrapper.appendChild(captionElement);
+            dynamicContent.appendChild(captionWrapper);
+            dynamicContent.appendChild(document.createElement('br'));
+        }
+    
+        // Create and add the "Post to Feed" button
+        // const postButton = document.createElement('button');
+        // postButton.setAttribute('type', 'button');
+        // postButton.className = 'btn btn-gold rounded-pill w-md waves-effect waves-light mb-3';
+        // postButton.innerHTML = '<i class="mdi mdi-grid"></i> Post to Feed!';
+        // postButton.onclick = function() { showSpinner(); };
+        // dynamicContent.appendChild(postButton);
+    }
+    
 });

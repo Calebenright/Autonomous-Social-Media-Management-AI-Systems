@@ -37,7 +37,6 @@ def create_text_post(select, business_description, business_name):
     f"Generate copy for a detailed social media post for the business named [BUSINESS NAME = {business_name}] and has a business description [BUSINESS DESCRIPTION = {business_description}].",
     f"Generate copy for a business-toned social media post for the business named [BUSINESS NAME = {business_name}] and has a business description [BUSINESS DESCRIPTION = {business_description}].",
     f"Generate copy for a professional-toned social media post for the business named [BUSINESS NAME = {business_name}] and has a business description [BUSINESS DESCRIPTION = {business_description}].",
-    f"Generate copy for a goofy-toned social media post for the business named [BUSINESS NAME = {business_name}] and has a business description [BUSINESS DESCRIPTION = {business_description}].",
     f"Generate copy for a fun-toned social media post for the business named [BUSINESS NAME = {business_name}] and has a business description [BUSINESS DESCRIPTION = {business_description}].",
     ]
     prompt = random.choice(prompts)
@@ -106,6 +105,21 @@ def create_stock_image_description (key):
         )
     original_string = response.choices[0].message.content.strip()
     return original_string
+
+def get_image(desc):
+    client = OpenAI(api_key=config('OPENAI_API_KEY'))
+
+    response = client.images.generate(
+        model="dall-e-3",
+        prompt=desc,
+        size="1024x1024",
+        quality="standard",
+        n=1,
+    )
+
+    image_url = response.data[0].url
+    return image_url
+
 
 def add_stock_tags(tags, stock_images, bucket_name, bucket_credentials, user_folder_path):
     credentials = service_account.Credentials.from_service_account_file(bucket_credentials)
@@ -485,6 +499,30 @@ def create_stock_post (key):
 
     return image_io
 
+def create_unsplash_post (key):
+    ## CREATE IMAGE USING Unsplash
+    base_url = 'https://api.unsplash.com/'
+    headers = {
+        'Authorization': f'Client-ID {UNSPLASH_API_KEY}',
+    }
+    params = {
+        'query': key,
+        'count': 1,
+    }
+    response = requests.get(f'{base_url}photos/random', headers=headers, params=params)
+    response.raise_for_status()  
+    data = response.json()
+    for photo in data:
+        image_url = photo['urls']['regular']
+    image_response = requests.get(image_url)
+    image_data = image_response.content
+    img = Image.open(BytesIO(image_data))
+    image_io = BytesIO()
+    img.save(image_io, format='JPEG')
+    image_io.seek(0) 
+
+    return image_io
+
 def create_call_to_action(business_description, business_name, primary_color, colors_as_array, img_url, random_int, logo_path, isLogo):
     bg = generate_image_from_params(str(random_int), business_description, business_name, primary_color, colors_as_array, img_url, logo_path, 'graphic', isLogo)
     image_io = BytesIO()
@@ -798,3 +836,70 @@ def convert_color_to_hex(color):
             return hex_color
 
     return "#000000"
+
+def find_least_filled_day_with_largest_gap(existing_event_times):
+    # Analyze the next 7 days from now
+    start_date = datetime.now()
+    day_counts = {start_date.date() + timedelta(days=i): 0 for i in range(7)}
+    
+    # Convert existing event times to datetime objects and count events per day for the next 7 days
+    event_datetimes = [datetime.fromisoformat(time) for time in existing_event_times if time]
+    for event_datetime in event_datetimes:
+        event_date = event_datetime.date()
+        if event_date in day_counts:
+            day_counts[event_date] += 1
+
+    # Find the day(s) with the minimum number of events
+    min_events = min(day_counts.values())
+    least_filled_days = [date for date, count in day_counts.items() if count == min_events]
+
+    # If all days are equally filled or have events, find the day with the largest gap between events
+    if len(least_filled_days) == len(day_counts) or all(value > 0 for value in day_counts.values()):
+        events_by_day = {day: [] for day in day_counts}
+        for event_datetime in event_datetimes:
+            day = event_datetime.date()
+            if day in events_by_day:
+                events_by_day[day].append(event_datetime)
+
+        largest_gaps = {day: 0 for day in day_counts}
+        for day, events in events_by_day.items():
+            if len(events) > 1:
+                sorted_events = sorted(events)
+                for i in range(len(sorted_events) - 1):
+                    current_gap = (sorted_events[i+1] - sorted_events[i]).total_seconds()
+                    if current_gap > largest_gaps[day]:
+                        largest_gaps[day] = current_gap
+
+        # Choose the day with the largest gap, if there are gaps calculated
+        if any(largest_gaps.values()):
+            chosen_day = max(largest_gaps, key=largest_gaps.get)
+        else:
+            # If no gaps found (e.g., each day has only one event), randomly pick one of the least filled days
+            chosen_day = random.choice(least_filled_days)
+    else:
+        # Randomly pick one of the least filled days if not all days are equally filled
+        chosen_day = random.choice(least_filled_days)
+
+    return chosen_day
+
+def create_email (array, business_description, business_name):
+    client = OpenAI(api_key=config('OPENAI_API_KEY'))
+    prompt = f"You are a social media manager for a company called {business_name} with a description ({business_description}). You need to send your boss a weekly update for the 3 posts you just created and scheduled. posts = [{array}]."
+    response = client.chat.completions.create(
+            model="gpt-3.5-turbo-1106",
+            messages=[
+                {
+                "role": "system",
+                "content": "Format it as an email"
+                },
+                {
+                "role": "user",
+                "content": prompt
+                }
+            ],
+            temperature=1,
+            max_tokens=500
+        )
+    original_string = response.choices[0].message.content.strip()
+    email = original_string.strip('"')
+    return email

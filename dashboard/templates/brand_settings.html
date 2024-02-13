@@ -384,7 +384,19 @@
                     </div>
                 </div>
                 
-
+                <div id="linkedinPopup" style="display:none;">
+                    <div class="popup-content">
+                        <span class="close-button" onclick="hideLinkedinPopup()">&times;</span>
+                        <h3>To Connect to LinkedIn</h3>
+                        <p>Select whether you want to connect a personal or business LinkedIn profile.</p>
+                        
+                        <h4>Select Your Profile Type</h4>
+                        <button onclick="submitLinkedinForm('personal')" class="popup-button">Personal Profile</button>
+                        <button onclick="submitLinkedinForm('business')" class="popup-button">Business Profile</button>
+                        <button onclick="hideLinkedinPopup()" class="popup-button cancel">Cancel</button>
+                    </div>
+                </div>
+                
                 <div class="container-fluid">
                     <div class="row">
                         {% if messages %}
@@ -420,9 +432,7 @@
                                                 </div>
                                                 <div class="mb-3">
                                                     <label for="business_description" class="form-label">Business Description</label>
-                                                    <input type="text" id="business_description" class="form-control"
-                                                        name="business_description"
-                                                        value="{{ user_settings.business_description }}">
+                                                    <textarea id="business_description" class="form-control" name="business_description" style="height: 30px;">{{ user_settings.business_description }}</textarea>
                                                 </div>
                                                 
                                                 <!-- <div class="mb-3">
@@ -639,20 +649,22 @@
                                     <br>
                                     <form id="linkedin" method="post" action="{% url 'all_auth' %}" enctype="multipart/form-data">
                                         {% csrf_token %}
-                                        <input type="hidden" name="form" value="formLinkedin">
-                                        <button class="social-button">
+                                        <input type="hidden" name="form" id="formType" value="">
+                                        <button type="button" class="social-button" id="connectLinkedin">
                                             <div class="d-flex align-items-center">
                                                 <div class="avatar-sm me-3 flex-shrink-0">
                                                     <img src="{% static 'dashboard/images/icon/linkedin_logo.png' %}" class="img-fluid rounded-circle" alt="LinkedIn">
                                                 </div>
                                                 <div class="flex-grow-1 overflow-hidden">
                                                     <h5 class="mt-0 mb-1"> LinkedIn</h5>
-                                                    <small class="text-primary"><b>Coming Soon</b></small>
-                                                    <!-- {% if user_settings.linkedin_token %}
+                                                    {% if user_settings.linkedin_token %}
+                                                        {% if user_settings.linkedin_name %}
+                                                        <small class="text-primary"><b>{{ user_settings.linkedin_name }}</b></small><br>
+                                                        {% endif %}
                                                     <small class="text-primary"><b>Linked</b></small>
                                                     {% else %}
                                                     <small class="text-primary"><b>Not Linked</b></small>
-                                                    {% endif %} -->
+                                                    {% endif %}
                                                 </div>
                                                 {% if user_settings.linkedin_token %}
                                                 <input type="hidden" name="provider" value="linkedin">
@@ -660,21 +672,39 @@
                                                 {% endif %}
                                             </div>
                                         </button>
-                                        {% if user_settings.linkedin_token %}
                                         <script>
-                                            var linkedinForm = document.getElementById('linkedin');
-                                            var unlinkUrl = "{% url 'unlink' %}";
+                                            function showLinkedinPopup() {
+                                                document.getElementById('linkedinPopup').style.display = 'flex';
+                                            }
 
-                                            linkedinForm.addEventListener('submit', function(event) {
-                                                event.preventDefault();
-                                                var userConfirmed = confirm("Are you sure you want to unlink?");
-                                                if (userConfirmed) {
-                                                    linkedinForm.action = unlinkUrl;
-                                                    linkedinForm.submit();
+                                            function hideLinkedinPopup() {
+                                                document.getElementById('linkedinPopup').style.display = 'none';
+                                            }
+
+                                            function submitLinkedinForm(profileType) {
+                                                const formTypeInput = document.getElementById('formType');
+                                                formTypeInput.value = profileType === 'personal' ? 'formLinkedinPersonal' : 'formLinkedinBusiness';
+                                                hideLinkedinPopup();
+                                                document.getElementById('linkedin').submit();
+                                            }
+
+                                            document.getElementById('connectLinkedin').addEventListener('click', function(event) {
+                                                
+                                                if (!{% if user_settings.linkedin_token %}true{% else %}false{% endif %}) {
+                                                    showLinkedinPopup();
+                                                } else {
+                                                    // Handle unlink confirmation
+                                                    event.preventDefault();
+                                                    var userConfirmed = confirm("Are you sure you want to unlink?");
+                                                    if (userConfirmed) {
+                                                        // Proceed with unlinking
+                                                        var linkedinForm = document.getElementById('linkedin');
+                                                        linkedinForm.action = "{% url 'unlink' %}";
+                                                        linkedinForm.submit();
+                                                    }
                                                 }
                                             });
                                         </script>
-                                        {% endif %}
                                     </form>
                                     <br>
                                     <form id="google_business" method="post" action="{% url 'all_auth' %}" enctype="multipart/form-data">
@@ -810,7 +840,7 @@
                         </div>
                     </div>
                     <!-- end row -->
-
+                    <div id="backdrop" class="backdrop"></div>
                     <div id="loading-overlay">
                         <div class="spinner-grow text-info" role="status"></div>
                     </div>

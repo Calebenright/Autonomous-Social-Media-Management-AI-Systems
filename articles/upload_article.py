@@ -21,10 +21,10 @@ credentials = service_account.Credentials.from_service_account_file(
 
 db = firestore.Client(credentials=credentials, project=credentials.project_id)
 
-def create_title():
+def create_title(topic):
     os.environ['OPENAI_API_KEY'] = os.getenv('OPENAI_API_KEY')
     client = OpenAI()
-    prompt = "I need a title for a blog post for my website. Our site is about social media marketing, service-based businesses, ai-driven marketing, large language social media model, image generator for social media. The title should be about 10-15 words long."
+    prompt = f"I need a title for a blog post for my website. Centered around {topic}. The title should be about 10-15 words long."
     response = client.chat.completions.create(
         model="gpt-3.5-turbo-1106",
         messages=[
@@ -40,15 +40,15 @@ def create_title():
 def create_article(title):
     os.environ['OPENAI_API_KEY'] = os.getenv('OPENAI_API_KEY')
     client = OpenAI()
-    prompt = "Write a blog post about the following title: " + title
+    prompt = "Write an SEO optimizing blog post about the following title: " + title
     response = client.chat.completions.create(
         model="gpt-3.5-turbo-1106",
         messages=[
-            {"role": "system", "content": 'Generate it in <h6> and <p> HTML tag format.'},
+            {"role": "system", "content": 'Generate it in <h6> and <p> HTML tag format. min 500 words.'},
             {"role": "user", "content": prompt}
         ],
         temperature=1,
-        max_tokens=500
+        max_tokens=3000
     )
     original_string = response.choices[0].message.content.strip()
     return original_string
@@ -103,7 +103,9 @@ def pull_stock(key):
 if __name__ == "__main__":
     collection_name = 'articles'
 
-    title = create_title()
+    # topic = 'Our site is about social media marketing, service-based businesses, ai-driven marketing, large language social media model, image generator for social media.'
+    topic = 'social media, ai'
+    title = create_title(topic)
 
     content = create_article(title)
 
