@@ -32,13 +32,15 @@ onAuthStateChanged(auth, (user) => {
 function updateStatusInFirestore() {
     onSnapshot(statusDocRef, (docSnapshot) => {
         if (docSnapshot.exists()) {
-            let isLogo = docSnapshot.data().isLogo;
+            if(logoSwitch) {
+                let isLogo = docSnapshot.data().isLogo;
 
-            const userData = {
-                isLogo: logoSwitch.checked,
-            };
+                const userData = {
+                    isLogo: logoSwitch.checked,
+                };
 
-            logoSwitch.checked = isLogo;
+                logoSwitch.checked = isLogo;
+            }
 
             setDoc(statusDocRef, userData, { merge: true })
                 .then(() => {
@@ -57,8 +59,10 @@ function updateStatusInFirestore() {
 document.addEventListener('DOMContentLoaded', function () {
     onSnapshot(statusDocRef, (docSnapshot) => {
         if (docSnapshot.exists()) {
-            let isLogo = docSnapshot.data().isLogo;
-            logoSwitch.checked = isLogo;
+            if(logoSwitch) {
+                let isLogo = docSnapshot.data().isLogo;
+                logoSwitch.checked = isLogo;
+            }
         } else {
             console.error('No Document Exists:', error);
         }

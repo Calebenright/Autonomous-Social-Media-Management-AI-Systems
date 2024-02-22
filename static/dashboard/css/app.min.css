@@ -1079,15 +1079,16 @@ progress {
 .pagination-button {
     padding: 5px 10px;
     cursor: pointer;
-    background-color: #007bff;
-    color: white;
+    background-color: rgba(108, 117, 125, .18);
+    color: rgb(63, 63, 63);
     border: none;
-    border-radius: 5px;
+    border-radius: .15rem;
     margin: 0 5px;
 }
 
 .pagination-button:hover {
-    background-color: #0056b3;
+    color: rgb(255, 255, 255);
+    background-color: #6c757d;
 }
 
 .page-info {
@@ -4148,8 +4149,8 @@ fieldset:disabled .btn {
 
 .btn-gold {
     color: #fff;
-    background-color: #d6a615;
-    border-color: #d6a615
+    background-color: #e8ae00;
+    border-color: #e8ae00
 }
 
 .btn-gold:hover {
@@ -23565,6 +23566,9 @@ body[data-layout-color=dark] div.hopscotch-bubble .hopscotch-title {
 }
 
 @media (max-width:575.98px) {
+    .max-width-l {
+        margin-top: 0px;
+    }
     .legendLabel {
         display: none
     }
@@ -25319,8 +25323,8 @@ body[data-layout-color=dark] .datepicker tfoot tr th:hover {
 .image-tag-thumbnail {
     position: relative; /* This is crucial */
     display: inline-block;
-    width: 15%;
-    height: 20%;
+    width: auto;
+    height: 170px;
     margin: 5px;
     border-radius: 5px;
     overflow: hidden;
@@ -25574,7 +25578,7 @@ body[data-layout-color=dark] .datepicker tfoot tr th:hover {
 
 @media (max-width:768px) {
     .image-tag-thumbnail {
-        width: 45%;
+        height: 75px;
     }
 
     .post-type-thumbnails{
@@ -25803,5 +25807,536 @@ ul.messages li {
     100% {
         stroke-dasharray: 90, 150;
         stroke-dashoffset: -124;
+    }
+}
+
+.max-width-l {
+    max-width: 900px;
+    margin-bottom: 50px;
+    margin-top: 30px;
+}
+
+.margin-top {
+    margin-top: 5rem;
+}
+
+@media only screen and (max-width: 1023px) {
+    .margin-top {
+        margin-top: 3rem;
+    }
+}
+
+.card-content {
+    padding: 2rem;
+}
+
+@media only screen and (max-width: 479px) {
+    .card-content {
+        padding: 1.5rem;
+    }
+}
+
+.muted {
+    opacity: 0.4;
+}
+
+.pricing-price {
+    font-size: 3rem;
+    font-weight: 600;
+}
+
+.pricing-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.space-bottom {
+    margin-bottom: 1rem;
+}
+
+.pricing-duration {
+    font-size: 0.75rem;
+    font-weight: 400;
+    line-height: 1rem;
+}
+
+.pricing-card {
+    font-size: 1rem;
+    -webkit-border-radius: 0.5rem;
+    -moz-border-radius: 0.5rem;
+    border-radius: 0.5rem;
+    -webkit-box-shadow: 0 1px 7px rgba(0, 0, 0, 0.2);
+    -moz-box-shadow: 0 1px 7px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 1px 7px rgba(0, 0, 0, 0.2);
+    background: #fff;
+    margin: 10px;
+  }
+
+.pricing-card.dark {
+    background: #1d1a3d;
+}
+
+.dark {
+    color: #fff;
+  }
+
+.dark p {
+    opacity: 0.9;
+}
+
+.col-pricing {
+    flex: 0 0 auto;
+    width: 22%;
+}
+
+.pricing-button {
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5rem;
+    font-weight: 700;
+    -webkit-border-radius: 3rem;
+    -moz-border-radius: 3rem;
+    border-radius: 3rem;
+    -webkit-transition: all 0.2s;
+    -moz-transition: all 0.2s;
+    -ms-transition: all 0.2s;
+    -o-transition: all 0.2s;
+    transition: all 0.2s;
+    display: inline-block;
+    height: 3rem;
+    line-height: 3rem;
+    padding: 0 1.25rem;
+    text-align: center;
+  }
+  
+  .pricing-button.pricing-button-s {
+    font-size: 0.75rem;
+    font-weight: 400;
+    line-height: 1rem;
+    font-weight: 700;
+    height: 2rem;
+    line-height: 2rem;
+    padding: 0 0.75rem;
+  }
+  
+  .pricing-button.pricing-button-m {
+    font-size: 0.875rem;
+    font-weight: 400;
+    line-height: 1rem;
+    font-weight: 700;
+    height: 2.5rem;
+    line-height: 2.5rem;
+    padding: 0 1rem;
+  }
+  
+  .pricing-button.pricing-button-l {
+    font-size: 1.125rem;
+    font-weight: 400;
+    line-height: 1.5rem;
+    font-weight: 700;
+    height: 3.5rem;
+    line-height: 3.5rem;
+    padding: 0 1.5rem;
+  }
+  
+  .pricing-button.pricing-button-primary {
+    background: #393ed8;
+    background: -webkit-linear-gradient(140deg, #575bde 25%, #393ed8 100%);
+    background: -moz-linear-gradient(140deg, #575bde 25%, #393ed8 100%);
+    background: -ms-linear-gradient(140deg, #575bde 25%, #393ed8 100%);
+    background: -o-linear-gradient(140deg, #575bde 25%, #393ed8 100%);
+    background: linear-gradient(140deg, #575bde 25%, #393ed8 100%);
+    -webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    -moz-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    color: #fff;
+  }
+  
+  .pricing-button.pricing-button-primary:hover {
+    background: #575bde;
+    background: -webkit-linear-gradient(140deg, #575bde 25%, #575bde 100%);
+    background: -moz-linear-gradient(140deg, #575bde 25%, #575bde 100%);
+    background: -ms-linear-gradient(140deg, #575bde 25%, #575bde 100%);
+    background: -o-linear-gradient(140deg, #575bde 25%, #575bde 100%);
+    background: linear-gradient(140deg, #575bde 25%, #575bde 100%);
+    -webkit-box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    -moz-box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    -webkit-transform: translateY(-1px);
+    -moz-transform: translateY(-1px);
+    -ms-transform: translateY(-1px);
+    -o-transform: translateY(-1px);
+    transform: translateY(-1px);
+  }
+  
+  .pricing-button.pricing-button-secondary {
+    background: #ececee;
+    color: #110f24;
+  }
+  
+  .pricing-button.pricing-button-secondary:hover {
+    -webkit-transform: translateY(-1px);
+    -moz-transform: translateY(-1px);
+    -ms-transform: translateY(-1px);
+    -o-transform: translateY(-1px);
+    transform: translateY(-1px);
+    background: #f6f6f9;
+    color: #575bde;
+  }
+  
+  .dark .pricing-button.pricing-button-secondary {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+  }
+  
+  .dark .pricing-button.pricing-button-secondary:hover {
+    background: rgba(255, 255, 255, 0.4);
+  }
+  
+  .pricing-button.pricing-button-disabled {
+    background: #ccced0;
+    color: #110f24;
+    cursor: default;
+    opacity: 0.4;
+    pointer-events: none;
+  }
+  
+  .pricing-button.pricing-button-close {
+    -webkit-border-radius: 100%;
+    -moz-border-radius: 100%;
+    border-radius: 100%;
+    -webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    -moz-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    background: #fff;
+    display: block;
+    height: 4rem;
+    line-height: 2rem;
+    opacity: 0.9;
+    padding: 1rem;
+    position: fixed;
+    right: 1rem;
+    text-align: center;
+    top: 1rem;
+    width: 4rem;
+    z-index: 10;
+  }
+  
+  .pricing-button.pricing-button-close:before {
+    direction: ltr;
+    display: inline-block;
+    font-family: "Material Icons";
+    font-feature-settings: "liga";
+    font-size: 1.5rem;
+    font-style: normal;
+    font-weight: normal;
+    letter-spacing: normal;
+    line-height: 1;
+    text-rendering: optimizeLegibility;
+    text-transform: none;
+    white-space: nowrap;
+    word-wrap: normal;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    color: #110f24;
+    content: "close";
+    line-height: 2rem;
+    /* Prevent text from icon name to show up before load */
+  }
+  
+  .preload .pricing-button.pricing-button-close:before {
+    font-size: 0;
+  }
+  
+  .pricing-button.pricing-button-close:hover {
+    opacity: 1;
+  }
+  
+  @media only screen and (max-width: 767px) {
+    .pricing-button.pricing-button-primary:hover, .pricing-button.pricing-button-secondary:hover {
+      -webkit-box-shadow: none !important;
+      -moz-box-shadow: none !important;
+      box-shadow: none !important;
+      -webkit-transform: translateY(0);
+      -moz-transform: translateY(0);
+      -ms-transform: translateY(0);
+      -o-transform: translateY(0);
+      transform: translateY(0);
+    }
+    .pricing-button.pricing-button-close {
+      position: absolute;
+    }
+  }
+  
+  @media only screen and (max-width: 479px) {
+    .pricing-button {
+      height: 3.5rem;
+      line-height: 3.5rem;
+    }
+    .pricing-button.pricing-button-s {
+      height: 2.5rem;
+      line-height: 2.5rem;
+    }
+    .pricing-button.pricing-button-m {
+      height: 3rem;
+      line-height: 3rem;
+    }
+    .pricing-button.pricing-button-l {
+      height: 4rem;
+      line-height: 4rem;
+    }
+  }
+
+  .space-top {
+    margin-top: 1rem;
+  }
+
+.full-width {
+  width: 100% !important;
+}
+
+.feadlio-green {
+   color: #08f67f;
+}
+
+.feadlio-dark {
+    color: #1c3399;
+ }
+
+ .most-popular {
+    border: 4px solid #e8ae00; /* Gold border */
+    position: relative;
+}
+
+.most-popular-tag {
+    position: absolute;
+    top: -10px;
+    left: 20px;
+    background-color: #e8ae00;
+    color: #FFFFFF;
+    font-weight: bold;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 0.9em;
+}
+
+.original-price-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.original-price {
+    color: #999; /* Dim color for original price */
+    text-decoration: line-through; /* Strike-through effect */
+    font-size: 2rem;
+}
+
+.sale-price {
+    color: #575bde;
+    font-size: 1.5em; /* Larger font size for emphasis */
+    margin-left: 10px; /* Space between original and sale prices */
+}
+
+.sale-price-lite {
+    font-size: 1.5em; /* Larger font size for emphasis */
+    margin-left: 10px; /* Space between original and sale prices */
+}
+
+.sale-tag {
+    position: absolute;
+    top: 20px;
+    right: 308px;
+    background: linear-gradient(140deg, #575bde 25%, #393ed8 100%);
+    color: #FFFFFF;
+    font-weight: bold;
+    padding: 20px; /* Adjust padding to fit the star shape */
+    font-size: 1.2em; /* Adjust font size for visibility */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); /* Shadow for depth */
+    transform: rotate(0deg) scale(1.0); /* Initial scale and rotation */
+    transition: transform 0.3s ease-in-out; /* Smooth transition for hover effect */
+    /* Star shape with numerous points using clip-path */
+    clip-path: polygon(
+      50% 0%, 61% 35%, 98% 35%, 68% 57%, 
+      79% 91%, 50% 70%, 21% 91%, 32% 57%, 
+      2% 35%, 39% 35%
+    );
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    width: 120px; /* Adjust based on desired size */
+    height: 120px; /* Adjust to maintain aspect ratio */
+    margin-right: -60px; /* Half of width to properly align */
+}
+
+.sale-tag:hover {
+    transform: rotate(15deg) scale(1.2); /* Enlarge on hover */
+    cursor: pointer;
+}
+.sale-tag:before {
+    position: absolute;
+    top: 10px; /* Adjust based on your layout */
+    right: -20px; /* Adjust to fit the skewed angle */
+    background-color: #E53935; /* Vibrant color for high visibility */
+    color: #FFFFFF;
+    font-weight: bold;
+    padding: 5px 15px;
+    border-radius: 3px; /* Smoothed corners */
+    font-size: 1em;
+    transform: rotate(15deg); /* Skew the tag for a dynamic look */
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
+    transition: transform 0.3s ease-in-out; /* Smooth transition for hover effect */
+    transform-origin: 0 0;
+}
+
+
+/* Ensure the .sale-tag is visually above other elements */
+.sale-tag, .most-popular-tag {
+    z-index: 2;
+}
+
+.most-popular-tag, .sale-tag {
+    z-index: 1; /* Ensure tags are visible above other elements */
+}
+
+.pricing-header {
+    display: flex;
+    align-items: baseline; /* Aligns prices correctly */
+    justify-content: left; /* Center the pricing information */
+}
+
+@keyframes pulse {
+    0% { transform: rotate(15deg) scale(1); }
+    50% { transform: rotate(15deg) scale(1.1); }
+    100% { transform: rotate(15deg) scale(1); }
+}
+
+.sale-tag {
+    animation: pulse 2s infinite ease-in-out;
+}
+
+.discount-banner {
+    background-color: #1d1a3d; /* Red background */
+    color: white;
+    text-align: center;
+    padding: 10px 10px;
+    position: relative;
+    width: 100%;
+    border-radius: 5px;
+}
+
+.banner-content p {
+    margin: 5px 0;
+    font-size: 18px;
+}
+
+.discount-code {
+    font-weight: bold;
+    font-size: 20px;
+}
+
+.vertical-line {
+    width: 80%; /* Adjust the height based on your design needs */
+    height: 1px; /* This will be the thickness of the line */
+    background-color: #ddd; /* Line color, adjust as needed */
+    margin: 30px auto; /* Centers the line and adds space above and below */
+}
+
+.vertical-line-lite {
+    width: 80%; /* Adjust the height based on your design needs */
+    height: 1px; /* This will be the thickness of the line */
+    background-color: #000; /* Line color, adjust as needed */
+    margin: 30px auto; /* Centers the line and adds space above and below */
+}
+
+.plan-comparison-container {
+    width: 100%;
+    overflow-x: auto;
+    margin: 0 auto;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background: #fff;
+    padding: 1em;
+    border-radius: 8px; /* Rounded corners */
+}
+
+.comparison-title {
+    text-align: center;
+    color: #1c3399;
+    padding-bottom: 0.5em;
+}
+
+.plan-comparison {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0 auto;
+    table-layout: fixed;
+    background: #fff; /* White background for the table to stand out */
+}
+
+.plan-comparison th,
+.plan-comparison td {
+    border: 1px solid #1c3399; /* Deep blue borders for cells */
+    padding: 15px;
+    text-align: center;
+    color: #1c3399; /* Deep blue text for contrast */
+    border-radius: 5px;
+}
+
+.plan-comparison thead th {
+    background-color: #e6e6e6; /* Golden background for headers */
+    color: #1d1a3d; /* Dark text for headers */
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.plan-comparison tbody td {
+    vertical-align: middle;
+}
+
+.plan-comparison tbody tr:nth-child(even) {
+    background-color: #fff;
+}
+
+.plan-comparison tbody td.checkmark {
+    color: #08f67f; /* Bright green for checkmark */
+    font-size: 18px;
+}
+
+.pricing-center {
+    display:flex;
+    justify-content: center;
+  }
+
+/* Hover effect for rows */
+.plan-comparison tbody tr:hover td{
+    color: #ffffff;
+    background-color: #1d1a3d;
+    cursor: pointer;
+}
+
+@media (max-width: 1024px) {
+    .plan-comparison thead th,
+    .plan-comparison tbody td {
+        padding: 10px;
+    }
+}
+
+@media (max-width: 768px) {
+    .plan-comparison-container {
+        overflow-x: scroll;
+    }
+    .plan-comparison th,
+    .plan-comparison td {
+        padding: 5px;
+        font-size: 14px;
+    }
+    .pricing-center {
+        display:flex;
+        justify-content: center;
+        flex-direction: column;
+    }
+    .col-pricing {
+        flex: 0 0 auto;
+        width: 100%;
     }
 }

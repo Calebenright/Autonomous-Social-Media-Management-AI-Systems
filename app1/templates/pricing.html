@@ -59,8 +59,8 @@
   <header class="header-main">
     <nav>
       <a href="{% url 'index' %}" class="logo" rel="home">
-        <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-        viewBox="0 0 250 250" style="enable-background:new 0 0 250 250; width: 25px; height: 25px; vertical-align: middle" xml:space="preserve" fill="#000000">
+        <svg version="1.1" id="Layer_1" class="mobile-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+        viewBox="0 0 250 250" style="enable-background:new 0 0 250 250; width: 25px; height: 25px; vertical-align: middle" xml:space="preserve">
         <g>
           <g>
             <path d="M113.2,143.6v90.7c0,3.8-3.1,6.9-6.9,6.9H15.6c-3.8,0-6.9-3.1-6.9-6.9v-90.7c0-3.8,3.1-6.9,6.9-6.9h90.7
@@ -100,51 +100,197 @@
   </header>
   <main>
     <section class="bg-gradient-light padding padding-top">
-      <div class="center max-width-l">
-        <h1 class="hero">Find the perfect plan for your social media.</h1>
+      <div class="pricing-center">
+          <div class="col-one-third card card-content margin-r-l">
+              <p class="pricing-title">Standard Plan</p>
+              <h2 class="pricing-header">
+                  <span class="original-price-wrapper">
+                      <span class="pricing-price original-price">$39</span>
+                  </span>
+                  <span class="sale-price">$19</span>
+                  <span class="pricing-duration sans">/MO</span>
+              </h2>
+              <a href="{% url 'signup' %}" class="button button-secondary full-width space-top" role="button">Subscribe</a>
+              <div class="vertical-line-lite"></div>
+              <p class="paragraph space-top">Access to our Basic AI & features.</p>
+              <ul class="space-bottom">
+                <li>Content Scheduling.</li>
+                <li>AI Caption Creator.</li>
+                <li>AI Post Creator.</li>
+                <li>AI Ad Creatives.</li>
+                <li>Access to our proprietary AI social media graphic generator.</li>
+              </ul>
+          </div>
+          <div class="col-one-third card card-content margin-r-l most-popular">
+              <div class="most-popular-tag">Most Popular</div>
+              <p class="pricing-title feadlio-dark">Premium Plan</p>
+              <h2 class="pricing-header">
+                  <span class="original-price-wrapper">
+                      <span class="pricing-price original-price">$59</span>
+                  </span>
+                  <span class="sale-price">$26</span>
+                  <span class="pricing-duration sans">/MO</span>
+              </h2>
+              <a href="{% url 'signup' %}" class="button button-primary full-width space-top" role="button">Start 7-Day Trial</a>
+              <div class="vertical-line-lite"></div>
+              <p class="paragraph space-top">Access to our Advanced AI & Features.</p>
+              <ul class="space-bottom">
+                  <li>Everything from the Standard Plan.</li>
+                  <li>Fully autonomus Social Media Manager.</li>
+                  <li>Weekly posts created and scheduled.</li>
+                  <li>Weekly updates sent via email.</li>
+              </ul>
+          </div>
+          <div class="col-one-third card card-content dark margin-r-l">
+              <p class="pricing-title">Agency Plan</p>
+              <h2 class="pricing-header">
+                  <span class="original-price-wrapper">
+                      <span class="pricing-price original-price">$149</span>
+                  </span>
+                  <span class="sale-price-lite">$119</span>
+                  <span class="pricing-duration sans">/MO</span>
+              </h2>
+              <a href="{% url 'contact' %}" class="button button-primary full-width space-top" role="button">Contact Us</a>
+              <div class="vertical-line"></div>
+              <p class="paragraph space-top">Access to our Creative Agency, Advanced AI, & Features</p>
+              <ul class="space-bottom">
+                  <li>Everything from the Premium Plan.</li>
+                  <li>Full access to our Feadl.io app.</li>
+                  <li>We run your social media.</li>
+                  <li>Weekly social media reports.</li>
+                  <li>Maximize brand presence, reach, and engagement.</li>
+                  <li>Market to more people.</li>
+                  <li>Get more customers.</li>
+                  <li>Make more money.</li>
+              </ul>
+          </div>
+        </div>
       </div>
-      <div class="row margin-top max-width-l">
-        <div class="col-one-third card card-content">
-          <p class="muted">Free Forever</p>
-          <h2>
-            <span class="pricing-price">Free</span>
-          </h2>
-          <p class="paragraph">Signup for free to see the magic of our app.</p>
-          <ul class="space-bottom">
-            <!-- <li>At vero eos et accusamus</li>
-            <li>Odio dignissimos ducimus</li>
-            <li>Blanditiis praesentium</li> -->
-          </ul>
-          <a href="{% url 'signup' %}" class="button button-secondary full-width space-top" role="button">Sign Up For Free</a>
-        </div>
-        <div class="col-one-third card card-content">
-          <p class="muted">Standard Plan</p>
-          <h2>
-            <span class="pricing-price">$199</span>
-            <span class="pricing-duration muted sans">/MO</span>
-          </h2>
-          <p class="paragraph">Access to our basic AI & features.</p>
-          <ul class="space-bottom">
-            <li>Access to your personalized trained AI social media assistant</li>
-            <li>Access to our proprietary AI social media graphic generator</li>
-          </ul>
-          <a href="{% url 'signup' %}" class="button button-secondary full-width space-top" role="button">Start 7-Day Trial</a>
-        </div>
-        <div class="col-one-third card card-content dark">
-          <p class="muted">Agency Plan</p>
-          <h2>
-            <span class="pricing-price">$299</span>
-            <span class="pricing-duration muted sans">/MO</span>
-          </h2>
-          <p class="paragraph">Access to our advanced AI & features</p>
-          <ul class="space-bottom">
-            <li>Everything from the Standard Plan.</li>
-            <li>Full access to our Feadl.io app.</li>
-            <li>Your very own FULLY AUTONOMOUS AI social media manager.</li>
-            <li>Weekly social media reports.</li>
-          </ul>
-          <a href="{% url 'signup' %}" class="button button-primary full-width space-top" role="button">Start 7-Day Trial</a>
-        </div>
+    </section>
+    <section class="bg-gradient-light padding">
+      <div class="pricing-center">
+        <div class="plan-comparison-container">
+          <h2 class="comparison-title">Compare Plans</h2>
+          <table class="plan-comparison">
+              <thead>
+                  <tr>
+                      <th>Features</th>
+                      <th>Standard</th>
+                      <th>Premium</th>
+                      <th>Agency</th>
+                  </tr>
+              </thead>
+              <tbody>
+                <tr>
+                    <td>Feadl.io App Access</td>
+                    <td class="checkmark">✔</td>
+                    <td class="checkmark">✔</td>
+                    <td class="checkmark">✔</td>
+                </tr>
+                <tr>
+                    <td>Content Scheduling</td>
+                    <td class="checkmark">✔</td>
+                    <td class="checkmark">✔</td>
+                    <td class="checkmark">✔</td>
+                </tr>
+                <tr>
+                    <td>AI Caption Creator</td>
+                    <td class="checkmark">✔</td>
+                    <td class="checkmark">✔</td>
+                    <td class="checkmark">✔</td>
+                </tr>
+                <tr>
+                    <td>AI Post Creator</td>
+                    <td class="checkmark">✔</td>
+                    <td class="checkmark">✔</td>
+                    <td class="checkmark">✔</td>
+                </tr>
+                <tr>
+                    <td>AI Ad Creatives</td>
+                    <td class="checkmark">✔</td>
+                    <td class="checkmark">✔</td>
+                    <td class="checkmark">✔</td>
+                </tr>
+                <tr>
+                    <td>AI Graphic Generator</td>
+                    <td class="checkmark">✔</td>
+                    <td class="checkmark">✔</td>
+                    <td class="checkmark">✔</td>
+                </tr>
+                <tr>
+                    <td>AI Social Media Manager</td>
+                    <td></td>
+                    <td class="checkmark">✔</td>
+                    <td class="checkmark">✔</td>
+                </tr>
+                <tr>
+                    <td>Weekly AI Social Media Management</td>
+                    <td></td>
+                    <td class="checkmark">✔</td>
+                    <td class="checkmark">✔</td>
+                </tr>
+                <tr>
+                    <td>Weekly AI Creatives Automatically Scheduled</td>
+                    <td></td>
+                    <td class="checkmark">✔</td>
+                    <td class="checkmark">✔</td>
+                </tr>
+                <tr>
+                    <td>Weekly AI Posting</td>
+                    <td></td>
+                    <td class="checkmark">✔</td>
+                    <td class="checkmark">✔</td>
+                </tr>
+                <tr>
+                    <td>Email Updates</td>
+                    <td></td>
+                    <td class="checkmark">✔</td>
+                    <td class="checkmark">✔</td>
+                </tr>
+                <tr>
+                    <td>Personalized Social Media Management Through Our Agency</td>
+                    <td></td>
+                    <td></td>
+                    <td class="checkmark">✔</td>
+                </tr>
+                <tr>
+                    <td>Boosted Reach</td>
+                    <td></td>
+                    <td></td>
+                    <td class="checkmark">✔</td>
+                </tr>
+                <tr>
+                    <td>Social Media Reports</td>
+                    <td></td>
+                    <td></td>
+                    <td class="checkmark">✔</td>
+                </tr>
+                <tr>
+                    <td>Targeted Advertising</td>
+                    <td></td>
+                    <td></td>
+                    <td class="checkmark">✔</td>
+                </tr>
+                <tr>
+                    <td>Revenue Growth</td>
+                    <td></td>
+                    <td></td>
+                    <td class="checkmark">✔</td>
+                </tr>
+                <tr>
+                    <td>Market Expansion</td>
+                    <td></td>
+                    <td></td>
+                    <td class="checkmark">✔</td>
+                </tr>
+                <tr>
+                    <td>Customer Acquisition</td>
+                    <td></td>
+                    <td></td>
+                    <td class="checkmark">✔</td>
+                </tr>
+              </tbody>
+          </table>
       </div>
     </section>
   </main>
@@ -157,7 +303,6 @@
         <form class="row reduce-spacing">
           <div class="col-two-thirds center-tablet middle">
             <h3 class="space-none">Ready to get started?</h3>
-            <p class="paragraph">Love it or your money back!</p>
           </div>
           <div class="col-one-third middle">
             <a href="{% url 'signup' %}" class="button button-primary" role="button">Create An Account</a>

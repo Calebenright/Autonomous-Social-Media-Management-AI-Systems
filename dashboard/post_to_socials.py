@@ -109,7 +109,10 @@ def get_linkedin_account_name(access_token):
 
 # ----------- LINKEDIN -------------- #
 
-def upload_image_from_url_to_linkedin(image_url, access_token, access_id):
+def upload_image_from_url_to_linkedin(image_url, access_token, access_id, access_type):
+    
+    owner_urn = f"urn:li:person:{access_id}" if access_type == 'personal' else f"urn:li:organization:{access_id}"
+
     headers = {
         "Authorization": f"Bearer {access_token}",
         "Content-Type": "application/octet-stream",
@@ -121,7 +124,7 @@ def upload_image_from_url_to_linkedin(image_url, access_token, access_id):
     register_payload = {
         "registerUploadRequest": {
             "recipes": ["urn:li:digitalmediaRecipe:feedshare-image"],
-            "owner": f"urn:li:person:{access_id}", 
+            "owner": owner_urn, 
             "serviceRelationships": [{
                 "relationshipType": "OWNER",
                 "identifier": "urn:li:userGeneratedContent"
@@ -147,17 +150,18 @@ def upload_image_from_url_to_linkedin(image_url, access_token, access_id):
     return asset
 
 
-def post_to_linkedin(caption, image_url, access_token, access_id):
-    linkedin_id = access_id
-    media_id = upload_image_from_url_to_linkedin(image_url, access_token, access_id)
-    print(media_id)
+def post_to_linkedin(caption, image_url, access_token, access_id, access_type):
+    media_id = upload_image_from_url_to_linkedin(image_url, access_token, access_id, access_type)
     headers = {
         "Authorization": f"Bearer {access_token}",
         "Content-Type": "application/json",
         "x-li-format": "json"
     }
+    
+    author = f"urn:li:person:{access_id}" if access_type == "personal" else f"urn:li:organization:{access_id}"
+    
     payload = {
-        "author": f"urn:li:person:{linkedin_id}",
+        "author": author,
         "lifecycleState": "PUBLISHED",
         "specificContent": {
             "com.linkedin.ugc.ShareContent": {
@@ -172,7 +176,7 @@ def post_to_linkedin(caption, image_url, access_token, access_id):
                     },
                     "media": media_id, 
                     "title": {
-                        "text": "Title of your post"
+                        "text": caption
                     }
                 }]
             }
@@ -187,10 +191,11 @@ def post_to_linkedin(caption, image_url, access_token, access_id):
         headers=headers,
         json=payload
     ).json()
+
     return response
 
 
-def post_text_to_linkedin(access_token, user_id, message):
+def post_text_to_linkedin(access_token, user_id, message, access_type):
     url = 'https://api.linkedin.com/v2/ugcPosts'
 
     headers = {
@@ -199,8 +204,10 @@ def post_text_to_linkedin(access_token, user_id, message):
         'Content-Type': 'application/json'
     }
 
+    author = f"urn:li:person:{user_id}" if access_type == "personal" else f"urn:li:organization:{user_id}"
+
     post_data = {
-        "author": f"urn:li:person:{user_id}",
+        "author": author,
         "lifecycleState": "PUBLISHED",
         "specificContent": {
             "com.linkedin.ugc.ShareContent": {
@@ -464,7 +471,7 @@ def post_video_to_facebook_page_feed(caption, video_url, page_id, page_access_to
 
 
 if __name__ == "__main__":
-    access_token = "EAADFIOXHRl4BO39vA5AZBRRpCje1GY7pqZAYSWI2rZAITcjqjzZA6EY73SpKIkXo1BJZCvX78YQK54qtEHKlqLZCAD6NtILGwStxQ2lTxKRiZBaZA5JmKZAEW2QoCaleZACi6krsMbg3ua1JRl35AHtZBNfQXXPE2PCdiEWhtutnWFFfbRXjSduA0pxrWdSqBxFxZAYqa2QGZAhzLk0OtfS721AJgRaLxZAQLCAkT9tIQdsvwRrrQ9xX6y7eXC"
+    access_token = "EAADFIOXHRl4BOxYm4ycXdXIPU5pPqqVCNUVUR0Tr7o2jFRDJ7SPoGzkWyuz3d46SZBlWPfvumKUdSiPZBr19dHNTDUvNBhNRl5dBZCYk3qfFfFBRBp4cRUHqrSgifGsqHrKCZBTwttHYZA06J4WPJZArkkWfl4J11TZCL3H0QZCTfh8Qp31ZAFDp3CPYHTzzy5r5g8vGE5220"
     id = '17841431479346652'
     CAPTION = "Testing....."
     IMAGE_URL = "https://storage.googleapis.com/starter_web_app_bucket/testing.png"
@@ -472,8 +479,11 @@ if __name__ == "__main__":
     # print(get_linkedin_account_name(access_token))
     FACEBOOK_APP_ID = '216745084667486'
     FACEBOOK_APP_SECRET = 'd96b709e954bb40082e95bc9fef4281b'
+    FACEBOOK_PAGE_ID = 'd96b709e954bb40082e95bc9fef4281b'
+    FACEBOOK_APP_SECRET = 'd96b709e954bb40082e95bc9fef4281b'
     # print(exchange_short_lived_token_for_long_lived(access_token, FACEBOOK_APP_ID, FACEBOOK_APP_SECRET))
-    print(check_token_expiration(access_token, FACEBOOK_APP_ID, FACEBOOK_APP_SECRET))
+    # print(check_token_expiration(access_token, FACEBOOK_APP_ID, FACEBOOK_APP_SECRET))
+    print(get_instagram_user_id('108830535605871', access_token))
     # print(post_to_instagram(access_token, IMAGE_URL, CAPTION, id))
     # facebook_id = '108830535605871'
     # linkedin_token = 'AQWkp5YGkAF8YMEV6mamPNbOG22-LoUIYLBEZzXXmetr91pZwFa6yhPRDtiZhFNIHzvmMpdagQ3jGXPf0EnR4gznpm6_RwExYWlXevEMXLgI59G08edmKFokBboJoZtHWirewepn0ozKVhi-r-yJKgBbNg9p3eUZwh3mhMBgAudHeeTWn6bXolA9VLr_CyY1RgHBxUAOjs_8pgNaC8X19TkKkblzPGmdsfCSTqqGL7upQKz6h4CmCJu51ddQoyo-ovfiJ_kD70PKsvBrtEgPzqUQHAAtp8bhjr3ttzU-PcG1r9BcaA1hCdQinEq5sc8Zf2O0W7WX1A1cwUfqrvUbWSAdz3uxRg'

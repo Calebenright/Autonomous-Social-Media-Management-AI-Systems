@@ -19,7 +19,8 @@ from django.templatetags.static import static
 from django.contrib.staticfiles.storage import staticfiles_storage
 from .graphic_designer import generate_image_from_params, hex_to_rgb
 import base64
-from decouple import config
+import urllib.parse
+from urllib.parse import urlparse, unquote
 
 # FOR DEVELOPMENT
 from decouple import config
@@ -155,10 +156,59 @@ def add_stock_tags(tags, stock_images, bucket_name, bucket_credentials, user_fol
             image_io.seek(0)
             
             filename = str(uuid.uuid4()) + ".jpg"
-            blob = bucket.blob(user_folder_path + key + '/' + filename)
+            blob = bucket.blob(user_folder_path + filename)
             blob.upload_from_file(image_io, content_type='image/jpeg')
             blob.make_public()
             image_urls.append(blob.public_url)
+
+    return image_urls
+
+def add_pixabay_tags(tags, stock_images, bucket_name, bucket_credentials, user_folder_path):
+    credentials = service_account.Credentials.from_service_account_file(bucket_credentials)
+    client = storage.Client(project=credentials.project_id, credentials=credentials)
+    bucket = client.bucket(bucket_name)
+    tags_list = ast.literal_eval(tags)
+
+    if stock_images == None:
+        image_urls = []
+    else:
+       image_urls = stock_images
+
+    photos = []
+    num_results = 100  # Number of results to fetch
+    selected_tag = random.choice(tags_list)  # Select one tag randomly
+
+    random_page = 1
+    endpoint = f"https://pixabay.com/api/?key={pixabay_api_key}&q={selected_tag}&per_page={num_results}&page={random_page}&image_type=photo"
+
+    try:
+        response = requests.get(endpoint)
+        if response.status_code == 200:
+            data = response.json()
+            print(data)
+            pixabay_urls = [image_info.get("largeImageURL") for image_info in data.get("hits", [])]
+            random.shuffle(pixabay_urls)
+            photos = pixabay_urls[:4]
+    except requests.exceptions.RequestException as e:
+        print(e)
+
+    for photo in photos:
+        image_response = requests.get(photo)
+        image_data = image_response.content
+        img = Image.open(BytesIO(image_data))
+        
+        if img.mode == 'RGBA':
+            continue
+        
+        image_io = BytesIO()
+        img.save(image_io, format='JPEG')
+        image_io.seek(0)
+        
+        filename = str(uuid.uuid4()) + ".jpg"
+        blob = bucket.blob(user_folder_path + filename)
+        blob.upload_from_file(image_io, content_type='image/jpeg')
+        blob.make_public()
+        image_urls.append(blob.public_url)
 
     return image_urls
 
@@ -667,14 +717,17 @@ def add_logo (img, logo_path, coverage=0.015, gap_percentage=0.03):
     return image_io
 
 def upload_jpg_to_google (image, bucket_name, bucket_credentials, user_folder_path):
-    image_data = image.read()
-    img = Image.open(BytesIO(image_data))
-    image = correct_orientation(img)
+
+    # Initialize Google Cloud Storage client
     credentials = service_account.Credentials.from_service_account_file(bucket_credentials)
     client = storage.Client(project=credentials.project_id, credentials=credentials)
     bucket = client.bucket(bucket_name)
+    
+    # Generate a unique filename for the image
     filename = str(uuid.uuid4()) + ".jpg"
     blob = bucket.blob(user_folder_path + filename)
+    
+    # Upload the image from the BytesIO buffer
     blob.upload_from_file(image, content_type='image/jpeg')
     blob.make_public()
 
@@ -731,6 +784,33 @@ def upload_image_to_library (image, bucket_name, bucket_credentials, user_folder
     blob.make_public()
 
     return blob.public_url
+
+def delete_library_images_from_gcs(removed_image_urls, bucket_name, bucket_credentials):
+    # Setup Google Cloud Storage client
+    credentials = service_account.Credentials.from_service_account_file(bucket_credentials)
+    client = storage.Client(credentials=credentials)
+    bucket = client.bucket(bucket_name)
+    
+    for image_url in removed_image_urls:
+        # Properly parse the URL and unquote to handle any encoded characters
+        parsed_url = urlparse(unquote(image_url.strip('"')))
+        path = parsed_url.path
+        print(path)
+        
+        if path.startswith(f'/{bucket_name}/'):
+            blob_name = path[len(f'/{bucket_name}/'):]
+        else:
+            # If the path doesn't start as expected, log and skip it
+            print(f"URL does not match expected pattern: {image_url}")
+            continue
+
+        try:
+            # Attempt to delete the blob
+            blob = bucket.blob(blob_name)
+            blob.delete()
+            print(f"Successfully deleted: {blob_name}")
+        except Exception as e:
+            print(f"Error deleting {blob_name}: {e}")
 
 def upload_video_to_google(video, bucket_name, bucket_credentials, user_folder_path, file_extension):
     credentials = service_account.Credentials.from_service_account_file(bucket_credentials)
@@ -882,15 +962,15 @@ def find_least_filled_day_with_largest_gap(existing_event_times):
 
     return chosen_day
 
-def create_email (array, business_description, business_name):
+def create_email (captions, prompts, business_description, business_name):
     client = OpenAI(api_key=config('OPENAI_API_KEY'))
-    prompt = f"You are a social media manager for a company called {business_name} with a description ({business_description}). You need to send your boss a weekly update for the 3 posts you just created and scheduled. posts = [{array}]."
+    prompt = f"Your name is elaine and you are a social media manager for a company called {business_name} with a description ({business_description}). You are sending the owner referred to as, Boss,  of the business = [{business_name}], a weekly update for some posts you created and scheduled and have attached to the email which message you are creating right now. Don't talk about the specifics of the posts. Here are the captions/posts = [{captions}], there's usually images attached to the email that correspond to the captions."
     response = client.chat.completions.create(
             model="gpt-3.5-turbo-1106",
             messages=[
                 {
                 "role": "system",
-                "content": "Format it as an email"
+                "content": "Format it as an email. keep it relatively short."
                 },
                 {
                 "role": "user",
@@ -898,7 +978,7 @@ def create_email (array, business_description, business_name):
                 }
             ],
             temperature=1,
-            max_tokens=500
+            max_tokens=200
         )
     original_string = response.choices[0].message.content.strip()
     email = original_string.strip('"')

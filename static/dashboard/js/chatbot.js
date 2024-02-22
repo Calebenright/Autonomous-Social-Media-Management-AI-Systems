@@ -105,18 +105,17 @@ document.addEventListener('DOMContentLoaded', function() {
                     appendMessage(data.botMessage, botAvatar);
                 }
             },
-            error: function(xhr) {
+            error: function(data) {
                 removeLoadingMessage();
-                if (xhr.status == 400 && xhr.responseJSON && xhr.responseJSON.error) {
-                    console.log('Error:', xhr.responseJSON.error);
-                    var $errorMessagesContainer = $('#error-messages-container');
-                    if ($errorMessagesContainer.find('.messages').length === 0) {
-                        $errorMessagesContainer.append('<ul class="messages"></ul>');
-                    }
-                    var errorMessage = '<li class="danger" data-message-id="ajaxError">' + xhr.responseJSON.error +
-                        '<span class="closebtn" onclick="closeMessage(this);">&times;</span></li>';
-                    $errorMessagesContainer.find('.messages').append(errorMessage);
+                console.log('Error:', data.responseJSON.error);
+                var $errorMessagesContainer = $('#error-messages-container');
+                if ($errorMessagesContainer.find('.messages').length === 0) {
+                    $errorMessagesContainer.append('<ul class="messages"></ul>');
                 }
+                var errorText = data.responseJSON.error || "An error occured.";
+                var errorMessage = '<li class="danger" data-message-id="ajaxError">' + errorText +
+                    '<span class="closebtn" onclick="closeMessage(this);">&times;</span></li>';
+                $errorMessagesContainer.find('.messages').append(errorMessage);
             }
         });
     }

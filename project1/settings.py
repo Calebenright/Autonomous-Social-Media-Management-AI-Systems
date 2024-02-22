@@ -164,7 +164,6 @@ EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 INTERNAL_RECIPIENTS = config('INTERNAL_RECIPIENTS')
 
 STRIPE_PUBLIC_KEY = config('STRIPE_PUBLIC_KEY')
-STRIPE_SECRET_KEY = config('STRIPE_SECRET_KEY')
 STRIPE_PRICE_ID = config('STRIPE_PRICE_ID')
 
 LINKEDIN_CLIENT_ID_BUSINESS = config('LINKEDIN_CLIENT_ID_BUSINESS')
@@ -220,14 +219,18 @@ ELAINE_AUTOMATE_QUEUE = config('ELAINE_AUTOMATE_QUEUE')
 
 ## -------------------- GOOGLE LOGGING ------------------- ##
 
-if config('ENVIRONMENT') == 'production':
+ENVIRONMENT = config('ENVIRONMENT')
+
+if ENVIRONMENT == 'production':
     # ##------------ DEPLOY -------------##
+    STRIPE_SECRET_KEY = config('STRIPE_SECRET_KEY')
     DEBUG = False
     STRIPE_ENDPOINT = config('STRIPE_ENDPOINT')
     # STRIPE_ENDPOINT = config('STRIPE_DEV_ENDPOINT')
     STRIPE_CANCEL_URL = config('STRIPE_CANCEL_URL')
     STRIPE_SUCCESS_URL = config('STRIPE_SUCCESS_URL')
     STRIPE_WEBHOOK_URL = config('STRIPE_WEBHOOK_URL')
+    STRIPE_DOMAIN_URL = config('STRIPE_DOMAIN_URL')
     # # DEPLOY SECURITY #
     SECURE_SSL_REDIRECT = True
     SECURE_HSTS_SECONDS = 31536000
@@ -236,6 +239,15 @@ if config('ENVIRONMENT') == 'production':
     SECURE_CONTENT_TYPE_NOSNIFF = True
     X_FRAME_OPTIONS = 'DENY'
     REDIRECT_URI = config('REDIRECT_URI')
+    PRODUCT_IDS = {
+        'standard_monthly': 'price_1Om0VGAy1fGRWtyhJzi4JOMZ',
+        'premium_monthly': 'price_1Om0W5Ay1fGRWtyhchwLA7zG',
+        'agency_monthly': 'price_1OXVtRAy1fGRWtyhrS56mtiH',
+        'standard_annual': 'price_1Om0UrAy1fGRWtyhXkYqpmVC',
+        'premium_annual': 'price_1Om0TNAy1fGRWtyhU91Sewma',
+        'agency_annual': 'price_1OkDb9Ay1fGRWtyhuDUo4TCh',
+    }
+
 else:
     ##------------ DEV -------------##
     DEBUG = True
@@ -243,4 +255,14 @@ else:
     STRIPE_CANCEL_URL = config('STRIPE_DEV_CANCEL_URL')
     STRIPE_SUCCESS_URL = config('STRIPE_DEV_SUCCESS_URL')
     STRIPE_WEBHOOK_URL = config('STRIPE_DEV_WEBHOOK_URL')
+    STRIPE_DOMAIN_URL = config('STRIPE_DEV_DOMAIN_URL')
     REDIRECT_URI = config('DEV_REDIRECT_URI')
+    STRIPE_SECRET_KEY = config('STRIPE_DEV_SECRET_KEY')
+    PRODUCT_IDS = {
+        'standard_monthly': 'price_1OkDhCAy1fGRWtyhmMM9ykcB',
+        'premium_monthly': 'price_1OkDi7Ay1fGRWtyhqQm6mBqJ',
+        'agency_monthly': 'price_1OkDjCAy1fGRWtyh99TI7sMm',
+        'standard_annual': 'price_1OkDjuAy1fGRWtyhSlrvIhfP',
+        'premium_annual': 'price_1OkDkcAy1fGRWtyhOqmbIyew',
+        'agency_annual': 'price_1OkDlXAy1fGRWtyhPZx17tox',
+    }

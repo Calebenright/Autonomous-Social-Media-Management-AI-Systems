@@ -395,17 +395,24 @@
                                                         <input type="hidden" name="form" value="image-tags">
                                                         <input type="hidden" name="imageTags" value="">
                                                         <input type="hidden" name="isGenerateStockImagesClicked" id="isGenerateStockImagesClickedField" value="false">
+                                                        <input type="hidden" name="isGeneratePixabayImagesClicked" id="isGeneratePixabayImagesClickedField" value="false">
                                                         <br>
                                                         <div class="generated-post">
                                                             <div style="display: inline-block;">
                                                                 <button type="submit" id="imageTagFormSubmit" class="btn btn-success waves-effect waves-light">Save Image Settings & Add To Library</button>
+                                                                {% if user_settings.isAutomated or user_settings.isBusiness %}
+                                                                <button id="generatePixabayImages" class="btn btn-gold width-xs">AI Library Fill</button>
+                                                                {% endif %}
                                                                 {% if user_settings.admin %}
-                                                                <button id="generateStockImages" class="btn btn-gold width-xs">AI Library Fill</button>
+                                                                <button id="generateStockImages" class="btn btn-purple width-xs">Admin Library Fill</button>
                                                                 {% endif %}
                                                             </div>
                                                         </div>
                                                         <br>
                                                         <div class="image-tag-thumbnails" id="imageTagThumbnails"></div>
+                                                        <div style="display: flex; justify-content: center; margin-bottom: 10px;">
+                                                            <div id="pagination-controls" class="pagination-controls"  style="display: flex;flex-direction: column;"></div>
+                                                        </div>
                                                     </form>
                                                 </div>
                                             </div>

@@ -21,6 +21,45 @@ const userDocRef = doc(collection(db, 'users'), user_id);
 const ev = [];
 const eventsCollectionRef = collection(userDocRef, "events");
 
+function debounce(func, wait, immediate) {
+    var timeout;
+    return function() {
+        var context = this, args = arguments;
+        var later = function() {
+            timeout = null;
+            if (!immediate) func.apply(context, args);
+        };
+        var callNow = immediate && !timeout;
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+        if (callNow) func.apply(context, args);
+    };
+}
+
+function updateEventInFirestore(info) {
+    const {eid, image_url, start, caption, socials, type, status, firebase_id_token} = info.event.extendedProps;
+    const updatedStartTime = info.event.start;
+    const eventDocRef = doc(collection(userDocRef, 'events'), eid);
+
+    const eventData = {
+        eid,
+        start: updatedStartTime,
+        image_url,
+        caption,
+        socials,
+        type,
+        status,
+        firebase_id_token
+    };
+
+    setDoc(eventDocRef, eventData, { merge: true })
+        .then(() => console.log("Event updated successfully."))
+        .catch(error => console.error("Error updating event: ", error));
+}
+
+// Create a debounced version of updateEventInFirestore
+const debouncedEventUpdate = debounce(updateEventInFirestore, 1000);
+
 onAuthStateChanged(auth, (user) => {
     if (user) {} else {
         window.location.href = '/login/';
@@ -183,35 +222,7 @@ await getDocs(eventsCollectionRef)
             },
 
             eventDrop: function (info) {
-        
-                var eid = info.event.extendedProps.eid;
-                var image_url = info.event.extendedProps.image_url;
-                var updatedStartTime = info.event.start;
-                var caption = info.event.extendedProps.caption;
-                var socials = info.event.extendedProps.socials;
-                var type = info.event.extendedProps.type;
-                var status = info.event.extendedProps.status;
-                var firebase_id_token = info.event.extendedProps.firebase_id_token;
-
-                const eventDocRef = doc(collection(userDocRef, 'events'), eid);
-
-                const eventData = {
-                    eid: eid,
-                    start: updatedStartTime,
-                    image_url: image_url,
-                    caption: caption,
-                    socials:  socials,
-                    type: type,
-                    status: status,
-                    firebase_id_token: firebase_id_token
-                };
-
-                setDoc(eventDocRef, eventData, { merge: true })
-                    .then(() => {})
-                    .catch(error => {
-                        console.error("Error updating or setting event in Firestore: ", error);
-                    });
-                
+                debouncedEventUpdate(info);
             },
         });
         

@@ -49,38 +49,55 @@ function showSpinner() {
 
 // -------------------- IMAGE TAGS ------------------------ //
 
-const imageTagThumbnails = document.getElementById('imageTagThumbnails');
+let currentPage = 1;
+const imagesPerPage = 30;
 const imageTags = imageTagsArray;
+let totalImages = imageTags.length; // Should be declared with 'let' if it needs to be updated
 
 function removeImageTag(imageUrl) {
     const index = imageTags.indexOf(imageUrl);
     if (index !== -1) {
         imageTags.splice(index, 1);
-        updateImageTagThumbnails();
+        updateTotalImagesAndThumbnails();
     }
 }
 
+function updateTotalImagesAndThumbnails() {
+    totalImages = imageTags.length; // Update totalImages based on the current number of image tags
+    updateImageTagThumbnails(); // Then update the thumbnails displayed
+    updatePaginationControls(); // And also update the pagination controls accordingly
+}
+
 function updateImageTagThumbnails() {
-    imageTagThumbnails.innerHTML = '';
-    imageTags.forEach(imageUrl => {
+    const startIndex = (currentPage - 1) * imagesPerPage;
+    const endIndex = startIndex + imagesPerPage;
+    const paginatedImageUrls = imageTags.slice(startIndex, endIndex); // Get images for the current page
+
+    const imageTagThumbnails = document.getElementById("imageTagThumbnails");
+    imageTagThumbnails.innerHTML = ''; // Clear existing thumbnails
+
+    paginatedImageUrls.forEach(imageUrl => {
         const imageThumbnail = document.createElement('div');
         imageThumbnail.classList.add('image-tag-thumbnail');
 
-        // Create img element for displaying the image
         const imgElement = document.createElement('img');
         imgElement.src = imageUrl;
         imgElement.alt = "Image Tag";
         imageThumbnail.appendChild(imgElement);
+
+        // Overlay div
+        const overlay = document.createElement('div');
+        overlay.classList.add('overlay');
 
         // Create a remove button
         const removeBtn = document.createElement('button');
         removeBtn.innerHTML = 'X';
         removeBtn.classList.add('remove-btn');
         removeBtn.onclick = function(event) {
-            event.stopPropagation(); // Prevent triggering the thumbnail's click
+            event.preventDefault();
             removeImageTag(imageUrl);
         };
-        imageThumbnail.appendChild(removeBtn);
+        overlay.appendChild(removeBtn); // Append removeBtn to overlay instead of imageThumbnail
 
         // Create a download link
         const downloadLink = document.createElement('a');
@@ -88,22 +105,68 @@ function updateImageTagThumbnails() {
         downloadLink.download = imageUrl.split('/').pop(); // Suggest filename from URL
         downloadLink.innerHTML = 'Download';
         downloadLink.classList.add('download-link');
-        imageThumbnail.appendChild(downloadLink);
-
-        imageTagThumbnails.appendChild(imageThumbnail);
-
-        // Create overlay div
-        const overlay = document.createElement('div');
-        overlay.classList.add('overlay');
-
-        // Append children (download and remove actions) to overlay
-        overlay.appendChild(removeBtn);
-        overlay.appendChild(downloadLink);
+        overlay.appendChild(downloadLink); // Append downloadLink to overlay instead of imageThumbnail
 
         // Append overlay to imageThumbnail
         imageThumbnail.appendChild(overlay);
+
+        imageTagThumbnails.appendChild(imageThumbnail);
     });
+
+    updatePaginationControls(); // Call to update pagination controls based on current state
 }
+
+function updatePaginationControls() {
+    const container = document.getElementById('pagination-controls');
+    container.innerHTML = '';
+    container.style.display = 'flex';
+    container.style.flexDirection = 'column';
+
+    const buttonContainer = document.createElement('div');
+    buttonContainer.style.display = 'flex';
+    buttonContainer.style.justifyContent = 'space-between';
+    buttonContainer.style.marginBottom = '10px';
+
+    const totalPages = Math.ceil(totalImages / imagesPerPage);
+
+    // Previous Button
+    if (currentPage > 1) {
+        const prevButton = document.createElement('button');
+        prevButton.textContent = 'Previous';
+        prevButton.className = 'pagination-button prev-button';
+        prevButton.type = 'button';
+        prevButton.onclick = function() {
+            if (currentPage > 1) {
+                currentPage--;
+                updateImageTagThumbnails(); // Refresh thumbnails to show the previous page
+            }
+        };
+        buttonContainer.appendChild(prevButton);
+    }
+
+    // Next Button
+    if (currentPage < totalPages) {
+        const nextButton = document.createElement('button');
+        nextButton.textContent = 'Next';
+        nextButton.className = 'pagination-button next-button';
+        nextButton.type = 'button';
+        nextButton.onclick = function() {
+            if (currentPage < totalPages) {
+                currentPage++;
+                updateImageTagThumbnails(); // Refresh thumbnails to show the next page
+            }
+        };
+        buttonContainer.appendChild(nextButton);
+    }
+
+    // Page Information Display
+    container.appendChild(buttonContainer);
+    const pageInfo = document.createElement('span');
+    pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+    pageInfo.className = 'page-info';
+    container.appendChild(pageInfo);
+}
+
 
 function updateHiddenImageInput() {
     const imageTagsInput = document.querySelector('input[name="imageTags"]');
@@ -122,6 +185,18 @@ if (generateStockImagesButton) {
     generateStockImagesButton.addEventListener('click', function() {
         isGenerateStockImagesClicked = true;
         document.getElementById('isGenerateStockImagesClickedField').value = 'true';
+        updateHiddenImageInput();
+        showSpinner();
+        imageTagForm.submit();
+    });
+}
+
+var isGeneratePixabayImagesClicked = false;
+var generatePixabayImagesButton = document.getElementById('generatePixabayImages');
+if (generatePixabayImagesButton) {
+    generatePixabayImagesButton.addEventListener('click', function() {
+        isGeneratePixabayImagesClicked = true;
+        document.getElementById('isGeneratePixabayImagesClickedField').value = 'true';
         updateHiddenImageInput();
         showSpinner();
         imageTagForm.submit();
