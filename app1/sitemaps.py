@@ -1,22 +1,27 @@
 from django.contrib.sitemaps import Sitemap
 from django.shortcuts import reverse
+from .sitemap_functions import get_articles_from_firestore_with_cache  # Adjust import as necessary
 
 class StaticViewSitemap(Sitemap):
     priority = 0.5
     changefreq = 'monthly'
 
     def items(self):
-        # List the names of your Django views here
         return [
-            'index', 'signup', 'login', 'forgot_password',
-            'change_email', 'privacy_policy', 'terms_of_service',
-            'contact', 'graphic_builder', 'dashboard', 'schedule',
-            'ad_manager', 'post_creator', 'brand_settings', 'library',
-            'callback', 'add_graphics', 'master_switch', 'all_auth',
-            'checkout', 'stripe_webhook', 'success', 'cancel',
-            'download', 'start_chat', 'get_chat', 'clear_chat',
-            'unlink', 'logout_view', 'process_page_selection', 'get_articles', 'pricing', 'article_detail'
+            'index', 'privacy_policy', 'terms_of_service', 'pricing'
         ]
 
     def location(self, item):
         return reverse(item)
+    
+class FirebaseArticleSitemap(Sitemap):
+    changefreq = "daily"
+    priority = 0.7
+
+    def items(self):
+        # Fetch your articles list from cache
+        return get_articles_from_firestore_with_cache()
+
+    def location(self, item):
+        # Assuming each item has a 'slug' attribute
+        return reverse('article_detail', kwargs={'article_slug': item['slug']})

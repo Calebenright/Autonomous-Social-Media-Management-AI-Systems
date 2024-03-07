@@ -3,7 +3,7 @@
 <html lang="en">
 
 <head>
-
+    <meta name="robots" content="noindex">
     <meta charset="utf-8" />
     <title>Dashboard | Feadl.io</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -27,6 +27,23 @@
     <link href="{% static 'dashboard/css/spectrum.min.css' %}" rel="stylesheet" type="text/css">
 
     
+    <!-- Meta Pixel Code -->
+    <script>
+        !function(f,b,e,v,n,t,s)
+        {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+        n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+        if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+        n.queue=[];t=b.createElement(e);t.async=!0;
+        t.src=v;s=b.getElementsByTagName(e)[0];
+        s.parentNode.insertBefore(t,s)}(window, document,'script',
+        'https://connect.facebook.net/en_US/fbevents.js');
+        fbq('init', '7170700856358682');
+        fbq('track', 'PageView');
+        </script>
+        <noscript><img height="1" width="1" style="display:none"
+        src="https://www.facebook.com/tr?id=7170700856358682&ev=PageView&noscript=1"
+        /></noscript>
+        <!-- End Meta Pixel Code -->
 
 </head>
 
@@ -384,9 +401,12 @@
                                             <i class="fe-refresh-cw"></i>
                                         </a>
                                     </div>
-                                    <div class="d-flex">
+                                    <div class="d-flex" style="position: relative;">
                                         <div class="flex-grow-1">
                                             <h5 class="mt-0 mb-1 text-truncate">Elaine</h5>
+                                        </div>
+                                        <div style="position: absolute; top: -15px; left: 30px; background-color: gray; border-radius: 10px; padding: 1px 2px; color: white; font-size: 8px; width: 30px; text-align: center;">
+                                            BETA
                                         </div>
                                     </div>
                                     <hr class="my-3">
@@ -446,13 +466,14 @@
                                                 <br>
                                                 <label for="posts_per_week" style="text-align: left;">Generated posts per week: </label>
                                                 <select class="form-control" name="posts_per_week" style="margin: 10px 0; width: 60px; text-align: center;">
+                                                    <option value="0" {% if elaine_settings.posts_per_week == 0 %}selected{% endif %}>0</option>
                                                     <option value="1" {% if elaine_settings.posts_per_week == 1 %}selected{% endif %}>1</option>
                                                     <option value="2" {% if elaine_settings.posts_per_week == 2 %}selected{% endif %}>2</option>
                                                     <option value="3" {% if elaine_settings.posts_per_week == 3 %}selected{% endif %}>3</option>
                                                 </select>                                                
-                                                <label for="scheduleMode" style="text-align: left; margin: 10px 0; width: 250px;">Schedule posts starting from the last post scheduled in the calendar: </label>
+                                                <!-- <label for="scheduleMode" style="text-align: left; margin: 10px 0; width: 250px;">Schedule posts starting from the last post scheduled in the calendar: </label>
                                                 <input type="checkbox" name="scheduleMode" {% if elaine_settings.scheduleMode %}checked{% endif %} data-plugin="switchery" data-color="#71b6f9">
-                                                <br>
+                                                <br> -->
                                                 <div>
                                                     <button type="submit" class="btn btn-primary waves-effect waves-light">Save</button>
                                                 </div>
@@ -537,7 +558,7 @@
             <div class="row">
                 <div class="col-md-6">
                     <script>document.write(new Date().getFullYear())</script> &copy; Copyright
-                    <a href="www.theenrightgroup.org" target="_blank"> Enright Group</a>
+                    <a href="https://www.theenrightgroup.org" target="_blank"> Enright Group</a>
                 </div>
                 <div class="col-md-6">
                     <div class="text-md-end footer-links d-none d-sm-block">

@@ -101,27 +101,60 @@
   <main>
     <section class="bg-gradient-light padding padding-top">
       <style>
-        .article {
-            margin-top: 80px;
-            margin-bottom: 20px;
-            padding: 20px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            text-align: center;
-        }
-        .article h2 {
-            margin-top: 0;
-        }
+      .articles-container {
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: space-around;
+          margin-top: 80px;
+      }
+      .article {
+          flex: 0 1 calc(33.333% - 40px);
+          margin: 20px;
+          padding: 20px;
+          border: 1px solid #ddd;
+          border-radius: 5px;
+          text-align: center;
+          box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      }
+      .article-thumbnail {
+          width: 100%; /* Responsive container width */
+          height: 0;
+          padding-top: 56.25%; /* 16:9 Aspect Ratio */
+          position: relative;
+          border-radius: 5px;
+          overflow: hidden;
+      }
+      .article-thumbnail img {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          width: auto;
+          height: 100%;
+          transform: translate(-50%, -50%);
+          min-width: 100%;
+          min-height: 100%;
+          object-fit: cover; /* Ensures the image covers the area, may be cropped */
+      }
+      .article h4 {
+          margin-top: 10px;
+      }
       </style>
       <h3>Latest Articles</h3>
-      {% for article in articles %}
-      <div class="article">
-          <h4 style="text-align: center;">{{ article.title }}</h4>
-          <div class="article-content" style="text-align: left;">{{ article.content|safe }}</div>
-          <br>
-          <h6 style="text-align: center;"><a href="{% url 'article_detail' article_slug=article.slug %}">{{ article.title }}</a></h6>
+      <div class="articles-container">  
+        {% for article in articles %}
+        <div class="article">
+          <div class="article-thumbnail">
+            {% if article.image %}
+            <img src="{{ article.image }}" alt="{{ article.title }}">
+            {% endif %}
+          </div>
+          <h4>{{ article.title }}</h4>
+          <a href="{% url 'article_detail' article_slug=article.slug %}">Read More</a>
+        </div>
+        {% empty %}
+        <p>No articles found.</p>
+        {% endfor %}    
       </div>
-      {% endfor %}
     </section>
   </main>
   <footer class="footer-main bg-gradient-primary dark overlay-shape-06">
@@ -168,7 +201,7 @@
         </div>
       </div>
     </div>
-    <p class="copyright"><span>Copyright </span><a href="www.theenrightgroup.org" target="_blank">© Enright Group</a><span> - 2024, all rights reserved.</span></p>
+    <p class="copyright"><span>Copyright </span><a href="https://www.theenrightgroup.org" target="_blank">© Enright Group</a><span> - 2024, all rights reserved.</span></p>
   </footer>
 
   <script src="{% static 'website/js/main.js' %}"></script>

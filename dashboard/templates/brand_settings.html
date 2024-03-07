@@ -3,6 +3,7 @@
 <html lang="en">
 
 <head>
+    <meta name="robots" content="noindex">
     <meta charset="utf-8" />
     <title>Settings | Feadl.io</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -521,13 +522,6 @@
                                                 <div class="me-3 flex-shrink-0" style="align-items: center; margin: 0 1rem;">
                                                     <input id="logo_switch" type="checkbox" {% if user_settings.isLogo %}checked{% endif %} data-plugin="switchery" data-color="#039cfd"/>
                                                 </div>
-                                                <script>
-                                                    var switcheryInput = document.getElementById('logo_switch');
-
-                                                    switcheryInput.addEventListener('click', function(event) {
-                                                        event.stopPropagation();
-                                                    });
-                                                </script>
                                             </div>
                                         </div>
                                         <br>
@@ -642,6 +636,7 @@
                                         {% endif %}
                                     </form>
                                     <br>
+                                    {% if user_id == 'JPezmmBl5HMG2FzewECgKyYoZTC2' %}
                                     <form id="linkedin" method="post" action="{% url 'all_auth' %}" enctype="multipart/form-data">
                                         {% csrf_token %}
                                         <input type="hidden" name="form" id="formType" value="">
@@ -708,6 +703,24 @@
                                         </script>
                                         {% endif %}
                                     </form>
+                                    {% else %}
+                                    <form id="linkedin" method="post" action="{% url 'all_auth' %}" enctype="multipart/form-data">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="form" id="formType" value="">
+                                        <button type="button" class="social-button" id="connectLinkedin">
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar-sm me-3 flex-shrink-0">
+                                                    <img src="{% static 'dashboard/images/icon/linkedin_logo.png' %}" class="img-fluid rounded-circle" alt="LinkedIn">
+                                                </div>
+                                                <div class="flex-grow-1 overflow-hidden">
+                                                    <h5 class="mt-0 mb-1"> LinkedIn</h5>
+                                                    <small class="text-primary"><b>Coming Soon</b></small>
+
+                                                </div>
+                                            </div>
+                                        </button>
+                                    </form>
+                                    {% endif %}
                                     <br>
                                     <form id="google_business" method="post" action="{% url 'all_auth' %}" enctype="multipart/form-data">
                                         {% csrf_token %}
@@ -870,7 +883,7 @@
                     <div class="row">
                         <div class="col-md-6">
                             <script>document.write(new Date().getFullYear())</script> &copy; Copyright
-                            <a href="www.theenrightgroup.org" target="_blank"> Enright Group</a>
+                            <a href="https://www.theenrightgroup.org" target="_blank"> Enright Group</a>
                         </div>
                         <div class="col-md-6">
                             <div class="text-md-end footer-links d-none d-sm-block">

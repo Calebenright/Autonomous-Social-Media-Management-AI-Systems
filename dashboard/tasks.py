@@ -76,17 +76,24 @@ def create_queue(queue):
     parent = f"projects/{project}/locations/{location}"
     queue_path = client.queue_path(project, location, queue)
 
+    retry_config = {
+        'max_attempts': 1
+    }
+
     try:
         client.get_queue(name=queue_path)
         print(f"Queue '{queue}' already exists.")
-        return False  
+        return False
     except NotFound:
-        queue_obj = client.create_queue(parent=parent, queue={"name": queue_path})
-        print('Created queue:', queue_obj.name)
-        return True 
-    except AlreadyExists:
-        print(f"Queue '{queue}' already exists.")
-        return False 
+        queue_obj = client.create_queue(
+            parent=parent,
+            queue={
+                "name": queue_path,
+                "retry_config": retry_config
+            }
+        )
+        print('Created queue with no retries:', queue_obj.name)
+        return True
 
 
 def make_authorized_get_request():

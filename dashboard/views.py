@@ -20,7 +20,7 @@ from .post_to_socials import post_to_facebook_page_feed, post_text_to_facebook_p
 from django.http import JsonResponse
 from django.core.files.uploadedfile import InMemoryUploadedFile
 import time
-from .functions import generate_random_date, delete_library_images_from_gcs, add_pixabay_tags, get_image, create_tags, generate_secondary_colors, create_email, create_unsplash_post, create_text_post, add_stock_tags, find_least_filled_day_with_largest_gap, upload_image_to_library, delete_from_google, reupload_gcs_image, download_and_save_image_as_seek, create_stock_image_description, create_background_image_description, create_call_to_action, create_caption, create_ad_copy, create_ad_headline, upload_jpg_to_google, add_logo, create_upload, create_ad_creative, upload_png_to_google, convert_color_to_hex, upload_video_to_google
+from .functions import generate_random_date, delete_library_images_from_gcs, add_pixabay_tags, get_image, create_tags, generate_secondary_colors, send_new_subscriber_email, create_email, create_new_subscriber_email, create_unsplash_post, create_text_post, add_stock_tags, find_least_filled_day_with_largest_gap, upload_image_to_library, delete_from_google, reupload_gcs_image, download_and_save_image_as_seek, create_stock_image_description, create_background_image_description, create_call_to_action, create_caption, create_ad_copy, create_ad_headline, upload_jpg_to_google, add_logo, create_upload, create_ad_creative, upload_png_to_google, convert_color_to_hex, upload_video_to_google
 from .chatbot import schedule_post, get_stock_image, post_to_feed, add_graphics_from_bot
 from firebase_admin import firestore, auth, credentials
 import base64
@@ -119,7 +119,8 @@ def dashboard(request):
                 'email': user_email,
                 'num_sent': 0,
                 'last_reset_time': datetime.now(),
-                'firebase_id_token': firebase_id_token
+                'firebase_id_token': firebase_id_token,
+                'trial': 0
             }
 
             user_settings_ref.set(firestore_data, merge=True)
@@ -130,14 +131,11 @@ def dashboard(request):
 
             posts_per_week = request.POST.get('posts_per_week', 3) 
             scheduleMode = request.POST.get('scheduleMode') == 'on'
-
+            
             try:
                 posts_per_week = int(posts_per_week)
             except ValueError:
                 posts_per_week = 0
-
-            print(posts_per_week)
-            print(scheduleMode)
 
             firestore_data = {
                 'posts_per_week': posts_per_week,
@@ -287,8 +285,8 @@ def get_chat(request):
 
                 request.session['all_messages'] = all_messages
 
-                firestore_data = {'images_generated': user_settings['images_generated'] + 0.1}
-                user_settings_ref.set(firestore_data, merge=True)
+                # firestore_data = {'images_generated': user_settings['images_generated'] + 0.1}
+                # user_settings_ref.set(firestore_data, merge=True)
 
                 return JsonResponse({
                     'all_messages': all_messages,
@@ -315,7 +313,7 @@ def get_chat(request):
                             "tool_call_id": action["id"],
                             "output": "image url: " + url + "Caption: " + caption,
                             })
-                        images_generated = user_settings['images_generated'] + 0.9
+                        images_generated = user_settings['images_generated'] + 1
                     elif function_name == "get_stock_post":
                         try:
                             keyword = arguments["keyword"]
@@ -333,7 +331,7 @@ def get_chat(request):
                                 "tool_call_id": action["id"],
                                 "output": "There was an error generating the image. Please try again.",
                                 })
-                        images_generated = user_settings['images_generated'] + 0.5
+                        images_generated = user_settings['images_generated'] + 0.3
                     elif function_name == "get_ai_image":
                         image_description = arguments["image_description"]
                         img_url = get_image(image_description)
@@ -344,10 +342,10 @@ def get_chat(request):
                             "tool_call_id": action["id"],
                             "output": "image url: " + url,
                             })
-                        images_generated = user_settings['images_generated'] + 0.9
+                        images_generated = user_settings['images_generated'] + 1
                     elif function_name == "get_stock_image":
                         keyword = arguments["keyword"]
-                        img_url = get_stock_image(image_description)
+                        img_url = get_stock_image(keyword)
                         edit = add_graphics_from_bot(img_url, user_settings, user_settings_ref, global_variables, 'photo')
                         img = download_and_save_image_as_seek(edit)
                         url = upload_png_to_google(img, settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, 'delete_image_library/')
@@ -355,7 +353,7 @@ def get_chat(request):
                             "tool_call_id": action["id"],
                             "output": "image url: " + url,
                             })
-                        images_generated = user_settings['images_generated'] + 0.2
+                        images_generated = user_settings['images_generated'] + 0.3
                     elif function_name == "get_caption":
                         keywords = arguments["keywords"]
                         caption = create_caption(keywords, user_settings['business_name'])
@@ -381,6 +379,7 @@ def get_chat(request):
                             "tool_call_id": action["id"],
                             "output": f"Successfully posted to {platforms}",
                             })
+                        images_generated = user_settings['images_generated']
                     elif function_name == "schedule_post":
                         url = arguments["url"]
                         caption = arguments["caption"]
@@ -392,6 +391,7 @@ def get_chat(request):
                             "tool_call_id": action["id"],
                             "output": f"Here are the post details, only display the relevant info like date and socials: {post_details}",
                             })
+                        images_generated = user_settings['images_generated']
                     elif function_name == "add_graphics":
                         img_url = arguments["url"]
                         edit = add_graphics_from_bot(img_url, user_settings, user_settings_ref, global_variables, 'graphic')
@@ -401,7 +401,7 @@ def get_chat(request):
                             "tool_call_id": action["id"],
                             "output": "Graphics added to" + url,
                             })
-                        images_generated = user_settings['images_generated'] + 0.2
+                        images_generated = user_settings['images_generated'] + 0.1
                     else:
                         url = 'There was an error'
                         caption = 'There was an error'
@@ -658,7 +658,16 @@ def post_creator(request):
 
     if request.method == 'POST':
         form_name = request.POST.get('form')
-        if user_settings['isSubscriber']:
+        isSubscriber = user_settings['isSubscriber']
+        if isSubscriber == False:
+            trial = user_settings.get('trial', 0)
+            if trial < 4:
+                isSubscriber = True
+                trial += 1
+                firestore_data = {'trial': trial}
+                user_settings_ref.set(firestore_data, merge=True)
+
+        if isSubscriber:
             # -------------- CAPTIONS --------------- #
             if form_name == 'formCaption1':
                 if selected_option == "text":
@@ -1007,7 +1016,7 @@ def post_creator(request):
                         image = request.FILES.get('file')
                         file_extension = image.name.split('.')[-1].lower()
                         isLogo = request.POST.get('isLogo', False)
-                        images_generated += 0.2
+                        images_generated += 0
 
                         # try:
                         if file_extension not in ['jpg', 'jpeg', 'png']:
@@ -1030,7 +1039,7 @@ def post_creator(request):
                     elif selected_option == 'text':
                         progress = 100
                         select = request.POST.get('text-platform')
-                        images_generated += 0.3
+                        images_generated += 0.1
                         try:
                             post = create_text_post(select, biz, biz_name)
                             url = None
@@ -1041,11 +1050,12 @@ def post_creator(request):
                     elif selected_option == 'photo':
                         progress = 0
                         img_url = request.POST.get('selected_img_url', 'None')
-                        images_generated += 1
                         if img_url != 'None':
+                            images_generated += 0.3
                             progress = 95
                             url = img_url
                         else:
+                            images_generated += 1
                             entered_tags = request.POST.get('tags')
                             tags = entered_tags.split(',')
                             request.session['tags'] = tags
@@ -1069,8 +1079,8 @@ def post_creator(request):
                         key = request.POST.get('ai-description')
                         request.session['key'] = key
                         img_url = request.POST.get('selected_img_url', 'None')
-                        images_generated += 1
                         if img_url == 'None':
+                            images_generated += 1
                             prompt_string = create_background_image_description(key)
                             payload = {
                                 "prompt": prompt_string, 
@@ -1083,6 +1093,7 @@ def post_creator(request):
                             url = ''
                             progress = 0
                         else:
+                            images_generated += 0.3
                             try:
                                 progress = 95
                                 url = img_url
@@ -1094,24 +1105,22 @@ def post_creator(request):
                         key = request.POST.get('ad-description')
                         request.session['key'] = key
                         img_url = request.POST.get('selected_img_url', 'None')
-                        images_generated += 1
+                        print(img_url)
                         if img_url == 'None':
-                            try:
-                                prompt_string = create_background_image_description(key)
-                                payload = {
-                                    "prompt": prompt_string, 
-                                    "uid": user_id, 
-                                    "dimensions": "1024x1024", 
-                                    "number": 1
-                                }
-                                create_queue(user_id)
-                                enqueue_task(payload, user_id, settings.GS_DALLE3)
-                                progress = 0
-                                url = ''
-                            except:
-                                messages.error(request, 'Image failed to generate. If the problem persists, please contact us at https://feadl.io/contact/')
-                                return redirect('post_creator')
+                            images_generated += 1.2
+                            prompt_string = create_background_image_description(key)
+                            payload = {
+                                "prompt": prompt_string, 
+                                "uid": user_id, 
+                                "dimensions": "1024x1024", 
+                                "number": 1
+                            }
+                            create_queue(user_id)
+                            enqueue_task(payload, user_id, settings.GS_DALLE3)
+                            progress = 0
+                            url = ''
                         else:
+                            images_generated += 0.5
                             try:
                                 progress = 95
                                 url = img_url
@@ -1132,7 +1141,7 @@ def post_creator(request):
                         else:
                             post = create_caption(biz, biz_name)
                 else:
-                    messages.error(request, 'Our generators need time to cooldown. You can check the progress in the Account Settings Tab.')
+                    messages.error(request, 'Our generators need time to cooldown. Cooldown time is currently: 24 Hours. You can check the progress in the Account Settings Tab. ')
                     return redirect('post_creator')
 
                 try:
@@ -1376,16 +1385,9 @@ def brand_settings(request):
     try:
         generated_images = user_settings['images_generated']
         total_allowed_images = global_variables['total_allowed_images']
-        cooldown_expiry = user_settings['cooldown_expiry']
         progress_ratio = generated_images / total_allowed_images
-        tz = pytz.UTC
-        current_time = datetime.now(tz)
-        remaining_time = (cooldown_expiry - current_time).total_seconds()
-        total_seconds_in_day = 30 * 60 * 60
-        cooldown_ratio = remaining_time / total_seconds_in_day
-        combined_ratio = (progress_ratio + cooldown_ratio) / 2
-        progress_percentage = int(combined_ratio * 100)
-        cooldown = min(100, max(1, progress_percentage))
+        progress_percentage = int(progress_ratio * 100)
+        cooldown = min(100, max(0, progress_percentage))
 
     except (TypeError, KeyError):
         cooldown = None
@@ -1409,10 +1411,11 @@ def brand_settings(request):
                 else:
                     tags = ''
 
+
             firestore_data = {
-                'business_name': request.POST.get('business_name'),
-                'business_description': request.POST.get('business_description'),
-                'website': request.POST.get('website'),
+                'business_name': request.POST.get('business_name', '').strip(),
+                'business_description': request.POST.get('business_description', '').strip(),
+                'website': request.POST.get('website', '').strip(),
                 'tags': tags
             }
 
@@ -1738,7 +1741,6 @@ def callback(request):
                         f'{provider}_personal_name': personal_name,
                         f'{provider}_type': 'business',
                         f'{provider}_token': access_token,
-                        f'is{isCheck}': True
                     }
 
                     user_settings_ref.set(firestore_data, merge=True)
@@ -1763,22 +1765,24 @@ def callback(request):
             if has_multiple:
                 firestore_data = {
                     f'{provider}_token': access_token,
-                    f'is{isCheck}': True,
                 }
                 user_settings_ref.set(firestore_data, merge=True)
                 return render(request, 'page_selection_popup.html', {'pages': facebook_pages_and_groups, 'provider': provider,})
             else:
+                isFacebook = True
                 facebook_page_id = facebook_pages_and_groups[0]['id'] if facebook_pages_and_groups else None
                 facebook_page_token = facebook_pages_and_groups[0]['access_token'] if facebook_pages_and_groups else None
                 facebook_page_type = facebook_pages_and_groups[0]['type'] if facebook_pages_and_groups else None
                 facebook_page_name = facebook_pages_and_groups[0]['name'] if facebook_pages_and_groups else None
+                if not all([facebook_page_id, facebook_page_token, facebook_page_type, facebook_page_name]):
+                    isFacebook = False
                 firestore_data = {
                     f'{provider}_token': access_token,
                     f'{provider}_page_id': facebook_page_id,
                     f'{provider}_page_name': facebook_page_name,
                     f'{provider}_page_token': facebook_page_token,
                     f'{provider}_page_type': facebook_page_type,
-                    f'is{isCheck}': True,
+                    'isFacebook': isFacebook,
                 }
                 user_settings_ref.set(firestore_data, merge=True)
                 pass
@@ -1889,6 +1893,7 @@ def process_page_selection(request):
                 f'{provider}_page_name': page_name,
                 f'{provider}_page_token': page_token,
                 f'{provider}_page_type': page_type,
+                'isFacebook': True
             }       
             user_settings_ref.set(firestore_data, merge=True)
             messages.success(request, f"You've successfully logged connected your {provider} account!")
@@ -1898,6 +1903,7 @@ def process_page_selection(request):
             firestore_data = {
                 f'{provider}_id': selected_page_id,
                 f'{provider}_name': page_name,
+                'isLinkedin': True
             }       
             user_settings_ref.set(firestore_data, merge=True)
             messages.success(request, f"You've successfully logged connected your {provider} account!")
@@ -1998,9 +2004,10 @@ def elaine_generate_post(request):
 
         posts_per_week = elaine_settings.get('posts_per_week', 3)
 
-        payload = {"uid": uid, 'posts_per_week': posts_per_week}
-        create_queue(uid)
-        gc_task(payload, uid, config("CREATE_POSTS_PER_WEEK"))
+        if posts_per_week > 0:
+            payload = {"uid": uid, 'posts_per_week': posts_per_week}
+            create_queue(uid)
+            gc_task(payload, uid, config("CREATE_POSTS_PER_WEEK"))
 
         return HttpResponse("Tasks completed successfully, Elaine settings retrieved.", status=200)
     except Exception as e:
@@ -2337,7 +2344,7 @@ def create_checkout_session(request, plan, billing_cycle):
     if user_id == None:
         return redirect('login')
     price_id = settings.PRODUCT_IDS.get(f"{plan}_{billing_cycle}")
-    prices_with_trial = ['price_1OkDb9Ay1fGRWtyhuDUo4TCh', 'price_1OkDcnAy1fGRWtyhypSAf6xa', 'price_1OXVmGAy1fGRWtyhtaGblcfg', 'price_1OXVtRAy1fGRWtyhrS56mtiH', 'price_1OkDi7Ay1fGRWtyhqQm6mBqJ']
+    prices_with_trial = [settings.PREMIUM_MONTHLY_PRICE_ID, settings.AGENCY_MONTHLY_PRICE_ID, settings.PREMIUM_ANNUAL_PRICE_ID, settings.AGENCY_ANNUAL_PRICE_ID,]
     if price_id in prices_with_trial:
         trial_period_days = 7
     else:
@@ -2458,6 +2465,8 @@ def stripe_webhook(request):
                 user_settings_ref = db.collection('users').document(uid)
                 user_settings_doc = user_settings_ref.get()
                 user_settings = user_settings_doc.to_dict()
+                if isAutomated:
+                    send_new_subscriber_email(user_settings.get('email'), user_settings.get('business_description'), user_settings.get('business_name'))
                 firestore_data = {'customer_id': customer_id, 'subscription_id': subscription_id, 'isSubscriber': True, 'subscription_status': 'Subscribed', 'subscription_plan': plan, 'isAutomated': isAutomated}
                 user_settings_ref.set(firestore_data, merge=True)
                 if user_settings.get('isBusiness', False):
@@ -2466,37 +2475,53 @@ def stripe_webhook(request):
             return JsonResponse({'status': 'Checkout Complete'})
         
         if event['type'] == 'customer.subscription.updated':
-            print(event)
             customer_id = event['data']['object']['customer']
             plan_id = event['data']['object']['items']['data'][0]['plan']['id']
+            subscription_status = event['data']['object']['status']
+            canceled_at = event['data']['object'].get('canceled_at', None)
+
             def get_plan_name_by_id(plan_id):
                 plan_mappings = {
-                    'price_1Om0VGAy1fGRWtyhJzi4JOMZ': 'Standard Plan',
-                    'price_1Om0W5Ay1fGRWtyhchwLA7zG': 'Premium Plan',
-                    'price_1OXVtRAy1fGRWtyhrS56mtiH': 'Agency Plan',
-                    'price_1Om0UrAy1fGRWtyhXkYqpmVC': 'Standard Annual Plan',
-                    'price_1Om0TNAy1fGRWtyhU91Sewma': 'Premium Annual Plan',
-                    'price_1OkDb9Ay1fGRWtyhuDUo4TCh': 'Agency Annual Plan',
+                    settings.STANDARD_MONTHLY_PRICE_ID: 'Standard Plan',
+                    settings.PREMIUM_MONTHLY_PRICE_ID: 'Premium Plan',
+                    settings.AGENCY_MONTHLY_PRICE_ID: 'Agency Plan',
+                    settings.STANDARD_ANNUAL_PRICE_ID: 'Standard Annual Plan',
+                    settings.PREMIUM_ANNUAL_PRICE_ID: 'Premium Annual Plan',
+                    settings.AGENCY_ANNUAL_PRICE_ID: 'Agency Annual Plan',
                 }
                 return plan_mappings.get(plan_id, 'Unknown Plan')
+            
             plan_name = get_plan_name_by_id(plan_id)
 
-            docs = (
-                db.collection('users')
-                .where(filter=FieldFilter("customer_id", "==", customer_id))
-                .stream()
-            )
+            docs = db.collection('users').where("customer_id", "==", customer_id).stream()
+
             for doc in docs:
                 user_id = doc.id
                 user_settings_ref = db.collection('users').document(user_id)
-                if plan_name in ["Premium Plan", "Agency Plan", "Premium Annual Plan", "Agency Annual Plan"]:
-                    isAutomated = True
-                    firestore_data = {'isAutomated': isAutomated}
-                    user_settings_ref.set(firestore_data, merge=True)
-                elif plan_name in ["Standard Plan", "Standard Annual Plan"]:
-                    isAutomated = False
-                    firestore_data = {'isAutomated': isAutomated}
-                    user_settings_ref.set(firestore_data, merge=True)
+                user_settings = doc.to_dict()
+                update_data = {}
+
+                if subscription_status == "canceled" or canceled_at is not None:
+                    update_data = {
+                        'isSubscriber': False,
+                        'subscription_status': 'Canceled',
+                        'subscription_plan': 'Canceled',
+                        'isAutomated': False
+                    }
+                elif plan_name != user_settings.get('subscription_plan', None):
+                    isAutomated = plan_name in ["Premium Plan", "Agency Plan", "Premium Annual Plan", "Agency Annual Plan"]
+                    update_data = {
+                        'subscription_plan': plan_name,
+                        'isAutomated': isAutomated
+                    }
+                    if isAutomated:
+                        send_new_subscriber_email(user_settings.get('email'), user_settings.get('business_description'), user_settings.get('business_name'))
+
+                if update_data:
+                    user_settings_ref.set(update_data, merge=True)
+                    action = "Handled cancellation" if subscription_status == "canceled" or canceled_at is not None else "Plan Changed"
+                    print(f"{action} for user {user_id}.")
+
             return JsonResponse({'status': 'Plan Changed'})
         
         if event['type'] == 'invoice.payment_succeeded':
@@ -2523,7 +2548,12 @@ def stripe_webhook(request):
             for doc in docs:
                 user_id = doc.id
                 user_settings_ref = db.collection('users').document(user_id)
-                firestore_data = {'isSubscriber': False, 'subscription_status': 'Payment Failed'}
+                firestore_data = {
+                    'isSubscriber': False,
+                    'subscription_status': 'Canceled',
+                    'subscription_plan': 'Canceled',
+                    'isAutomated': False
+                }
                 user_settings_ref.set(firestore_data, merge=True)
             return JsonResponse({'status': 'Payment Failed'})
         
@@ -2537,7 +2567,12 @@ def stripe_webhook(request):
             for doc in docs:
                 user_id = doc.id
                 user_settings_ref = db.collection('users').document(user_id)
-                firestore_data = {'isSubscriber': False, 'subscription_status': 'Subscription Canceled'}
+                firestore_data = {
+                    'isSubscriber': False,
+                    'subscription_status': 'Canceled',
+                    'subscription_plan': 'Canceled',
+                    'isAutomated': False
+                }
                 user_settings_ref.set(firestore_data, merge=True)
             return JsonResponse({'status': 'Subscription Canceled'})
         return JsonResponse({'status': 'nothing'})

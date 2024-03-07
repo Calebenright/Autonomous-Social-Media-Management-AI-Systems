@@ -32,7 +32,7 @@ onAuthStateChanged(auth, (user) => {
 function updateStatusInFirestore() {
     onSnapshot(statusDocRef, (docSnapshot) => {
         if (docSnapshot.exists()) {
-            if(logoSwitch) {
+            if (logoSwitch) {
                 let isLogo = docSnapshot.data().isLogo;
 
                 const userData = {
@@ -40,14 +40,16 @@ function updateStatusInFirestore() {
                 };
 
                 logoSwitch.checked = isLogo;
-            }
+                console.log(logoSwitch.checked)
 
-            setDoc(statusDocRef, userData, { merge: true })
+                setDoc(statusDocRef, userData, { merge: true })
                 .then(() => {
                 })
                 .catch((error) => {
                     console.error('Error updating data to Firestore:', error);
                 });
+            }
+
         } else {
             console.error('No Document Exists:', error);
         }

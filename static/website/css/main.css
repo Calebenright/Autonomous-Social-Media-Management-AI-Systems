@@ -2146,6 +2146,10 @@ form .form-help {
   color: #fff;
 }
 
+.mobile-svg {
+  fill: #110f24; /* Black fill for non-mobile devices */
+}
+
 @media only screen and (max-width: 767px) {
   .header-main {
     position: fixed;
@@ -2280,6 +2284,9 @@ form .form-help {
   }
   .header-main.active .button-secondary:hover {
     background: rgba(255, 255, 255, 0.1);
+  }
+  .white {
+    fill: #FFFFFF;
   }
 }
 
@@ -3084,16 +3091,6 @@ width: 100% !important;
   transform-origin: 0 0;
 }
 
-
-/* Ensure the .sale-tag is visually above other elements */
-.sale-tag, .most-popular-tag {
-  z-index: 2;
-}
-
-.most-popular-tag, .sale-tag {
-  z-index: 1; /* Ensure tags are visible above other elements */
-}
-
 .pricing-header {
   display: flex;
   align-items: baseline; /* Aligns prices correctly */
@@ -3216,10 +3213,6 @@ width: 100% !important;
   }
 }
 
-.mobile-svg {
-  fill: #000000; /* Black fill for non-mobile devices */
-}
-
 @media (max-width: 768px) {
   .plan-comparison-container {
       overflow-x: scroll;
@@ -3237,8 +3230,5 @@ width: 100% !important;
   .col-one-third {
     margin: 10px 0;
   }
-  .mobile-svg {
-    fill: #FFFFFF; /* White fill for mobile devices */
-}
 }
 

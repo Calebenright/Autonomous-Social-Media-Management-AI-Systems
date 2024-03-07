@@ -104,12 +104,12 @@ if __name__ == "__main__":
     collection_name = 'articles'
 
     # topic = 'Our site is about social media marketing, service-based businesses, ai-driven marketing, large language social media model, image generator for social media.'
-    topic = 'social media, ai'
+    topic = 'online marketing, soloprenuer, service based business, Dallas TX'
     title = create_title(topic)
 
     content = create_article(title)
 
-    key = 'Social Media'
+    key = 'Social Media management, Dallas Texas'
     img = pull_stock(key)
 
     article_data = {

@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+from django.core.cache import cache
 from django.contrib import messages
 from django.http import HttpResponse, HttpResponseRedirect
 from django.core.mail import EmailMessage
@@ -22,34 +23,38 @@ def terms_of_service(request):
     return render(request, 'terms_of_service.html')
 
 def get_articles(request):
-    try:
-        db = firestore.client()
-        articles_ref = db.collection('articles').order_by('publishedDate', direction=firestore.Query.DESCENDING)
-        docs = articles_ref.stream()
-        articles = [doc.to_dict() for doc in docs]
-        return render(request, 'article_list.html', {'articles': articles})
-    except Exception as e:
-        print(f"An error occurred: {e}")
-        return render(request, 'article_list.html', {'error': 'Failed to fetch articles.'})
+    cached_articles = cache.get('cached_articles_list')
+    if cached_articles is None:
+        try:
+            db = firestore.client()
+            articles_ref = db.collection('articles').order_by('publishedDate', direction=firestore.Query.DESCENDING).limit(36)
+            docs = articles_ref.stream()
+            cached_articles = [doc.to_dict() for doc in docs]
+            cache.set('cached_articles_list', cached_articles, 600)
+        except Exception as e:
+            print(f"An error occurred: {e}")
+            cached_articles = []
+    return render(request, 'article_list.html', {'articles': cached_articles})
 
 def article_detail(request, article_slug):
-    try:
-        db = firestore.client()
-        # Assuming each article has a 'slug' field
-        article_ref = db.collection('articles').where('slug', '==', article_slug).limit(1)
-        docs = article_ref.stream()
-
-        article = next(docs, None)
-        if article is not None:
-            article_data = article.to_dict()
-        else:
-            # Article not found
-            article_data = None
-
-        return render(request, 'articles/article_details.html', {'article': article_data})
-    except Exception as e:
-        print(f"An error occurred fetching article {article_slug}: {e}")
-        return render(request, 'articles/article_detail.html', {'error': 'Failed to fetch the article.'})
+    cache_key = f'article_detail_{article_slug}'
+    cached_article = cache.get(cache_key)
+    if cached_article is None:
+        try:
+            db = firestore.client()
+            # Assuming each article has a 'slug' field
+            article_ref = db.collection('articles').where('slug', '==', article_slug).limit(1)
+            docs = article_ref.stream()
+            article = next(docs, None)
+            if article:
+                cached_article = article.to_dict()
+                cache.set(cache_key, cached_article, 600)
+            else:
+                cached_article = {'error': 'Article not found'}
+        except Exception as e:
+            print(f"An error occurred fetching article {article_slug}: {e}")
+            cached_article = {'error': 'Failed to fetch the article.'}
+    return render(request, 'articles/article_details.html', {'article': cached_article})
 
 def graphic_builder(request):
     return render(request, 'graphic_builder.html')
@@ -186,6 +191,7 @@ def login(request):
             db = firestore.client()
             master_ref = db.collection('variables').document('master')
             master_doc = master_ref.get()
+
             master_settings = master_doc.to_dict()
             if user_id == master_settings['id']:
                 request.session['master'] = True
@@ -195,7 +201,25 @@ def login(request):
             return redirect('login')
     return render(request, 'login.html')
 
-
+def robots_txt(request):
+    lines = [
+        "User-agent: *",
+        "Disallow: /login/",
+        "Disallow: /signup/",
+        "Disallow: /ad_manager/",
+        "Disallow: /brand_settings/",
+        "Disallow: /contact/",
+        "Disallow: /graphic_builder/",
+        "Disallow: /forgot_password/",
+        "Disallow: /change_email/",
+        "Disallow: /calendar/",
+        "Disallow: /checkout/",
+        "Disallow: /library/",
+        "Disallow: /post_creator/",
+        "Disallow: /dashboard/",
+        "Disallow: /page_selection_popup/",
+    ]
+    return HttpResponse("\n".join(lines), content_type="text/plain")
 
 
 

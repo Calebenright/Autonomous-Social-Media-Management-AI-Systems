@@ -12,10 +12,17 @@ window.addEventListener('load', function() {
 
 document.addEventListener('scroll', function() {
   const header = document.querySelector('.header-main');
+  const mobileSvg = document.querySelector('.mobile-svg');
   if (window.scrollY >= 20) {
     header.classList.add('fade-in');
+    if (mobileSvg) {
+      mobileSvg.classList.add('white');
+    }
   } else {
     header.classList.remove('fade-in');
+    if (mobileSvg) {
+      mobileSvg.classList.add('white');
+    }
   }
 });
 
@@ -27,6 +34,7 @@ Array.from(document.getElementsByClassName('nav-toggle')).forEach(function(el) {
     Array.from(document.getElementsByClassName('header-main')).forEach(function(el) {
       el.classList.toggle('active');
     });
+    document.querySelector('.mobile-svg').classList.toggle('white');
   });
 });
 

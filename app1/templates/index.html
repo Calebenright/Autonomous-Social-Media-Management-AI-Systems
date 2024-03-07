@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8">
     <title>Feadl.io | AI Social Media Management</title>
-    <meta name="description" content="Elevate your marketing strategy with Feadlio, leveraging cutting-edge AI to automate social media and digital marketing for growth and efficiency.">
+    <meta name="description" content="Feadlio - Elevate your marketing strategy with Feadl.io, leveraging cutting-edge AI to automate social media and digital marketing for growth and efficiency.">
     <meta name="keywords" content="AI marketing, digital transformation, social media automation, marketing technology, AI-driven analytics, online marketing tools">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="canonical" href="https://www.feadl.io/">
@@ -53,6 +53,23 @@
       }
     }
     </script>
+    <!-- Meta Pixel Code -->
+    <script>
+      !function(f,b,e,v,n,t,s)
+      {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+      n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+      if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+      n.queue=[];t=b.createElement(e);t.async=!0;
+      t.src=v;s=b.getElementsByTagName(e)[0];
+      s.parentNode.insertBefore(t,s)}(window, document,'script',
+      'https://connect.facebook.net/en_US/fbevents.js');
+      fbq('init', '7170700856358682');
+      fbq('track', 'PageView');
+      </script>
+      <noscript><img height="1" width="1" style="display:none"
+      src="https://www.facebook.com/tr?id=7170700856358682&ev=PageView&noscript=1"
+      /></noscript>
+      <!-- End Meta Pixel Code -->
   </head>
   
 <body class="page page-home preload">
@@ -94,10 +111,11 @@
       </ul>
       <ul class="inline right">
         <li><a href="{% url 'login' %}">Log In</a></li>
-        <li><a href="{% url 'signup' %}" class="button button-secondary button-m full-width-tablet" role="button">Sign Up</a>
+        <li><a href="{% url 'signup' %}" class="button button-secondary button-m full-width-tablet" role="button">+ Join The Beta</a>
         </li>
       </ul>
     </nav>
+    
   </header>
 
   <main>
@@ -114,7 +132,7 @@
                       <img id="dynamicProfile" src="https://storage.googleapis.com/starter_web_app_bucket/user_folders/stock_image_library/0495ceee-1eb1-4887-84a1-1b23cf1d9adb.jpg" alt="Profile" class="profile-pic">
                       <span class="username">Username</span>
                   </div> -->
-                  <img id="dynamicImage" src="{% static 'website/media/webp/indexPost7.webp' %}" alt="Dynamic Image" class="post-image">
+                  <img id="dynamicImage" src="{% static 'website/media/webp/indexPost13.webp' %}" alt="Dynamic Image" class="post-image">
                   <!-- <p id="dynamicCaption" class="post-caption">Default caption</p>9 -->
               </div>
               <br>
@@ -130,7 +148,7 @@
               const dynamicProfile = document.getElementById('dynamicProfile');
 
               generateFeedBtn.addEventListener('click', function() {
-                  const businesses = ['business1', 'business2', 'business3', 'business4', 'business5', 'business6'];
+                  const businesses = ['business1', 'business2', 'business3', 'business4', 'business5', 'business6', 'business8', 'business9', 'business10', 'business11', 'business12', 'business14'];
                   const selectedBusiness = businesses[Math.floor(Math.random() * businesses.length)];
 
                   switch (selectedBusiness) {
@@ -152,8 +170,26 @@
                       case 'business6':
                           dynamicImage.src = "{% static 'website/media/webp/indexPost6.webp' %}";
                           break;
+                      case 'business8':
+                          dynamicImage.src = "{% static 'website/media/webp/indexPost8.webp' %}";
+                          break;
+                      case 'business9':
+                          dynamicImage.src = "{% static 'website/media/webp/indexPost9.webp' %}";
+                          break;
+                      case 'business10':
+                          dynamicImage.src = "{% static 'website/media/webp/indexPost10.webp' %}";
+                          break;
+                      case 'business11':
+                          dynamicImage.src = "{% static 'website/media/webp/indexPost11.webp' %}";
+                          break;
+                      case 'business12':
+                          dynamicImage.src = "{% static 'website/media/webp/indexPost12.webp' %}";
+                          break;
+                      case 'business14':
+                          dynamicImage.src = "{% static 'website/media/webp/indexPost14.webp' %}";
+                          break;
                       default:
-                          dynamicImage.src = "{% static 'website/media/webp/indexPost1.webp' %}";
+                          dynamicImage.src = "{% static 'website/media/webp/indexPost13.webp' %}";
                           break;
                   }
               });
@@ -162,9 +198,9 @@
 
           <div class="col-one-half middle">
               <div>
-                <h1 class="hero">No Bad Social Media</h1>
-                <p class="lead">AI driven software that generates advertisements, graphics, impressions, leads, sales, and eyeballs.</p>
-                <a href="{% url 'signup' %}" class="button button-primary space-top" role="button">Sign Up</a>
+                <h1 class="hero">AI Social Media Management</h1>
+                <p class="lead">An AI Social Media assistant that generates advertisements, graphics, impressions, leads, sales, and eyeballs.</p>
+                <a href="{% url 'signup' %}" class="button button-primary space-top" role="button">Try It For Free</a>
               </div>
           </div>
         </div>
@@ -172,17 +208,16 @@
     </section>
 
     <section class="bg-gradient-light -margin-bottom-2 overlay padding">
+     
       <div class="center max-width-m">
-        <h2>All-In-One Dashboard</h2>
-        <p class="paragraph">Feadl.io unlocks the true potential of online marketing through generative intelligence. Our software is an all-in-one web based application that uses AI to promote your business online. Everything you need to create and maintain a brand presence,
-           market online, reach new customers, and generate more business.<br>Wrapped into a beautiful, user-friendly dashboard.
+        <h2>Our Innovative A.I. Runs Your Social Media</h2>
+        <p class="paragraph">Feadl.io unlocks the true potential of online marketing through generative intelligence. Our AI is a highly trained model based on leading social media data and practices. It can create and maintain a brand presence,
+           market online, reach new customers, and generate more business.<br>
         </p>
       </div>
       <br>
       <div class="margin-top max-width-l">
-        <img class="rounded shadow-l" src="{% static 'website/media/webp/dashboard.webp' %}"
-          srcset="{% static 'website/media/webp/dashboard.webp' %} 1x, {% static 'website/media/webp/dashboard@2x.webp' %} 2x"
-          alt="Feadl.io Dashboard">
+        <iframe class="rounded shadow-l" width="100%" height="500px" src="https://www.youtube.com/embed/jdqjuMdVPY0?si=JDEsZwdA2zS4Mk6T" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
       </div>
     </section>
     <section class="padding"></section>
@@ -199,7 +234,7 @@
             <h3 class="space-none">Ready to get started?</h3>
           </div>
           <div class="col-one-third middle">
-            <a href="{% url 'signup' %}" class="button button-primary" role="button">Sign Up</a>
+            <a href="{% url 'signup' %}" class="button button-primary" role="button">Try It For Free</a>
           </div>
         </form>
       </div>
@@ -233,7 +268,7 @@
         </div>
       </div>
     </div>
-    <p class="copyright"><span>Copyright </span><a href="www.theenrightgroup.org" target="_blank">© Enright Group</a><span> - 2024, all rights reserved.</span></p>
+    <p class="copyright"><span>Copyright </span><a href="https://www.theenrightgroup.org" target="_blank">© Enright Group</a><span> - 2024, all rights reserved.</span></p>
   </footer>
 
   <script src="{% static 'website/js/main.js' %}"></script>

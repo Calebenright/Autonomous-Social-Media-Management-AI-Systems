@@ -205,6 +205,7 @@ if (generatePixabayImagesButton) {
 
 var imageTagFormSubmit = document.getElementById('imageTagFormSubmit');
 imageTagFormSubmit.addEventListener('click', function() {
+    showSpinner();
     updateHiddenImageInput();
     imageTagForm.submit();
 });

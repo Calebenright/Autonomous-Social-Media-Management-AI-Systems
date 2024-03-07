@@ -21,6 +21,7 @@ from .graphic_designer import generate_image_from_params, hex_to_rgb
 import base64
 import urllib.parse
 from urllib.parse import urlparse, unquote
+from django.core.mail import EmailMessage
 
 # FOR DEVELOPMENT
 from decouple import config
@@ -983,3 +984,35 @@ def create_email (captions, prompts, business_description, business_name):
     original_string = response.choices[0].message.content.strip()
     email = original_string.strip('"')
     return email
+
+def create_new_subscriber_email (business_description, business_name):
+    client = OpenAI(api_key=config('OPENAI_API_KEY'))
+    prompt = f"Your name is elaine and you are a social media manager for a company called {business_name} with a description ({business_description}). You are sending the owner referred to as, Boss, of the business = [{business_name}], an email about how excited you are to work with them because they just hired you and it's your first day. You will send them email updates about their social media every week on Monday."
+    response = client.chat.completions.create(
+            model="gpt-3.5-turbo-1106",
+            messages=[
+                {
+                "role": "system",
+                "content": "Format it as an email. keep it relatively short."
+                },
+                {
+                "role": "user",
+                "content": prompt
+                }
+            ],
+            temperature=1,
+            max_tokens=200
+        )
+    original_string = response.choices[0].message.content.strip()
+    email = original_string.strip('"')
+    return email
+
+def send_new_subscriber_email (email, business_description, business_name):
+    subject = f'Elaine From Feadl.io'
+    message = create_new_subscriber_email(business_description, business_name)
+    from_email = settings.EMAIL_HOST_USER
+    recipient_list = [email]
+    email_message = EmailMessage(subject, message, from_email, recipient_list)
+    email_message.content_subtype = "plain"
+    email_message.send()
+    return print('Email sent')

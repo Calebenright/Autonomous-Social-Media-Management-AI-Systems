@@ -32,7 +32,6 @@ firebase_admin.initialize_app(cred)
 
 # Use Firebase as the authentication backend
 AUTHENTICATION_BACKENDS = [
-    'firebase_auth.firebase.FirebaseAuthenticationBackend',
     'django.contrib.auth.backends.ModelBackend',
 ]
 
@@ -96,6 +95,12 @@ TEMPLATES = [
         },
     },
 ]
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+    }
+}
 
 WSGI_APPLICATION = "project1.wsgi.application"
 
@@ -186,6 +191,13 @@ API_TOKEN = config('API_TOKEN')
 ELAINE_GENERATE_IMAGE = config('ELAINE_GENERATE_IMAGE')
 ELAINE_AUTOMATE_QUEUE = config('ELAINE_AUTOMATE_QUEUE')
 
+STANDARD_MONTHLY_PRICE_ID = config('STANDARD_MONTHLY_PRICE_ID')
+PREMIUM_MONTHLY_PRICE_ID = config('PREMIUM_MONTHLY_PRICE_ID')
+AGENCY_MONTHLY_PRICE_ID = config('AGENCY_MONTHLY_PRICE_ID')
+STANDARD_ANNUAL_PRICE_ID = config('STANDARD_ANNUAL_PRICE_ID')
+PREMIUM_ANNUAL_PRICE_ID = config('PREMIUM_ANNUAL_PRICE_ID')
+AGENCY_ANNUAL_PRICE_ID = config('AGENCY_ANNUAL_PRICE_ID')
+
 ## -------------------- GOOGLE LOGGING ------------------- ##
 
 # # Instantiates a client
@@ -240,12 +252,12 @@ if ENVIRONMENT == 'production':
     X_FRAME_OPTIONS = 'DENY'
     REDIRECT_URI = config('REDIRECT_URI')
     PRODUCT_IDS = {
-        'standard_monthly': 'price_1Om0VGAy1fGRWtyhJzi4JOMZ',
-        'premium_monthly': 'price_1Om0W5Ay1fGRWtyhchwLA7zG',
-        'agency_monthly': 'price_1OXVtRAy1fGRWtyhrS56mtiH',
-        'standard_annual': 'price_1Om0UrAy1fGRWtyhXkYqpmVC',
-        'premium_annual': 'price_1Om0TNAy1fGRWtyhU91Sewma',
-        'agency_annual': 'price_1OkDb9Ay1fGRWtyhuDUo4TCh',
+        'standard_monthly': STANDARD_MONTHLY_PRICE_ID,
+        'premium_monthly': PREMIUM_MONTHLY_PRICE_ID,
+        'agency_monthly': AGENCY_MONTHLY_PRICE_ID,
+        'standard_annual': STANDARD_ANNUAL_PRICE_ID,
+        'premium_annual': PREMIUM_ANNUAL_PRICE_ID,
+        'agency_annual': AGENCY_ANNUAL_PRICE_ID,
     }
 
 else:
