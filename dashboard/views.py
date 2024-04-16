@@ -50,7 +50,7 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
 client = OpenAI(api_key=config('OPENAI_API_KEY'))
-assistant_ids = {'elaine': 'asst_L22Wc8ULhvjmE1uzNCVPXhU2'}
+assistant_ids = {'elaine': 'asst_L22Wc8ULhvjmE1uzNCVPXhU2', 'jerry': 'asst_Jna3iY12EQYZKpxmek5ptydv'}
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
@@ -60,7 +60,7 @@ def dashboard(request):
         user_id = request.session.get('user_id')
 
         if not user_id:
-            raise ValueError('User not logged in.')
+            return redirect('login')
 
         user_settings_ref = db.collection('users').document(user_id)
         global_variables_ref = db.collection('variables').document('global_variables')
@@ -71,8 +71,13 @@ def dashboard(request):
             elaine_settings = elaine_doc.to_dict()
         else:
             elaine_settings = []
-            elaine_settings = {'posts_per_week': 3, 'scheduleMode': False}
-            elaine_doc_ref.set(elaine_settings, merge=True)
+
+        jerry_doc_ref = db.collection(u'users').document(user_id).collection(u'agents').document(u'jerry')
+        jerry_doc = jerry_doc_ref.get()
+        if jerry_doc.exists:
+            jerry_settings = jerry_doc.to_dict()
+        else:
+            jerry_settings = []
             
         user_email = auth.get_user(user_id).email if user_id else ''
         user_settings = user_settings_ref.get().to_dict() or {}
@@ -85,7 +90,7 @@ def dashboard(request):
             for key, value in user_settings.items()
         }
 
-        all_messages = request.session.get('all_messages', [{'role': 'bot', 'content': 'How can I assist you?'}])
+        all_messages = request.session.get('all_messages', [])
 
     except:
         message = 'An unexpected error occurred. Please try logging in again.'
@@ -111,8 +116,11 @@ def dashboard(request):
                 'secondary_colors' : colors,
                 'ftue': True,
                 'isSubscriber': False,
+                'isUnlimited': False,
+                'isAutomated': False,
                 'isLogo': False,
                 'images_generated': 0,
+                'monthly_images_generated': 0,
                 'progress': 100,
                 'admin': False,
                 'isBusiness': False,
@@ -127,22 +135,60 @@ def dashboard(request):
             messages.success(request, 'Settings have been successfully updated!')
             return redirect('dashboard')
         
-        if form_name == 'elaine-settings':
+        elif form_name == 'elaine-settings':
 
             posts_per_week = request.POST.get('posts_per_week', 3) 
-            scheduleMode = request.POST.get('scheduleMode') == 'on'
+            ElaineSocialMedias = request.POST.getlist('ElaineSocialMedias[]')
+            isElaineOn = request.POST.get('isElaineOn') == "on"
+            ElainePostType = request.POST.getlist('ElainePostType[]')
+            ElaineEmail = request.POST.get('ElaineEmail')
+            ElaineTimezone = request.POST.get('ElaineTimezone')
+            
+            print(ElaineTimezone)
             
             try:
                 posts_per_week = int(posts_per_week)
             except ValueError:
                 posts_per_week = 0
 
-            firestore_data = {
+            if isElaineOn:
+                if elaine_settings.get('isElaineOn', False) == False:
+                    send_new_subscriber_email(ElaineEmail, user_settings.get('business_description'), user_settings.get('business_name'), 'Elaine')
+
+            user_data = {'isAutomated': isElaineOn, 'email': ElaineEmail}
+            user_settings_ref.set(user_data, merge=True)
+
+            elaine_data = {
                 'posts_per_week': posts_per_week,
-                'scheduleMode': scheduleMode
+                'isElaineOn': isElaineOn,
+                'ElaineSocialMedias': ElaineSocialMedias,
+                'ElainePostType': ElainePostType,
+                'ElaineEmail': ElaineEmail,
+                'ElaineTimezone': ElaineTimezone
             }
 
-            elaine_doc_ref.set(firestore_data, merge=True)
+            elaine_doc_ref.set(elaine_data, merge=True)
+            messages.success(request, 'Settings have been successfully updated!')
+            return redirect('dashboard')
+        
+        elif form_name == 'jerry-settings':
+
+            JerryEmail = request.POST.get('JerryEmail')
+            JerryAdDescription = request.POST.get('JerryAdDescription')
+            isJerryOn = request.POST.get('isJerryOn') == "True"
+
+            user_settings_ref.set({'email': JerryEmail}, merge=True)
+
+            if isJerryOn:
+                if jerry_settings.get('isJerryOn', False):
+                    send_new_subscriber_email(ElaineEmail, user_settings.get('business_description'), user_settings.get('business_name'), 'Jerry')
+
+            firestore_data = {
+                'JerryAdDescription': JerryAdDescription,
+                'isJerryOn': isJerryOn,
+            }
+
+            jerry_doc_ref.set(firestore_data, merge=True)
             messages.success(request, 'Settings have been successfully updated!')
             return redirect('dashboard')
         
@@ -176,60 +222,54 @@ def start_chat(request):
     # ---------------------------------------------------------------------- #
 
     if request.method == "POST":
-        if user_settings.get('isAutomated', False):
-            social_media_platforms = []
 
-            if user_settings.get('isFacebook'):
-                social_media_platforms.append('Facebook')
+        social_media_platforms = []
 
-            if user_settings.get('isTwitter'):
-                social_media_platforms.append('Twitter')
+        if user_settings.get('isFacebook'):
+            social_media_platforms.append('Facebook')
 
-            if user_settings.get('isInstagram'):
-                social_media_platforms.append('Instagram')
+        if user_settings.get('isInstagram'):
+            social_media_platforms.append('Instagram')
 
-            if user_settings.get('isLinkedin'):
-                social_media_platforms.append('Linkedin')
 
-            assistant_id = assistant_ids.get('elaine')
-            assistant = client.beta.assistants.retrieve(assistant_id)
-            
-            if 'thread_id' not in request.session:
-                thread = client.beta.threads.create()
-                request.session['thread_id'] = thread.id
-                thread_id = thread.id
-            else:
-                thread_id = request.session['thread_id']
-                
-            user_input = request.POST.get('message')
-            request.session['user_input'] = user_input
-
-            try:
-                client.beta.threads.messages.create(
-                    thread_id=thread_id,
-                    role="user",
-                    content=f"[Ignore but remember this context for this user then answer the response: business name={user_settings['business_name']}, business description={user_settings['business_description']}, social_media_platforms={social_media_platforms}]" + user_input
-                )
-                run = client.beta.threads.runs.create(thread_id=thread_id, assistant_id=assistant_id)
-                request.session['run_id'] = run.id
-            except:
-                run_id = request.session['run_id']
-                run = client.beta.threads.runs.cancel(
-                    thread_id=thread_id,
-                    run_id=run_id
-                )
-                client.beta.threads.messages.create(
-                    thread_id=thread_id,
-                    role="user",
-                    content=f"[Ignore but remember this context for this user then answer the response: business name={user_settings['business_name']}, business description={user_settings['business_description']}, social_media_platforms={social_media_platforms}]" + user_input
-                )
-                run = client.beta.threads.runs.create(thread_id=thread_id, assistant_id=assistant_id)
-                request.session['run_id'] = run.id
-
-            # ---------------------------------------------------------------------- #
-            return JsonResponse({'status': 'pending', 'thread_id': thread_id, 'run_id': run.id})
+        character = request.POST.get('character')
+        assistant_id = assistant_ids.get(character)
+        assistant = client.beta.assistants.retrieve(assistant_id)
+        
+        if 'thread_id' not in request.session:
+            thread = client.beta.threads.create()
+            request.session['thread_id'] = thread.id
+            thread_id = thread.id
         else:
-            return JsonResponse({'error': 'Hey There! Upgrade to a Premium Plan to utilize me :)'}, status=400)
+            thread_id = request.session['thread_id']
+            
+        user_input = request.POST.get('message')
+        request.session['user_input'] = user_input
+
+        try:
+            client.beta.threads.messages.create(
+                thread_id=thread_id,
+                role="user",
+                content=f"[Ignore but remember this context for this user then answer the response: business name={user_settings['business_name']}, business description={user_settings['business_description']}, social_media_platforms={social_media_platforms}]" + user_input
+            )
+            run = client.beta.threads.runs.create(thread_id=thread_id, assistant_id=assistant_id)
+            request.session['run_id'] = run.id
+        except:
+            run_id = request.session['run_id']
+            run = client.beta.threads.runs.cancel(
+                thread_id=thread_id,
+                run_id=run_id
+            )
+            client.beta.threads.messages.create(
+                thread_id=thread_id,
+                role="user",
+                content=f"[Ignore but remember this context for this user then answer the response: business name={user_settings['business_name']}, business description={user_settings['business_description']}, social_media_platforms={social_media_platforms}]" + user_input
+            )
+            run = client.beta.threads.runs.create(thread_id=thread_id, assistant_id=assistant_id)
+            request.session['run_id'] = run.id
+
+        # ---------------------------------------------------------------------- #
+        return JsonResponse({'status': 'pending', 'thread_id': thread_id, 'run_id': run.id})
 
     else:
         return JsonResponse({'error': 'Invalid request. If this error persists, please contact us at https://feadl.io/contact/'}, status=400)
@@ -258,177 +298,196 @@ def get_chat(request):
     client = OpenAI(api_key=config('OPENAI_API_KEY'))
 
     if request.method == "GET":
-        if user_settings['isSubscriber']:
-            assistant_id = assistant_ids.get('elaine')
-            assistant = client.beta.assistants.retrieve(assistant_id)
+        assistant_id = assistant_ids.get('elaine')
+        assistant = client.beta.assistants.retrieve(assistant_id)
 
-            user_input = request.session.get('user_input')
-            all_messages = request.session.get('all_messages', [{'role': 'bot', 'content': 'How can I help you?'}])
-            thread_id = request.session.get('thread_id')
-            run_id = request.session.get('run_id')
+        user_input = request.session.get('user_input')
+        all_messages = request.session.get('all_messages', [{'role': 'bot', 'content': 'How can I help you?'}])
+        bot_url = request.session.get('bot_url', False)
+        thread_id = request.session.get('thread_id')
+        run_id = request.session.get('run_id')
+    
+        run = client.beta.threads.runs.retrieve(thread_id=thread_id, run_id=run_id)
+
+        url = ''
+        caption = ''
+
+        if run.status == 'completed':
+            messages = client.beta.threads.messages.list(thread_id=thread_id)
+            all_messages.append({'role': 'user', 'content': user_input})
+            if bot_url:
+                all_messages.append({'role': 'bot', 'content': f'![Generated Image]({bot_url})'})
+                request.session['bot_url'] = False
+            if messages:
+                messages_list = messages.data
+                if messages_list:
+                    last_message_content = messages_list[0].content[0].text.value
+                    formatted_message = last_message_content
+                    all_messages.append({'role': 'bot', 'content': formatted_message})
+                    request.session['last_message'] = formatted_message
+
+            request.session['all_messages'] = all_messages
+
+            return JsonResponse({
+                'all_messages': all_messages,
+                'botMessage': formatted_message,
+                'status': 'completed',
+                'url': bot_url,
+            })
         
-            run = client.beta.threads.runs.retrieve(thread_id=thread_id, run_id=run_id)
+        elif run.status == 'requires_action':
+            required_action = run.required_action.submit_tool_outputs.model_dump()
+            tools_output = []
+            if required_action["tool_calls"]:
+                action = required_action["tool_calls"][0]
+                function_name = action["function"]["name"]
+                arguments = json.loads(action["function"]["arguments"])
+                if function_name == "get_social_media_graphic_post":
+                    image_tags = json.loads(user_settings.get('image_tags', '[]'))
+                    random_image_url = random.choice(image_tags)
+                    if image_tags == []:
+                        tools_output.append({
+                            "tool_call_id": action["id"],
+                            "output": "Tell the user that they need to add images to their library first.",
+                        })
 
-            url = ''
-            caption = ''
+                        images_generated = user_settings['images_generated'] + 0.1
 
-            if run.status == 'completed':
-                messages = client.beta.threads.messages.list(thread_id=thread_id)
-                all_messages.append({'role': 'user', 'content': user_input})
-                if messages:
-                    messages_list = messages.data
-                    if messages_list:
-                        last_message_content = messages_list[0].content[0].text.value
-                        formatted_message = last_message_content
-                        all_messages.append({'role': 'bot', 'content': formatted_message})
-                        request.session['last_message'] = formatted_message
+                        client.beta.threads.runs.submit_tool_outputs(
+                            thread_id=thread_id,
+                            run_id=run_id,
+                            tool_outputs=tools_output
+                        )
 
-                request.session['all_messages'] = all_messages
+                        return JsonResponse({
+                            'status': 'requires_action',
+                            'function_name': function_name,
+                            'url': url,
+                            'caption': caption
+                        })
+                    edit = add_graphics_from_bot(random_image_url, user_settings, user_settings_ref, global_variables, 'graphic')
+                    img = download_and_save_image_as_seek(edit)
+                    url = upload_png_to_google(img, settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, 'delete_image_library/')
+                    caption = create_caption(user_settings['business_description'], user_settings['business_name'])
+                    tools_output.append({
+                        "tool_call_id": action["id"],
+                        "output": "image url for reference but do not show: " + url + "Caption: " + caption,
+                        })
+                    images_generated = user_settings['images_generated'] + 1
+                    request.session['bot_url'] = url
+                elif function_name == "get_stock_photo_post":
+                    image_tags = json.loads(user_settings.get('image_tags', '[]'))
+                    random_image_url = random.choice(image_tags)
+                    if image_tags == []:
+                        tools_output.append({
+                        "tool_call_id": action["id"],
+                        "output": "Tell the user that they need to add images to their library first.",
+                        })
+                        images_generated = user_settings['images_generated'] + 0.1
+                        client.beta.threads.runs.submit_tool_outputs(
+                            thread_id=thread_id,
+                            run_id=run_id,
+                            tool_outputs=tools_output
+                        )
 
-                # firestore_data = {'images_generated': user_settings['images_generated'] + 0.1}
-                # user_settings_ref.set(firestore_data, merge=True)
+                        return JsonResponse({
+                            'status': 'requires_action',
+                            'function_name': function_name,
+                            'url': url,
+                            'caption': caption
+                        })
+                    
+                    caption = create_caption(user_settings['business_description'], user_settings['business_name'])
+                    edit = add_graphics_from_bot(random_image_url, user_settings, user_settings_ref, global_variables, 'photo')
+                    img = download_and_save_image_as_seek(edit)
+                    url = upload_png_to_google(img, settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, 'delete_image_library/')
+                    tools_output.append({
+                        "tool_call_id": action["id"],
+                        "output": "image url for reference but do not show: " + url + "Caption: " + caption,
+                        })
+                    images_generated = user_settings['images_generated'] + 0.3
+                    request.session['bot_url'] = url
+                elif function_name == "get_stock_ad":
+                    image_tags = json.loads(user_settings.get('image_tags', '[]'))
+                    random_image_url = random.choice(image_tags)
+                    if image_tags == []:
+                        tools_output.append({
+                        "tool_call_id": action["id"],
+                        "output": "Tell the user that they need to add images to their library first.",
+                        })
+                        images_generated = user_settings['images_generated'] + 0.1
+                        client.beta.threads.runs.submit_tool_outputs(
+                            thread_id=thread_id,
+                            run_id=run_id,
+                            tool_outputs=tools_output
+                        )
 
-                return JsonResponse({
-                    'all_messages': all_messages,
-                    'botMessage': formatted_message,
-                    'status': 'completed'
+                        return JsonResponse({
+                            'status': 'requires_action',
+                            'function_name': function_name,
+                            'url': url,
+                            'caption': caption
+                        })
+                    
+                    caption = create_ad_copy(user_settings['business_description'], user_settings['business_name'])
+                    edit = add_graphics_from_bot(random_image_url, user_settings, user_settings_ref, global_variables, 'ad')
+                    img = download_and_save_image_as_seek(edit)
+                    url = upload_png_to_google(img, settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, 'delete_image_library/')
+                    tools_output.append({
+                        "tool_call_id": action["id"],
+                        "output": "image url for reference but do not show: " + url + "Caption: " + caption,
+                        })
+                    images_generated = user_settings['images_generated'] + 0.3
+                    request.session['bot_url'] = url
+                elif function_name == "post_to_feed":
+                    url = arguments["url"]
+                    caption = arguments["caption"]
+                    platforms = arguments["platforms"]
+                    post_type = arguments["post_type"]
+                    post_to_feed(url, caption, platforms, post_type, user_settings, user_settings_ref, global_variables)
+                    tools_output.append({
+                        "tool_call_id": action["id"],
+                        "output": f"Successfully posted to {platforms}",
+                        })
+                    images_generated = user_settings['images_generated']
+                elif function_name == "schedule_post":
+                    url = arguments["url"]
+                    caption = arguments["caption"]
+                    platforms = arguments["platforms"]
+                    date_and_time = ''
+                    post_type = arguments["post_type"]
+                    post_details = schedule_post(url, caption, platforms, date_and_time, user_settings, user_settings_ref, request.session.get('firebase_id_token'), post_type)
+                    tools_output.append({
+                        "tool_call_id": action["id"],
+                        "output": f"Here are the post details, only display the relevant info like date and socials: {post_details}",
+                        })
+                    images_generated = user_settings['images_generated']
+                else:
+                    url = 'There was an error'
+                    caption = 'There was an error'
+                    function_name = 'There was an error'
+                    tools_output.append({
+                        "tool_call_id": action["id"],
+                        "output": "There was an error",
+                        })
+                    
+            client.beta.threads.runs.submit_tool_outputs(
+                thread_id=thread_id,
+                run_id=run_id,
+                tool_outputs=tools_output
+            )
+
+            firestore_data = {'images_generated': images_generated}
+            user_settings_ref.set(firestore_data, merge=True)
+
+            return JsonResponse({
+                'status': 'requires_action',
+                'function_name': function_name,
+                'url': url,
+                'caption': caption
                 })
-            
-            elif run.status == 'requires_action':
-                required_action = run.required_action.submit_tool_outputs.model_dump()
-                tools_output = []
-                if required_action["tool_calls"]:
-                    action = required_action["tool_calls"][0]
-                    print('ACTION: ', action)
-                    function_name = action["function"]["name"]
-                    arguments = json.loads(action["function"]["arguments"])
-                    if function_name == "get_ai_post":
-                        image_description = arguments["image_description"]
-                        img_url = get_image(image_description)
-                        edit = add_graphics_from_bot(img_url, user_settings, user_settings_ref, global_variables, 'graphic')
-                        img = download_and_save_image_as_seek(edit)
-                        url = upload_png_to_google(img, settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, 'delete_image_library/')
-                        caption = create_caption(user_settings['business_description'], user_settings['business_name'])
-                        tools_output.append({
-                            "tool_call_id": action["id"],
-                            "output": "image url: " + url + "Caption: " + caption,
-                            })
-                        images_generated = user_settings['images_generated'] + 1
-                    elif function_name == "get_stock_post":
-                        try:
-                            keyword = arguments["keyword"]
-                            img_url = get_stock_image(keyword)
-                            edit = add_graphics_from_bot(img_url, user_settings, user_settings_ref, global_variables, 'graphic')
-                            img = download_and_save_image_as_seek(edit)
-                            url = upload_png_to_google(img, settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, 'delete_image_library/')
-                            caption = create_caption(user_settings['business_description'], user_settings['business_name'])
-                            tools_output.append({
-                                "tool_call_id": action["id"],
-                                "output": "image url: " + url + "Caption: " + caption,
-                                })
-                        except:
-                            tools_output.append({
-                                "tool_call_id": action["id"],
-                                "output": "There was an error generating the image. Please try again.",
-                                })
-                        images_generated = user_settings['images_generated'] + 0.3
-                    elif function_name == "get_ai_image":
-                        image_description = arguments["image_description"]
-                        img_url = get_image(image_description)
-                        edit = add_graphics_from_bot(img_url, user_settings, user_settings_ref, global_variables, 'photo')
-                        img = download_and_save_image_as_seek(edit)
-                        url = upload_png_to_google(img, settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, 'delete_image_library/')
-                        tools_output.append({
-                            "tool_call_id": action["id"],
-                            "output": "image url: " + url,
-                            })
-                        images_generated = user_settings['images_generated'] + 1
-                    elif function_name == "get_stock_image":
-                        keyword = arguments["keyword"]
-                        img_url = get_stock_image(keyword)
-                        edit = add_graphics_from_bot(img_url, user_settings, user_settings_ref, global_variables, 'photo')
-                        img = download_and_save_image_as_seek(edit)
-                        url = upload_png_to_google(img, settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, 'delete_image_library/')
-                        tools_output.append({
-                            "tool_call_id": action["id"],
-                            "output": "image url: " + url,
-                            })
-                        images_generated = user_settings['images_generated'] + 0.3
-                    elif function_name == "get_caption":
-                        keywords = arguments["keywords"]
-                        caption = create_caption(keywords, user_settings['business_name'])
-                        tools_output.append({
-                            "tool_call_id": action["id"],
-                            "output": "Caption: "+ caption,
-                            })
-                        images_generated = user_settings['images_generated'] + 0.1
-                    elif function_name == "get_text_post":
-                        text_description = arguments["text_description"]
-                        caption = create_text_post('Social media', text_description, user_settings['business_name'])
-                        tools_output.append({
-                            "tool_call_id": action["id"],
-                            "output": "Text Post: " + caption,
-                            })
-                    elif function_name == "post_to_feed":
-                        url = arguments["url"]
-                        caption = arguments["caption"]
-                        platforms = arguments["platforms"]
-                        post_type = arguments["post_type"]
-                        post_to_feed(url, caption, platforms, post_type, user_settings, user_settings_ref, global_variables)
-                        tools_output.append({
-                            "tool_call_id": action["id"],
-                            "output": f"Successfully posted to {platforms}",
-                            })
-                        images_generated = user_settings['images_generated']
-                    elif function_name == "schedule_post":
-                        url = arguments["url"]
-                        caption = arguments["caption"]
-                        platforms = arguments["platforms"]
-                        date_and_time = ''
-                        post_type = arguments["post_type"]
-                        post_details = schedule_post(url, caption, platforms, date_and_time, user_settings, user_settings_ref, request.session.get('firebase_id_token'), post_type)
-                        tools_output.append({
-                            "tool_call_id": action["id"],
-                            "output": f"Here are the post details, only display the relevant info like date and socials: {post_details}",
-                            })
-                        images_generated = user_settings['images_generated']
-                    elif function_name == "add_graphics":
-                        img_url = arguments["url"]
-                        edit = add_graphics_from_bot(img_url, user_settings, user_settings_ref, global_variables, 'graphic')
-                        img = download_and_save_image_as_seek(edit)
-                        url = upload_png_to_google(img, settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, 'delete_image_library/')
-                        tools_output.append({
-                            "tool_call_id": action["id"],
-                            "output": "Graphics added to" + url,
-                            })
-                        images_generated = user_settings['images_generated'] + 0.1
-                    else:
-                        url = 'There was an error'
-                        caption = 'There was an error'
-                        function_name = 'There was an error'
-                        tools_output.append({
-                            "tool_call_id": action["id"],
-                            "output": "There was an error",
-                            })
-                client.beta.threads.runs.submit_tool_outputs(
-                    thread_id=thread_id,
-                    run_id=run_id,
-                    tool_outputs=tools_output
-                )
-
-                firestore_data = {'images_generated': images_generated}
-                user_settings_ref.set(firestore_data, merge=True)
-
-                return JsonResponse({
-                    'status': 'requires_action',
-                    'function_name': function_name,
-                    'url': url,
-                    'caption': caption
-                    })
-            else:
-                return JsonResponse({'status': 'pending'})
         else:
-            return JsonResponse({'error': 'Please Add A Payment Method To Continue.'}, status=400)
+            return JsonResponse({'status': 'pending'})
 
     else:
         return JsonResponse({'error': 'Invalid request. If the problem persists, please contact us at https://feadl.io/contact/'}, status=400)
@@ -620,7 +679,7 @@ def post_creator(request):
             global_variables_doc = global_variables_ref.get()
             global_variables = global_variables_doc.to_dict()
         except firestore.NotFound:
-            return redirect('login') 
+            return redirect('login')
         # ---------------------------------------------------------------------- #
         pass
     
@@ -655,19 +714,13 @@ def post_creator(request):
 
     selected_option = request.session.get('selected_option', 'up')
     isLogo = request.session.get('isLogo', False)
+    isSubscriber = user_settings.get('isSubscriber')
+    isAdmin = user_settings.get('admin', False)
+    isUnlimited = user_settings.get('isUnlimited', False)
 
     if request.method == 'POST':
         form_name = request.POST.get('form')
-        isSubscriber = user_settings['isSubscriber']
-        if isSubscriber == False:
-            trial = user_settings.get('trial', 0)
-            if trial < 4:
-                isSubscriber = True
-                trial += 1
-                firestore_data = {'trial': trial}
-                user_settings_ref.set(firestore_data, merge=True)
-
-        if isSubscriber:
+        if user_id:
             # -------------- CAPTIONS --------------- #
             if form_name == 'formCaption1':
                 if selected_option == "text":
@@ -742,12 +795,10 @@ def post_creator(request):
 
                 facebook_checked = request.POST.get('facebook_visible', 'false') == 'true'
                 instagram_checked = request.POST.get('instagram_visible', 'false') == 'true'
-                linkedin_checked = request.POST.get('linkedin_visible', 'false') == 'true'
 
                 socials = [platform for platform, checked in [
                     ('facebook', facebook_checked),
-                    ('instagram', instagram_checked),
-                    ('linkedin', linkedin_checked)
+                    ('instagram', instagram_checked)
                 ] if checked]
 
                 event_data = {
@@ -792,7 +843,7 @@ def post_creator(request):
 
                 facebook_checked = request.POST.get('facebook_visible', 'false') == 'true'
                 instagram_checked = request.POST.get('instagram_visible', 'false') == 'true'
-                linkedin_checked = request.POST.get('linkedin_visible', 'false') == 'true'
+                linkedin_checked = False
 
                 num_sent = user_settings.get('num_sent', 0)
                 max_sent = global_variables.get('max_sent', 5)
@@ -800,15 +851,13 @@ def post_creator(request):
                 current_time = timezone.now()
                 default_reset_time = current_time - timedelta(days=1)
 
-                # Assuming user_settings.get('last_reset_time') returns a timezone-aware datetime object
                 last_reset_time = user_settings.get('last_reset_time', default_reset_time)
 
-                # Check if more than one day has passed
                 if current_time - last_reset_time > timedelta(days=1):
                     firestore_data = {'num_sent': 0, 'last_reset_time': current_time}
                     user_settings_ref.set(firestore_data, merge=True)
                     
-                if user_settings.get('num_sent', 0) < max_sent or user_settings.get('admin', False):                 
+                if num_sent < max_sent or isAdmin:                 
                     try:
                         isAllPosted = False
                         if lastType == 'text' or image_url == '':
@@ -982,15 +1031,12 @@ def post_creator(request):
                 request.session['selected_option'] = selected_option
         # ---------------------------------------------------------------------- #
 
+                monthly_allowed_images = global_variables.get('monthly_allowed_images', 100)
+                monthly_images_generated = user_settings.get('monthly_images_generated', 0)
                 total_allowed_images = global_variables.get('total_allowed_images', 20)
                 images_generated = user_settings.get('images_generated', 0)
                 cooldown_expiry = user_settings.get('cooldown_expiry', datetime.now() + timedelta(days=global_variables.get('cooldown_duration', 1)))
-                if 'total_allowed_images' not in global_variables or 'images_generated' not in user_settings or 'cooldown_expiry' not in user_settings:
-                    user_settings_ref.update({
-                        'total_allowed_images': total_allowed_images,
-                        'images_generated': images_generated,
-                        'cooldown_expiry': cooldown_expiry,
-                    })
+                add_credits = 0
 
                 tz = pytz.UTC
                 current_time = datetime.now(tz)
@@ -1001,24 +1047,21 @@ def post_creator(request):
                     cooldown_expiry = datetime.now() + cooldown_duration
                     user_settings_ref.update({
                         'cooldown_expiry': cooldown_expiry,
-                        'images_generated': images_generated,
-                        'num_pixabay': 0
+                        'images_generated': images_generated
                     })
 
-                if images_generated < total_allowed_images or user_settings.get('admin', False):
+                if monthly_images_generated < monthly_allowed_images or isAdmin or isUnlimited:
 
-                    if images_generated >= total_allowed_images:
-                        cooldown_duration = timedelta(days=global_variables['cooldown_duration'])
-                        cooldown_expiry = datetime.now() + cooldown_duration
-                        
+                    if images_generated >= total_allowed_images and not isAdmin and not isUnlimited:
+                        messages.error(request, 'You have reached the maximum number of images for your subscription. Please upgrade to continue.')
+                        return redirect('post_creator')
+                    
                     if selected_option == 'up':
                         progress = 100
                         image = request.FILES.get('file')
                         file_extension = image.name.split('.')[-1].lower()
                         isLogo = request.POST.get('isLogo', False)
-                        images_generated += 0
 
-                        # try:
                         if file_extension not in ['jpg', 'jpeg', 'png']:
                             messages.error(request, 'ONLY ACCEPTED FILE FORMATS: .jpg, .jpeg, .png')
                             return redirect('post_creator')
@@ -1039,7 +1082,8 @@ def post_creator(request):
                     elif selected_option == 'text':
                         progress = 100
                         select = request.POST.get('text-platform')
-                        images_generated += 0.1
+                        add_credits += 0.1
+
                         try:
                             post = create_text_post(select, biz, biz_name)
                             url = None
@@ -1050,19 +1094,44 @@ def post_creator(request):
                     elif selected_option == 'photo':
                         progress = 0
                         img_url = request.POST.get('selected_img_url', 'None')
-                        if img_url != 'None':
-                            images_generated += 0.3
+                        if img_url == 'None':
+                            if isSubscriber:
+                                add_credits += 1
+                                entered_tags = request.POST.get('tags')
+                                tags = entered_tags.split(',')
+                                request.session['tags'] = tags
+                                key = tags
+                                prompt_string = create_stock_image_description(key)
+                                url = ''
+                                try:
+                                    payload = {
+                                        "prompt": prompt_string, 
+                                        "uid": user_id, 
+                                        "dimensions": "1024x1024", 
+                                        "number": 1
+                                    }
+                                    create_queue(user_id)
+                                    enqueue_task(payload, user_id, settings.GS_DALLE3)
+                                except:
+                                    messages.error(request, 'Image failed to generate. If the problem persists, please contact us at https://feadl.io/contact/')
+                                    return redirect('post_creator')
+                            else:
+                                messages.error(request, 'Please upgrade to utilize our AI Stock Image Library.')
+                                return redirect('post_creator')
+                            
+                        else:
+                            add_credits += 0.3
                             progress = 95
                             url = img_url
-                        else:
-                            images_generated += 1
-                            entered_tags = request.POST.get('tags')
-                            tags = entered_tags.split(',')
-                            request.session['tags'] = tags
-                            key = tags
-                            prompt_string = create_stock_image_description(key)
-                            url = ''
-                            try:
+                        
+                    elif selected_option == 'graphic':
+                        key = request.POST.get('ai-description')
+                        request.session['key'] = key
+                        img_url = request.POST.get('selected_img_url', 'None')
+                        if img_url == 'None':
+                            if isSubscriber:
+                                add_credits += 1
+                                prompt_string = create_background_image_description(key)
                                 payload = {
                                     "prompt": prompt_string, 
                                     "uid": user_id, 
@@ -1071,29 +1140,13 @@ def post_creator(request):
                                 }
                                 create_queue(user_id)
                                 enqueue_task(payload, user_id, settings.GS_DALLE3)
-                            except:
-                                messages.error(request, 'Image failed to generate. If the problem persists, please contact us at https://feadl.io/contact/')
+                                url = ''
+                                progress = 0
+                            else:
+                                messages.error(request, 'Please upgrade to utilize our AI Stock Image Library.')
                                 return redirect('post_creator')
-                        
-                    elif selected_option == 'graphic':
-                        key = request.POST.get('ai-description')
-                        request.session['key'] = key
-                        img_url = request.POST.get('selected_img_url', 'None')
-                        if img_url == 'None':
-                            images_generated += 1
-                            prompt_string = create_background_image_description(key)
-                            payload = {
-                                "prompt": prompt_string, 
-                                "uid": user_id, 
-                                "dimensions": "1024x1024", 
-                                "number": 1
-                            }
-                            create_queue(user_id)
-                            enqueue_task(payload, user_id, settings.GS_DALLE3)
-                            url = ''
-                            progress = 0
                         else:
-                            images_generated += 0.3
+                            add_credits += 0.3
                             try:
                                 progress = 95
                                 url = img_url
@@ -1102,31 +1155,34 @@ def post_creator(request):
                                 return redirect('post_creator')
 
                     elif selected_option == 'ad':
-                        key = request.POST.get('ad-description')
-                        request.session['key'] = key
-                        img_url = request.POST.get('selected_img_url', 'None')
-                        print(img_url)
-                        if img_url == 'None':
-                            images_generated += 1.2
-                            prompt_string = create_background_image_description(key)
-                            payload = {
-                                "prompt": prompt_string, 
-                                "uid": user_id, 
-                                "dimensions": "1024x1024", 
-                                "number": 1
-                            }
-                            create_queue(user_id)
-                            enqueue_task(payload, user_id, settings.GS_DALLE3)
-                            progress = 0
-                            url = ''
+                        if isSubscriber:
+                            key = request.POST.get('ad-description')
+                            request.session['key'] = key
+                            img_url = request.POST.get('selected_img_url', 'None')
+                            if img_url == 'None':
+                                add_credits += 1.2
+                                prompt_string = create_background_image_description(key)
+                                payload = {
+                                    "prompt": prompt_string, 
+                                    "uid": user_id, 
+                                    "dimensions": "1024x1024", 
+                                    "number": 1
+                                }
+                                create_queue(user_id)
+                                enqueue_task(payload, user_id, settings.GS_DALLE3)
+                                progress = 0
+                                url = ''
+                            else:
+                                add_credits += 0.5
+                                try:
+                                    progress = 95
+                                    url = img_url
+                                except:
+                                    messages.error(request, 'Image failed to generate. If the problem persists, please contact us at https://feadl.io/contact/')
+                                    return redirect('post_creator')
                         else:
-                            images_generated += 0.5
-                            try:
-                                progress = 95
-                                url = img_url
-                            except:
-                                messages.error(request, 'Image failed to generate. If the problem persists, please contact us at https://feadl.io/contact/')
-                                return redirect('post_creator')
+                            messages.error(request, 'Please upgrade to utilize this feature.')
+                            return redirect('post_creator')
             
                     try:
                         last_image_url = user_settings['next_image_url']
@@ -1149,6 +1205,10 @@ def post_creator(request):
                         delete_from_google(user_settings['last_image_url'], settings.GS_CREDENTIALS)
                 except:
                     pass
+
+                print(add_credits)
+                images_generated += add_credits
+                monthly_images_generated += add_credits
                 
                 firestore_data = {
                     'last_image_url': last_image_url,
@@ -1167,7 +1227,7 @@ def post_creator(request):
             user_settings = user_settings_doc.to_dict()
             return redirect('post_creator')
         else:
-            messages.error(request, 'We are here to help your business. Our generators are in high demand and accrue a cost. Please subscribe to utilize our amazing app!')
+            messages.error(request, 'We are here to help your business. Our generators are in high demand and accrue a cost. Please upgrade to utilize our amazing app!')
             return redirect('post_creator')
         
     context = {'user_id': user_id, 'user_settings': user_settings, 'selected_option': selected_option, 'isLogo': isLogo, 'tags': json.dumps(user_settings.get('image_tags'))}
@@ -1999,13 +2059,13 @@ def elaine_generate_post(request):
         if elaine_doc.exists:
             elaine_settings = elaine_doc.to_dict()
         else:
-            elaine_settings = {'posts_per_week': 3, 'scheduleMode': False}
+            elaine_settings = {'posts_per_week': 0}
             elaine_doc_ref.set(elaine_settings, merge=True)
 
-        posts_per_week = elaine_settings.get('posts_per_week', 3)
+        posts_per_week = elaine_settings.get('posts_per_week', 0)
 
         if posts_per_week > 0:
-            payload = {"uid": uid, 'posts_per_week': posts_per_week}
+            payload = {"uid": uid}
             create_queue(uid)
             gc_task(payload, uid, config("CREATE_POSTS_PER_WEEK"))
 
@@ -2023,7 +2083,6 @@ def elaine_email(request):
     try:
         request_json = json.loads(request.body)
         uid = request_json.get('uid')
-        posts_per_week = request_json.get('posts_per_week')
     except Exception as e:
         return JsonResponse({'error': f'Bad request: {str(e)}'}, status=400)
 
@@ -2047,7 +2106,7 @@ def elaine_email(request):
     prompts = []
     captions = []
 
-    for i in range(posts_per_week):
+    for i in range(elaine_doc.get(f'posts_per_week')):
         try:
             caption = elaine_doc.get(f'scheduled_caption_{i}')
             prompt = elaine_doc.get(f'scheduled_prompt_{i}')
@@ -2059,24 +2118,28 @@ def elaine_email(request):
     email = user_settings.get('email')
     week_date_range = get_week_date_range()
     subject = f'Social Media Report - {week_date_range}'
-    message = create_email(captions, prompts, user_settings.get('business_description'), user_settings.get('business_name'))
+    message = create_email(user_settings.get('business_description'), user_settings.get('business_name'))
     from_email = settings.EMAIL_HOST_USER
     recipient_list = [email]
 
-    email_message = EmailMessage(subject, message, from_email, recipient_list)
-    email_message.content_subtype = "plain" 
+    text_content = message  # Add the initial message
+    text_content += "\n\nPlease see the attached images and their corresponding captions:\n"
 
-    for i in range(posts_per_week):
+    for i, caption in enumerate(captions):
         try:
             image_url = elaine_doc.get(f'scheduled_image_{i}')
             if image_url:
                 response = requests.get(image_url)
                 if response.status_code == 200:
                     email_message.attach(f'image_{i}.jpg', response.content, 'image/jpeg')
+                    text_content += f'\nImage #{i} Caption: {caption}'
                 else:
                     print(f"Failed to download image {i}: Status code {response.status_code}")
         except Exception as e:
             print(f"Error processing image {i}: {e}")
+
+    email_message = EmailMessage(subject, text_content, from_email, recipient_list)
+    email_message.content_subtype = "plain" 
 
     email_message.send()
 
@@ -2154,8 +2217,8 @@ def elaine_functions(request):
         image_tags = json.loads(user_settings.get('image_tags', '[]'))
         tags = ast.literal_eval(user_settings.get('tags', '[]'))
 
-        if image_tags == [] and function_name == "get_library_post":
-            function_name = "get_ai_post"
+        if image_tags == []:
+            function_name = "get_text_post"
         else:
             random_image_url = random.choice(image_tags)
 
@@ -2225,12 +2288,10 @@ def elaine_functions(request):
 
         facebook_checked = user_settings.get('isFacebook', False)
         instagram_checked = user_settings.get('isInstagram', False)
-        linkedin_checked = user_settings.get('isLinkedin', False)
 
         socials = [platform for platform, checked in [
             ('facebook', facebook_checked),
-            ('instagram', instagram_checked),
-            ('linkedin', linkedin_checked)
+            ('instagram', instagram_checked)
         ] if checked]
 
         event_data = {
@@ -2279,6 +2340,32 @@ def feadlio_automatic_manager_task_creator(request):
 
 @csrf_exempt  
 @require_http_methods(["POST"])
+def cron_reset_monthly_limits(request):
+    token = request.headers.get('Authorization')
+    if token != f"Bearer {CRON_TOKEN}":
+        return JsonResponse({'error': 'Unauthorized'}, status=401)
+    
+    db = firestore.client()
+    users_ref = db.collection(u'users')
+    
+    batch = db.batch()
+    for user in users_ref.stream():
+
+        user_data = user.to_dict()
+        current_usage = user_data.get("monthly_images_generated", 0)
+        
+        updates = {
+            "last_month_images_generated": current_usage,
+            "monthly_images_generated": 0,
+        }
+        
+        batch.update(user.reference, updates)
+    
+    batch.commit()
+    return HttpResponse("Limits Reset", status=200)
+
+@csrf_exempt  
+@require_http_methods(["POST"])
 def cron_delete_images_in_gcp_folder(request):
     token = request.headers.get('Authorization')
     if token != f"Bearer {CRON_TOKEN}":
@@ -2321,7 +2408,7 @@ def cron_inactive_users(request):
             doc = doc_ref.get()
 
             # If the document does not exist, or 'ftue' explicitly is False, proceed with deletion
-            if not doc.exists or (doc.exists and doc.to_dict().get('ftue') is False):
+            if not doc.exists or (doc.exists and ('ftue' not in doc.to_dict() or doc.to_dict().get('ftue') is False)):
                 # Delete the user from Firebase Authentication
                 auth.delete_user(user.uid)
                 
@@ -2450,13 +2537,13 @@ def stripe_webhook(request):
         if event['type'] == 'checkout.session.completed':
             customer_id = event['data']['object']['customer']
             subscription_id = event['data']['object']['subscription']
-            isAutomated = False
+            isUnlimited = False
             try:
                 line_items = stripe.checkout.Session.list_line_items(session['id'], limit=1)
                 for item in line_items.data:
                     plan = item.description
-                    if plan == "Premium Plan" or plan == "Agency Plan" or plan == "Premium Annual Plan" or plan == "Agency Annual Plan":
-                        isAutomated = True
+                    if plan == "Unlimited Plan":
+                        isUnlimited = True
             except Exception as e:
                 print(f"Error fetching line items: {e}")
                 return JsonResponse({'errro': f'{e}'})
@@ -2465,9 +2552,8 @@ def stripe_webhook(request):
                 user_settings_ref = db.collection('users').document(uid)
                 user_settings_doc = user_settings_ref.get()
                 user_settings = user_settings_doc.to_dict()
-                if isAutomated:
-                    send_new_subscriber_email(user_settings.get('email'), user_settings.get('business_description'), user_settings.get('business_name'))
-                firestore_data = {'customer_id': customer_id, 'subscription_id': subscription_id, 'isSubscriber': True, 'subscription_status': 'Subscribed', 'subscription_plan': plan, 'isAutomated': isAutomated}
+                send_new_subscriber_email(user_settings.get('email'), user_settings.get('business_description'), user_settings.get('business_name'), 'Elaine')
+                firestore_data = {'customer_id': customer_id, 'subscription_id': subscription_id, 'isSubscriber': True, 'subscription_status': 'Subscribed', 'subscription_plan': plan, 'isUnlimited': isUnlimited}
                 user_settings_ref.set(firestore_data, merge=True)
                 if user_settings.get('isBusiness', False):
                     new_doc_ref = db.collection('accounts').document(uid)
@@ -2483,11 +2569,11 @@ def stripe_webhook(request):
             def get_plan_name_by_id(plan_id):
                 plan_mappings = {
                     settings.STANDARD_MONTHLY_PRICE_ID: 'Standard Plan',
-                    settings.PREMIUM_MONTHLY_PRICE_ID: 'Premium Plan',
-                    settings.AGENCY_MONTHLY_PRICE_ID: 'Agency Plan',
+                    settings.PREMIUM_MONTHLY_PRICE_ID: 'Full Plan',
+                    settings.AGENCY_MONTHLY_PRICE_ID: 'Unlimited Plan',
                     settings.STANDARD_ANNUAL_PRICE_ID: 'Standard Annual Plan',
-                    settings.PREMIUM_ANNUAL_PRICE_ID: 'Premium Annual Plan',
-                    settings.AGENCY_ANNUAL_PRICE_ID: 'Agency Annual Plan',
+                    settings.PREMIUM_ANNUAL_PRICE_ID: 'Full Annual Plan',
+                    settings.AGENCY_ANNUAL_PRICE_ID: 'Unlimited Annual Plan',
                 }
                 return plan_mappings.get(plan_id, 'Unknown Plan')
             
@@ -2506,16 +2592,15 @@ def stripe_webhook(request):
                         'isSubscriber': False,
                         'subscription_status': 'Canceled',
                         'subscription_plan': 'Canceled',
-                        'isAutomated': False
+                        'isUnlimited': False
                     }
                 elif plan_name != user_settings.get('subscription_plan', None):
-                    isAutomated = plan_name in ["Premium Plan", "Agency Plan", "Premium Annual Plan", "Agency Annual Plan"]
+                    isUnlimited = plan_name in ["Unlimited Plan", "Unlimited Annual Plan"]
                     update_data = {
                         'subscription_plan': plan_name,
-                        'isAutomated': isAutomated
+                        'isUnlimited': isUnlimited
                     }
-                    if isAutomated:
-                        send_new_subscriber_email(user_settings.get('email'), user_settings.get('business_description'), user_settings.get('business_name'))
+                    # send_new_subscriber_email(user_settings.get('email'), user_settings.get('business_description'), user_settings.get('business_name'), 'Elaine')
 
                 if update_data:
                     user_settings_ref.set(update_data, merge=True)
@@ -2552,7 +2637,7 @@ def stripe_webhook(request):
                     'isSubscriber': False,
                     'subscription_status': 'Canceled',
                     'subscription_plan': 'Canceled',
-                    'isAutomated': False
+                    'isUnlimited': False
                 }
                 user_settings_ref.set(firestore_data, merge=True)
             return JsonResponse({'status': 'Payment Failed'})
@@ -2571,7 +2656,7 @@ def stripe_webhook(request):
                     'isSubscriber': False,
                     'subscription_status': 'Canceled',
                     'subscription_plan': 'Canceled',
-                    'isAutomated': False
+                    'isUnlimited': False
                 }
                 user_settings_ref.set(firestore_data, merge=True)
             return JsonResponse({'status': 'Subscription Canceled'})

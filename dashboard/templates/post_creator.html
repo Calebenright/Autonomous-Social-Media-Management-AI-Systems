@@ -24,7 +24,52 @@
 
     <!-- images -->
     <link href="{% static 'dashboard/css/image-style.css' %}" rel="stylesheet" type="text/css" id="app-style" />
+    <!-- Meta Pixel Code -->
+    <script>
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window, document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '7170700856358682');
+    fbq('track', 'PageView');
+    </script>
+    <noscript><img height="1" width="1" style="display:none"
+    src="https://www.facebook.com/tr?id=7170700856358682&ev=PageView&noscript=1"
+    /></noscript>
+    <!-- End Meta Pixel Code -->
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=AW-11382945907"></script>
+    <script> window.dataLayer = window.dataLayer || []; function gtag() { dataLayer.push(arguments); } gtag('js', new Date()); gtag('config', 'AW-11382945907'); </script>
 
+    <script type="text/javascript">
+    _linkedin_partner_id = "5963060";
+    window._linkedin_data_partner_ids = window._linkedin_data_partner_ids || [];
+    window._linkedin_data_partner_ids.push(_linkedin_partner_id);
+    </script><script type="text/javascript">
+    (function(l) {
+    if (!l){window.lintrk = function(a,b){window.lintrk.q.push([a,b])};
+    window.lintrk.q=[]}
+    var s = document.getElementsByTagName("script")[0];
+    var b = document.createElement("script");
+    b.type = "text/javascript";b.async = true;
+    b.src = "https://snap.licdn.com/li.lms-analytics/insight.min.js";
+    s.parentNode.insertBefore(b, s);})(window.lintrk);
+    </script>
+    <noscript>
+    <img height="1" width="1" style="display:none;" alt="" src="https://px.ads.linkedin.com/collect/?pid=5963060&fmt=gif" />
+    </noscript>
+    <script type='text/javascript'>
+      window.smartlook||(function(d) {
+        var o=smartlook=function(){ o.api.push(arguments)},h=d.getElementsByTagName('head')[0];
+        var c=d.createElement('script');o.api=new Array();c.async=true;c.type='text/javascript';
+        c.charset='utf-8';c.src='https://web-sdk.smartlook.com/recorder.js';h.appendChild(c);
+        })(document);
+        smartlook('init', '68feb7479ae33141709ecdfbe1ae03f6386488c7', { region: 'eu' });
+    </script>
 </head>
 
 <!-- body start -->
@@ -44,8 +89,8 @@
                 {% if not user_settings.isSubscriber %}
                 <li class="d-none d-lg-block sub-margin">
                     <div class="subscribe-btn">
-                        <a class="btn btn-gold subscribe rounded-pill dropdown-toggle arrow-none waves-effect waves-light mb-3" href="{% url 'checkout' %}">
-                            <span><i class="mdi mdi-star-plus-outline"></i> Upgrade <i class="mdi mdi-star-plus-outline"></i></span>
+                        <a class="btn btn-gradient-stroke subscribe rounded-pill dropdown-toggle arrow-none waves-effect waves-light mb-3" href="{% url 'checkout' %}">
+                            <span><span class="crown-icon" aria-hidden="true">👑</span> Upgrade <span class="crown-icon" aria-hidden="true">👑</span></span>
                         </a>
                     </div>
                 </li>
@@ -53,8 +98,8 @@
                 <!-- MOBILE -->
                 <li class="dropdown d-inline-block d-lg-none sub-margin">
                     <div class="subscribe-btn">
-                        <a class="btn btn-gold subscribe rounded-pill dropdown-toggle arrow-none waves-effect waves-light mb-3" href="{% url 'checkout' %}">
-                            <span><i class="mdi mdi-star-plus-outline"></i> Upgrade <i class="mdi mdi-star-plus-outline"></i></span>
+                        <a class="btn btn-gradient-stroke subscribe rounded-pill dropdown-toggle arrow-none waves-effect waves-light mb-3" href="{% url 'checkout' %}">
+                            <span><span class="crown-icon" aria-hidden="true">👑</span> Upgrade <span class="crown-icon" aria-hidden="true">👑</span></span>
                         </a>
                     </div>
                 </li>
@@ -184,7 +229,7 @@
                         <!-- item-->
                         <a href="{% url 'dashboard' %}" class="dropdown-item notify-item">
                             <i class="mdi mdi-view-dashboard-outline"></i>
-                            <span>Social Media Agent</span>
+                                <span>My Office</span>
                         </a>
 
                         <!-- item-->
@@ -318,7 +363,7 @@
                             <a href="{% url 'dashboard' %}">
                                 <i class="mdi mdi-view-dashboard-outline"></i>
                                 <!-- <span class="badge bg-success rounded-pill float-end">9+</span> -->
-                                <span> Social Media Manager </span>
+                                <span>My Office</span>
                             </a>
                         </li>
 
@@ -423,10 +468,17 @@
                                                     <img class="post-type-thumbnail {% if selected_option == 'graphic' %}selected{% endif %}" data-value="graphic" src="https://storage.googleapis.com/starter_web_app_bucket/assets/graphic.png" alt="Graphic Post">
                                                     <p class="poppins">Social Media Graphic Post</p>
                                                 </div>
-                                                <div class="thumbnail-container" onclick='initThumbnailSelection("ad", {{ tags | safe}})'>
-                                                    <img class="post-type-thumbnail {% if selected_option == 'ad' %}selected{% endif %}" data-value="ad" src="https://storage.googleapis.com/starter_web_app_bucket/assets/ad.png" alt="Ad Post">
-                                                    <p class="poppins">Ad Post</p>
-                                                </div>
+                                                    {% if user_settings.isSubscriber %}
+                                                        <div class="thumbnail-container" onclick='initThumbnailSelection("ad", {{ tags | safe }})'>
+                                                            <img class="post-type-thumbnail {% if selected_option == 'ad' %}selected{% endif %}" data-value="ad" src="https://storage.googleapis.com/starter_web_app_bucket/assets/ad.png" alt="Ad Post">
+                                                            <p class="poppins">Ad Post</p>
+                                                        </div>
+                                                    {% else %}
+                                                        <div class="thumbnail-container">
+                                                            <img class="non-subscriber-thumbnail" src="https://storage.googleapis.com/starter_web_app_bucket/assets/ad.png" alt="Ad Post">
+                                                            <p class="poppins">Ad Post <span class="crown-icon" aria-hidden="true">👑</span></p>
+                                                        </div>
+                                                    {% endif %}
                                                 {% endif %}
                                                 <div class="thumbnail-container" onclick="initThumbnailSelection('up')">
                                                     <img class="post-type-thumbnail  {% if selected_option != 'ad' and selected_option != 'photo' and selected_option != 'text' and selected_option != 'graphic' %}selected{% endif %}" data-value="up" src="https://storage.googleapis.com/starter_web_app_bucket/assets/up.png" alt="Upload File">

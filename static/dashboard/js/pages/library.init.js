@@ -21,12 +21,6 @@ const auth = getAuth(firebaseApp);
 const db = getFirestore(firebaseApp);
 const statusDocRef = doc(collection(db, 'users'), jsonDump.userId);
 
-onAuthStateChanged(auth, (user) => {
-    if (user) {} else {
-        window.location.href = '/login/';
-    }
-});
-
 0 < $('[data-plugins="dropify"]').length && $('[data-plugins="dropify"]').dropify({
     messages: {
         default: "File Upload",

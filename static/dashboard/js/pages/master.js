@@ -18,12 +18,6 @@ const firebaseApp = initializeApp(firebaseConfig);
 const auth = getAuth(firebaseApp);
 const db = getFirestore(firebaseApp);
 
-onAuthStateChanged(auth, (user) => {
-    if (user) {} else {
-        window.location.href = '/login/';
-    }
-});
-
 function loadAccounts() {
     const selectElement = document.getElementById('accountSelect');
     

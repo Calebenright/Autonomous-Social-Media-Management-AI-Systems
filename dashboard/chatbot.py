@@ -255,8 +255,7 @@ def schedule_post(url, caption, platforms, date_and_time, user_settings, user_se
         'className': 'bg-warning',
         'socials': socials,
         'type' : post_type,
-        'status': 'pending',
-        'firebase_id_token': firebase_id_token
+        'status': 'pending'
     }
     eventDocRef.set(event_data, merge=True)
     firestore_data = {'next_caption': caption}

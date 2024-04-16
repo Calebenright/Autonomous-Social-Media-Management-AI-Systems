@@ -19,7 +19,7 @@
     <meta name="theme-color" content="#ffffff">
   
     <link rel="stylesheet" href="{% static 'website/css/main.css' %}">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet"> -->
   
     <meta property="og:type" content="website">
     <meta property="og:title" content="Feadlio | Transform Your Marketing with Our AI-Driven Platform">
@@ -70,6 +70,36 @@
       src="https://www.facebook.com/tr?id=7170700856358682&ev=PageView&noscript=1"
       /></noscript>
       <!-- End Meta Pixel Code -->
+      <!-- Google tag (gtag.js) -->
+      <script async src="https://www.googletagmanager.com/gtag/js?id=AW-11382945907"></script>
+      <script> window.dataLayer = window.dataLayer || []; function gtag() { dataLayer.push(arguments); } gtag('js', new Date()); gtag('config', 'AW-11382945907'); </script>
+        <!-- LINKEDIN  -->
+      <!-- <script type="text/javascript">
+      _linkedin_partner_id = "5963060";
+      window._linkedin_data_partner_ids = window._linkedin_data_partner_ids || [];
+      window._linkedin_data_partner_ids.push(_linkedin_partner_id);
+      </script><script type="text/javascript">
+      (function(l) {
+      if (!l){window.lintrk = function(a,b){window.lintrk.q.push([a,b])};
+      window.lintrk.q=[]}
+      var s = document.getElementsByTagName("script")[0];
+      var b = document.createElement("script");
+      b.type = "text/javascript";b.async = true;
+      b.src = "https://snap.licdn.com/li.lms-analytics/insight.min.js";
+      s.parentNode.insertBefore(b, s);})(window.lintrk);
+      </script>
+      <noscript>
+      <img height="1" width="1" style="display:none;" alt="" src="https://px.ads.linkedin.com/collect/?pid=5963060&fmt=gif" />
+      </noscript>
+      <script type='text/javascript'>
+        window.smartlook||(function(d) {
+          var o=smartlook=function(){ o.api.push(arguments)},h=d.getElementsByTagName('head')[0];
+          var c=d.createElement('script');o.api=new Array();c.async=true;c.type='text/javascript';
+          c.charset='utf-8';c.src='https://web-sdk.smartlook.com/recorder.js';h.appendChild(c);
+          })(document);
+          smartlook('init', '68feb7479ae33141709ecdfbe1ae03f6386488c7', { region: 'eu' });
+      </script> -->
+
   </head>
   
 <body class="page page-home preload">
@@ -106,39 +136,52 @@
       </a>
       <div class="nav-toggle"></div>
       <ul class="inline">
-        <li><a href="{% url 'index' %}" class="active">Home</a></li>
-        <li><a href="{% url 'pricing' %}">Pricing</a></li>
+        <!-- <li><a href="{% url 'index' %}" class="active">Home</a></li> -->
+        <!-- <li><a href="{% url 'pricing' %}">Pricing</a></li> -->
       </ul>
       <ul class="inline right">
-        <li><a href="{% url 'login' %}">Log In</a></li>
-        <li><a href="{% url 'signup' %}" class="button button-secondary button-m full-width-tablet" role="button">+ Join The Beta</a>
+        <!-- <li><a href="{% url 'login' %}">Log In</a></li> -->
+        <li><a href="{% url 'login' %}" class="button button-secondary button-m full-width-tablet" role="button">+ Join The Beta</a>
         </li>
       </ul>
     </nav>
-    
   </header>
 
   <main>
-
+    <style>
+    </style>
     <section class="bg-image-hero center-tablet dark overlay-hero">
       <div class="full-screen -margin-bottom middle padding padding-top-tablet">
-        <div class="row max-width-l">
-          <!-- HTML Structure -->
-          
-          <div class="col-one-half-img">
+        <div class="row row-center max-width-o">
+          <div class=".col-four-fifths middle">
+            <div>
+              <h1 class="hero"><u>FREE</u> Social Media Management</h1>
+              <p class="lead">A fully autonomous social media marketing tool for businesses and solopreneurs.</p>
+              <a href="{% url 'login' %}" class="button button-primary space-top" role="button">It's Free! Join The Beta.</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="padding">
+        <div class="row row-center margin-bottom max-width-o">
+          <div class="col-one-half middle">
+            <h3>Meet Elaine</h3>
+            <p class="paragraph">Like an in-house marketing team, Elaine is your personalized social media manager.</p>
+          </div>
+          <div class="col-one-half">
+            <img class="rounded shadow-l" src="{% static 'website/media/webp/ElaineWebpage.webp' %}" alt="Editor">
+          </div>
+        </div>
+        <div class="row row-center max-width-o reverse-order">
+          <div class="col-one-half">
             <div class="container">
               <div class="social-media-post">
-                  <!-- <div class="post-header">
-                      <img id="dynamicProfile" src="https://storage.googleapis.com/starter_web_app_bucket/user_folders/stock_image_library/0495ceee-1eb1-4887-84a1-1b23cf1d9adb.jpg" alt="Profile" class="profile-pic">
-                      <span class="username">Username</span>
-                  </div> -->
                   <img id="dynamicImage" src="{% static 'website/media/webp/indexPost13.webp' %}" alt="Dynamic Image" class="post-image">
-                  <!-- <p id="dynamicCaption" class="post-caption">Default caption</p>9 -->
               </div>
               <br>
               <div class="toggle-container">
                 <button id="generateFeedBtn">Generate Creatives</button>
-            </div>
+              </div>
             </div>
 
             <script>
@@ -195,32 +238,200 @@
               });
             </script>
           </div>
-
           <div class="col-one-half middle">
-              <div>
-                <h1 class="hero">AI Social Media Management</h1>
-                <p class="lead">An AI Social Media assistant that generates advertisements, graphics, impressions, leads, sales, and eyeballs.</p>
-                <a href="{% url 'signup' %}" class="button button-primary space-top" role="button">Try It For Free</a>
-              </div>
+            <h3>Posts Created Every Week</h3>
+            <p class="paragraph">Ad Creatives, Social Media Graphics, Images, Blog Posts, All Created By Elaine For FREE!</p>
+          </div>
+        </div>
+        <div class="row row-center margin-bottom max-width-o">
+          <div class="col-one-half middle">
+            <h3>Check Your Email</h3>
+            <p class="paragraph">Elaine will send you an email brief every week, giving visibility to the posts she scheduled for you.</p>
+          </div>
+          <div class="col-one-half">
+            <img class="rounded shadow-l" src="{% static 'website/media/webp/ElaineEmail.webp' %}" alt="Editor">
+          </div>
+        </div>
+        <div class="row row-center max-width-o reverse-order">
+          <div class="col-one-half">
+            <img class="rounded shadow-l" src="{% static 'website/media/webp/ElainePost.webp' %}" alt="Editor">
+          </div>
+          <div class="col-one-half middle">
+            <h3>Posted To Your Socials</h3>
+            <p class="paragraph">No further action from you is needed. The posts have already been scheduled to publish to your socials at the most engaging time.</p>
           </div>
         </div>
       </div>
     </section>
 
     <section class="bg-gradient-light -margin-bottom-2 overlay padding">
-     
       <div class="center max-width-m">
         <h2>Our Innovative A.I. Runs Your Social Media</h2>
-        <p class="paragraph">Feadl.io unlocks the true potential of online marketing through generative intelligence. Our AI is a highly trained model based on leading social media data and practices. It can create and maintain a brand presence,
+        <p class="paragraph-o">Feadl.io unlocks the true potential of online marketing through generative intelligence. Our AI is a highly trained model based on leading social media data and practices. It can create and maintain a brand presence,
            market online, reach new customers, and generate more business.<br>
         </p>
       </div>
       <br>
-      <div class="margin-top max-width-l">
-        <iframe class="rounded shadow-l" width="100%" height="500px" src="https://www.youtube.com/embed/jdqjuMdVPY0?si=JDEsZwdA2zS4Mk6T" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+      <div class="margin-top max-width-o">
+        <div class="rounded shadow-l youtube-video-placeholder" data-embed="https://www.youtube.com/embed/jdqjuMdVPY0?si=JDEsZwdA2zS4Mk6T" style="cursor: pointer;">
+          <img src="{% static 'website/media/webp/thumbnail.webp' %}" alt="YouTube video player" class="youtube-video-thumbnail" style="width: 100%; height: auto;">
+        </div>      
       </div>
     </section>
-    <section class="padding"></section>
+    <section class="bg-gradient-dark center dark padding">
+      <div class="margin-top max-width-o">
+        <div class="margin-bottom max-width-m">
+          <h3>Over 1,000 Businesses and Solopreneurs</h3>
+          <p class="opacity-m paragraph-o">Thousands of businesses and solopreneurs rely on our service.</p>
+        </div>
+        <div class="row row-center min-two-columns">
+          <div class="col-one-fourth">
+            <img src="{% static 'website/media/webp/Amsterdam.webp' %}" alt="Trusted Company">
+          </div>
+          <div class="col-one-fourth">
+            <img src="{% static 'website/media/webp/galway.webp' %}" alt="Trusted Company">
+          </div>
+          <div class="col-one-fourth">
+            <img src="{% static 'website/media/webp/italic.webp' %}" alt="Trusted Company">
+          </div>
+          <div class="col-one-fourth">
+            <img src="{% static 'website/media/webp/aiken.webp' %}" alt="Trusted Company">
+          </div>
+        </div>
+        <!-- <img class="margin-top rounded shadow-l" src="media/content/customers.jpg" alt="Customers"> -->
+      </div>
+    </section>
+    <section class="padding">
+      <div class="max-width-o">
+        <div class="center">
+          <h2>How It Works</h2>
+          <!-- <p class="paragraph-o">Our software.</p> -->
+        </div>
+        <div class="row row-center margin-top timeline">
+          <div class="col-one-fourth">
+            <h5>Tell Us About You</h5>
+            <p>We ask 3 simple questions that we then use to create, schedule, and manage your social media.</p>
+          </div>
+          <div class="col-one-fourth">
+            <h5>We Create And Schedule You Posts</h5>
+            <p>Every Monday we create and schedule you social media posts. When we are finished, we will send you an email.</p>
+          </div>
+          <div class="col-one-fourth">
+            <h5>Check Your Email</h5>
+            <p>Make sure you check your email every Monday to see the posts that have been created for you.</p>
+          </div>
+          <div class="col-one-fourth">
+            <h5>Posted To Your Socials</h5>
+            <p>Posts are automatically uploaded and posted to your designated social media platforms.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="bg-light center">
+      <div class="row row-center no-gutter">
+        <div class="col-one-half middle padding padding-bottom padding-top">
+          <div class="max-width-m">
+            <p class="paragraph-o">Mark Keeting, small business owner, says:</p>
+            <h3>"I save thousands from hiring a social media manager, and I never have to worry about doing it myself again."</h3>
+          </div>
+        </div>
+        <div class="col-one-half bg-image-m padding-bottom padding-top"></div>
+      </div>
+    </section>
+
+    <!-- <section class="bg-gradient-light padding">
+      <div class="center max-width-o">
+        <h2>5-Minute Setup</h2>
+        <p class="paragraph-o">At vero eos et accusamus et iusto odio dignissimos ducimus.</p>
+      </div>
+      <div class="row row-center margin-top max-width-o">
+        <div class="col-one-fourth card card-content">
+          <p class="muted">Step 1</p>
+          <h4>Download</h4>
+          <p class="paragraph-o">Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+        </div>
+        <div class="col-one-fourth card card-content">
+          <p class="muted">Step 2</p>
+          <h4>Customize</h4>
+          <p class="paragraph-o">Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur mollit.</p>
+        </div>
+        <div class="col-one-fourth card card-content">
+          <p class="muted">Step 3</p>
+          <h4>Upload</h4>
+          <p class="paragraph-o">Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+        </div>
+        <div class="col-one-fourth card card-content dark">
+          <p class="muted">Step 4</p>
+          <h4>Done!</h4>
+          <p class="paragraph-o">Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium.</p>
+        </div>
+      </div>
+      <div class="center margin-top max-width-o">
+        <span class="muted">If you need any help, make sure to </span><a href="{% url 'login' %}">book a demo</a><span class="muted">.</span>
+      </div>
+    </section> -->
+
+    <section class="bg-gradient-light padding">
+      <div class="bg-image-08 dark max-width-o overlay padding padding-bottom padding-top rounded">
+        <div class="center max-width-m">
+          <h2>Generate Your Own Creatives</h2>
+          <p class="paragraph-o">FREE access to our instant social media generators so you have more control over what you want to create.</p>
+        </div>
+      </div>
+      <!-- <div class="row row-center center margin-bottom max-width-o min-two-columns">
+        <div class="col-one-fourth">
+          <i class="feature-icons material-icons">format_shapes</i>
+          <h6>Minimal Design</h6>
+          <p class="muted paragraph-o">Sed ut perspiciatis unde omnis iste natus.</p>
+        </div>
+        <div class="col-one-fourth">
+          <i class="feature-icons material-icons">network_check</i>
+          <h6>Rocket Fast</h6>
+          <p class="muted paragraph-o">Sed ut perspiciatis unde omnis iste natus.</p>
+        </div>
+        <div class="col-one-fourth">
+          <i class="feature-icons material-icons">line_style</i>
+          <h6>Framework</h6>
+          <p class="muted paragraph-o">Sed ut perspiciatis unde omnis iste natus.</p>
+        </div>
+        <div class="col-one-fourth">
+          <i class="feature-icons material-icons">chrome_reader_mode</i>
+          <h6>Style Guide</h6>
+          <p class="muted paragraph-o">Sed ut perspiciatis unde omnis iste natus.</p>
+        </div>
+      </div>
+      <div class="row row-center center max-width-l min-two-columns">
+        <div class="col-one-fourth">
+          <i class="feature-icons material-icons">code</i>
+          <h6>CSS + SASS</h6>
+          <p class="muted paragraph-o">Sed ut perspiciatis unde omnis iste natus.</p>
+        </div>
+        <div class="col-one-fourth">
+          <i class="feature-icons material-icons">settings</i>
+          <h6>Customizable</h6>
+          <p class="muted paragraph-o">Sed ut perspiciatis unde omnis iste natus.</p>
+        </div>
+        <div class="col-one-fourth">
+          <i class="feature-icons material-icons">dashboard</i>
+          <h6>Modular Design</h6>
+          <p class="muted paragraph-o">Sed ut perspiciatis unde omnis iste natus.</p>
+        </div>
+        <div class="col-one-fourth">
+          <i class="feature-icons material-icons">check</i>
+          <h6>HTML5 Valid</h6>
+          <p class="muted paragraph-o">Sed ut perspiciatis unde omnis iste natus.</p>
+        </div> -->
+      </div>
+    </section>
+
+    <section class="bg-light padding-bottom">
+      <div class="center max-width-o">
+        <h2>Expand Your Reach The Right Way.</h2>
+        <p class="paragraph-o">Don't waste another minute.</p>
+        <a href="{% url 'login' %}" class="button button-primary space-top" role="button">Start Using For FREE!</a>
+      </div>
+    </section>
   </main>
 
   <footer class="footer-main bg-gradient-primary dark overlay-shape-06">
@@ -228,17 +439,17 @@
       <div class="center margin-bottom max-width-m">
         <h3>Welcome to the new era of online marketing.</h3>
       </div>
-      <div class="card card-content dark margin-bottom max-width-l">
-        <form class="row reduce-spacing">
+      <div class="card card-content dark margin-bottom max-width-o">
+        <form class="row row-center reduce-spacing">
           <div class="col-two-thirds center-tablet middle">
             <h3 class="space-none">Ready to get started?</h3>
           </div>
           <div class="col-one-third middle">
-            <a href="{% url 'signup' %}" class="button button-primary" role="button">Try It For Free</a>
+            <a href="{% url 'login' %}" class="button button-primary" role="button">Join The Beta</a>
           </div>
         </form>
       </div>
-      <div class="row center-desktop max-width-l">
+      <div class="row row-center center-desktop max-width-o">
         <div class="col-two-fifths">
           <h6>Feadl.io ®</h6>
           <p>Leading a new era of artificial intelligence driven online marketing.</p>
@@ -270,8 +481,8 @@
     </div>
     <p class="copyright"><span>Copyright </span><a href="https://www.theenrightgroup.org" target="_blank">© Enright Group</a><span> - 2024, all rights reserved.</span></p>
   </footer>
-
   <script src="{% static 'website/js/main.js' %}"></script>
+  <script src="{% static 'website/js/index.js' %}"></script>
 </body>
 
 </html>

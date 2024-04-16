@@ -1,9 +1,6 @@
-<!-- login.html -->
 {% load static %}
-
 <!doctype html>
 <html lang="en">
-
 <head>
   <title>Feadl.io | Log In</title>
   <meta name="description" content="Elevate your marketing strategy with Feadlio, leveraging cutting-edge AI to automate social media and digital marketing for growth and efficiency.">
@@ -72,6 +69,35 @@
     src="https://www.facebook.com/tr?id=7170700856358682&ev=PageView&noscript=1"
     /></noscript>
     <!-- End Meta Pixel Code -->
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=AW-11382945907"></script>
+    <script> window.dataLayer = window.dataLayer || []; function gtag() { dataLayer.push(arguments); } gtag('js', new Date()); gtag('config', 'AW-11382945907'); </script>
+
+    <script type="text/javascript">
+    _linkedin_partner_id = "5963060";
+    window._linkedin_data_partner_ids = window._linkedin_data_partner_ids || [];
+    window._linkedin_data_partner_ids.push(_linkedin_partner_id);
+    </script><script type="text/javascript">
+    (function(l) {
+    if (!l){window.lintrk = function(a,b){window.lintrk.q.push([a,b])};
+    window.lintrk.q=[]}
+    var s = document.getElementsByTagName("script")[0];
+    var b = document.createElement("script");
+    b.type = "text/javascript";b.async = true;
+    b.src = "https://snap.licdn.com/li.lms-analytics/insight.min.js";
+    s.parentNode.insertBefore(b, s);})(window.lintrk);
+    </script>
+    <noscript>
+    <img height="1" width="1" style="display:none;" alt="" src="https://px.ads.linkedin.com/collect/?pid=5963060&fmt=gif" />
+    </noscript>
+    <script type='text/javascript'>
+      window.smartlook||(function(d) {
+        var o=smartlook=function(){ o.api.push(arguments)},h=d.getElementsByTagName('head')[0];
+        var c=d.createElement('script');o.api=new Array();c.async=true;c.type='text/javascript';
+        c.charset='utf-8';c.src='https://web-sdk.smartlook.com/recorder.js';h.appendChild(c);
+        })(document);
+        smartlook('init', '68feb7479ae33141709ecdfbe1ae03f6386488c7', { region: 'eu' });
+    </script>
 </head>
 
 <body class="page page-onboarding preload">
@@ -94,7 +120,7 @@
         <div class="max-width-s">
 
           <h1>Feadl.io</h1>
-          <p class="paragraph">Welcome back to your Feadl.io!</p>
+          <p class="paragraph">FREE. Social Media Management.</p>
           <form method="POST" action="{% url 'login' %}" id="loginForm">
             {% csrf_token %}
             <input type="hidden" id="providerField" name="provider" value="">
@@ -113,63 +139,16 @@
               <input id="remember-me" type="checkbox" name="remember-me">
               <label for="remember-me" class="checkbox">Remember Me</label>
             </div>
+            <!-- <button type="submit" class="button button-primary full-width" role="button">Log In</button> -->
           </form>
-          <style>
-            .auth-button {
-              padding: 10px; /* Adjust overall padding */
-              border: none;
-              border-radius: 4px;
-              font-size: 16px;
-              font-weight: Bold;
-              cursor: pointer;
-              font-family: Arial, sans-serif;
-              color: white;
-              width: 100%;
-              display: flex;
-              align-items: center;
-              justify-content: flex-start; /* Align items to the left */
-              margin-top: 10px;
-              overflow: hidden; /* Ensures the border-radius applies to children */
-            }
-
-            .icon-container {
-              background-color: white;
-              border-radius: 4px 0 0 4px; /* Rounded on the left side */
-              padding: 10px; /* Adjust to your preference */
-              display: flex;
-              justify-content: center;
-              align-items: center;
-            }
-
-            .button-text {
-              flex-grow: 1; /* Makes the text span take up the rest of the button space */
-              text-align: center; /* Centers the text */
-            }
-
-            #google-sign-in {
-              background-color: #4285F4; /* Google's brand color */
-            }
-
-            #facebook-sign-in {
-              background-color: #3b5998; /* Facebook's brand color */
-            }
-
-            /* Adjust the icon colors if necessary */
-            #google-sign-in .icon-container i,
-            #facebook-sign-in .icon-container i {
-              color: #4285F4; /* You might want to set this to a color that's visible on white, possibly the brand color or just black */
-            }
-
-          </style>
-          <button type="submit" class="button button-primary full-width" role="button" id="feadlio-sign-in">Log In</button>
+          <button type="button" class="button button-primary full-width" role="button" id="feadlio-sign-in">Log In</button>
           <br>
           <br>
-          <button id="google-sign-in" class="auth-button">
+          <button type="button" id="google-sign-in" class="auth-button">
             <span class="icon-container"><i class="fab fa-google"></i></span>
             <span class="button-text">Sign in with Google</span>
           </button>
-          
-          <!-- <button id="facebook-sign-in" class="auth-button">
+          <!-- <button type="button" id="facebook-sign-in" class="auth-button">
             <span class="icon-container"><i class="fab fa-facebook-f"></i></span>
             <span class="button-text">Sign in with Facebook</span>
           </button> -->
@@ -183,11 +162,101 @@
       </div>
       <div class="col-one-half bg-image-04 featured-image"></div>
     </section>
+    <!-- Loader Container -->
+    <div id="loader" class="loader-container" style="display:none;">
+      <div class="loader-dot"></div>
+    </div>
+    <style>
+      /* Loader container covering the entire screen with white opaque background */
+      .loader-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(255, 255, 255, 0.8); /* White with opacity */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000; /* Ensure it's above other content */
+      }
+
+      /* Blue dot loader */
+      .loader-dot {
+        width: 20px;
+        height: 20px;
+        background-color: rgb(69, 139, 219);
+        border-radius: 50%;
+        animation: pulse 2s infinite;
+      }
+
+      /* Animation for the blue dot */
+      @keyframes pulse {
+        0%, 100% {
+          transform: scale(.1);
+        }
+        50% {
+          transform: scale(1.5);
+        }
+      }
+
+      .auth-button {
+        padding: 10px; /* Adjust overall padding */
+        border: none;
+        border-radius: 4px;
+        font-size: 16px;
+        font-weight: Bold;
+        cursor: pointer;
+        font-family: Arial, sans-serif;
+        color: white;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start; /* Align items to the left */
+        margin-top: 10px;
+        overflow: hidden; /* Ensures the border-radius applies to children */
+      }
+
+      .icon-container {
+        background-color: white;
+        border-radius: 4px 0 0 4px; /* Rounded on the left side */
+        padding: 10px; /* Adjust to your preference */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .button-text {
+        flex-grow: 1; /* Makes the text span take up the rest of the button space */
+        text-align: center; /* Centers the text */
+      }
+
+      #google-sign-in {
+        background-color: #4285F4; /* Google's brand color */
+      }
+
+      #facebook-sign-in {
+        background-color: #3b5998; /* Facebook's brand color */
+      }
+
+      /* Adjust the icon colors if necessary */
+      #google-sign-in .icon-container i,
+      #facebook-sign-in .icon-container i {
+        color: #4285F4; /* You might want to set this to a color that's visible on white, possibly the brand color or just black */
+      }
+
+    </style>
 
   </main>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    <script type="module" src="{% static 'website/js/login.init.js' %}"></script>
-    <script src="{% static 'website/js/main.js' %}"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+  <script src="{% static 'website/js/main.js' %}"></script>
+  <script>
+    var userPid = "{{ user_pid }}";
+    var userEmail = "{{ user_email }}";
+    var isProvider = "{{ isProvider }}";
+  </script>
+  <script type="module" src="{% static 'website/js/login.init.js' %}"></script>
+
 </body>
 
 </html>

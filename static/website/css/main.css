@@ -452,12 +452,26 @@ p:last-child {
   text-align: left;
 }
 
+.paragraph-o {
+  font-size: 1.25rem;
+  font-weight: 400;
+  letter-spacing: 0.3px;
+  line-height: 2rem;
+  text-align: center;
+}
+
 .paragraph.serif {
   font-family: "PT Serif", Georgia, serif;
 }
 
 @media only screen and (max-width: 479px) {
   .paragraph {
+    font-size: 1.125rem;
+    letter-spacing: normal;
+    line-height: 1.75rem;
+  }
+
+  .paragraph-o {
     font-size: 1.125rem;
     letter-spacing: normal;
     line-height: 1.75rem;
@@ -500,7 +514,11 @@ p:last-child {
   -ms-flex-wrap: wrap;
   flex-wrap: wrap;
   width: 100%;
-  
+  /* justify-content: center; */
+}
+
+.row-center {
+  justify-content: center;
 }
 
 .row .col-one-half {
@@ -1034,23 +1052,14 @@ p:last-child {
 }
 
 /* Images */
-.bg-image-01:after {
-  background: url(../media/bg/image-01@2x.jpg);
+
+.bg-image-m:after {
+  background: url(../media/webp/MarkKeetting.webp);
 }
 
 @media only screen and (max-width: 479px) {
-  .bg-image-01:after {
-    background: url(../media/bg/image-01.jpg);
-  }
-}
-
-.bg-image-02:after {
-  background: url(../media/bg/image-02@2x.jpg);
-}
-
-@media only screen and (max-width: 479px) {
-  .bg-image-02:after {
-    background: url(../media/bg/image-02.jpg);
+  .bg-image-m:after {
+    background: url(../media/webp/MarkKeetting.webp);
   }
 }
 
@@ -1060,7 +1069,7 @@ p:last-child {
 
 @media only screen and (max-width: 479px) {
   .bg-image-03:after {
-    background: url(../media/bg/image-03.jpg);
+    background: url(../media/bg/image-03@2x.jpg);
   }
 }
 
@@ -1094,25 +1103,16 @@ p:last-child {
   }
 }
 
-.bg-image-07:after {
-  background: url(../media/bg/image-07@2x.jpg);
-}
-
-@media only screen and (max-width: 479px) {
-  .bg-image-07:after {
-    background: url(../media/bg/image-07.jpg);
-  }
-}
-
 .bg-image-08:after {
-  background: url(../media/bg/image-08@2x.jpg);
+  background: url(../media/webp/PostCreator.webp);
 }
 
 @media only screen and (max-width: 479px) {
   .bg-image-08:after {
-    background: url(../media/bg/image-08.jpg);
+    background: url(../media/webp/PostCreator.webp);
   }
 }
+
 
 .bg-image-hero:after {
   background: #05050b;
@@ -1202,6 +1202,12 @@ p:last-child {
 
 .max-width-l {
   max-width: 900px;
+  margin-bottom: 50px; 
+  margin-top: 30px; 
+}
+
+.max-width-o {
+  max-width: 1200px;
   margin-bottom: 50px; 
   margin-top: 30px; 
 }
@@ -2668,6 +2674,10 @@ table td {
     .max-width-l {
         margin-top: 0px;
     }
+
+    .max-width-o {
+        margin-top: 0px;
+    }
     
     h6 {
         text-align: center;
@@ -2682,7 +2692,7 @@ table td {
     font-family: "Poppins", sans-serif;
     font-weight: 700;
     padding: 10px 20px;
-    background-color: #00c711;
+    background-color: #02e64e;
     color: #FFF;
     border: none;
     border-radius: 5px;
@@ -2691,7 +2701,7 @@ table td {
 }
 
 #generateFeedBtn:hover {
-    background-color: #239600;
+    background-color: #009632;
 }
 
 .social-media-post {
@@ -3232,3 +3242,14 @@ width: 100% !important;
   }
 }
 
+.video-player{
+  width: 100%;
+  height: 675px;
+}
+
+@media only screen and (max-width: 479px) {
+  .video-player{
+    width: 100%;
+    height: 200px;
+  }
+}

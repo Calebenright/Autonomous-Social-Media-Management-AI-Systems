@@ -14,9 +14,6 @@
     <!-- App favicon -->
     <link rel="shortcut icon" href="{% static 'dashboard/images/favicon.ico' %}">
 
-    <!-- App css -->
-    <link href="{% static 'dashboard/css/app.min.css' %}" rel="stylesheet" type="text/css" id="app-style" />
-
     <!-- PLugins css -->
     <link href="{% static 'dashboard/libs/mohithg-switchery/switchery.min.css' %}" rel="stylesheet" type="text/css" />
 
@@ -25,25 +22,61 @@
     
     <!-- Plugins css -->
     <link href="{% static 'dashboard/css/spectrum.min.css' %}" rel="stylesheet" type="text/css">
-
+    
+    <link href="{% static 'dashboard/libs/bootstrap-tagsinput/bootstrap-tagsinput.css' %}" rel="stylesheet" />
+    <link href="{% static 'dashboard/libs/multiselect/css/multi-select.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'dashboard/libs/select2/css/select2.min.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'dashboard/libs/selectize/css/selectize.bootstrap3.css' %}" rel="stylesheet" type="text/css" />
+    
+    <!-- App css -->
+    <link href="{% static 'dashboard/css/app.min.css' %}" rel="stylesheet" type="text/css" id="app-style" />
     
     <!-- Meta Pixel Code -->
     <script>
-        !function(f,b,e,v,n,t,s)
-        {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-        n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-        if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-        n.queue=[];t=b.createElement(e);t.async=!0;
-        t.src=v;s=b.getElementsByTagName(e)[0];
-        s.parentNode.insertBefore(t,s)}(window, document,'script',
-        'https://connect.facebook.net/en_US/fbevents.js');
-        fbq('init', '7170700856358682');
-        fbq('track', 'PageView');
-        </script>
-        <noscript><img height="1" width="1" style="display:none"
-        src="https://www.facebook.com/tr?id=7170700856358682&ev=PageView&noscript=1"
-        /></noscript>
-        <!-- End Meta Pixel Code -->
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window, document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '7170700856358682');
+    fbq('track', 'PageView');
+    </script>
+    <noscript><img height="1" width="1" style="display:none"
+    src="https://www.facebook.com/tr?id=7170700856358682&ev=PageView&noscript=1"
+    /></noscript>
+    <!-- End Meta Pixel Code -->
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=AW-11382945907"></script>
+    <script> window.dataLayer = window.dataLayer || []; function gtag() { dataLayer.push(arguments); } gtag('js', new Date()); gtag('config', 'AW-11382945907'); </script>
+
+    <script type="text/javascript">
+    _linkedin_partner_id = "5963060";
+    window._linkedin_data_partner_ids = window._linkedin_data_partner_ids || [];
+    window._linkedin_data_partner_ids.push(_linkedin_partner_id);
+    </script><script type="text/javascript">
+    (function(l) {
+    if (!l){window.lintrk = function(a,b){window.lintrk.q.push([a,b])};
+    window.lintrk.q=[]}
+    var s = document.getElementsByTagName("script")[0];
+    var b = document.createElement("script");
+    b.type = "text/javascript";b.async = true;
+    b.src = "https://snap.licdn.com/li.lms-analytics/insight.min.js";
+    s.parentNode.insertBefore(b, s);})(window.lintrk);
+    </script>
+    <noscript>
+    <img height="1" width="1" style="display:none;" alt="" src="https://px.ads.linkedin.com/collect/?pid=5963060&fmt=gif" />
+    </noscript>
+    <script type='text/javascript'>
+      window.smartlook||(function(d) {
+        var o=smartlook=function(){ o.api.push(arguments)},h=d.getElementsByTagName('head')[0];
+        var c=d.createElement('script');o.api=new Array();c.async=true;c.type='text/javascript';
+        c.charset='utf-8';c.src='https://web-sdk.smartlook.com/recorder.js';h.appendChild(c);
+        })(document);
+        smartlook('init', '68feb7479ae33141709ecdfbe1ae03f6386488c7', { region: 'eu' });
+    </script>
 
 </head>
 
@@ -65,8 +98,8 @@
                 {% if not user_settings.isSubscriber %}
                 <li class="d-none d-lg-block sub-margin">
                     <div class="subscribe-btn">
-                        <a class="btn btn-gold subscribe rounded-pill dropdown-toggle arrow-none waves-effect waves-light mb-3" href="{% url 'checkout' %}">
-                            <span><i class="mdi mdi-star-plus-outline"></i> Upgrade <i class="mdi mdi-star-plus-outline"></i></span>
+                        <a class="btn btn-gradient-stroke subscribe rounded-pill dropdown-toggle arrow-none waves-effect waves-light mb-3" href="{% url 'checkout' %}">
+                            <span><span class="crown-icon" aria-hidden="true">👑</span> Upgrade <span class="crown-icon" aria-hidden="true">👑</span></span>
                         </a>
                     </div>
                 </li>
@@ -74,12 +107,13 @@
                 <!-- MOBILE -->
                 <li class="dropdown d-inline-block d-lg-none sub-margin">
                     <div class="subscribe-btn">
-                        <a class="btn btn-gold subscribe rounded-pill dropdown-toggle arrow-none waves-effect waves-light mb-3" href="{% url 'checkout' %}">
-                            <span><i class="mdi mdi-star-plus-outline"></i> Upgrade <i class="mdi mdi-star-plus-outline"></i></span>
+                        <a class="btn btn-gradient-stroke subscribe rounded-pill dropdown-toggle arrow-none waves-effect waves-light mb-3" href="{% url 'checkout' %}">
+                            <span><span class="crown-icon" aria-hidden="true">👑</span> Upgrade <span class="crown-icon" aria-hidden="true">👑</span></span>
                         </a>
                     </div>
                 </li>
                 {% endif %}
+
                 <li class="dropdown notification-list topbar-dropdown">
                     <a class="nav-link dropdown-toggle waves-effect waves-light" data-bs-toggle="dropdown" href="#"
                         role="button" aria-haspopup="false" aria-expanded="false">
@@ -205,7 +239,7 @@
                         <!-- item-->
                         <a href="{% url 'dashboard' %}" class="dropdown-item notify-item">
                             <i class="mdi mdi-view-dashboard-outline"></i>
-                            <span>Social Media Agent</span>
+                            <span>My Office</span>
                         </a>
 
                         <!-- item-->
@@ -244,7 +278,7 @@
                 </li>
 
                 <li>
-                    <h4 class="page-title-main">Social Media Manager</h4>
+                    <h4 class="page-title-main">My Office</h4>
                 </li>
 
             </ul>
@@ -317,7 +351,7 @@
                             <a href="{% url 'dashboard' %}">
                                 <i class="mdi mdi-view-dashboard-outline"></i>
                                 <!-- <span class="badge bg-success rounded-pill float-end">9+</span> -->
-                                <span> Social Media Manager </span>
+                                <span>My Office</span>
                             </a>
                         </li>
 
@@ -393,7 +427,233 @@
                         </ul>
                         {% endif %}
                         {% if user_settings.ftue %}
-                        <div class="col-xl-9 col-lg-8">
+                        <div class="col-lg-6">
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <div class="studio">
+                                                <img src="{% static 'dashboard/images/studio/office2D.png' %}" alt="Studio Image" class="studio-image rounded">
+                                                <div class="character" id="character1"></div>
+                                                <div class="character" id="character2"></div>
+                                                <div class="character-hitbox" id="hitbox1" data-toggle-card-id="toggleCard1" data-avatar-name="elaine" title="Elaine - Social Media Manager" tabindex="0" data-plugin="tippy" data-tippy-theme="translucent"></div>
+                                                <div class="character-hitbox" id="hitbox2" data-toggle-card-id="toggleCard2" data-avatar-name="jerry" title="👑 Jerry - Advertising Specialist" tabindex="0" data-plugin="tippy" data-tippy-theme="gradient"></div>
+                                                
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- ELAINE CHARACTER CARD -->
+                                    <div class="card toggleCard" id="toggleCard1" style="display:none;">
+                                        <div class="card-body task-detail">
+                                            <div class="d-flex mb-3">
+                                                <img class="flex-shrink-0 me-3 rounded-circle avatar-md" alt="64x64" src="{% static 'dashboard/images/icon/elaineChatIcon2.png' %}">
+                                                <div class="flex-grow-1">
+                                                    <h4 class="media-heading mt-0">Elaine - Social Media Manager</h4>
+                                                    <span class="badge btn-custom">Marketing</span>
+                                                </div>
+                                            </div>
+        
+                                            <form id="tagForm" method="post" action="{% url 'dashboard' %}" enctype="multipart/form-data">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="form" value="elaine-settings">
+
+                                                <div class="mb-0 mt-2 mb-3">
+                                                    <label for="isElaineOn" style="text-align: left; margin-right: 10px;">Turn On: </label>
+                                                    <input type="checkbox" name="isElaineOn" {% if elaine_settings.isElaineOn %}checked{% endif %} data-plugin="switchery" data-color="#B1C74C">
+                                                </div>
+
+                                                <h4>I create and schedule posts to your social media every Monday.</h4>
+
+                                                <p class="text-muted">
+                                                        You can ask me to generate you posts, captions, graphics, content ideas, and more. I have a lot of features that can help you with your social media.
+                                                </p>
+            
+                                                <p class="text-muted">
+                                                    Below are some settings that will help me create the best posts possible for you each week. You can change these settings at any time. Make sure to save your changes. 
+                                                </p>
+
+                                                <div class="row task-dates mb-0 mt-2">
+                                                    <div class="col-lg-4">
+                                                        <h5 class="font-600 m-b-5">What Email Should I Send Updates To?</h5>
+                                                        <div class="form-floating">
+                                                            <input type="email" name="ElaineEmail" class="form-control" id="floatingInputGrid" placeholder="name@example.com" value="{{ user_settings.email }}">
+                                                            <label for="floatingInputGrid">Email address</label>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="col-lg-8">
+                                                        <h5 class="font-600 m-b-5">What Social Medias Do You Want Me To Post To?</h5>
+                                                        <select id="selectize-tags" name="ElaineSocialMedias[]" multiple>
+                                                            {% if user_settings.facebook_token and user_settings.facebook_page_id and user_settings.facebook_page_name %}
+                                                            <option value="Facebook" {% if "Facebook" in elaine_settings.ElaineSocialMedias %}selected{% endif %}>Facebook</option>
+                                                            {% endif %}
+                                                            {% if user_settings.instagram_token and user_settings.instagram_name and user_settings.instagram_user_id %}
+                                                            <option value="Instagram" {% if "Instagram" in elaine_settings.ElaineSocialMedias %}selected{% endif %}>Instagram</option>
+                                                            {% endif %}
+                                                        </select>
+                                                        <div class="clearfix"></div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="row mb-0 mt-2">
+                                                    <div class="col-lg-4">
+                                                        <h5 class="font-600 m-b-5">How Many Posts Per Week?</h5>
+                                                        <select name="posts_per_week" id="selectize-select">
+                                                            {% if not user_settings.isSubscriber %}
+                                                                <option value="1" {% if elaine_settings.posts_per_week == 1 %}selected{% endif %}>1</option>
+                                                                <option value="2" {% if elaine_settings.posts_per_week == 2 %}selected{% endif %}>2</option>
+                                                                <option value="3" disabled>3 <span class="crown-icon" aria-hidden="true">👑</span></option>
+                                                                <option value="4" disabled>4 <span class="crown-icon" aria-hidden="true">👑</span></option>
+                                                                <option value="5" disabled>5 <span class="crown-icon" aria-hidden="true">👑</span></option>
+                                                            {% else %}
+                                                                <option value="1" {% if elaine_settings.posts_per_week == 1 %}selected{% endif %}>1</option>
+                                                                <option value="2" {% if elaine_settings.posts_per_week == 2 %}selected{% endif %}>2</option>
+                                                                <option value="3" {% if elaine_settings.posts_per_week == 3 %}selected{% endif %}>3</option>
+                                                                <option value="4" {% if elaine_settings.posts_per_week == 4 %}selected{% endif %}>4</option>
+                                                                <option value="5" {% if elaine_settings.posts_per_week == 5 %}selected{% endif %}>5</option>
+                                                            {% endif %}
+
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-lg-8">
+                                                        <h5 class="font-600 m-b-5">What Kind Of Posts Do You Want Me To Choose From?</h5>
+                                                        <select name="ElainePostType[]" id="selectize-tags2" multiple>
+                                                            <option value="Text Post" {% if "Text Post" in elaine_settings.ElainePostType %}selected{% endif %}>Text Post</option>
+                                                            <option value="Stock Photo Post" {% if "Stock Photo Post" in elaine_settings.ElainePostType %}selected{% endif %}>Stock Photo Post</option>
+                                                            <option value="Social Media Graphic Post" {% if "Social Media Graphic Post" in elaine_settings.ElainePostType %}selected{% endif %}>Social Media Graphic Post</option>
+                                                        </select>
+                                                        <div class="clearfix"></div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="row mb-0 mt-2">
+                                                    <div class="col-lg-6">
+                                                        <h5 class="font-600 m-b-5">What Timezone Are You Located?</h5>
+                                                        <select name="ElaineTimezone" id="selectize-select2">
+                                                            <option value="America/New_York" {% if elaine_settings.ElaineTimezone == 'America/New_York' %}selected{% endif %}>Eastern Standard Time (EST)</option>
+                                                            <option value="America/Chicago" {% if elaine_settings.ElaineTimezone == 'America/Chicago' %}selected{% endif %}>Central Standard Time (CST)</option>
+                                                            <option value="America/Denver" {% if elaine_settings.ElaineTimezone == 'America/Denver' %}selected{% endif %}>Mountain Standard Time (MST)</option>
+                                                            <option value="America/Los_Angeles" {% if elaine_settings.ElaineTimezone == 'America/Los_Angeles' %}selected{% endif %}>Pacific Standard Time (PST)</option>
+                                                            <option value="America/Anchorage" {% if elaine_settings.ElaineTimezone == 'America/Anchorage' %}selected{% endif %}>Alaska Standard Time (AKST)</option>
+                                                            <option value="Pacific/Honolulu" {% if elaine_settings.ElaineTimezone == 'Pacific/Honolulu' %}selected{% endif %}>Hawaii-Aleutian Standard Time (HST)</option>
+                                                            <option value="UTC" {% if elaine_settings.ElaineTimezone == 'UTC' %}selected{% endif %}>Coordinated Universal Time (UTC)</option>
+                                                            <option value="Etc/GMT" {% if elaine_settings.ElaineTimezone == 'Etc/GMT' %}selected{% endif %}>Greenwich Mean Time (GMT)</option>
+                                                        </select>                                                                                                             
+                                                    </div>
+                                                </div>
+
+                                                <div class="clearfix"></div>
+                                                <div class="attached-files mt-3">
+                                                    <div class="row">
+                                                        <div class="col-sm-12">
+                                                            <div class="text-end">
+                                                                <button type="submit" class="btn btn-custom waves-effect waves-light me-1">Save</button>
+                                                                <button type="button" class="btn btn-light waves-effect">Cancel</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                    <!-- END ELAINE CHARACTER CARD -->
+
+                                    <!-- JERRY CHARACTER CARD -->
+                                    <div class="card toggleCard" id="toggleCard2" style="display:none;">
+                                        <div class="card-body task-detail">
+                                            <div class="dropdown float-end">
+                                                <a href="#" class="dropdown-toggle arrow-none card-drop" data-bs-toggle="dropdown" aria-expanded="false">
+                                                    <i class="mdi mdi-dots-vertical"></i>
+                                                </a>
+                                                <div class="dropdown-menu dropdown-menu-end">
+                                                    <!-- item-->
+                                                    <a href="javascript:void(0);" class="dropdown-item">Action</a>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex mb-3">
+                                                <img class="flex-shrink-0 me-3 rounded-circle avatar-md" alt="64x64" src="{% static 'dashboard/images/icon/jerryChatIcon.png' %}">
+                                                <div class="flex-grow-1">
+                                                    <h4 class="media-heading mt-0">Jerry - Advertising Specialist</h4>
+                                                    <span class="badge btn-dark">Marketing</span>
+                                                </div>
+                                            </div>
+        
+                                            <form id="jerryForm" method="post" action="{% url 'dashboard' %}" enctype="multipart/form-data">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="form" value="jerry-settings">
+
+                                                <!-- <div class="mb-0 mt-2 mb-3">
+                                                    <label for="isJerryOn" style="text-align: left; margin-right: 10px;">Turn On: </label>
+                                                    <input type="checkbox" name="isJerryOn" {% if jerry_settings.isJerryOn %}checked{% endif %} data-plugin="switchery" data-color="#000000">
+                                                </div> -->
+
+                                                <h4>I help you create and run conversion-centered advertisements to your desired business location.</h4>
+
+                                                <p class="text-muted">
+                                                        You can ask me to generate you conversion-centered ad creatives. I have a lot of features that can help you advertise your business.
+                                                </p>
+<!--             
+                                                <p class="text-muted">
+                                                    Below are some settings that will help me craft the best advertisements for your business. You can change these settings at any time. Make sure to save your changes. 
+                                                </p>
+                                                
+                                                <div class="row task-dates mb-0 mt-2">
+                                                    <div class="col-lg-4">
+                                                        <h5 class="font-600 m-b-5">What Email Should I Send Updates To?</h5>
+                                                        <div class="form-floating">
+                                                            <input type="email" name="JerryEmail" class="form-control" id="floatingInputGrid" placeholder="name@example.com" value="{{ user_settings.email }}">
+                                                            <label for="floatingInputGrid">Email address</label>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="col-lg-8">
+                                                        <h5 class="font-600 m-b-5">What would you like the Ad to be for?</h5>
+                                                        <div class="form-floating">
+                                                            <textarea id="textarea" name="JerryAdDescription" class="form-control" maxlength="225" rows="1" value="{{ jerry_settings.JerryAdDescription }}" style="padding-top: 1.2rem; resize: vertical;"></textarea>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="clearfix"></div>
+                                                <div class="attached-files mt-3">
+                                                    <div class="row">
+                                                        <div class="col-sm-12">
+                                                            <div class="text-end">
+                                                                <button type="submit" class="btn btn-dark waves-effect waves-light me-1">Save</button>
+                                                                <button type="button" class="btn btn-light waves-effect">Cancel</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div> -->
+                                            </form>
+                                        </div>
+                                    </div>
+                                    <!-- END JERRY CHARACTER CARD -->
+
+                                </div>
+                            </div>
+                            <!-- <div class="row">
+                                <div class="col-lg-6">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <div class="button-container">
+                                                <div id="dynamicContent">
+                                                    <br>
+                                                    <a href="{% url 'post_creator' %}">
+                                                        <img src="{% static 'dashboard/images/button/createButton.png' %}" alt="Generated Image" class="rounded" id="dynamicImage" style="width: 55%;">
+                                                    </a>
+                                                    <br><br>
+                                                    <a href="{% url 'post_creator' %}" class="btn btn-warning btn-small waves-effect waves-light rounded-pill centerButton">Create A Post</a>
+                                                    <br><br>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div> -->
+                        </div> 
+                        <div class="col-xl-6 col-lg-8">
                             <div class="conversation-list-card card">
                                 <div class="card-body">
                                     <div class="dropdown float-end">
@@ -403,7 +663,7 @@
                                     </div>
                                     <div class="d-flex" style="position: relative;">
                                         <div class="flex-grow-1">
-                                            <h5 class="mt-0 mb-1 text-truncate">Elaine</h5>
+                                            <h5 id="agentTitle" class="mt-0 mb-1 text-truncate">Elaine</h5>
                                         </div>
                                         <div style="position: absolute; top: -15px; left: 30px; background-color: gray; border-radius: 10px; padding: 1px 2px; color: white; font-size: 8px; width: 30px; text-align: center;">
                                             BETA
@@ -429,66 +689,6 @@
                                             <button type="button" class="btn btn-primary chat-send width-md waves-effect waves-light"><span class="d-none d-sm-inline-block me-2">Send</span> <i class="mdi mdi-send"></i></button>
                                         </div>
                                     </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-3">
-                            <div class="card">
-                                <div class="card-body">
-                                    <div class="button-container">
-                                        <div id="dynamicContent">
-                                            <br>
-                                            <a href="{% url 'post_creator' %}">
-                                                <img src="{% static 'dashboard/images/button/createButton.png' %}" alt="Generated Image" class="rounded" id="dynamicImage" style="width: 55%;">
-                                            </a>
-                                            <br><br>
-                                            <a href="{% url 'post_creator' %}" class="btn btn-warning btn-small waves-effect waves-light rounded-pill centerButton">Create A Post</a>
-                                            <br><br>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="card">
-                                <div class="card-body">
-                                    <div class="button-container">
-                                        {% if user_settings.isAutomated or user_settings.isBusiness %}
-                                        <div class="d-flex">
-                                            <div class="flex-grow-1">
-                                                <h5 class="mt-0 mb-1 text-truncate">Elaine Weekly Settings</h5>
-                                            </div>
-                                        </div>
-                                        <form id="tagForm" method="post" action="{% url 'dashboard' %}"
-                                        enctype="multipart/form-data">
-                                            {% csrf_token %}
-                                            <div style="display: flex; flex-direction: column; justify-content: left;">
-                                                <input type="hidden" name="form" value="elaine-settings">
-                                                <br>
-                                                <label for="posts_per_week" style="text-align: left;">Generated posts per week: </label>
-                                                <select class="form-control" name="posts_per_week" style="margin: 10px 0; width: 60px; text-align: center;">
-                                                    <option value="0" {% if elaine_settings.posts_per_week == 0 %}selected{% endif %}>0</option>
-                                                    <option value="1" {% if elaine_settings.posts_per_week == 1 %}selected{% endif %}>1</option>
-                                                    <option value="2" {% if elaine_settings.posts_per_week == 2 %}selected{% endif %}>2</option>
-                                                    <option value="3" {% if elaine_settings.posts_per_week == 3 %}selected{% endif %}>3</option>
-                                                </select>                                                
-                                                <!-- <label for="scheduleMode" style="text-align: left; margin: 10px 0; width: 250px;">Schedule posts starting from the last post scheduled in the calendar: </label>
-                                                <input type="checkbox" name="scheduleMode" {% if elaine_settings.scheduleMode %}checked{% endif %} data-plugin="switchery" data-color="#71b6f9">
-                                                <br> -->
-                                                <div>
-                                                    <button type="submit" class="btn btn-primary waves-effect waves-light">Save</button>
-                                                </div>
-                                            </div>                                          
-                                        </form>
-                                        {% else %}
-                                        <br>
-                                        <a href="{% url 'brand_settings' %}">
-                                            <img src="{% static 'dashboard/images/button/settingsButton.png' %}" alt="Generated Image" class="rounded" style="width: 55%;">
-                                        </a>
-                                        <br><br>
-                                        <a href="{% url 'brand_settings' %}" class="btn btn-primary btn-sm waves-effect waves-light rounded-pill centerButton">Finalize Settings</a>
-                                        <br><br>
-                                        {% endif %}
-                                    </div>      
                                 </div>
                             </div>
                         </div>
@@ -589,8 +789,9 @@
     <script src="{% static 'dashboard/libs/feather-icons/feather.min.js' %}"></script>
     <script src="{% static 'dashboard/libs/mohithg-switchery/switchery.min.js' %}"></script>
 
-    <!-- App js-->
-    <script src="{% static 'dashboard/js/app.min.js' %}"></script>
+    <script src="{% static 'dashboard/libs/selectize/js/standalone/selectize.min.js' %}"></script>
+    <script src="{% static 'dashboard/libs/multiselect/js/jquery.multi-select.js' %}"></script>
+    <script src="{% static 'dashboard/libs/select2/js/select2.min.js' %}"></script>
 
     <!-- Init js-->
     <script src="{% static 'dashboard/js/pages/form-advanced.init.js' %}"></script>
@@ -598,14 +799,20 @@
     <!-- Plugins js-->
     <script src="{% static 'dashboard/libs/spectrum-colorpicker2/spectrum.min.js' %}"></script>
     <script src="{% static 'dashboard/libs/flatpickr/flatpickr.min.js' %}"></script>
+    <script src="{% static 'dashboard/libs/tippy.js/tippy.all.min.js' %}"></script>
     
     <!-- Init js-->
     <script src="{% static 'dashboard/js/pages/form-pickers.init.js' %}"></script>
+
     {% if user_settings.ftue %}
     <script src="{% static 'dashboard/js/chatbot.js' %}"></script>
     {% endif %}
     <script type="module" src="{% static 'dashboard/js/pages/dashboard.init.js' %}"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <!-- App js-->
+    <script src="{% static 'dashboard/js/app.min.js' %}"></script>
+
     <script>
     const gifStart = "{% static 'dashboard/gifs/load-start.gif' %}";
     const gifDone = "{% static 'dashboard/gifs/load-done.gif' %}";
@@ -614,7 +821,8 @@
     };
     var userSettings = JSON.parse('{{ user_settings_json|escapejs }}');
     var userLogo = "{{ user_settings.logo }}"
-    var botAvatar = "{% static 'dashboard/images/icon/elaineChatIcon2.png' %}"
+    var elaineAvatar = "{% static 'dashboard/images/icon/elaineChatIcon2.png' %}"
+    var jerryAvatar = "{% static 'dashboard/images/icon/jerryChatIcon.png' %}"
     var storedChatMessages = {{ all_messages|safe }};
     </script>
     

@@ -44,7 +44,7 @@ AUTHENTICATION_BACKENDS = [
 # FOR DEVELOPMENT
 SECRET_KEY = config('DJANGO_KEY')
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'starter-web-app-389316.uc.r.appspot.com', 'getfeed.info', 'www.getfeed.info', 'feadl.io', 'www.feadl.io', '.starter-web-app-389316.uc.r.appspot.com']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '.appspot.com', 'getfeed.info', 'www.getfeed.info', 'feadl.io', 'www.feadl.io']
 
 MESSAGE_TAGS = {
     messages.DEBUG: 'secondary',
@@ -244,12 +244,12 @@ if ENVIRONMENT == 'production':
     STRIPE_WEBHOOK_URL = config('STRIPE_WEBHOOK_URL')
     STRIPE_DOMAIN_URL = config('STRIPE_DOMAIN_URL')
     # # DEPLOY SECURITY #
-    SECURE_SSL_REDIRECT = True
-    SECURE_HSTS_SECONDS = 31536000
-    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-    SECURE_HSTS_PRELOAD = True
-    SECURE_CONTENT_TYPE_NOSNIFF = True
-    X_FRAME_OPTIONS = 'DENY'
+    # SECURE_SSL_REDIRECT = True
+    # SECURE_HSTS_SECONDS = 31536000
+    # SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    # SECURE_HSTS_PRELOAD = True
+    # SECURE_CONTENT_TYPE_NOSNIFF = True
+    # X_FRAME_OPTIONS = 'DENY'
     REDIRECT_URI = config('REDIRECT_URI')
     PRODUCT_IDS = {
         'standard_monthly': STANDARD_MONTHLY_PRICE_ID,

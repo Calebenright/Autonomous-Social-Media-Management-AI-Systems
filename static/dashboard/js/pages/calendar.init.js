@@ -37,7 +37,7 @@ function debounce(func, wait, immediate) {
 }
 
 function updateEventInFirestore(info) {
-    const {eid, image_url, start, caption, socials, type, status, firebase_id_token} = info.event.extendedProps;
+    const {eid, image_url, start, caption, socials, type, status} = info.event.extendedProps;
     const updatedStartTime = info.event.start;
     const eventDocRef = doc(collection(userDocRef, 'events'), eid);
 
@@ -48,8 +48,7 @@ function updateEventInFirestore(info) {
         caption,
         socials,
         type,
-        status,
-        firebase_id_token
+        status
     };
 
     setDoc(eventDocRef, eventData, { merge: true })
@@ -79,8 +78,7 @@ await getDocs(eventsCollectionRef)
             className: eventData.className,
             socials: eventData.socials,
             type: eventData.type,
-            status: eventData.status,
-            firebase_id_token: eventData.firebase_id_token,
+            status: eventData.status
         };
 
         ev.push(eventObject);
@@ -161,8 +159,7 @@ await getDocs(eventsCollectionRef)
                     image_url: l(eventEl).data("image-url"),
                     socials: l(eventEl).data("socials"),
                     type: l(eventEl).data("type"),
-                    status: l(eventEl).data("status"),
-                    firebase_id_token: l(eventEl).data("firebase_id_token"),
+                    status: l(eventEl).data("status")
                 };
             }
         });
@@ -171,13 +168,16 @@ await getDocs(eventsCollectionRef)
         
         a.$calendarObj = new FullCalendar.Calendar(a.$calendar[0], {
             slotDuration: "00:15:00",
-            slotMinTime: "15:00:00",
-            slotMaxTime: "19:00:00",
+            slotMinTime: "08:00:00",
+            slotMaxTime: "22:00:00",
             themeSystem: "bootstrap",
             bootstrapFontAwesome: !1,
             buttonText: {
                 today: "Today",
                 month: "Month",
+                prev: "Prev",
+                next: "Next",
+                list: "List",
                 prev: "Prev",
                 next: "Next"
             },
@@ -187,7 +187,7 @@ await getDocs(eventsCollectionRef)
             headerToolbar: {
                 left: "prev,next today",
                 center: "title",
-                right: ""
+                right: "dayGridMonth,timeGridWeek,timeGridDay,listMonth"
             },
             initialEvents: ev,
             editable: !0,

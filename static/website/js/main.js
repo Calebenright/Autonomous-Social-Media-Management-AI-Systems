@@ -14,14 +14,18 @@ document.addEventListener('scroll', function() {
   const header = document.querySelector('.header-main');
   const mobileSvg = document.querySelector('.mobile-svg');
   if (window.scrollY >= 20) {
-    header.classList.add('fade-in');
-    if (mobileSvg) {
-      mobileSvg.classList.add('white');
+    if (header) {
+      header.classList.add('fade-in');
+      if (mobileSvg) {
+        mobileSvg.classList.add('white');
+      }
     }
   } else {
-    header.classList.remove('fade-in');
-    if (mobileSvg) {
-      mobileSvg.classList.add('white');
+    if (header) {
+      header.classList.remove('fade-in');
+      if (mobileSvg) {
+        mobileSvg.classList.add('white');
+      }
     }
   }
 });

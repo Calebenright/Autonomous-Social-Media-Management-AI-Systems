@@ -963,9 +963,9 @@ def find_least_filled_day_with_largest_gap(existing_event_times):
 
     return chosen_day
 
-def create_email (captions, prompts, business_description, business_name):
+def create_email (business_description, business_name):
     client = OpenAI(api_key=config('OPENAI_API_KEY'))
-    prompt = f"Your name is elaine and you are a social media manager for a company called {business_name} with a description ({business_description}). You are sending the owner referred to as, Boss,  of the business = [{business_name}], a weekly update for some posts you created and scheduled and have attached to the email which message you are creating right now. Don't talk about the specifics of the posts. Here are the captions/posts = [{captions}], there's usually images attached to the email that correspond to the captions."
+    prompt = f"Your name is elaine and you are a social media manager for a company called {business_name} with a description ({business_description}). You are sending the owner referred to as, Boss,  of the business = [{business_name}], a weekly update for some posts you created and scheduled and have attached to the email which message you are creating right now. Don't talk about the specifics of the posts. The captions are at the bottom of the email and the images are attached."
     response = client.chat.completions.create(
             model="gpt-3.5-turbo-1106",
             messages=[
@@ -985,15 +985,20 @@ def create_email (captions, prompts, business_description, business_name):
     email = original_string.strip('"')
     return email
 
-def create_new_subscriber_email (business_description, business_name):
+def create_new_subscriber_email (business_description, business_name, character):
     client = OpenAI(api_key=config('OPENAI_API_KEY'))
-    prompt = f"Your name is elaine and you are a social media manager for a company called {business_name} with a description ({business_description}). You are sending the owner referred to as, Boss, of the business = [{business_name}], an email about how excited you are to work with them because they just hired you and it's your first day. You will send them email updates about their social media every week on Monday."
+
+    if character.lower() == 'elaine':
+        prompt = f"Your name is Elaine and you are a social media manager for a company called {business_name} with a description ({business_description}). You are sending the owner referred to as, Boss, of the business [{business_name}], an email about how excited you are to work with them because they just hired you and it's your first day. You will send them email updates about their social media every week on Monday."
+    else:
+        prompt = f"Your name is {character} and you are involved with {business_name} ({business_description}). Today marks your first day, and you're reaching out to the business owner, referred to as Boss, to express your enthusiasm about starting. You'll be in charge of sending regular updates; in your role, this means communicating every so often."
+    
     response = client.chat.completions.create(
             model="gpt-3.5-turbo-1106",
             messages=[
                 {
                 "role": "system",
-                "content": "Format it as an email. keep it relatively short."
+                "content": "Format it as an email. keep it relatively short. under 100 words."
                 },
                 {
                 "role": "user",
@@ -1007,9 +1012,9 @@ def create_new_subscriber_email (business_description, business_name):
     email = original_string.strip('"')
     return email
 
-def send_new_subscriber_email (email, business_description, business_name):
-    subject = f'Elaine From Feadl.io'
-    message = create_new_subscriber_email(business_description, business_name)
+def send_new_subscriber_email (email, business_description, business_name, character):
+    subject = f'{character} From Feadl.io'
+    message = create_new_subscriber_email(business_description, business_name, character)
     from_email = settings.EMAIL_HOST_USER
     recipient_list = [email]
     email_message = EmailMessage(subject, message, from_email, recipient_list)

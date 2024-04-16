@@ -2,9 +2,9 @@ document.addEventListener('DOMContentLoaded', function () {
     var logoSwitch = document.getElementById('logo_switch');
 
     var prices = {
-        standard: { monthly: 19, annual: 192 },
-        premium: { monthly: 26, annual: 240 },
-        agency: { monthly: 119, annual: 1308 }
+        // standard: { monthly: 19, annual: 192 },
+        premium: { monthly: 5, annual: 35 },
+        agency: { monthly: 10, annual: 100 }
     };
 
     // Function to calculate and update prices
@@ -12,12 +12,12 @@ document.addEventListener('DOMContentLoaded', function () {
         var isAnnual = logoSwitch.checked;
         
         // Calculate the effective monthly cost if paid annually
-        var effectiveMonthlyStandard = (prices.standard.annual / 12).toFixed(0);
+        // var effectiveMonthlyStandard = (prices.standard.annual / 12).toFixed(0);
         var effectiveMonthlyPremium = (prices.premium.annual / 12).toFixed(0);
         var effectiveMonthlyAgency = (prices.agency.annual / 12).toFixed(0);
 
         // Update the displayed prices based on toggle state
-        document.getElementById('standard-sale-price').textContent = isAnnual ? "$" + effectiveMonthlyStandard : "$" + prices.standard.monthly;
+        // document.getElementById('standard-sale-price').textContent = isAnnual ? "$" + effectiveMonthlyStandard : "$" + prices.standard.monthly;
         document.getElementById('premium-sale-price').textContent = isAnnual ? "$" + effectiveMonthlyPremium : "$" + prices.premium.monthly;
         document.getElementById('agency-sale-price').textContent = isAnnual ? "$" + effectiveMonthlyAgency : "$" + prices.agency.monthly;
 
@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var stripe = Stripe(stripeKey);
 
     var buttons = {
-        standard: document.getElementById('checkout-standard'),
+        // standard: document.getElementById('checkout-standard'),
         premium: document.getElementById('checkout-premium'),
         agency: document.getElementById('checkout-agency')
     };

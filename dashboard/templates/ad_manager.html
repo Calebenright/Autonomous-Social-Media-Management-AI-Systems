@@ -37,12 +37,11 @@
         <div class="navbar-custom">
             <ul class="list-unstyled topnav-menu float-end mb-0">
 
-                <!-- WEB -->
                 {% if not user_settings.isSubscriber %}
                 <li class="d-none d-lg-block sub-margin">
                     <div class="subscribe-btn">
-                        <a class="btn btn-gold subscribe rounded-pill dropdown-toggle arrow-none waves-effect waves-light mb-3" href="{% url 'checkout' %}">
-                            <span><i class="mdi mdi-star-plus-outline"></i> Upgrade <i class="mdi mdi-star-plus-outline"></i></span>
+                        <a class="btn btn-gradient-stroke subscribe rounded-pill dropdown-toggle arrow-none waves-effect waves-light mb-3" href="{% url 'checkout' %}">
+                            <span><span class="crown-icon" aria-hidden="true">👑</span> Upgrade <span class="crown-icon" aria-hidden="true">👑</span></span>
                         </a>
                     </div>
                 </li>
@@ -50,8 +49,8 @@
                 <!-- MOBILE -->
                 <li class="dropdown d-inline-block d-lg-none sub-margin">
                     <div class="subscribe-btn">
-                        <a class="btn btn-gold subscribe rounded-pill dropdown-toggle arrow-none waves-effect waves-light mb-3" href="{% url 'checkout' %}">
-                            <span><i class="mdi mdi-star-plus-outline"></i> Upgrade <i class="mdi mdi-star-plus-outline"></i></span>
+                        <a class="btn btn-gradient-stroke subscribe rounded-pill dropdown-toggle arrow-none waves-effect waves-light mb-3" href="{% url 'checkout' %}">
+                            <span><span class="crown-icon" aria-hidden="true">👑</span> Upgrade <span class="crown-icon" aria-hidden="true">👑</span></span>
                         </a>
                     </div>
                 </li>
