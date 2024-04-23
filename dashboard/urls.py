@@ -32,4 +32,5 @@ urlpatterns = [
     path('cron_delete_images_in_gcp_folder/', views.cron_delete_images_in_gcp_folder, name='cron_delete_images_in_gcp_folder'),
     path('cron_inactive_users/', views.cron_inactive_users, name='cron_inactive_users'),
     path('cron_reset_monthly_limits/', views.cron_reset_monthly_limits, name='cron_reset_monthly_limits'),
+    path('cron_auto_add_article/', views.cron_auto_add_article, name='cron_auto_add_article'),    
 ]

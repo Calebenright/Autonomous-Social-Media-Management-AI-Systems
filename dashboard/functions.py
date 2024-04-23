@@ -1,27 +1,25 @@
 import uuid
 import random
 from datetime import datetime, timedelta
-from PIL import Image, ImageDraw, ImageFont, ImageEnhance, ImageFilter, ImageChops, ImageOps, ExifTags
+from PIL import Image, ImageOps, ExifTags
 from io import BytesIO
 import requests
 import re
 import json
-from django.conf import settings
 import ast
 from google.cloud import storage
 from google.oauth2 import service_account
 from urllib.parse import urlparse
-from google.cloud.storage import Blob
 from openai import OpenAI
 import threading
-import os
-from django.templatetags.static import static 
-from django.contrib.staticfiles.storage import staticfiles_storage
-from .graphic_designer import generate_image_from_params, hex_to_rgb
+from .graphic_designer import generate_image_from_params
 import base64
-import urllib.parse
 from urllib.parse import urlparse, unquote
 from django.core.mail import EmailMessage
+from zoneinfo import ZoneInfo
+from collections import defaultdict
+from datetime import date, datetime, timedelta, timezone
+
 
 # FOR DEVELOPMENT
 from decouple import config
@@ -329,9 +327,9 @@ def upload_and_crop_image(post_image_files, user_image_folder_path):
     image_io = BytesIO()
     cropped_img.save(image_io, format='JPEG')
     image_io.seek(0)
-    credentials = service_account.Credentials.from_service_account_file(settings.GS_CREDENTIALS)
+    credentials = service_account.Credentials.from_service_account_file(config("GS_CREDENTIALS"))
     client = storage.Client(project=credentials.project_id, credentials=credentials)
-    bucket = client.bucket(settings.GS_BUCKET_NAME)
+    bucket = client.bucket(config("GS_BUCKET_NAME"))
     filename = str(uuid.uuid4()) + ".jpg"
     blob = bucket.blob(user_image_folder_path + filename)
     blob.upload_from_file(image_io, content_type='image/jpeg')
@@ -398,8 +396,9 @@ def reupload_gcs_image(source_url, new_folder):
     bucket_name = path_parts[0]
     object_name = "/".join(path_parts[1:])
     destination_blob_name = 'scheduled_image_library/' + str(uuid.uuid4()) + ".png"
-    storage_client = storage.Client()
-    source_bucket = storage_client.bucket(settings.GS_BUCKET_NAME)
+    credentials = service_account.Credentials.from_service_account_file(config("GS_CREDENTIALS"))
+    storage_client = storage.Client(project=credentials.project_id, credentials=credentials)
+    source_bucket = storage_client.bucket(config("GS_BUCKET_NAME"))
     source_blob = source_bucket.blob(object_name)
     destination_blob = source_bucket.blob(destination_blob_name)
     source_bucket.copy_blob(source_blob, source_bucket, destination_blob_name)
@@ -965,7 +964,7 @@ def find_least_filled_day_with_largest_gap(existing_event_times):
 
 def create_email (business_description, business_name):
     client = OpenAI(api_key=config('OPENAI_API_KEY'))
-    prompt = f"Your name is elaine and you are a social media manager for a company called {business_name} with a description ({business_description}). You are sending the owner referred to as, Boss,  of the business = [{business_name}], a weekly update for some posts you created and scheduled and have attached to the email which message you are creating right now. Don't talk about the specifics of the posts. The captions are at the bottom of the email and the images are attached."
+    prompt = f"Your name is elaine and you are a social media manager for a company called {business_name} with a description ({business_description}). You are sending the owner (referred to as Boss) of the business = [{business_name}], a weekly update for some posts you created and scheduled and have attached to the email. Don't talk about the specifics of the posts or captions. Keep it under 50 words."
     response = client.chat.completions.create(
             model="gpt-3.5-turbo-1106",
             messages=[
@@ -1015,9 +1014,96 @@ def create_new_subscriber_email (business_description, business_name, character)
 def send_new_subscriber_email (email, business_description, business_name, character):
     subject = f'{character} From Feadl.io'
     message = create_new_subscriber_email(business_description, business_name, character)
-    from_email = settings.EMAIL_HOST_USER
+    from_email = config("EMAIL_HOST_USER")
     recipient_list = [email]
     email_message = EmailMessage(subject, message, from_email, recipient_list)
     email_message.content_subtype = "plain"
     email_message.send()
     return print('Email sent')
+
+def find_next_optimal_day_for_new_post(existing_event_dates):
+    today = datetime.now(timezone.utc).date()
+    start_of_this_week = today - timedelta(days=today.weekday())
+
+    weekly_posts = defaultdict(list)
+    last_date = today
+    
+    for event_date in existing_event_dates:
+        if isinstance(event_date, datetime):
+            event_date = event_date.date()
+        week_start = event_date - timedelta(days=event_date.weekday())
+        weekly_posts[week_start].append(event_date)
+        if event_date > last_date:
+            last_date = event_date
+
+    week_to_check = start_of_this_week
+    while True:
+        days_with_events = set(weekly_posts[week_to_check])
+        for day_offset in [1, 3, 5]:  # Tue, Thu, Sat
+            potential_day = week_to_check + timedelta(days=day_offset)
+            day_before = potential_day - timedelta(days=1)
+            day_after = potential_day + timedelta(days=1)
+            if potential_day not in days_with_events and \
+               day_before not in days_with_events and \
+               day_after not in days_with_events:
+                return potential_day
+
+        week_to_check += timedelta(weeks=1)
+        if week_to_check > last_date + timedelta(weeks=1):
+            break
+
+    return None
+
+def generate_random_date(last_date, existing_dates):
+    days_to_add = random.randint(1, 3)
+    new_datetime = last_date + timedelta(days=days_to_add)
+    return new_datetime.date()
+
+def convert_optimal_posting_time(optimal_time, user_timezone_str):
+    today = datetime.now().date()
+    user_timezone = ZoneInfo(user_timezone_str)
+    UTC = ZoneInfo('UTC')
+    optimal_posting_time = datetime.strptime(optimal_time, '%I:%M %p').time()
+    user_localized_datetime = datetime.combine(today, optimal_posting_time, tzinfo=user_timezone)
+    central_datetime = user_localized_datetime.astimezone(UTC)
+    return central_datetime.strftime('%I:%M %p %Z')
+
+def get_best_posting_times(day, platform):
+    optimal_times = {
+        "instagram": {
+            "monday": ["11:00 AM", "5:00 PM"],
+            "tuesday": ["11:00 AM", "6:00 PM"],
+            "wednesday": ["11:00 AM", "4:00 PM"],
+            "thursday": ["11:00 AM", "5:00 PM"],
+            "friday": ["11:00 AM", "3:00 PM"],
+            "saturday": ["11:00 AM", "6:00 PM"],
+            "sunday": ["11:00 AM", "5:00 PM"]
+        },
+        "facebook": {
+            "monday": ["9:00 AM", "1:00 PM"],
+            "tuesday": ["9:00 AM", "2:00 PM"],
+            "wednesday": ["9:00 AM", "1:00 PM"],
+            "thursday": ["9:00 AM", "3:00 PM"],
+            "friday": ["9:00 AM", "2:00 PM"],
+            "saturday": ["9:00 AM", "1:00 PM"],
+            "sunday": ["9:00 AM", "1:00 PM"]
+        }
+    }
+
+    if platform in optimal_times and day.lower() in optimal_times[platform]:
+        optimal_time_str = random.choice(optimal_times[platform][day.lower()])
+        return optimal_time_str
+    else:
+        return "Invalid day or platform"
+
+def convert_analog_to_timestamp(time_str):
+    parts = time_str.split(" ")
+    time = parts[0]
+    period = parts[1]
+    hour, minute = map(int, time.split(":"))
+    if period == "PM" and hour < 12:
+        hour += 12
+    if period == "AM" and hour == 12:
+        hour = 0
+
+    return f"T{hour:02}:{minute:02}:00"

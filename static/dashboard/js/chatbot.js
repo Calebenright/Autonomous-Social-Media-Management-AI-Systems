@@ -1,4 +1,16 @@
 
+document.addEventListener('DOMContentLoaded', function () {
+    var viewport = document.querySelector("meta[name=viewport]");
+    if (screen.width <= 768) { // Assumes 768px is your cutoff for mobile devices
+        if (!viewport) {
+            viewport = document.createElement('meta');
+            viewport.name = 'viewport';
+            document.getElementsByTagName('head')[0].appendChild(viewport);
+        }
+        viewport.content = "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no";
+    }
+});
+
 document.addEventListener('DOMContentLoaded', () => {
 
     // ======================
@@ -362,9 +374,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 '</div>';
         }
     
-        // messageList.appendChild(listItem);
         simpleBarContent.appendChild(listItem);
+        scrollToBottom();
+        console.log(simpleBarContent);
     }    
+
+    function scrollToBottom() {
+        simpleBarContent.scrollTop = simpleBarContent.scrollHeight;
+    }
 
     // =======================================
     // Initial Character Highlighting (if needed)

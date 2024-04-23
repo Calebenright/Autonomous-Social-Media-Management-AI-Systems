@@ -71,10 +71,6 @@ document.getElementById('google-sign-in').addEventListener('click', function() {
   window.location.href = '/google_signin/';
 });
 
-// document.getElementById('facebook-sign-in').addEventListener('click', function() {
-//   window.location.href = '/facebook_signin/';
-// });
-
 document.addEventListener("DOMContentLoaded", function() {
   console.log('got provider: ', isProvider);
   if (isProvider == 'True') {
@@ -84,18 +80,19 @@ document.addEventListener("DOMContentLoaded", function() {
       console.log('userPid: ', userPid);
       signInWithEmailAndPassword(auth, userEmail, userPid)
         .then((userCredential) => {
-          updateIsProviderStatus();
-          window.location.href = "/dashboard/";
+            updateIsProviderStatus().then(() => {
+                window.location.href = "/dashboard/";
+            }).catch((error) => {
+                console.error("Failed to update provider status: ", error.message);
+                displayErrorMessage("Failed to login. If the problem persists please contact us.");
+            });
         })
         .catch((error) => {
-          // Log and display any error that occurs during the sign-in process
           console.error("Login Failed: ", error.message);
           displayErrorMessage("Invalid Login");
         });
     } else {
-      // Optionally handle the case where email or UID are missing
       console.log("No credentials provided, skipping automatic sign-in.");
-      // You can also redirect them to a manual login page or show a message, etc.
     }
   }
 })
@@ -128,64 +125,3 @@ function updateIsProviderStatus() {
     console.error('Error during fetch operation:', error);
   });
 }
-
-// setPersistence(auth, browserLocalPersistence)
-//   .then(() => {})
-//   .catch((error) => {
-//     console.error("Error setting persistence: ", error.message);
-//   });
-
-// function signInWithGoogle() {
-//   const GoogleProvider = new GoogleAuthProvider();
-//   signInWithPopup(auth, GoogleProvider)
-//     .then((result) => {
-//       const credential = GoogleAuthProvider.credentialFromResult(result)
-//       const token = credential.accessToken;
-//       const user = result.user;
-//       console.log('@$ signin with google worked!' + result);
-//       handleSignInResult(result); // Handle sign-in result separately
-//     }).catch((error) => {
-//       const errorCode = error.code;
-//       const errorMessage = error.message;
-//       console.error("Google Sign-In Error: ", error);
-//       displayErrorMessage(errorMessage);
-//     });
-// }
-
-// function signInWithFacebook() {
-//   const FacebookProvider = new FacebookAuthProvider();
-//   signInWithPopup(auth, FacebookProvider)
-//     .then((result) => {
-//       const credential = FacebookAuthProvider.credentialFromResult(result)
-//       const token = credential.accessToken;
-//       const user = result.user;
-//       console.log('@$ signin with facebook worked!' + result);
-//       handleSignInResult(result); // Handle sign-in result separately
-//     }).catch((error) => {
-//       const errorCode = error.code;
-//       const errorMessage = error.message;
-//       console.error("Facebook Sign-In Error: ", error);
-//       displayErrorMessage(errorMessage);
-//     });
-// }
-
-// // Separate function to handle the sign-in result for both Google and Facebook
-// function handleSignInResult(result) {
-//   console.log('SignIn Result: ', result);
-//   if (result) {
-//     if (result.operationType == 'signIn') {
-//       const user = result.user;
-//       user.getIdToken().then((idToken) => {
-//         document.getElementById('providerField').value = result.providerId;
-//         document.getElementById('uidField').value = user.uid;
-//         document.getElementById('tokenField').value = idToken;
-
-//         document.getElementById('loginForm').submit();
-//       });
-//     }
-//   }
-// }
-
-// document.getElementById('google-sign-in').addEventListener('click', signInWithGoogle);
-// document.getElementById('facebook-sign-in').addEventListener('click', signInWithFacebook);
-// document.getElementById('feadlio-sign-in').addEventListener('click', signInWithFeadlio);

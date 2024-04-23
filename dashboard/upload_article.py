@@ -8,7 +8,6 @@ from decouple import config
 import requests
 from dotenv import load_dotenv
 
-# Load environment variables from the .env file located in the parent directory
 dotenv_path = os.path.join(os.path.dirname(__file__), '..', '.env')
 load_dotenv(dotenv_path)
 
@@ -100,29 +99,29 @@ def pull_stock(key):
 
     return image_url
 
-if __name__ == "__main__":
-    collection_name = 'articles'
+# if __name__ == "__main__":
+#     collection_name = 'articles'
 
-    # topic = 'Our site is about social media marketing, service-based businesses, ai-driven marketing, large language social media model, image generator for social media.'
-    topic = 'online marketing, soloprenuer, service based business, Dallas TX'
-    title = create_title(topic)
+#     # topic = 'Our site is about social media marketing, service-based businesses, ai-driven marketing, large language social media model, image generator for social media.'
+#     topic = 'online marketing, soloprenuer, service based business, Dallas TX'
+#     title = create_title(topic)
 
-    content = create_article(title)
+#     content = create_article(title)
 
-    key = 'Social Media management, Dallas Texas'
-    img = pull_stock(key)
+#     key = 'Social Media management, Dallas Texas'
+#     img = pull_stock(key)
 
-    article_data = {
-        'title': title,
-        'content': content,
-        'publishedDate': firestore.SERVER_TIMESTAMP,
-        'slug': generate_slug(title),
-        'image': img
-    }
+#     article_data = {
+#         'title': title,
+#         'content': content,
+#         'publishedDate': firestore.SERVER_TIMESTAMP,
+#         'slug': generate_slug(title),
+#         'image': img
+#     }
 
-    add_document_auto_id(collection_name, article_data)
+#     add_document_auto_id(collection_name, article_data)
 
-    print(content)
+#     print(content)
 
     # Add or update a document with a custom ID
     # custom_document_id = 'custom_article_id'

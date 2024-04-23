@@ -81,7 +81,7 @@ def forgot_password(request):
                 "<p>Thanks,</p>"
                 "<p>Your Feadl.io team</p>"
             )
-            from_email = settings.EMAIL_HOST_USER
+            from_email = config("EMAIL_HOST_USER")
             recipient_list = [request.POST.get('email')] 
 
             email = EmailMessage(subject, message, from_email, recipient_list)
@@ -122,7 +122,7 @@ def change_email(request):
                     "<p>Your Feadl.io team</p>"
                 )
 
-                from_email = settings.EMAIL_HOST_USER
+                from_email = config("EMAIL_HOST_USER")
                 recipient_list = [new_email]
 
                 email = EmailMessage(subject, message, from_email, recipient_list)
@@ -144,8 +144,8 @@ def contact(request):
             request.POST.get('email'),
             request.POST.get('message')
         )
-        from_email = settings.EMAIL_HOST_USER
-        recipient_list = [settings.INTERNAL_RECIPIENTS]
+        from_email = config("EMAIL_HOST_USER")
+        recipient_list = [config("INTERNAL_RECIPIENTS")]
 
         email = EmailMessage(subject, message, from_email, recipient_list)
 
@@ -188,28 +188,30 @@ def login(request):
     if request.method == 'POST':
         email = request.POST.get('email')
         user_pid = request.POST.get('password')
-        print(user_id, email, user_pid)
-        try:
-            id_token = user_login(email, user_pid)
-            decoded_token = auth.verify_id_token(id_token)
-            user_id = decoded_token['uid']
-                
-            request.session['firebase_id_token'] = id_token
-            request.session['user_id'] = user_id
-            request.session['user_email'] = email
-            request.session['isProvider'] = False
+        # try:
+        id_token = user_login(email, user_pid)
+        decoded_token = auth.verify_id_token(id_token)
 
-            db = firestore.client()
-            master_ref = db.collection('variables').document('master')
-            master_doc = master_ref.get()
+        user_id = decoded_token['uid']
+            
+        request.session['firebase_id_token'] = id_token
+        request.session['user_id'] = user_id
+        request.session['user_email'] = email
+        request.session['isProvider'] = False
 
-            master_settings = master_doc.to_dict()
-            if user_id == master_settings['id']:
-                request.session['master'] = True
-            return redirect('dashboard') 
-        except Exception as e:
-            messages.error(request, 'Credentials Invalid.')
-            return redirect('login')
+        db = firestore.client()
+        
+        master_ref = db.collection('variables').document('master')
+        master_doc = master_ref.get()
+
+        master_settings = master_doc.to_dict()
+        if user_id == master_settings['id']:
+            request.session['master'] = True
+            
+        return redirect('dashboard') 
+        # except Exception as e:
+        #     messages.error(request, 'Credentials Invalid.')
+        #     return redirect('login')
         
     return render(request, 'login.html', {'user_pid': user_pid, 'user_email': email, 'isProvider': isProvider})
 
@@ -259,22 +261,20 @@ def facebook_sign_in(request):
     client_id = "216745084667486"
     redirect_uri = "https://feadl.io/facebook_auth_callback/"
     scope = "email"
-    state = "105"  # Should be a unique session or state identifier
+    state = "105"
 
     auth_url = f"{facebook_auth_url}client_id={client_id}&redirect_uri={redirect_uri}&scope={scope}&state={state}&response_type=code"
     
     return HttpResponseRedirect(auth_url)
 
-@csrf_exempt  # This might be required if you're not using CSRF tokens for this view
+@csrf_exempt
 def facebook_auth_callback(request):
     try:
-        # Extract the code from the callback
         code = request.GET.get('code')
         redirect_uri = "https://feadl.io/facebook_auth_callback/"
         client_id = "216745084667486"
         client_secret = "d96b709e954bb40082e95bc9fef4281b"
         
-        # Exchange code for an access token
         token_url = "https://graph.facebook.com/v17.0/oauth/access_token"
         token_params = {
             'client_id': client_id,
@@ -300,11 +300,11 @@ def facebook_auth_callback(request):
         request.session['user_pid'] = name
         request.session['isProvider'] = True
         
-        return redirect('login')  # Redirect to the desired page after login
+        return redirect('login')
 
     except Exception as e:
         messages.error(request, f'Credentials Invalid. {e}')
-        return redirect('login')  # Redirect back to the login page on error
+        return redirect('login')
     
 def robots_txt(request):
     lines = [

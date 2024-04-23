@@ -3,6 +3,7 @@ import json
 import tempfile
 from moviepy.editor import VideoFileClip
 import os
+
 # --------------------- GET --------------------------- #
 
 def get_instagram_user_id(facebook_page_id, access_token):
@@ -59,7 +60,6 @@ def exchange_short_lived_token_for_long_lived(short_lived_access_token, app_id, 
         print(f"Long-lived access token: {long_lived_access_token}")
         return long_lived_access_token
     except requests.RequestException as e:
-        # Handle any errors that occur during the request
         return f"An error occurred: {e}"
     
 def check_token_expiration(access_token, app_id, app_secret):
@@ -245,7 +245,6 @@ def post_to_google_mybusiness(caption, image_url, access_token):
         ]
     }
 
-    # Replace 'YOUR_ACCOUNT_NAME' and 'YOUR_LOCATION_ID' with appropriate values
     endpoint = f"https://mybusiness.googleapis.com/v4/accounts/YOUR_ACCOUNT_NAME/locations/YOUR_LOCATION_ID/localPosts"
 
     response = requests.post(endpoint, headers=headers, json=payload).json()
@@ -308,7 +307,6 @@ def post_video_to_instagram(access_token, video_url, caption, instagram_user_id)
 
     creation_id = result['id']
 
-    # Step 2: Publish the media object
     publish_endpoint = f"https://graph.facebook.com/{instagram_user_id}/media_publish"
     publish_payload = {
         "creation_id": creation_id,
@@ -347,7 +345,6 @@ def post_to_facebook_page_feed(caption, image_url, page_id, page_access_token):
                 error_code = photo_response['error'].get('code')
                 error_message = photo_response['error'].get('message', 'Unknown error')
                 
-                # Specific handling for broken access token
                 if error_code == 190:
                     raise Exception(f"Access token error: {error_message}")
                 else:
@@ -358,10 +355,8 @@ def post_to_facebook_page_feed(caption, image_url, page_id, page_access_token):
         raise Exception(error_msg)
 
 def post_text_to_facebook_page_feed(caption, page_id, page_access_token):
-    # Endpoint to post text to the page's feed
     post_endpoint = f"https://graph.facebook.com/{page_id}/feed"
 
-    # Parameters for the post
     post_params = {
         "message": caption,
         "access_token": page_access_token,
@@ -370,7 +365,6 @@ def post_text_to_facebook_page_feed(caption, page_id, page_access_token):
     try:
         post_response = requests.post(post_endpoint, data=post_params).json()
 
-        # Check for errors in the response
         if post_response.get("error"):
             error = post_response["error"]
             print("Error posting to Facebook:", error)
@@ -426,7 +420,6 @@ def post_video_to_facebook_page_feed(caption, video_url, page_id, page_access_to
         response = requests.post(finish_url, params=params).json()
         return response
 
-    # Download the video and split into chunks
     response = requests.get(video_url, stream=True)
     if response.status_code == 200:
         with tempfile.NamedTemporaryFile(delete=False) as temp_file:
@@ -442,7 +435,6 @@ def post_video_to_facebook_page_feed(caption, video_url, page_id, page_access_to
             start_offset = init_response["start_offset"]
             end_offset = init_response["end_offset"]
 
-            # Upload video in chunks
             with open(temp_file_path, "rb") as f:
                 f.seek(int(start_offset))
                 while int(start_offset) < int(end_offset):
@@ -451,10 +443,8 @@ def post_video_to_facebook_page_feed(caption, video_url, page_id, page_access_to
                     start_offset = chunk_response["start_offset"]
                     end_offset = chunk_response["end_offset"]
 
-            # Remove the temporary file
             os.remove(temp_file_path)
 
-            # End the upload session
             end_response = end_upload_session(upload_session_id)
             if end_response.get("success"):
                 print("Video successfully uploaded.")
@@ -475,25 +465,8 @@ if __name__ == "__main__":
     id = '17841431479346652'
     CAPTION = "Testing....."
     IMAGE_URL = "https://storage.googleapis.com/starter_web_app_bucket/testing.png"
-    # print(get_instagram_user_id(id, access_token))
-    # print(get_linkedin_account_name(access_token))
     FACEBOOK_APP_ID = '216745084667486'
     FACEBOOK_APP_SECRET = 'd96b709e954bb40082e95bc9fef4281b'
     FACEBOOK_PAGE_ID = 'd96b709e954bb40082e95bc9fef4281b'
     FACEBOOK_APP_SECRET = 'd96b709e954bb40082e95bc9fef4281b'
-    # print(exchange_short_lived_token_for_long_lived(access_token, FACEBOOK_APP_ID, FACEBOOK_APP_SECRET))
-    # print(check_token_expiration(access_token, FACEBOOK_APP_ID, FACEBOOK_APP_SECRET))
     print(get_instagram_user_id('108830535605871', access_token))
-    # print(post_to_instagram(access_token, IMAGE_URL, CAPTION, id))
-    # facebook_id = '108830535605871'
-    # linkedin_token = 'AQWkp5YGkAF8YMEV6mamPNbOG22-LoUIYLBEZzXXmetr91pZwFa6yhPRDtiZhFNIHzvmMpdagQ3jGXPf0EnR4gznpm6_RwExYWlXevEMXLgI59G08edmKFokBboJoZtHWirewepn0ozKVhi-r-yJKgBbNg9p3eUZwh3mhMBgAudHeeTWn6bXolA9VLr_CyY1RgHBxUAOjs_8pgNaC8X19TkKkblzPGmdsfCSTqqGL7upQKz6h4CmCJu51ddQoyo-ovfiJ_kD70PKsvBrtEgPzqUQHAAtp8bhjr3ttzU-PcG1r9BcaA1hCdQinEq5sc8Zf2O0W7WX1A1cwUfqrvUbWSAdz3uxRg'
-    # linkedin_id = 'xFUUk10kPj'
-    # instagram_token = 'EAADFIOXHRl4BO8Ya2HS8LWEA9dWhOWNznLg1d07NrWbxRZBDZAu5xwbURVN4COZAosgS85ihAZCmhpyk0cP9ZB0IP6Qk7Lpo0om513O2JXwn68pr17wZAQXAIInezf00OdOFqGa0i9MLwSYXdbhApdfJbM34N5y9GzGC9O1lxu2UEsBKw0OhwmOWZCjKoW9wRfRyZBDJJWJNceNHSI4ct5knnU1v6y8ZD'
-    
-    # PLATFORM = "instagram"
-    # CAPTION = "Testing....."
-    # IMAGE_URL = "https://storage.googleapis.com/starter_web_app_bucket/user_folders/ai_image_library/04ec205c-03b1-48ae-9e3f-066c9c47d8da.jpg"
-    # ACCESS_ID = linkedin_id
-    # ACCESS_TOKEN = instagram_token
-    # response = post_to_socials(PLATFORM, CAPTION, IMAGE_URL, ACCESS_TOKEN, ACCESS_ID)
-    # print(response)

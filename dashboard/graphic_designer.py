@@ -16,6 +16,7 @@ import xml.etree.ElementTree as ET
 from decouple import config
 import numpy as np
 from openai import OpenAI
+from decouple import config
 
 environment = config('ENVIRONMENT', default='development')
 
@@ -334,9 +335,9 @@ def generate_text(business_description, business_name, max_title_char_count, key
 
 def generate_image_from_params(FOLDER_NUM, business_description, business_name, primary_color, specified_colors, base_image_url, logo_path, classify, isLogo):
 
-    credentials = service_account.Credentials.from_service_account_file(settings.GS_CREDENTIALS)
+    credentials = service_account.Credentials.from_service_account_file(config("GS_CREDENTIALS"))
     client = storage.Client(project=credentials.project_id, credentials=credentials)
-    bucket = client.bucket(settings.GS_BUCKET_NAME)
+    bucket = client.bucket(config("GS_BUCKET_NAME"))
 
     # ---------------------- JSON Loading ----------------------
     if classify == 'ad':

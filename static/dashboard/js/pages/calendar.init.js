@@ -119,13 +119,14 @@ await getDocs(eventsCollectionRef)
         this.$modalTitle.text("Edit Post");
         this.$eventCaption = l("#event-caption");
         this.$eventImg = l("#event-image");
+        this.$time = l("#time");
         this.$selectedEvent = e.event;
         const caption = e.event.extendedProps.caption || "";
         const img = e.event.extendedProps.image_url || "https://storage.googleapis.com/starter_web_app_bucket/assets/ScheduleTextPostCalendarImagePlaceholder.png";
-        const time = e.event.startStr
-        const formattedTime = moment(time).format('MMMM D, YYYY [at] h:mm:ss A [UTC]Z');
-        console.log(formattedTime); 
-        this.$time.text(formattedTime);
+        const originalTimestamp  = e.event.start
+        const originalDate = moment(originalTimestamp);
+        const originalTimeFormatted = originalDate.format('HH:mm');
+        this.$time.val(originalTimeFormatted);
         const socialElements = {
             'facebook': this.$facebook,
             'instagram': this.$instagram,
@@ -269,6 +270,11 @@ await getDocs(eventsCollectionRef)
             if (n.checkValidity()) {
                 if (a.$selectedEvent) {
                     const eid = a.$selectedEvent.extendedProps.eid;
+                    const newTime = l("#time").val();
+                    let newTimestamp = moment(a.$selectedEvent.start);
+                    const [hour, minute] = newTime.split(':').map(Number);
+                    newTimestamp.hour(hour);
+                    newTimestamp.minute(minute);
                     const eventDocRef = doc(collection(userDocRef, 'events'), eid);
                     const caption = l("#event-caption").text();
                     const socialElements = {
@@ -284,18 +290,23 @@ await getDocs(eventsCollectionRef)
                         }
                     }
                     const eventData = {
+                        start: newTimestamp.toDate(),
                         caption: caption,
                         socials: socials,
                     };
                     setDoc(eventDocRef, eventData, { merge: true })
-                        .then(() => {})
+                        .then(() => {
+                            
+                            a.$selectedEvent.setExtendedProp("caption", l("#event-caption").text());
+                            a.$selectedEvent.setStart(newTimestamp.toDate());
+                            a.$selectedEvent.setExtendedProp("socials", socials);
+                            a.$calendarObj.refetchEvents();
+                            a.$modal.hide();
+                        })
                         .catch((error) => {
                             console.error('Error updating event to Firestore:', error);
                         });
-                    a.$selectedEvent.setExtendedProp("caption", l("#event-caption").text());
-                    a.$selectedEvent.setExtendedProp("socials", socials);
                 }
-                a.$modal.hide();
             } else {
                 e.stopPropagation();
                 n.classList.add("was-validated");

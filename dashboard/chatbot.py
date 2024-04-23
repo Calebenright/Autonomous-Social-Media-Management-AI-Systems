@@ -20,7 +20,7 @@ from .graphic_designer import generate_image_from_params, hex_to_rgb
 import base64
 from decouple import config
 from firebase_admin import firestore, auth, credentials
-from .functions import upload_png_to_google, create_call_to_action, create_ad_creative, add_logo, download_and_save_image_as_seek, generate_random_date, reupload_gcs_image
+from .functions import *
 from .post_to_socials import post_to_facebook_page_feed, post_text_to_facebook_page_feed, post_to_instagram, post_to_linkedin, post_to_google_mybusiness, get_instagram_user_id, get_facebook_pages_and_groups, get_instagram_username, post_text_to_linkedin, get_linkedin_account_name, post_video_to_facebook_page_feed, post_video_to_instagram, exchange_short_lived_token_for_long_lived
 import random
 from django.http import JsonResponse
@@ -202,29 +202,14 @@ def post_to_feed(image_url, caption, platforms, post_type, user_settings, user_s
 
     return None
 
-def schedule_post(url, caption, platforms, date_and_time, user_settings, user_settings_ref, firebase_id_token, post_type):
-    timestamps = [
-        "T19:00:00",
-        "T20:00:00",
-        "T21:00:00",
-        "T21:15:00",
-        "T21:30:00",
-        "T22:00:00",
-        "T22:15:00",
-        "T22:30:00",
-        "T23:00:00",
-    ]
+def schedule_post(url, caption, platforms, date_and_time, user_settings, user_settings_ref, post_type, elaine_timezone):
+                
     existing_events = user_settings_ref.collection('events').order_by('start').stream()
     existing_event_times = []
     for event in existing_events:
         event_data = event.to_dict()
         if 'start' in event_data:
             existing_event_times.append(event_data['start'])
-    if existing_event_times:
-        last_event_date = max(existing_event_times)
-    else:
-        last_event_date = datetime.now()
-    new_date = generate_random_date(last_event_date, existing_event_times)
 
     if post_type == 'text':
         url = None
@@ -234,18 +219,22 @@ def schedule_post(url, caption, platforms, date_and_time, user_settings, user_se
     event_id = uuid.uuid4()
     eid = str(event_id)
     eventDocRef = user_settings_ref.collection('events').document(eid)
-    timestamp = new_date + random.choice(timestamps)
-    start_time = datetime.fromisoformat(timestamp)
 
     facebook_checked = user_settings.get('isFacebook', False)
     instagram_checked = user_settings.get('isInstagram', False)
-    linkedin_checked = user_settings.get('isLinkedin', False)
 
     socials = [platform for platform, checked in [
         ('facebook', facebook_checked),
-        ('instagram', instagram_checked),
-        ('linkedin', linkedin_checked)
+        ('instagram', instagram_checked)
     ] if checked]
+
+    next_optimal_day = find_next_optimal_day_for_new_post(existing_event_times)
+    next_optimal_day_name = next_optimal_day.strftime('%A').lower()
+    analog_time = get_best_posting_times(next_optimal_day_name, random.choice(socials))
+    optimal_analog_time = convert_optimal_posting_time(analog_time, elaine_timezone)
+    optimal_timestamp = convert_analog_to_timestamp(optimal_analog_time)
+    parsed_time = datetime.strptime(optimal_timestamp[1:], "%H:%M:%S").time()
+    start_time = datetime.combine(next_optimal_day, parsed_time)
 
     event_data = {
         'eid': eid,
@@ -291,5 +280,5 @@ def add_graphics_from_bot(next_image_url, user_settings, user_settings_ref, glob
             img = download_and_save_image_as_seek(next_image_url)
     else:
         img = download_and_save_image_as_seek(next_image_url)
-    url = upload_png_to_google(img, settings.GS_BUCKET_NAME, settings.GS_CREDENTIALS, image_folder_path)
+    url = upload_png_to_google(img, config("GS_BUCKET_NAME"), config("GS_CREDENTIALS"), image_folder_path)
     return url

@@ -1,14 +1,20 @@
 import json
 from google.cloud import tasks_v2
 from google.oauth2 import service_account
-from django.conf import settings
-from google.protobuf import duration_pb2, timestamp_pb2
-from google.api_core.exceptions import NotFound, AlreadyExists
+from google.protobuf import duration_pb2
+from google.api_core.exceptions import NotFound
 import json
+from decouple import config
+
+credentials = service_account.Credentials.from_service_account_file('credentials.json')
+
+def get_cloud_tasks_client():
+    """ Helper function to create a Cloud Tasks client with the necessary credentials. """
+    return tasks_v2.CloudTasksClient(credentials=credentials)
 
 def enqueue_task(payload, queue_name, queue_url):
-    client = tasks_v2.CloudTasksClient()
-    parent = client.queue_path(settings.GS_PROJECT_ID, settings.GS_QUEUE_REGION, queue_name)
+    client = get_cloud_tasks_client()
+    parent = client.queue_path(config("GS_PROJECT_ID"), config("GS_QUEUE_REGION"), queue_name)
 
     task_payload = {
         "http_request": {
@@ -25,8 +31,8 @@ def enqueue_task(payload, queue_name, queue_url):
     print(f"Task created: {task.name}")
 
 def gc_task(payload, queue_name, queue_url):
-    client = tasks_v2.CloudTasksClient()
-    parent = client.queue_path(settings.GS_PROJECT_ID, settings.GS_QUEUE_REGION, queue_name)
+    client = get_cloud_tasks_client()
+    parent = client.queue_path(config("GS_PROJECT_ID"), config("GS_QUEUE_REGION"), queue_name)
 
     task_payload = {
         "http_request": {
@@ -46,9 +52,9 @@ def gc_task(payload, queue_name, queue_url):
     print(f"Task created: {task.name}")
 
 def auth_task(payload, queue_name, queue_url):
-    client = tasks_v2.CloudTasksClient()
-    parent = client.queue_path(settings.GS_PROJECT_ID, settings.GS_QUEUE_REGION, queue_name)
-    API_TOKEN = settings.API_TOKEN
+    client = get_cloud_tasks_client()
+    parent = client.queue_path(config("GS_PROJECT_ID"), config("GS_QUEUE_REGION"), queue_name)
+    API_TOKEN = config("API_TOKEN")
     dispatch_deadline = duration_pb2.Duration(seconds=600)
     task_payload = {
         "http_request": {
@@ -66,12 +72,10 @@ def auth_task(payload, queue_name, queue_url):
     task = client.create_task(parent=parent, task=task_payload)
     print(f"Task created: {task.name}")
 
-from google.api_core.exceptions import AlreadyExists
-
 def create_queue(queue):
-    location = 'us-central1'
-    project = 'starter-web-app-389316'
-    client = tasks_v2.CloudTasksClient()
+    location = config("GS_QUEUE_REGION")
+    project = config("GS_PROJECT_ID")
+    client = get_cloud_tasks_client()
 
     parent = f"projects/{project}/locations/{location}"
     queue_path = client.queue_path(project, location, queue)
@@ -95,12 +99,4 @@ def create_queue(queue):
         print('Created queue with no retries:', queue_obj.name)
         return True
 
-
-def make_authorized_get_request():
-    import google.auth.transport.requests
-    import google.oauth2.id_token
-    auth_req = google.auth.transport.requests.Request()
-    audience = 'https://task-handler-h7k7efgceq-uc.a.run.app'
-    id_token = google.oauth2.id_token.fetch_id_token(request=auth_req, audience=audience)
-    return id_token
 
