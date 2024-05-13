@@ -57,7 +57,11 @@ function signInWithFeadlio() {
       })
       .catch((error) => {
           console.error("Login Failed: ", error.message);
-          displayErrorMessage("Invalid Login")
+          if (error.code === 'auth/wrong-password') {
+              displayErrorMessage("Username or password is incorrect");
+          } else {
+              displayErrorMessage("Invalid login");
+          }
           document.getElementById('loader').style.display = 'none';
           document.getElementById('feadlio-sign-in').disabled = false;
     });
@@ -74,21 +78,14 @@ document.getElementById('google-sign-in').addEventListener('click', function() {
 document.addEventListener("DOMContentLoaded", function() {
   console.log('got provider: ', isProvider);
   if (isProvider == 'True') {
-    console.log('do not run: ', isProvider);
     if (userEmail && userPid) {
-      console.log('userEmail: ', userEmail);
-      console.log('userPid: ', userPid);
       signInWithEmailAndPassword(auth, userEmail, userPid)
         .then((userCredential) => {
-            updateIsProviderStatus().then(() => {
-                window.location.href = "/dashboard/";
-            }).catch((error) => {
-                console.error("Failed to update provider status: ", error.message);
-                displayErrorMessage("Failed to login. If the problem persists please contact us.");
-            });
+          updateIsProviderStatus(true);
         })
         .catch((error) => {
           console.error("Login Failed: ", error.message);
+          updateIsProviderStatus();
           displayErrorMessage("Invalid Login");
         });
     } else {
@@ -102,7 +99,7 @@ function getCookie(name) {
   return cookieValue ? cookieValue.pop() : '';
 }
 
-function updateIsProviderStatus() {
+function updateIsProviderStatus(isAuth=false) {
   var csrfToken = getCookie('csrftoken');
   fetch('/update_is_provider/', {
     method: 'POST',
@@ -119,9 +116,12 @@ function updateIsProviderStatus() {
     return response.json();
   })
   .then(data => {
+    if (isAuth) {
+      document.getElementById('redirectForm').submit();
+    }
     console.log('Fetch successful:', data);
   })
   .catch(error => {
-    console.error('Error during fetch operation:', error);
+    displayErrorMessage("An error occured while logging in. Please try again. or contact us.");
   });
 }

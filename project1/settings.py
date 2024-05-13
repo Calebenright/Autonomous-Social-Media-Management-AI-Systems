@@ -34,8 +34,10 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.sitemaps",
+    "admin_panel",
     "app1",
     "dashboard",
+    "funnel",
 ]
 
 MIDDLEWARE = [

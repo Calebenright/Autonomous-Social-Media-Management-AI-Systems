@@ -6,6 +6,7 @@ urlpatterns = [
     path('pricing/', views.pricing, name='pricing'),
     path('signup/', views.signup, name='signup'),
     path('login/', views.login, name='login'),
+    path('login_redirect/', views.login_redirect, name='login_redirect'),
     path('google_signin/', views.google_sign_in, name='google_sign_in'),
     path('google_auth_callback/', views.google_auth_callback, name='google_auth_callback'),
     path('facebook_signin/', views.facebook_sign_in, name='facebook_sign_in'),

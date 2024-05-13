@@ -44,7 +44,6 @@ db = firestore.Client(project='feed-ai-c379d')
 
 stripe.api_key = config("STRIPE_SECRET_KEY")
 
-
 # .............................................................
 # .VVVV....VVVVVIIII.EEEEEEEEEEEEWWW..WWWWW...WWWW.SSSSSSS.....
 # .VVVV....VVVVVIIII.EEEEEEEEEEEEWWW..WWWWW..WWWW.SSSSSSSSS....
@@ -90,9 +89,12 @@ def dashboard(request):
         if form_name == 'formFtue':
             business_name = request.POST.get('business_name')
             business_description = request.POST.get('business_description')
-            brand_color = request.POST.get('brand_color')
+            brand_color = all_color_to_hex(request.POST.get('brand_color'))
             colors = generate_secondary_colors(brand_color)
             tags = create_tags(business_description)
+            library_folder_path = f'user_folders/{user_id}/image_library/'
+            image_tags = add_pixabay_tags(tags, None, config("GS_BUCKET_NAME"),  config("GS_CREDENTIALS"), library_folder_path)
+            image_tags_string = json.dumps(image_tags).replace("'", '"')
 
             firestore_data = {
                 'tags': tags,
@@ -113,7 +115,8 @@ def dashboard(request):
                 'email': user_email,
                 'num_sent': 0,
                 'last_reset_time': datetime.now(),
-                'trial': 0
+                'trial': 0,
+                'image_tags': image_tags_string
             }
 
             db_ref.set(firestore_data, merge=True)
@@ -121,21 +124,36 @@ def dashboard(request):
             return redirect('dashboard')
         
         elif form_name == 'elaine-settings':
+            text_weight = request.POST.get('textWeight')
+            stock_weight = int(request.POST.get('stockWeight')) - int(text_weight)
+            graphic_weight = 100 - (int(text_weight) + int(stock_weight))
+
+            isElaineEmail = request.POST.get('isElaineEmail') == "on"
+            
             elaine_data = {
                 'posts_per_week': int(request.POST.get('posts_per_week', 0)),
+                'text_weight': int(text_weight),
+                'stock_weight': int(stock_weight),
+                'graphic_weight': int(graphic_weight),
+                'combined_weight': int(text_weight) + int(stock_weight),
                 'ElaineSocialMedias': request.POST.getlist('ElaineSocialMedias[]'),
                 'ElainePostType': request.POST.getlist('ElainePostType[]'),
+                'isElaineEmail': isElaineEmail,
                 'ElaineEmail': request.POST.get('ElaineEmail'),
                 'ElaineTimezone': request.POST.get('ElaineTimezone')
             }
 
             isElaineOn = request.POST.get('isElaineOn') == "on"
             elaine_data['isElaineOn'] = isElaineOn
+            firestore_data = {'isAutomated': isElaineOn}
+            db_ref.set(firestore_data, merge=True)
 
             if isElaineOn and not elaine_settings.get('isElaineOn', False):
-                send_new_subscriber_email(elaine_data['ElaineEmail'], user_settings.get('business_description'), user_settings.get('business_name'), 'Elaine')
+                if not user_settings.get('isAgencyUser', True):
+                    send_new_subscriber_email(elaine_data['ElaineEmail'], user_settings.get('business_description'), user_settings.get('business_name'), 'Elaine')
 
             elaine_doc_ref.set(elaine_data, merge=True)
+
             messages.success(request, 'Settings have been successfully updated!')
             return redirect('dashboard')
         
@@ -158,7 +176,7 @@ def dashboard(request):
         'elaine_settings': elaine_settings,
         'jerry_settings': jerry_settings
     }
-
+    
     return render(request, 'dashboard.html', context)
 
 # ---------------- chats ---------------- #
@@ -624,10 +642,6 @@ def post_creator(request):
         logo_path = user_settings['logo']
     except (TypeError, KeyError):
         logo_path = None
-    try:
-        num_post = int(user_settings['num_post'])
-    except (TypeError, KeyError):
-        num_post = 1
     if request.session.get('tags') != ['']:
         tags = request.session.get('tags')
     else:
@@ -714,6 +728,10 @@ def post_creator(request):
                     ('instagram', instagram_checked)
                 ] if checked]
 
+                if not socials:
+                    messages.error(request, 'Please select at least one social media platform.')
+                    return redirect('post_creator')
+
                 next_optimal_day = find_next_optimal_day_for_new_post(existing_event_times)
                 next_optimal_day_name = next_optimal_day.strftime('%A').lower()
                 analog_time = get_best_posting_times(next_optimal_day_name, random.choice(socials))
@@ -763,6 +781,16 @@ def post_creator(request):
 
                 facebook_checked = request.POST.get('facebook_visible', 'false') == 'true'
                 instagram_checked = request.POST.get('instagram_visible', 'false') == 'true'
+
+                socials = [platform for platform, checked in [
+                    ('facebook', facebook_checked),
+                    ('instagram', instagram_checked)
+                ] if checked]
+
+                if not socials:
+                    messages.error(request, 'Please select at least one social media platform.')
+                    return redirect('post_creator')
+
                 linkedin_checked = False
 
                 num_sent = user_settings.get('num_sent', 0)
@@ -973,7 +1001,7 @@ def post_creator(request):
                 if monthly_images_generated < monthly_allowed_images or isAdmin or isUnlimited:
 
                     if images_generated >= total_allowed_images and not isAdmin and not isUnlimited:
-                        messages.error(request, 'You have reached the maximum number of images for your subscription. Please upgrade to continue.')
+                        messages.error(request, 'You have reached the maximum number of daily images for your subscription. Please upgrade to continue or come back tomorrow.')
                         return redirect('post_creator')
                     
                     if selected_option == 'up':
@@ -1002,7 +1030,7 @@ def post_creator(request):
                     elif selected_option == 'text':
                         progress = 100
                         select = request.POST.get('text-platform')
-                        add_credits += 0.1
+                        add_credits += 0.5
 
                         try:
                             post = create_text_post(select, biz, biz_name)
@@ -1040,7 +1068,7 @@ def post_creator(request):
                                 return redirect('post_creator')
                             
                         else:
-                            add_credits += 0.3
+                            add_credits += 0.5
                             progress = 95
                             url = img_url
                         
@@ -1066,7 +1094,7 @@ def post_creator(request):
                                 messages.error(request, 'Please upgrade to utilize our AI Stock Image Library.')
                                 return redirect('post_creator')
                         else:
-                            add_credits += 0.3
+                            add_credits += 0.8
                             try:
                                 progress = 95
                                 url = img_url
@@ -1093,7 +1121,7 @@ def post_creator(request):
                                 progress = 0
                                 url = ''
                             else:
-                                add_credits += 0.5
+                                add_credits += 0.9
                                 try:
                                     progress = 95
                                     url = img_url
@@ -1117,7 +1145,7 @@ def post_creator(request):
                         else:
                             post = create_caption(biz, biz_name)
                 else:
-                    messages.error(request, 'Our generators need time to cooldown. Cooldown time is currently: 24 Hours. You can check the progress in the Account Settings Tab. ')
+                    messages.error(request, 'You have reached the maximum number of monthly images for your subscription. Please upgrade to continue or wait until the beginning of the next month.')
                     return redirect('post_creator')
 
                 try:
@@ -1135,7 +1163,6 @@ def post_creator(request):
                     'next_image_url': url,
                     'next_caption': post,
                     'lastType' : selected_option,
-                    'num_post': num_post,
                     'cooldown_expiry': cooldown_expiry,
                     'images_generated': images_generated,
                     'progress': progress
@@ -1394,6 +1421,20 @@ def brand_settings(request):
                 'tags': tags
             }
 
+        elif form_name == 'user-settings':
+            firstName = request.POST.get('firstName')
+            lastName = request.POST.get('lastName')
+            phone = request.POST.get('phone')
+            website = request.POST.get('website')
+            address1 = request.POST.get('address1')
+
+            firestore_data = {
+                'firstName': firstName,
+                'lastName': lastName,
+                'phone': phone,
+                'website': website,
+                'address1': address1
+            }
         elif form_name == 'branding':
             # ------------------ LOGO ---------------#
             try:
@@ -1457,7 +1498,7 @@ def brand_settings(request):
                 # ------------------ ------------ ---------------#
                 
                 firestore_data = {
-                    'brand_color': request.POST.get('brand_color'),
+                    'brand_color': all_color_to_hex(request.POST.get('brand_color')),
                     'secondary_colors': colors
                 }
                 user_settings_ref.set(firestore_data, merge=True)
@@ -1506,7 +1547,6 @@ def brand_settings(request):
             except:
                 pass
 
-        # Save the data to Firestore
         user_settings_ref.set(firestore_data, merge=True)
 
         messages.success(request, 'Settings Have Been Updated.')
@@ -1885,7 +1925,7 @@ def process_page_selection(request):
                 'isFacebook': True
             }       
             user_settings_ref.set(firestore_data, merge=True)
-            messages.success(request, f"You've successfully logged connected your {provider} account!")
+            messages.success(request, f"You've successfully connected your {provider} account!")
             return redirect('brand_settings')
         elif provider == 'linkedin':
             print(selected_page_id)
@@ -1895,7 +1935,7 @@ def process_page_selection(request):
                 'isLinkedin': True
             }       
             user_settings_ref.set(firestore_data, merge=True)
-            messages.success(request, f"You've successfully logged connected your {provider} account!")
+            messages.success(request, f"You've successfully connected your {provider} account!")
             return redirect('brand_settings')
         else: 
             messages.error(request, 'There was an error connecting your account. Please try again.')
@@ -2033,6 +2073,8 @@ def elaine_email(request):
     db = firestore.Client(project='feed-ai-c379d')
 
     user_settings = db.collection('users').document(uid).get().to_dict()
+    character = "CJ" if user_settings.get('isAgencyUser') else "elaine"
+    owner = user_settings.get('firstName')
     elaine_doc = db.collection('users').document(uid).collection('agents').document('elaine').get().to_dict()
 
     def get_week_date_range():
@@ -2050,10 +2092,10 @@ def elaine_email(request):
         except Exception as e:
             print(f"Error processing info {i}: {e}")
     
-    email = user_settings.get('email')
+    email = elaine_doc.get(f'ElaineEmail', user_settings.get('email'))
     week_date_range = get_week_date_range()
     subject = f'Social Media Report - {week_date_range}'
-    message = create_email(user_settings.get('business_description'), user_settings.get('business_name'))
+    message = create_email(user_settings.get('business_description'), user_settings.get('business_name'), character, owner)
     from_email = config("EMAIL_HOST_USER")
     recipient_list = [email]
 
@@ -2062,7 +2104,7 @@ def elaine_email(request):
     for i in range(elaine_doc.get('posts_per_week', 0)):
         caption = elaine_doc.get(f'scheduled_caption_{i}')
         if caption:
-            text_content += f'\n\nCaption #{i}: {caption}'
+            text_content += f'\n\nPost #{i+1}: {caption}'
 
     email_message = EmailMessage(subject, text_content, from_email, recipient_list)
     email_message.content_subtype = "plain" 
@@ -2208,6 +2250,9 @@ def elaine_functions(request):
             ('facebook', facebook_checked),
             ('instagram', instagram_checked)
         ] if checked]
+
+        if not socials:
+            return JsonResponse({'error': 'Please select a social media.'}, status=400)
         
         next_optimal_day = find_next_optimal_day_for_new_post(existing_event_times)
         next_optimal_day_name = next_optimal_day.strftime('%A').lower()
@@ -2333,7 +2378,7 @@ def cron_auto_add_article(request):
 
     add_document_auto_id(collection_name, article_data)
 
-    return HttpResponse("Limits Reset", status=200)
+    return HttpResponse("Article Added", status=200)
 
 @csrf_exempt  
 @require_http_methods(["POST"])
@@ -2343,7 +2388,7 @@ def cron_delete_images_in_gcp_folder(request):
         return JsonResponse({'error': 'Unauthorized'}, status=401)
     bucket_name = config("GS_BUCKET_NAME")
     folder_path = 'delete_image_library/'
-    storage_client = storage.Client()
+    storage_client = storage.Client(project='starter-web-app-389316')
     bucket = storage_client.bucket(bucket_name)
     blobs = bucket.list_blobs(prefix=folder_path)
     deleted_files = []
@@ -2351,10 +2396,8 @@ def cron_delete_images_in_gcp_folder(request):
         for blob in blobs:
             blob.delete()
             deleted_files.append(blob.name)
-        # Log the deleted files using Google Cloud Logging
         logger.info(f"Deleted files: {deleted_files}")
     except Exception as e:
-        # Log the error using Google Cloud Logging
         logger.error(f"Error deleting files: {e}", severity="ERROR")
         return HttpResponse("An error occurred while deleting images.", status=500)
 
@@ -2367,20 +2410,15 @@ def cron_inactive_users(request):
     if token != f"Bearer {CRON_TOKEN}":
         return JsonResponse({'error': 'Unauthorized'}, status=401)
 
-    # Fetch all users
     all_users = auth.list_users().iterate_all()
     for user in all_users:
         try:
-            # Attempt to fetch the user document from Firestore
             doc_ref = db.collection('users').document(user.uid)
             doc = doc_ref.get()
 
-            # If the document does not exist, or 'ftue' explicitly is False, proceed with deletion
             if not doc.exists or (doc.exists and ('ftue' not in doc.to_dict() or doc.to_dict().get('ftue') is False)):
-                # Delete the user from Firebase Authentication
                 auth.delete_user(user.uid)
                 
-                # Delete the document from Firestore if it exists
                 if doc.exists:
                     doc_ref.delete()
 
@@ -2414,8 +2452,8 @@ def create_checkout_session(request, plan, billing_cycle):
     user_id = request.session.get('user_id', None)
     if user_id == None:
         return redirect('login')
-    price_id = config("PRODUCT_IDS").get(f"{plan}_{billing_cycle}")
-    prices_with_trial = [config("PREMIUM_MONTHLY_PRICE_ID"), config("AGENCY_MONTHLY_PRICE_ID"), config("PREMIUM_ANNUAL_PRICE_ID"), config("AGENCY_ANNUAL_PRICE_ID")]
+    price_id = settings.PRODUCT_IDS.get(f"{plan}_{billing_cycle}")
+    prices_with_trial = [config("PREMIUM_MONTHLY_PRICE_ID"), config("PREMIUM_ANNUAL_PRICE_ID")]
     if price_id in prices_with_trial:
         trial_period_days = 7
     else:
@@ -2484,9 +2522,10 @@ def checkout(request):
 
 @csrf_exempt
 def success(request):
-    messages.success(request, 'Thank you for subscribing to Feadl.io! You have been redirected to the dashboard.')
-    # ---------------------------------------------------------------------- #
-    return redirect('dashboard')
+    if request.method == 'POST':
+        messages.success(request, 'Thank you for subscribing to Feadl.io! You have been redirected to the dashboard.')
+        return redirect('dashboard')
+    return render(request, 'success.html')
 
 @csrf_exempt
 def cancel(request):
@@ -2534,7 +2573,7 @@ def stripe_webhook(request):
                 user_settings_ref = db.collection('users').document(uid)
                 user_settings_doc = user_settings_ref.get()
                 user_settings = user_settings_doc.to_dict()
-                send_new_subscriber_email(user_settings.get('email'), user_settings.get('business_description'), user_settings.get('business_name'), 'Elaine')
+                # send_new_subscriber_email(user_settings.get('email'), user_settings.get('business_description'), user_settings.get('business_name'), 'Elaine')
                 firestore_data = {'customer_id': customer_id, 'subscription_id': subscription_id, 'isSubscriber': True, 'subscription_status': 'Subscribed', 'subscription_plan': plan, 'isUnlimited': isUnlimited}
                 user_settings_ref.set(firestore_data, merge=True)
                 if user_settings.get('isBusiness', False):

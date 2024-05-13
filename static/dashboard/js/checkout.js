@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var prices = {
         // standard: { monthly: 19, annual: 192 },
         premium: { monthly: 5, annual: 35 },
-        agency: { monthly: 10, annual: 100 }
+        agency: { monthly: 20, annual: 180 }
     };
 
     // Function to calculate and update prices
@@ -54,10 +54,10 @@ document.addEventListener('DOMContentLoaded', function () {
             fetch('/create-checkout-session/' + plan + '/' + billingCycle + '/', {
                 method: 'POST',
             })
-            .then(response => response.text()) // Change to .text() to see raw response
+            .then(response => response.text())
             .then(text => {
-                console.log(text); // Log raw response text
-                return JSON.parse(text); // Manually parse the text to JSON
+                console.log(text);
+                return JSON.parse(text);
             })
             .then(function(session) {
                 return stripe.redirectToCheckout({ sessionId: session.sessionId });

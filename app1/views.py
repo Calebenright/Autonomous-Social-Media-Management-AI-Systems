@@ -86,10 +86,15 @@ def forgot_password(request):
 
             email = EmailMessage(subject, message, from_email, recipient_list)
             email.content_subtype = "html"
-            email.send() 
-            return render(request, 'login.html', {'success': "Password reset email sent. Check your inbox."})
+            email.send()
+            messages.success(request, "Password reset email sent. Check your inbox.")
+            return redirect('login')
         except auth.UserNotFoundError:
-            return render(request, 'forgot_password.html', {'error': "That email is not associated with an account."})
+            messages.success(request, "That email is not associated with an account.")
+            return redirect('forgot_password')
+        except Exception as e:
+            messages.error(request, "An error occurred. Please try again later.")
+            return redirect('forgot_password')
 
     return render(request, 'forgot_password.html')
 
@@ -130,10 +135,14 @@ def change_email(request):
                 email.send() 
                 return redirect('brand_settings')
             except auth.UserNotFoundError:
-                return render(request, 'change_email.html', {'error': "User not found."})
+                messages.error(request, "User not found.")
+                return redirect('change_email')
+            except Exception as e:
+                messages.error(request, f"An error occurred. Please try again later.")
+                return redirect('change_email')
         else:
-            error = "New email and confirm email do not match."
-            return render(request, 'change_email.html', {'error': error})
+            messages.error(request, "New email and confirm email do not match.")
+            return redirect('change_email')
     return render(request, 'change_email.html')
 
 def contact(request):
@@ -150,10 +159,12 @@ def contact(request):
         email = EmailMessage(subject, message, from_email, recipient_list)
 
         try:
-            email.send() 
-            return render(request, 'contact.html', {'success': "You're email was sent! We will get back with you shortly."})
+            email.send()
+            messages.success(request, "You're email was sent! We will get back with you shortly.")
+            return redirect('contact')
         except Exception as e:
-            return render(request, 'contact.html', {'error': "There was an error sending your email. Please wait a moment and try again."})
+            messages.error(request, "There was an error sending your email. Please wait a moment and try again.")
+            return redirect('contact')
 
     return render(request, 'contact.html')
 
@@ -172,9 +183,11 @@ def signup(request):
                 error_message = 'An error occurred during registration. Please try again later.'
                 if 'email' in str(e).lower():
                     error_message = 'The provided email is already in use. Please use a different email.'
-                return render(request, 'signup.html', {'error': error_message})
+                messages.error(request, error_message)
+                return redirect('signup')
         else:
-            return render(request, 'signup.html', {'error': 'Emails must match. Please make sure the emails you entered are the same.'})
+            messages.error(request, 'Emails do not match.')
+            return render(request, 'signup.html')
     else:
         return render(request, 'signup.html')
 
@@ -188,7 +201,6 @@ def login(request):
     if request.method == 'POST':
         email = request.POST.get('email')
         user_pid = request.POST.get('password')
-        # try:
         id_token = user_login(email, user_pid)
         decoded_token = auth.verify_id_token(id_token)
 
@@ -208,12 +220,12 @@ def login(request):
         if user_id == master_settings['id']:
             request.session['master'] = True
             
-        return redirect('dashboard') 
-        # except Exception as e:
-        #     messages.error(request, 'Credentials Invalid.')
-        #     return redirect('login')
+        return redirect('dashboard')
         
     return render(request, 'login.html', {'user_pid': user_pid, 'user_email': email, 'isProvider': isProvider})
+
+def login_redirect(request):
+    return redirect('dashboard')
 
 def google_sign_in(request):
     scope = "https://www.googleapis.com/auth/userinfo.email"
@@ -242,15 +254,23 @@ def google_auth_callback(request):
         email = user_info.get('email')
         gid = user_info.get('id')
 
-        id_token, name, user_id = create_or_login_user(email, gid)
+        id_token, pid, user_id = create_or_login_user(email, gid)
+
+        if id_token is None:
+            messages.error(request, "Account with this email already exists.")
+            return redirect('login')
 
         request.session['user_id'] = user_id
         request.session['user_email'] = email
-        request.session['user_pid'] = name
+        request.session['user_pid'] = pid
         request.session['isProvider'] = True
 
         return redirect('login')
- 
+    
+    except ValueError as e:
+        messages.error(request, str(e))
+        return redirect('login')
+
     except Exception as e:
         messages.error(request, f'Credentials Invalid. {e}')
         return redirect('login')
@@ -293,11 +313,11 @@ def facebook_auth_callback(request):
         email = user_info.get('email')
         fid = user_info.get('id')
 
-        id_token, name, user_id = create_or_login_user(email, fid)
+        id_token, pid, user_id = create_or_login_user(email, fid)
 
         request.session['user_id'] = user_id
         request.session['user_email'] = email
-        request.session['user_pid'] = name
+        request.session['user_pid'] = pid
         request.session['isProvider'] = True
         
         return redirect('login')

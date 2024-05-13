@@ -17,6 +17,8 @@ urlpatterns = [
     path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='django.contrib.sitemaps.views.sitemap'),
     path("", include("app1.urls")),
     path("", include('dashboard.urls')),
+    path("", include('admin_panel.urls')),
+    path("", include('funnel.urls')),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 handler500 = error500

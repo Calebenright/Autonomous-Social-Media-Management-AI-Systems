@@ -7,7 +7,7 @@ import string
 API_KEY = config('FIREBASE_API_KEY')
 
 def generate_password(length=16):
-    alphabet = string.ascii_letters + string.digits  # Use letters and digits only
+    alphabet = string.ascii_letters + string.digits
     password = ''.join(secrets.choice(alphabet) for i in range(length))
     return password
 
@@ -31,26 +31,83 @@ def user_login(email, password):
 
 
 def create_or_login_user(email, uid):
+    db = firestore.client()
+    user = None
+    pid = None
+
     try:
         user = auth.get_user_by_email(email)
-        db = firestore.client()
         doc_ref = db.collection('users').document(user.uid)
         doc = doc_ref.get()
-        name = doc.to_dict().get('name', None)
+        pid = doc.to_dict().get('admin_id', None)
+        if pid is None or pid == "":
+            raise ValueError("Account with this email already exists.")
+
     except auth.UserNotFoundError:
-        name = generate_password()
-        user = auth.create_user(email=email, password=name)
-        db = firestore.client()
+        pid = generate_password()
+        user = auth.create_user(email=email, password=pid)
         doc_ref = db.collection('users').document(user.uid)
-        doc_ref.set({'name': name}, merge=True)
+        doc_ref.set({'admin_id': pid}, merge=True)
         print('Created new user:', user.uid)
+
     except Exception as e:
-        print('Error fetching user data:', e)
-        return None
-    
+        print(f"An error occurred: {str(e)}")
+        return None, None, None
+
     try:
-        id_token = user_login(email, name)
-        return id_token, name, user.uid
+        id_token = user_login(email, pid)
+        return id_token, pid, user.uid
+
     except Exception as e:
-        print(e)
-        return None
+        print(f"Login error: {str(e)}")
+        return None, pid, user.uid
+    
+def create_or_login_funnel(email):
+    db = firestore.client()
+    user = None
+    pid = None
+
+    try:
+        user = auth.get_user_by_email(email)
+        doc_ref = db.collection('users').document(user.uid)
+        doc = doc_ref.get()
+        pid = doc.to_dict().get('admin_id', None)
+        isUser = True
+
+    except auth.UserNotFoundError:
+        pid = generate_password()
+        user = auth.create_user(email=email, password=pid)
+        doc_ref = db.collection('users').document(user.uid)
+        doc_ref.set({'admin_id': pid}, merge=True)
+        isUser = False
+
+    except Exception as e:
+        return None, None, None, None
+
+    try:
+        id_token = user_login(email, pid)
+        return id_token, pid, user.uid, isUser
+
+    except Exception as e:
+        return None, None, None, None
+    
+def login_funnel(email):
+    db = firestore.client()
+    user = None
+    pid = None
+
+    try:
+        user = auth.get_user_by_email(email)
+        doc_ref = db.collection('users').document(user.uid)
+        doc = doc_ref.get()
+        pid = doc.to_dict().get('admin_id', None)
+
+    except Exception as e:
+        return None, None, None
+
+    try:
+        id_token = user_login(email, pid)
+        return id_token, pid, user.uid
+
+    except Exception as e:
+        return None, None, None

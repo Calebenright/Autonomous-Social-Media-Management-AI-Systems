@@ -91,28 +91,16 @@
 
     <section class="row no-gutter reverse-order">
       <div class="col-one-half middle padding">
-        {% if error %}
-          <div class="error-message">
-            <span>{{ error }}</span>
-            <button class="close-button" onclick="closeErrorMessage()">&times;</button>
-          </div>
-        {% endif %}
-        {% if success %}
-        <div class="success-message">
-          <span>{{ success }}</span>
-          <button class="close-button" onclick="closeSuccessMessage()">&times;</button>
-        </div>
-        {% endif %}
-          <script>
-            function closeErrorMessage() {
-              const errorDiv = document.querySelector('.error-message');
-              errorDiv.style.display = 'none';
-            }
-            function closeSuccessMessage() {
-              const successDiv = document.querySelector('.success-message');
-              successDiv.style.display = 'none';
-            }
-          </script>
+        {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+                <li class="{{ message.tags }} {% if message.tags == 'info' %}info-message{% endif %}" data-message-id="{{ forloop.counter }}">
+                    {{ message }}
+                    <span class="closebtn" onclick="closeMessage(this);">&times;</span>
+                </li>
+            {% endfor %}
+        </ul>
+        {% endif %}    
         <div class="max-width-s">
           <h1>Feadl.io</h1>
           <h5>New Email?</h5>

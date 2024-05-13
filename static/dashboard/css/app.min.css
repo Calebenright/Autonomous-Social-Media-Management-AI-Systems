@@ -14817,6 +14817,13 @@ body[data-layout-color=dark] .user-pro-dropdown {
     max-height: 70px;
 }
 
+@media screen and (max-width: 768px) {
+    .navbar-custom .topnav-menu .subscribe {
+        font-size: 0.8rem;
+        padding: .25rem .5rem;
+    }
+}
+
 .sub-margin {
     margin-right: 5px;
 }
@@ -24475,7 +24482,7 @@ body[data-layout-color=dark] .flatpickr-months .flatpickr-prev-month {
 
 .sp-container {
     background-color: var(--ct-dropdown-bg);
-    z-index: 9
+    z-index: 10000;
 }
 
 .sp-container button {
@@ -25559,6 +25566,15 @@ body[data-layout-color=dark] .datepicker tfoot tr th:hover {
     box-shadow: -4px 4px 8px rgba(0, 0, 0, 0.3);
 }
 
+@media screen and (max-width: 768px) {
+    .non-subscriber-thumbnail {
+        width: 100px;
+        height: 100px;
+        border-radius: 10px;
+        margin: 5px;
+    }
+}
+
 .crown-icon {
     display: inline-block;
     vertical-align: text-bottom;
@@ -25609,7 +25625,7 @@ body[data-layout-color=dark] .datepicker tfoot tr th:hover {
     .post-type-thumbnail {
         width: 100px; 
         height: 100px;
-        border-radius: 5px;
+        border-radius: 10px;
         margin: 5px;
     }
     
@@ -25751,7 +25767,7 @@ body[data-layout-color=dark] .datepicker tfoot tr th:hover {
 
     .simplebar-content {
         overflow-y: auto;
-        height: 400px; /* or any fixed height that suits your design */
+        height: 100%;
       }  
 }
 
@@ -25838,7 +25854,6 @@ ul.messages li {
     height: 100%; /* Full height */
     overflow: auto; /* Enable scroll if needed */
     background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
-    border-radius: 10px;
     z-index: 9999; /* Sit on top */
 }
 
@@ -25869,7 +25884,7 @@ ul.messages li {
 
 /* The Close Button */
 .close-button {
-    color: #aaa;
+    color: #fff;
     float: right;
     font-size: 28px;
     font-weight: bold;
@@ -25928,6 +25943,12 @@ ul.messages li {
     z-index: 100; /* Ensures it's above the backdrop */
     transform: translate(-50%, -50%); /* Center it */
     resize: vertical; /* Allow vertical resize only */
+}
+
+@media screen and (max-width: 768px) {
+    .popup-content {
+        width: 80%;
+    }
 }
 
 .analyzing-loader {
@@ -26600,4 +26621,78 @@ ul.messages li {
     height: 60%;
     top: 35%;
     left: 81%;
+}
+
+.account-switch {
+    margin: 15px 10px;
+}
+
+@media screen and (max-width: 768px) {
+    .account-switch {
+        font-size: 0.6rem;
+        width: 50px;
+        margin: 4px;
+    }
+    
+}
+
+.slider-container {
+    position: relative;
+    width: 100%;
+    height: 40px;
+    border-radius: 25px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    margin-top: 10px;
+}
+
+.multi-range {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    background: transparent;
+    outline: none;
+    opacity: 0.7;
+    z-index: 1;
+}
+
+.multi-range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 5px;
+    height: 20px;
+    background: white;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+    border: 3px solid white;
+    position: relative;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+}
+
+.multi-range:hover::-webkit-slider-thumb {
+    background: #0056b3;
+}
+
+.multi-range:active::-webkit-slider-thumb {
+    background: #004080;
+}
+
+#weights {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 20px;
+    font-size: 16px;
+    text-align: center;
+    background: white;
+    border-radius: 0 0 25px 25px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.center-2 {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }

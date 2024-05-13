@@ -50,35 +50,14 @@
     src="https://www.facebook.com/tr?id=7170700856358682&ev=PageView&noscript=1"
     /></noscript>
     <!-- End Meta Pixel Code -->
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=AW-11382945907"></script>
-    <script> window.dataLayer = window.dataLayer || []; function gtag() { dataLayer.push(arguments); } gtag('js', new Date()); gtag('config', 'AW-11382945907'); </script>
-
-    <script type="text/javascript">
-    _linkedin_partner_id = "5963060";
-    window._linkedin_data_partner_ids = window._linkedin_data_partner_ids || [];
-    window._linkedin_data_partner_ids.push(_linkedin_partner_id);
-    </script><script type="text/javascript">
-    (function(l) {
-    if (!l){window.lintrk = function(a,b){window.lintrk.q.push([a,b])};
-    window.lintrk.q=[]}
-    var s = document.getElementsByTagName("script")[0];
-    var b = document.createElement("script");
-    b.type = "text/javascript";b.async = true;
-    b.src = "https://snap.licdn.com/li.lms-analytics/insight.min.js";
-    s.parentNode.insertBefore(b, s);})(window.lintrk);
-    </script>
-    <noscript>
-    <img height="1" width="1" style="display:none;" alt="" src="https://px.ads.linkedin.com/collect/?pid=5963060&fmt=gif" />
-    </noscript>
-    <script type='text/javascript'>
-      window.smartlook||(function(d) {
-        var o=smartlook=function(){ o.api.push(arguments)},h=d.getElementsByTagName('head')[0];
-        var c=d.createElement('script');o.api=new Array();c.async=true;c.type='text/javascript';
-        c.charset='utf-8';c.src='https://web-sdk.smartlook.com/recorder.js';h.appendChild(c);
-        })(document);
-        smartlook('init', '68feb7479ae33141709ecdfbe1ae03f6386488c7', { region: 'eu' });
-    </script>
+    
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+        new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+        j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+        'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+        })(window,document,'script','dataLayer','GTM-K42FBSFS');</script>
+        <!-- End Google Tag Manager -->
 </head>
 
 <!-- body start -->
@@ -86,6 +65,10 @@
 <body class="loading" data-layout-color="light" data-layout-mode="default" data-layout-size="fluid"
     data-topbar-color="light" data-leftbar-position="fixed" data-leftbar-color="light" data-leftbar-size='default'
     data-sidebar-user='true'>
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-K42FBSFS"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
 
     <!-- Begin page -->
     <div id="wrapper">
@@ -504,8 +487,7 @@
                                                     </div>
                                                 </div>
                                                 {% endif %}
-                                                <button type="submit"
-                                                class="btn btn-primary waves-effect waves-light">Save</button>
+                                                <button type="submit" class="btn btn-primary waves-effect waves-light" onclick="showSpinner()">Save</button>
                                             </form>
                                         </div> <!-- end col -->
                                     </div>
@@ -580,7 +562,7 @@
                                         <div class="mb-3">
                                             <input type="file" id="logo" name="logo" data-plugins="dropify" data-height="100" accept=".png"/>
                                         </div>
-                                        <button type="submit" class="btn btn-primary waves-effect waves-light">Save</button>
+                                        <button type="submit" class="btn btn-primary waves-effect waves-light" onclick="showSpinner()">Save</button>
                                     </form>
                                 </div>
                             </div>
@@ -774,7 +756,7 @@
                                     <br>
                                     <form id="google_business" method="post" action="{% url 'all_auth' %}" enctype="multipart/form-data">
                                         {% csrf_token %}
-                                        <input type="hidden" name="form" value="formGoogle">
+                                        <input type="hidden" name="form" value="">
                                         <button class="social-button">
                                             <div class="d-flex align-items-center">
                                                 <div class="avatar-sm me-3 flex-shrink-0">
@@ -787,7 +769,7 @@
                                             </div>
                                         </button>
                                     </form>
-                                    <br>
+                                    <!-- <br>
                                     <form method="post" action="{% url 'all_auth' %}" enctype="multipart/form-data">
                                         {% csrf_token %}
                                         <button type="submit" class="social-button">
@@ -818,11 +800,31 @@
                                                 </div>
                                             </div>
                                         </button>
-                                    </form>
+                                    </form> -->
                                 </div>
                             </div>
-                        </div><!-- end col -->
-                        
+                            {% if not user_settings.isUnlimited %}
+                            <div class="card">
+                                <div class="card-body generated-post">
+                                    <h4 class="header-title">AI Generator Cooldown</h4>
+                                    <br>
+                                    <div class="mt-3" dir="ltr">
+                                        <input data-plugin="knob" data-width="150" data-height="150" data-linecap=round
+                                        data-displayInput=false value="{{ cooldown }}"
+                                        data-skin="tron" data-angleOffset="180" data-readOnly=true data-thickness=".5"
+                                        {% if cooldown < 40 %}
+                                            data-fgColor="#3CB371"
+                                        {% elif cooldown >= 40 and cooldown <= 80 %}
+                                            data-fgColor="#FFD700"
+                                        {% else %}
+                                            data-fgColor="#f97171"
+                                        {% endif %}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
                         <div class="col-xl-3 col-md-6">
                             <div class="card">
                                 <div class="card-body">
@@ -857,12 +859,22 @@
                                             <span style="padding-left: 2px;">Unsubscribe</span>
                                         </a>
                                     </div>
-                                    <!-- <div>
-                                        <a href="https://billing.stripe.com/p/login/9AQg2W9gog0r4006oo">
-                                            <i class="fas fa-exclamation-circle"></i>
-                                            <span style="padding-left: 2px;">Unsubscribe</span>
+                                    {% if user_settings.isAgency %}
+                                    <div style="padding-bottom: 10px;">
+                                        <a href="{% url 'feadlio_admin' %}">
+                                            <i class="fe-users"></i>
+                                            <span style="padding-left: 2px;">Agency Panel</span>
                                         </a>
-                                    </div> -->
+                                    </div>
+                                    {% endif %}
+                                    {% if user_settings.isMaster %}
+                                    <div style="padding-bottom: 10px;">
+                                        <a href="{% url 'feadlio_admin' %}">
+                                            <i class="fe-lock"></i>
+                                            <span style="padding-left: 2px;">Admin Panel</span>
+                                        </a>
+                                    </div>
+                                    {% endif %}
                                     <div>
                                         <a href="{% url 'contact' %}">
                                             <i class="fe-help-circle"></i>
@@ -871,27 +883,48 @@
                                     </div>
                                 </div>
                             </div>
-                            {% if not user_settings.isUnlimited %}
                             <div class="card">
-                                <div class="card-body generated-post">
-                                    <h4 class="header-title">AI Generator Cooldown</h4>
-                                    <br>
-                                    <div class="mt-3" dir="ltr">
-                                        <input data-plugin="knob" data-width="150" data-height="150" data-linecap=round
-                                        data-displayInput=false value="{{ cooldown }}"
-                                        data-skin="tron" data-angleOffset="180" data-readOnly=true data-thickness=".5"
-                                        {% if cooldown < 40 %}
-                                            data-fgColor="#3CB371"
-                                        {% elif cooldown >= 40 and cooldown <= 80 %}
-                                            data-fgColor="#FFD700"
-                                        {% else %}
-                                            data-fgColor="#f97171"
-                                        {% endif %}
-                                        />
+                                <div class="card-body">
+                                    <h4 class="header-title">User Info</h4>
+                                    <p class="sub-header">
+                                        Tell us about you to help tailor your experience.
+                                    </p>
+
+                                    <div class="row">
+                                        <div class="col-lg-12">
+                                            <form method="post" action="{% url 'brand_settings' %}" enctype="multipart/form-data">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="form" value="user-settings">
+                                                <div class="row">
+                                                    <div class="mb-3 col-md-6">
+                                                        <label for="firstName" class="form-label">First Name</label>
+                                                        <input type="text" id="firstName" class="form-control" name="firstName" value="{{ user_settings.firstName }}">
+                                                    </div>
+                                                    <div class="mb-3 col-md-6">
+                                                        <label for="lastName" class="form-label">Last Name</label>
+                                                        <input type="text" id="lastName" class="form-control" name="lastName" value="{{ user_settings.lastName }}">
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="mb-3 col-md-6">
+                                                        <label for="website" class="form-label">Website</label>
+                                                        <input type="text" id="website" class="form-control" name="website" value="{{ user_settings.website }}">
+                                                    </div>
+                                                    <div class="mb-3 col-md-6">
+                                                        <label for="phone" class="form-label">Phone Number</label>
+                                                        <input type="text" id="phone" class="form-control" name="phone" value="{{ user_settings.phone }}">
+                                                    </div>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="address1" class="form-label">Address</label>
+                                                    <input type="text" id="address1" class="form-control" name="address1" value="{{ user_settings.address1 }}">
+                                                </div>
+                                                <button type="submit" class="btn btn-primary waves-effect waves-light" onclick="showSpinner()">Save</button>
+                                            </form>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                            {% endif %}
                         </div>
                     </div>
                     <!-- end row -->
@@ -901,6 +934,21 @@
                     </div>
 
                     <script>
+                        function showSpinner() {
+                            var form = document.querySelector('form');
+                            if (form.checkValidity()) {
+                                var loadingOverlay = document.getElementById('loading-overlay');
+                                var submitButton = document.querySelector('#myForm button[type="submit"]');
+                                loadingOverlay.style.display = 'flex';
+                                submitButton.disabled = true;
+                                var spinnerDuration = 5000;
+                                setTimeout(function() {
+                                    loadingOverlay.style.display = 'none';
+                                    submitButton.disabled = false;
+                                }, spinnerDuration);
+                            }
+                        }
+
                         const tagsArray = '{{ user_settings.tags|safe }}' !== '' ?
                         JSON.parse('{{ user_settings.tags|safe }}') : [];
                         

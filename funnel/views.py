@@ -1,0 +1,487 @@
+from django.shortcuts import render, redirect
+from django.core.cache import cache
+from django.contrib import messages
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
+from firebase_admin import firestore
+from decouple import config
+from django.conf import settings
+from django.urls import reverse
+from django.contrib import messages
+from django.views.decorators.csrf import csrf_exempt
+import requests
+import google.oauth2.id_token
+import google.auth.transport.requests
+import secrets
+from dashboard.post_to_socials import *
+from app1.login import *
+from google.cloud import storage, firestore
+import random
+import string
+
+db = firestore.Client(project='feed-ai-c379d')
+
+def social_media_guy(request):
+    return render(request, 'social_media_guy.html')
+
+def social_media_guy_success(request):
+    return render(request, 'social_media_guy_success.html')
+
+def price(request):
+    return render(request, 'price.html')
+
+def smm_relink(request):
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+        try:
+            id_token = user_login(email, password)
+            decoded_token = auth.verify_id_token(id_token)
+            user_id = decoded_token['uid']
+        except Exception as e:
+            messages.error(request, 'Invalid login credentials.')
+            return redirect('smm_relink')
+
+        request.session['user_id'] = user_id
+        messages.success(request, 'The form has been successfully submitted!')
+        return redirect('smm_form')
+
+    return render(request, 'smm_relink.html')
+
+def smm_form(request):
+    if 'user_id' in request.session:
+        user_id = request.session.get('user_id')
+        user_settings_ref = db.collection('users').document(user_id)
+        user_settings_doc = user_settings_ref.get()
+        user_settings = user_settings_doc.to_dict()
+    else:
+        user_settings = {}
+    
+    if request.method == 'POST':
+        firstName = request.POST.get('firstName')
+        lastName = request.POST.get('lastName')
+        email = request.POST.get('email')
+        phone = request.POST.get('phone')
+        website = request.POST.get('website')
+        address1 = request.POST.get('address1')
+        address2 = request.POST.get('address2')
+        city = request.POST.get('city')
+        state = request.POST.get('state')
+        zip_code = request.POST.get('zip')
+        business_name = request.POST.get('businessName')
+        business_description = request.POST.get('businessDesc')
+
+        if not all([firstName, lastName, email, phone, address1, city, state, zip_code, business_name, business_description]):
+            messages.error(request, 'Please fill in all required fields.')
+            return redirect('smm_form')
+        
+        id_token, pid, user_id, isUser = create_or_login_funnel(email)
+
+        if id_token is None:
+            messages.error(request, 'An error occurred while creating your account. Please try again.')
+            return redirect('smm_form')
+
+        if not isUser:
+            firestore_data = {
+                'firstName': firstName,
+                'lastName': lastName,
+                'email': email,
+                'phone': phone,
+                'website': website,
+                'address1': address1,
+                'address2': address2,
+                'city': city,
+                'state': state,
+                'zip_code': zip_code,
+                'business_name': business_name,
+                'business_description': business_description,
+                'admin_id': pid,
+                'isAgencyUser': True,
+                'isSubscriber': True,
+            }
+
+            user_settings_ref = db.collection('users').document(user_id)
+            user_settings_doc = user_settings_ref.get()
+            user_settings = user_settings_doc.to_dict()
+            user_settings_ref.set(firestore_data, merge=True)
+
+        request.session['user_id'] = user_id
+        messages.success(request, 'The form has been successfully submitted!')
+        return redirect('smm_form')
+    
+    context = {'user_settings': user_settings}
+
+    return render(request, 'smm_form.html', context)
+
+def funnel_auth(request):
+    if request.method == 'POST':
+        if 'user_id' not in request.session:
+            messages.error(request, 'Please submit the above form.')
+            return redirect('smm_form')
+        
+        form_name = request.POST.get('form')
+        state = secrets.token_urlsafe(16)
+        redirect_uri =  config("FUNNEL_REDIRECT_URI")
+        if form_name == 'formLinkedinPersonal':
+            request.session['account_type'] = 'personal'
+            request.session['provider'] = 'linkedin'
+            AUTHORIZATION_URL = 'https://www.linkedin.com/oauth/v2/authorization'
+            CLIENT_ID = config("LINKEDIN_CLIENT_ID_BUSINESS")
+            REDIRECT_URI = redirect_uri
+            STATE = state
+            PERSONAL_SCOPES = [
+                'r_basicprofile',
+                'w_member_social',
+                'w_member_social_feed'
+            ]
+            auth_url = f'{AUTHORIZATION_URL}?response_type=code&client_id={CLIENT_ID}&redirect_uri={REDIRECT_URI}&scope={"+".join(PERSONAL_SCOPES)}&state={STATE}'
+        elif form_name == 'formLinkedinBusiness':
+            request.session['account_type'] = 'business'
+            request.session['provider'] = 'linkedin'
+            AUTHORIZATION_URL = 'https://www.linkedin.com/oauth/v2/authorization'
+            CLIENT_ID = config("LINKEDIN_CLIENT_ID_BUSINESS")
+            REDIRECT_URI = redirect_uri
+            STATE = state
+            BUSINESS_SCOPES = [
+                'r_basicprofile',
+                'w_member_social',
+                'w_member_social_feed',
+                'r_organization_followers',
+                'r_organization_social',
+                'rw_organization_admin',
+                'r_organization_social_feed',
+                'w_organization_social',
+                'w_organization_social_feed'
+            ]
+            auth_url = f'{AUTHORIZATION_URL}?response_type=code&client_id={CLIENT_ID}&redirect_uri={REDIRECT_URI}&scope={"+".join(BUSINESS_SCOPES)}&state={STATE}'
+        elif form_name == 'formGoogle':
+            request.session['provider'] = 'google_business'
+            AUTHORIZATION_URL = 'https://accounts.google.com/o/oauth2/auth'
+            CLIENT_ID =  config("GOOGLE_APP_ID")
+            REDIRECT_URI = redirect_uri
+            SCOPES = ['https://www.googleapis.com/auth/business.manage']
+            STATE = state
+            auth_url = f'{AUTHORIZATION_URL}?response_type=code&client_id={CLIENT_ID}&redirect_uri={REDIRECT_URI}&scope={"+".join(SCOPES)}&state={STATE}'
+        elif form_name == 'formFacebook':
+            request.session['provider'] = 'facebook'
+            AUTHORIZATION_URL = 'https://www.facebook.com/v17.0/dialog/oauth'
+            CLIENT_ID =  config("FACEBOOK_APP_ID")
+            REDIRECT_URI = redirect_uri
+            STATE = state
+            SCOPES = [
+            'pages_show_list',
+            'pages_read_engagement',
+            'pages_manage_posts'
+            ]
+            auth_url = f'{AUTHORIZATION_URL}?response_type=code&client_id={CLIENT_ID}&redirect_uri={REDIRECT_URI}&scope={"+".join(SCOPES)}&state={STATE}'
+        elif form_name == 'formInstagram':
+            request.session['provider'] = 'instagram'
+            AUTHORIZATION_URL = 'https://www.facebook.com/v17.0/dialog/oauth'
+            CLIENT_ID =  config("FACEBOOK_APP_ID")
+            REDIRECT_URI = redirect_uri
+            STATE = state
+            SCOPES = [
+            'pages_show_list',
+            'instagram_basic',
+            'instagram_content_publish'
+            ]
+            auth_url = f'{AUTHORIZATION_URL}?response_type=code&client_id={CLIENT_ID}&redirect_uri={REDIRECT_URI}&scope={"+".join(SCOPES)}&state={STATE}'
+        else:
+            return redirect('smm_form')
+    else:
+        return redirect('smm_form')
+    
+    return redirect(auth_url)
+
+def funnel_callback(request):
+    state = request.GET.get('state')
+    provider = request.session.get('provider')
+
+# ----- Get the Firestore document reference for the user settings ----- #
+    if 'user_id' in request.session:
+        user_id = request.session.get('user_id')
+        user_settings_ref = db.collection('users').document(user_id)
+        user_settings_doc = user_settings_ref.get()
+        user_settings = user_settings_doc.to_dict()
+    else:
+        messages.error(request, 'Please submit the above form.')
+        return redirect('smm_form')
+# ---------------------------------------------------------------------- #
+
+    if provider == 'linkedin':
+        isCheck = 'Linkedin'
+        code = request.GET.get('code')
+        access_token_url = 'https://www.linkedin.com/oauth/v2/accessToken'
+        params = {
+            'grant_type': 'authorization_code',
+            'code': code,
+            'redirect_uri':  config("FUNNEL_REDIRECT_URI"),
+            'client_id': config("LINKEDIN_CLIENT_ID_BUSINESS"),
+            'client_secret': config("LINKEDIN_CLIENT_SECRET_BUSINESS"),
+        }
+        response = requests.post(access_token_url, data=params)
+        data = response.json()
+        access_token = data.get('access_token')
+        account_type = request.session.get('account_type', 'personal')
+
+        def get_user_managed_organizations(access_token):
+            url = "https://api.linkedin.com/v2/organizationAcls?q=roleAssignee&role=ADMINISTRATOR&projection=(elements*(*,roleAssignee~(localizedFirstName, localizedLastName), organization~(localizedName)))"
+            headers = {
+                "Authorization": f"Bearer {access_token}",
+            }
+            response = requests.get(url, headers=headers)
+            if response.status_code == 200:
+                return response.json()
+            else:
+                return None
+        
+        profile_response = requests.get('https://api.linkedin.com/v2/me', headers={'Authorization': f'Bearer {access_token}'})
+        profile_data = profile_response.json()
+        profile_data_id = profile_data.get('id')
+        personal_name = profile_data.get('localizedFirstName', '')
+        if account_type == 'personal':
+            firestore_data = {
+                f'{provider}_type': 'personal',
+                f'{provider}_id': profile_data_id,
+                f'{provider}_token': access_token,
+                f'{provider}_name': personal_name,
+                f'is{isCheck}': True
+            }
+            user_settings_ref.set(firestore_data, merge=True)
+        else:
+            organizations_list = get_user_managed_organizations(access_token)
+            organizations_data = organizations_list.get('elements', [])
+            transformed_organizations = [
+                {
+                    'id': org['organization'].split(':')[-1],
+                    'name': org.get('organization~', {}).get('localizedName', 'Unknown Organization Name'),
+                    'type': 'page'
+                }
+                for org in organizations_data
+            ]
+
+            if len(transformed_organizations) == 1:
+                organization_details = organizations_data[0].get('organization~', {})
+                organization_details_id = organization_details.get('id')
+                username = organization_details.get('localizedName', '')
+                firestore_data = {
+                    f'{provider}_type': 'business',
+                    f'{provider}_personal_id': profile_data_id,
+                    f'{provider}_personal_name': personal_name,
+                    f'{provider}_id': organization_details_id,
+                    f'{provider}_token': access_token,
+                    f'{provider}_name': username,
+                    f'is{isCheck}': True
+                }
+
+                user_settings_ref.set(firestore_data, merge=True)
+            else:
+                firestore_data = {
+                    f'{provider}_personal_id': profile_data_id,
+                    f'{provider}_personal_name': personal_name,
+                    f'{provider}_type': 'business',
+                    f'{provider}_token': access_token,
+                }
+
+                user_settings_ref.set(firestore_data, merge=True)
+                return render(request, 'funnel_page_selection_popup.html', {'pages': transformed_organizations, 'provider': provider,})
+        pass
+    elif provider == 'facebook':
+        isCheck = 'Facebook'
+        code = request.GET.get('code')
+        access_token_url = 'https://graph.facebook.com/v17.0/oauth/access_token'
+        params = {
+            'client_id':  config("FACEBOOK_APP_ID"),
+            'client_secret': config("FACEBOOK_APP_SECRET"),
+            'redirect_uri':  config("FUNNEL_REDIRECT_URI"),
+            'code': code
+        }
+        response = requests.get(access_token_url, params=params, verify=False)
+        data = response.json()
+        short_lived_access_token = data.get('access_token')
+        access_token = exchange_short_lived_token_for_long_lived(short_lived_access_token,  config("FACEBOOK_APP_ID"), config("FACEBOOK_APP_SECRET"))
+        facebook_pages_and_groups, has_multiple = get_facebook_pages_and_groups(access_token)
+        if has_multiple:
+            firestore_data = {
+                f'{provider}_token': access_token,
+            }
+            user_settings_ref.set(firestore_data, merge=True)
+            return render(request, 'funnel_page_selection_popup.html', {'pages': facebook_pages_and_groups, 'provider': provider,})
+        else:
+            isFacebook = True
+            facebook_page_id = facebook_pages_and_groups[0]['id'] if facebook_pages_and_groups else None
+            facebook_page_token = facebook_pages_and_groups[0]['access_token'] if facebook_pages_and_groups else None
+            facebook_page_type = facebook_pages_and_groups[0]['type'] if facebook_pages_and_groups else None
+            facebook_page_name = facebook_pages_and_groups[0]['name'] if facebook_pages_and_groups else None
+            if not all([facebook_page_id, facebook_page_token, facebook_page_type, facebook_page_name]):
+                isFacebook = False
+            firestore_data = {
+                f'{provider}_token': access_token,
+                f'{provider}_page_id': facebook_page_id,
+                f'{provider}_page_name': facebook_page_name,
+                f'{provider}_page_token': facebook_page_token,
+                f'{provider}_page_type': facebook_page_type,
+                'isFacebook': isFacebook,
+            }
+            user_settings_ref.set(firestore_data, merge=True)
+            pass
+    elif provider == 'instagram':
+        try:
+            isCheck = 'Instagram'
+            code = request.GET.get('code')
+            access_token_url = 'https://graph.facebook.com/v17.0/oauth/access_token'
+            params = {
+                'client_id':  config("FACEBOOK_APP_ID"),
+                'client_secret': config("FACEBOOK_APP_SECRET"),
+                'redirect_uri':  config("FUNNEL_REDIRECT_URI"),
+                'code': code
+            }
+            response = requests.get(access_token_url, params=params, verify=False)
+            data = response.json()
+            short_lived_access_token = data.get('access_token')
+            access_token = exchange_short_lived_token_for_long_lived(short_lived_access_token,  config("FACEBOOK_APP_ID"), config("FACEBOOK_APP_SECRET"))
+            facebook_page_ids, has_multiple = get_facebook_pages_and_groups(access_token)
+            got_instagram_id = None
+            got_facebook_page_id = None
+            username = None
+            firestore_data = {}
+            try:
+                for facebook_page_id in facebook_page_ids:
+                    instagram_id = get_instagram_user_id(facebook_page_id['id'], access_token)
+                    if instagram_id:
+                        got_instagram_id = instagram_id
+                        got_facebook_page_id = facebook_page_id['id']
+                        break
+
+                if not got_instagram_id == None:
+                    username = get_instagram_username(got_instagram_id, access_token)
+                    firestore_data = {
+                        f'{provider}_token': access_token,
+                        f'{provider}_user_id': got_instagram_id,
+                        f'{provider}_facebook_page_id': got_facebook_page_id,
+                        f'{provider}_name': username,
+                        f'is{isCheck}': True
+                    }
+                    user_settings_ref.set(firestore_data, merge=True)
+                else:
+                    messages.error(request, 'Please make sure the instagram account is linked to the selected facebook account.')
+                    return redirect('smm_form')
+            except Exception as e:
+                messages.error(request, 'Please make sure the instagram account is linked to the selected facebook account.')
+                return redirect('smm_form')
+        except Exception as e:
+            messages.error(request, e)
+            return redirect('smm_form')
+    elif provider == 'google_business':
+        isCheck = 'Google'
+        code = request.GET.get('code')
+        access_token_url = 'https://oauth2.googleapis.com/token'
+        params = {
+            'client_id':  config("GOOGLE_APP_ID"),
+            'client_secret': config("GOOGLE_APP_SECRET"),
+            'redirect_uri':  config("FUNNEL_REDIRECT_URI"),
+            'code': code,
+            'grant_type': 'authorization_code'
+        }
+        response = requests.post(access_token_url, data=params)
+        data = response.json()
+        access_token = data['access_token']
+        firestore_data = {
+            f'{provider}_token': access_token,
+            f'is{isCheck}': True,
+        }
+
+        user_settings_ref.set(firestore_data, merge=True)
+        pass
+
+    return redirect('smm_form')
+    
+def funnel_process_page_selection(request):
+    # ----- Get the Firestore document reference for the user settings ----- #
+    if 'user_id' in request.session:
+        user_id = request.session.get('user_id')
+        user_settings_ref = db.collection('users').document(user_id)
+        user_settings_doc = user_settings_ref.get()
+        user_settings = user_settings_doc.to_dict()
+    else:
+        messages.error(request, 'There was an error unlinking your profile.')
+        return redirect('smm_form')
+    # ---------------------------------------------------------------------- #
+
+    selected_page_id = request.POST.get('pageId', None)
+    provider = request.POST.get('provider', None)
+    page_name = request.POST.get('pageName', None)
+    page_token = request.POST.get('pageToken', None)
+    page_type = request.POST.get('pageType', None)
+
+    if not selected_page_id:
+        messages.error(request, 'Please make sure the Instagram account is linked to the selected Facebook account.')
+        return redirect('smm_form')
+    else:
+        if provider == 'facebook':
+            firestore_data = {
+                f'{provider}_page_id': selected_page_id,
+                f'{provider}_page_name': page_name,
+                f'{provider}_page_token': page_token,
+                f'{provider}_page_type': page_type,
+                'isFacebook': True
+            }       
+            user_settings_ref.set(firestore_data, merge=True)
+            messages.success(request, f"You've successfully connected your {provider} account!")
+            return redirect('smm_form')
+        elif provider == 'linkedin':
+            firestore_data = {
+                f'{provider}_id': selected_page_id,
+                f'{provider}_name': page_name,
+                'isLinkedin': True
+            }       
+            user_settings_ref.set(firestore_data, merge=True)
+            messages.success(request, f"You've successfully connected your {provider} account!")
+            return redirect('smm_form')
+        else: 
+            messages.error(request, 'There was an error connecting your account. Please try again.')
+            return redirect('smm_form')
+
+    
+def funnel_unlink(request):
+    if 'user_id' in request.session:
+        user_id = request.session.get('user_id')
+        user_settings_ref = db.collection('users').document(user_id)
+        user_settings_doc = user_settings_ref.get()
+        user_settings = user_settings_doc.to_dict()
+    else:
+        messages.error(request, 'There was an error unlinking your profile.')
+        return redirect('smm_form')
+    
+    provider = request.POST.get('provider')
+    isCheck = request.POST.get('isCheck')
+    if provider == 'facebook':
+        firestore_data = {
+            f'{provider}_token': None,
+            f'{provider}_page_id': None,
+            f'{provider}_page_name': None,
+            f'{provider}_page_token': None,
+            f'{provider}_page_type': None,
+            f'is{isCheck}': False,
+        }    
+        user_settings_ref.set(firestore_data, merge=True)
+    if provider == 'instagram':
+        firestore_data = {
+            f'{provider}_token': None,
+            f'{provider}_facebook_page_id': None,
+            f'{provider}_user_id': None,
+            f'{provider}_name': None,
+            f'is{isCheck}': False,
+        }    
+        user_settings_ref.set(firestore_data, merge=True)
+    if provider == 'linkedin':
+        firestore_data = {
+            'linkedin_token': None,
+            'linkedin_id': None,
+            'linkedin_name': None,
+            'linkedin_personal_id': None,
+            'linkedin_personal_name': None,
+            'isLinkedin': False,
+        }    
+        user_settings_ref.set(firestore_data, merge=True)
+    return redirect('smm_form')
+    

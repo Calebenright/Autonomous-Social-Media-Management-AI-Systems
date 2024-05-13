@@ -1,0 +1,235 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    background-color: #f4f4f9;
+    color: #333;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 8px;
+}
+
+th {
+    background-color: #4CAF50;
+    color: white;
+}
+
+tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+input[type="text"] {
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+    width: 200px;
+}
+
+button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+}
+
+form {
+    display: flex;
+    align-items: center;
+    justify-content: start;
+    margin-bottom: 20px;
+}
+
+td {
+    text-align: center;
+    vertical-align: middle;
+}
+
+input[type="text"], button, .clear-filters-button {
+    margin-right: 10px; /* Ensures spacing between elements */
+}
+
+.clear-filters-button {
+    background-color: #f44336; /* Red color for the clear button */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+}
+
+.clear-filters-button:hover {
+    background-color: #d32f2f; /* Darker red on hover */
+}
+
+.dashboard-button {
+    background-color: #a836f4; /* Red color for the clear button */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+}
+
+.dashboard-button:hover {
+    background-color: #972fd3; /* Darker red on hover */
+}
+
+tr.total-row th, tr.total-row td {
+    font-weight: bold;
+    background-color: #acacac;  /* Light gray background */
+}
+
+.pagination {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.pagination a {
+    display: inline-block;
+    padding: 8px 16px;
+    text-decoration: none;
+    color: #ffffff;
+    background-color: #c0c0c0;
+    border-radius: 1px;
+    margin: 0 5px;
+}
+
+.pagination a:hover {
+    background-color: #8b8b8b;
+}
+
+.pagination .disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* styles.css */
+.toggle-form {
+    margin-top: 20px;
+}
+
+.toggle-label {
+    font-weight: bold;
+}
+
+.submit-button {
+    background-color: #c0c0c0;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 1px;
+    cursor: pointer;
+}
+
+.top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f7f7f7;
+    margin: 0;
+    padding: 20px;
+    color: #333;
+}
+
+.user-data-container {
+    display: flex;
+    max-width: 90%;
+    margin: auto;
+    background: #fff;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-start;
+}
+
+.user-section {
+    display: flex;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #eaeaea;
+    padding-bottom: 20px;
+    margin: 10px
+}
+
+.user-section:last-child {
+    border-bottom: none;
+}
+
+.box {
+    flex: 1;
+    margin-right: 20px;
+    background: #ffffff;
+    padding: 15px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+
+.box:last-child {
+    margin-right: 0;
+}
+
+h2, h3 {
+    color: #2a2a2a;
+}
+
+h2 {
+    margin-top: 0;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+h3 {
+    flex-basis: 100%;
+    color: #444;
+    margin-top: 0;
+}
+
+ul.box-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+li {
+    margin-bottom: 8px;
+    padding: 4px;
+    line-height: 1.5;
+}
+
+.data-key {
+    font-weight: bold;
+    display: inline-block;
+    min-width: 140px; /* Adjust based on your longest key */
+}
+
+.data-value {
+    display: inline-block;
+    color: #555;
+}

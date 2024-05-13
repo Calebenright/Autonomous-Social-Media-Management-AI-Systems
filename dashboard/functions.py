@@ -19,7 +19,7 @@ from django.core.mail import EmailMessage
 from zoneinfo import ZoneInfo
 from collections import defaultdict
 from datetime import date, datetime, timedelta, timezone
-
+import webcolors
 
 # FOR DEVELOPMENT
 from decouple import config
@@ -126,6 +126,7 @@ def add_stock_tags(tags, stock_images, bucket_name, bucket_credentials, user_fol
     client = storage.Client(project=credentials.project_id, credentials=credentials)
     bucket = client.bucket(bucket_name)
     tags_list = ast.literal_eval(tags)
+    tags_list = random.sample(tags, 2)
 
     if stock_images == None:
         image_urls = []
@@ -174,8 +175,8 @@ def add_pixabay_tags(tags, stock_images, bucket_name, bucket_credentials, user_f
        image_urls = stock_images
 
     photos = []
-    num_results = 100  # Number of results to fetch
-    selected_tag = random.choice(tags_list)  # Select one tag randomly
+    num_results = 100
+    selected_tag = random.choice(tags_list)
 
     random_page = 1
     endpoint = f"https://pixabay.com/api/?key={pixabay_api_key}&q={selected_tag}&per_page={num_results}&page={random_page}&image_type=photo"
@@ -962,9 +963,12 @@ def find_least_filled_day_with_largest_gap(existing_event_times):
 
     return chosen_day
 
-def create_email (business_description, business_name):
+def create_email (business_description, business_name, character=None, owner=None):
     client = OpenAI(api_key=config('OPENAI_API_KEY'))
-    prompt = f"Your name is elaine and you are a social media manager for a company called {business_name} with a description ({business_description}). You are sending the owner (referred to as Boss) of the business = [{business_name}], a weekly update for some posts you created and scheduled and have attached to the email. Don't talk about the specifics of the posts or captions. Keep it under 50 words."
+    if character.lower() == 'elaine':
+        prompt = f"Your name is elaine and you are a social media manager for a company called {business_name}. You are sending the owner (referred to as Boss), a weekly update for some posts you created and scheduled and have attached to the email. Don't talk about the specifics of the posts or captions. Keep it under 50 words."
+    else:
+        prompt = f"Your name is {character} and you are a social media manager for a company called {business_name}. You are sending the owner (referred to as {owner}), a weekly update for some posts you created and scheduled and have attached to the email. Just say something like, 'Hey [name], Just sending the weekly social media update...etc.' Keep it under 40 words."
     response = client.chat.completions.create(
             model="gpt-3.5-turbo-1106",
             messages=[
@@ -984,13 +988,13 @@ def create_email (business_description, business_name):
     email = original_string.strip('"')
     return email
 
-def create_new_subscriber_email (business_description, business_name, character):
+def create_new_subscriber_email (business_description, business_name, character, owner):
     client = OpenAI(api_key=config('OPENAI_API_KEY'))
 
     if character.lower() == 'elaine':
         prompt = f"Your name is Elaine and you are a social media manager for a company called {business_name} with a description ({business_description}). You are sending the owner referred to as, Boss, of the business [{business_name}], an email about how excited you are to work with them because they just hired you and it's your first day. You will send them email updates about their social media every week on Monday."
     else:
-        prompt = f"Your name is {character} and you are involved with {business_name} ({business_description}). Today marks your first day, and you're reaching out to the business owner, referred to as Boss, to express your enthusiasm about starting. You'll be in charge of sending regular updates; in your role, this means communicating every so often."
+        prompt = f"Your name is {character} and you are involved with {business_name}. Today marks your first day, and you're reaching out to the business owner, referred to as {owner}, to express your enthusiasm about starting. You'll be in charge of sending regular updates; in your role, this means communicating every so often."
     
     response = client.chat.completions.create(
             model="gpt-3.5-turbo-1106",
@@ -1011,9 +1015,9 @@ def create_new_subscriber_email (business_description, business_name, character)
     email = original_string.strip('"')
     return email
 
-def send_new_subscriber_email (email, business_description, business_name, character):
+def send_new_subscriber_email (email, business_description, business_name, character, owner=None):
     subject = f'{character} From Feadl.io'
-    message = create_new_subscriber_email(business_description, business_name, character)
+    message = create_new_subscriber_email(business_description, business_name, character, owner)
     from_email = config("EMAIL_HOST_USER")
     recipient_list = [email]
     email_message = EmailMessage(subject, message, from_email, recipient_list)
@@ -1107,3 +1111,14 @@ def convert_analog_to_timestamp(time_str):
         hour = 0
 
     return f"T{hour:02}:{minute:02}:00"
+
+def all_color_to_hex(color):
+    if isinstance(color, str) and color.startswith('#') and len(color) in {4, 7}:
+        return color
+    try:
+        if isinstance(color, tuple):
+            return webcolors.rgb_to_hex(color)
+        elif isinstance(color, str):
+            return webcolors.name_to_hex(color)
+    except ValueError:
+        return "#000000"

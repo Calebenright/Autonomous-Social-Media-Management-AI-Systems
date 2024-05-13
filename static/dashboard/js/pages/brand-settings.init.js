@@ -183,3 +183,4 @@ document.addEventListener('DOMContentLoaded', function() {
     // Collapse the textarea when the backdrop is clicked
     backdrop.addEventListener('click', collapseTextarea);
 });
+

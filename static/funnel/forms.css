@@ -1,0 +1,77 @@
+.card {
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+    transition: 0.3s;
+    width: 80%;
+    margin: 10px auto;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+}
+
+.form-row {
+    display: flex;
+    margin-bottom: 10px;
+}
+
+@media only screen and (max-width: 767px) {
+    .form-row {
+        display: block;
+        margin-bottom: 10px;
+    }
+}
+
+.form-group {
+    flex: 1;
+    margin-right: 10px;
+}
+
+.form-group:last-child {
+    margin-right: 0;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="tel"] {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+label {
+    color: #110f24;
+    display: block;
+    margin-bottom: 5px;
+}
+
+textarea {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    resize: vertical;
+}
+
+/* 
+h3 {
+    color: #110f24;
+    text-align: center;
+    margin-bottom: 20px;
+} */
+
+.social-button {
+    border-radius: 10px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); 
+    padding: 10px; 
+    font-size: 16px;
+    background-color: white; 
+    color: #110f24; 
+    border: none;
+    cursor: pointer;
+    width: 100%;
+}
+
+.social-icon {
+    height: auto;
+    padding: 20px;
+    width: 100%;
+}

@@ -871,6 +871,16 @@ p:last-child {
   background: linear-gradient(#110f24 0%, #05050b 100%);
 }
 
+.bg-gradient-dark-flipped {
+  background: #05050b; /* Old browsers */
+  background: -webkit-linear-gradient(to bottom, #05050b 0%, #274487 50%, #110f24 100%); /* For Chrome 10-25, Safari 5.1-6 */
+  background: -moz-linear-gradient(to bottom, #05050b 0%, #274487 50%, #110f24 100%); /* For Firefox 3.6-15 */
+  background: -o-linear-gradient(to bottom, #05050b 0%, #274487 50%, #110f24 100%); /* For Opera 11.1-12 */
+  background: linear-gradient(to bottom, #05050b 0%, #0c2766 50%, #110f24 100%); /* Standard syntax */
+}
+
+
+
 .bg-gradient-light {
   background: #f6f6f9;
   background: -webkit-linear-gradient(#fff 0%, #f6f6f9 100%);
@@ -1806,6 +1816,7 @@ form label {
 form input[type="email"],
 form input[type="password"],
 form input[type="text"],
+form input[type="email_message"],
 form select,
 form textarea {
   -webkit-appearance: none;
@@ -1826,6 +1837,7 @@ form textarea {
 
 form input[type="email"]:focus,
 form input[type="password"]:focus,
+form input[type="email_message"]:focus,
 form input[type="text"]:focus,
 form select:focus,
 form textarea:focus {
@@ -1835,10 +1847,15 @@ form textarea:focus {
 
 form input[type="email"],
 form input[type="password"],
+form input[type="email_message"],
 form input[type="text"],
 form select,
 form .select-wrapper {
   height: 2.5rem;
+}
+
+form input[type="email_message"]{
+  height: 5.5rem;
 }
 
 form .select-wrapper {
@@ -2072,6 +2089,7 @@ form .form-help {
 @media only screen and (max-width: 479px) {
   form input[type="email"],
   form input[type="password"],
+  form input[type="email_message"],
   form input[type="text"],
   form select,
   form .select-wrapper {
