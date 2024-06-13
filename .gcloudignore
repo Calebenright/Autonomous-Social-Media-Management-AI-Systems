@@ -22,3 +22,4 @@ __pycache__/
 db.sqlite3
 venv/
 secrets_manager.py
+Staging Functions

@@ -17,17 +17,88 @@ from app1.login import *
 from google.cloud import storage, firestore
 import random
 import string
+from django.core.mail import EmailMessage
 
 db = firestore.Client(project='feed-ai-c379d')
 
+def process_email(request, redirect_success, redirect_fail, template):
+    if request.method == 'POST':
+        # Send to CRM
+        subject = request.POST.get("funnel")
+        email = request.POST.get('email')
+        request.session['email'] = email
+        details = {
+            'name': request.POST.get('name'),
+            'email': email,
+            'businessName': request.POST.get('businessName', ''),
+            'color': request.POST.get('color', ''),
+            'message': request.POST.get('message'),
+            'link': request.POST.get('link', ''),
+            'funnel': subject
+        }
+        message = 'Name: {name}\nEmail: {email}\nBusiness Name: {businessName}\nMessage: {message}\nLink: {link}'.format(**details)
+        
+        from_email = config("EMAIL_HOST_USER")
+        recipient_list = [config("INTERNAL_RECIPIENTS")]
+        to_admin_email_message = EmailMessage(subject, message, from_email, recipient_list)
+        
+        try:
+            to_admin_email_message.send()
+            doc_ref = db.collection('service').document(details['email'])
+            doc_ref.set(details)
+        except Exception:
+            messages.error(request, "There was an error sending your email. Please wait a moment and try again.")
+            return redirect(redirect_fail)
+        
+        # Send to User
+        if request.POST.get('isSendToUser', False) == 'on':
+            suggested_subject = request.POST.get('subject', "Feadl.io - Let's Get Started!")
+            suggested_message = f"Hi {email},\n\nI'm excited to get you setup with feadl.io. To continue, follow this link to get your social media up and running!\n\nGetting Started Guide\nhttps://feadl.io/my_feadlio/\n\nSincerely,\nCJ\n\nMarketing Agent @ Feadl.io"
+
+            to_user_email_message = EmailMessage(suggested_subject, suggested_message, from_email, [email])
+            
+            try:
+                to_user_email_message.send()
+                db.collection('service').document(email).update({'emailSent': True})
+
+                return redirect(redirect_success)
+            except Exception as e:
+                print(f"An error occurred: {e}")
+                return redirect(redirect_success)
+        else:
+            return redirect(redirect_success)
+
+    return render(request, template)
+
 def social_media_guy(request):
-    return render(request, 'social_media_guy.html')
+    return process_email(request, 'social_media_guy_success', 'social_media_guy', 'social_media_guy.html')
+
+def social_media_guy_form(request):
+    return process_email(request, 'social_media_guy_success', 'social_media_guy_form', 'social_media_guy_form.html')
+
+def free_airbnb_photography(request):
+    return process_email(request, 'social_media_guy_success', 'free_airbnb_photography', 'free_airbnb_photography.html')
+
+def free_photography(request):
+    return process_email(request, 'social_media_guy_success', 'free_photography', 'free_photography.html')
+
+def free_smm(request):
+    return process_email(request, 'social_media_guy_success', 'free_smm', 'free_smm.html')
+
+def getting_started(request):
+    return process_email(request, 'social_media_guy_success', 'getting_started', 'getting_started.html')
+
+def social_media_guy_calendly(request):
+    return render(request, 'social_media_guy_calendly.html')
+
+def beta_signup(request):
+    return process_email(request, 'my_feadlio', 'beta_signup', 'beta_signup.html')
 
 def social_media_guy_success(request):
     return render(request, 'social_media_guy_success.html')
 
-def price(request):
-    return render(request, 'price.html')
+def price_5(request):
+    return render(request, 'price_5.html')
 
 def smm_relink(request):
     if request.method == 'POST':
@@ -70,39 +141,29 @@ def smm_form(request):
         business_name = request.POST.get('businessName')
         business_description = request.POST.get('businessDesc')
 
-        if not all([firstName, lastName, email, phone, address1, city, state, zip_code, business_name, business_description]):
-            messages.error(request, 'Please fill in all required fields.')
-            return redirect('smm_form')
-        
         id_token, pid, user_id, isUser = create_or_login_funnel(email)
 
         if id_token is None:
-            messages.error(request, 'An error occurred while creating your account. Please try again.')
+            messages.error(request, 'An error occurred while saving your info.')
             return redirect('smm_form')
 
-        if not isUser:
-            firestore_data = {
-                'firstName': firstName,
-                'lastName': lastName,
-                'email': email,
-                'phone': phone,
-                'website': website,
-                'address1': address1,
-                'address2': address2,
-                'city': city,
-                'state': state,
-                'zip_code': zip_code,
-                'business_name': business_name,
-                'business_description': business_description,
-                'admin_id': pid,
-                'isAgencyUser': True,
-                'isSubscriber': True,
-            }
+        firestore_data = {
+            'firstName': firstName,
+            'lastName': lastName,
+            'email': email,
+            'phone': phone,
+            'website': website,
+            'address1': address1,
+            'business_name': business_name,
+            'business_description': business_description,
+            'admin_id': pid,
+            'isSubscriber': True,
+        }
 
-            user_settings_ref = db.collection('users').document(user_id)
-            user_settings_doc = user_settings_ref.get()
-            user_settings = user_settings_doc.to_dict()
-            user_settings_ref.set(firestore_data, merge=True)
+        user_settings_ref = db.collection('users').document(user_id)
+        user_settings_doc = user_settings_ref.get()
+        user_settings = user_settings_doc.to_dict()
+        user_settings_ref.set(firestore_data, merge=True)
 
         request.session['user_id'] = user_id
         messages.success(request, 'The form has been successfully submitted!')

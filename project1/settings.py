@@ -23,7 +23,7 @@ MESSAGE_TAGS = {
     messages.INFO: 'info',
     messages.SUCCESS: 'success',
     messages.WARNING: 'warning',
-    messages.ERROR: 'error-message',
+    messages.ERROR: 'error',
 }
 
 INSTALLED_APPS = [
@@ -38,6 +38,8 @@ INSTALLED_APPS = [
     "app1",
     "dashboard",
     "funnel",
+    "service",
+    "agency_panel",
 ]
 
 MIDDLEWARE = [
@@ -116,6 +118,8 @@ AGENCY_MONTHLY_PRICE_ID = config('AGENCY_MONTHLY_PRICE_ID')
 STANDARD_ANNUAL_PRICE_ID = config('STANDARD_ANNUAL_PRICE_ID')
 PREMIUM_ANNUAL_PRICE_ID = config('PREMIUM_ANNUAL_PRICE_ID')
 AGENCY_ANNUAL_PRICE_ID = config('AGENCY_ANNUAL_PRICE_ID')
+AGENCY_USER_PRICE_ID = config('AGENCY_USER_PRICE_ID')
+SERVICE_MONTHLY_PRICE_ID = config('SERVICE_MONTHLY_PRICE_ID')
 
 if ENVIRONMENT == 'production':
 
@@ -147,6 +151,8 @@ if ENVIRONMENT == 'production':
         'standard_annual': STANDARD_ANNUAL_PRICE_ID,
         'premium_annual': PREMIUM_ANNUAL_PRICE_ID,
         'agency_annual': AGENCY_ANNUAL_PRICE_ID,
+        'agency_user_monthly': AGENCY_USER_PRICE_ID,
+        'unlimited_service_monthly': SERVICE_MONTHLY_PRICE_ID,
     }
 
 else:
@@ -166,4 +172,5 @@ else:
         'standard_annual': 'price_1OkDjuAy1fGRWtyhSlrvIhfP',
         'premium_annual': 'price_1OkDkcAy1fGRWtyhOqmbIyew',
         'agency_annual': 'price_1OkDlXAy1fGRWtyhPZx17tox',
+        'agency_user_monthly': 'price_1OkDlXAy1fGRWtyhPZx17tox',
     }

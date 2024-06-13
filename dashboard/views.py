@@ -76,7 +76,11 @@ def dashboard(request):
     jerry_doc_ref = db.collection(u'users').document(user_id).collection(u'agents').document(u'jerry')
     jerry_settings = (jerry_doc_ref.get().to_dict() or []) if jerry_doc_ref.get().exists else []
 
-    user_email = auth.get_user(user_id).email if user_id else ''
+    try:
+        user_email = auth.get_user(user_id).email if user_id else ''
+    except:
+        user_email = user_settings.get('email', '')
+        
     user_settings_strings = {
         key: value.isoformat() if isinstance(value, datetime) else value
         for key, value in user_settings.items()
@@ -148,9 +152,9 @@ def dashboard(request):
             firestore_data = {'isAutomated': isElaineOn}
             db_ref.set(firestore_data, merge=True)
 
-            if isElaineOn and not elaine_settings.get('isElaineOn', False):
-                if not user_settings.get('isAgencyUser', True):
-                    send_new_subscriber_email(elaine_data['ElaineEmail'], user_settings.get('business_description'), user_settings.get('business_name'), 'Elaine')
+            # if isElaineOn and not elaine_settings.get('isElaineOn', False):
+            #     if not user_settings.get('isAgency', True):
+            #         send_new_subscriber_email(elaine_data['ElaineEmail'], user_settings.get('business_description'), user_settings.get('business_name'), 'Elaine')
 
             elaine_doc_ref.set(elaine_data, merge=True)
 
@@ -613,13 +617,18 @@ def post_creator(request):
     try:
         # ----- Get the Firestore document reference for the user settings ----- #
         user_id = request.session.get('user_id')
+        if not user_id:
+            return redirect('login')
         user_settings_ref = db.collection('users').document(user_id)
         global_variables_ref = db.collection('variables').document('global_variables')
+        elaine_doc_ref = db.collection(u'users').document(user_id).collection(u'agents').document(u'elaine')
         try:
             user_settings_doc = user_settings_ref.get()
             user_settings = user_settings_doc.to_dict()
             global_variables_doc = global_variables_ref.get()
             global_variables = global_variables_doc.to_dict()
+            elaine_doc = elaine_doc_ref.get()
+            elaine_settings = elaine_doc.to_dict()
         except firestore.NotFound:
             return redirect('login')
         # ---------------------------------------------------------------------- #
@@ -694,6 +703,26 @@ def post_creator(request):
                 user_settings = user_settings_doc.to_dict()
 
                 return redirect('post_creator')
+            # -------------- SERVICE DOWNLOAD --------------- #
+            if form_name == 'formServiceDownload':
+                url = user_settings['next_image_url']
+                parsed_url = urlparse(url)
+                if parsed_url.netloc == 'storage.googleapis.com':
+                    parts = parsed_url.path.strip('/').split('/')
+                    bucket_name = parts[0]
+                    object_name = '/'.join(parts[1:])
+                else:
+                    messages.error(request, 'Invalid Google Cloud Storage URL')
+                    return redirect('service_dashboard')
+                
+                storage_client = storage.Client()
+                bucket_name = bucket_name
+                blob_name = object_name
+                bucket = storage_client.bucket(bucket_name)
+                blob = bucket.blob(blob_name)
+                blob.download_to_filename("downloaded_image.jpg")
+
+                return redirect('service_dashboard')
             # -------------- SCHEDULE --------------- #
             elif form_name == 'formPostSchedule':
                 elaine_doc_ref = db.collection(u'users').document(user_id).collection(u'agents').document(u'elaine')
@@ -759,7 +788,7 @@ def post_creator(request):
                 return redirect('post_creator')
             # -------------- POST --------------- #
             elif form_name == 'formPostLibrary':
-                library_folder_path = f'user_folders/{user_id}/image_library/'
+                library_folder_path = f'user_folders/{user_id}/image_posts/'
                 image_url = request.POST.get('url', None)
                 if image_url:
                     image_url = image_url.replace("'", '"')
@@ -773,6 +802,38 @@ def post_creator(request):
                     user_settings_ref.set(firestore_data, merge=True)
                     messages.success(request, 'Image has been added to your library!')
                     return redirect('post_creator')
+            # -------------- ELAINE --------------- #
+            elif form_name == 'formPostElaine':
+                library_folder_path = f'user_folders/{user_id}/scheduled_image_library/'
+                image_url = request.POST.get('url', None)
+                caption = request.POST.get('edited_caption', '')
+                elaineNum = request.POST.get('elaineNum', '0')
+                elaine_doc_ref = db.collection(u'users').document(user_id).collection(u'agents').document(u'elaine')
+                print(f"elaineNum: {elaineNum}")
+                if image_url:
+                    image_url = image_url.replace("'", '"')
+                    url = reupload_gcs_image(image_url, library_folder_path)
+                else:
+                    url = None
+                elaine_data = {
+                    f'scheduled_caption_{elaineNum}': caption,
+                    f'scheduled_image_{elaineNum}': url
+                }
+                elaine_doc_ref.set(elaine_data, merge=True)
+                messages.success(request, 'Client dashboard has been updated.')
+                return redirect('post_creator')
+                
+            # -------------- ELAINE --------------- #
+            elif form_name == 'formClearElaine':
+                elaine_doc_ref = db.collection(u'users').document(user_id).collection(u'agents').document(u'elaine')
+                elaine_data = {}
+
+                for n in range(0, 4):
+                    elaine_data[f'scheduled_caption_{n}'] = None 
+                    elaine_data[f'scheduled_image_{n}'] = None
+                elaine_doc_ref.set(elaine_data, merge=True)
+                messages.success(request, 'Client dashboard has been cleared!')
+                return redirect('post_creator')
             # -------------- POST --------------- #
             elif form_name == 'formPostFeed':
                 caption = request.POST.get('edited_caption', '')
@@ -1176,7 +1237,7 @@ def post_creator(request):
             messages.error(request, 'We are here to help your business. Our generators are in high demand and accrue a cost. Please upgrade to utilize our amazing app!')
             return redirect('post_creator')
         
-    context = {'user_id': user_id, 'user_settings': user_settings, 'selected_option': selected_option, 'isLogo': isLogo, 'tags': json.dumps(user_settings.get('image_tags'))}
+    context = {'user_id': user_id, 'user_settings': user_settings, 'elaine_settings': elaine_settings, 'global_variables': global_variables, 'selected_option': selected_option, 'isLogo': isLogo, 'tags': json.dumps(user_settings.get('image_tags'))}
     return render(request, 'post_creator.html', context)
 
 def add_graphics(request):
@@ -1269,6 +1330,8 @@ def schedule(request):
     try:
         # ----- Get the Firestore document reference for the user settings ----- #
         user_id = request.session.get('user_id')
+        if not user_id:
+            return redirect('login')
         user_settings_ref = db.collection('users').document(user_id)
         try:
             user_settings_doc = user_settings_ref.get()
@@ -1292,7 +1355,8 @@ def schedule(request):
 def library(request):
     try:
         user_id = request.session.get('user_id')
-        logging.info(f"Fetching settings for user {user_id}")
+        if not user_id:
+            return redirect('login')
         
         user_settings_ref = db.collection('users').document(user_id)
         user_settings_doc = user_settings_ref.get()
@@ -1367,6 +1431,8 @@ def brand_settings(request):
     try:
         # ----- Get the Firestore document reference for the user settings ----- #
         user_id = request.session.get('user_id')
+        if not user_id:
+            return redirect('login')
         user_settings_ref = db.collection('users').document(user_id)
         global_variables_ref = db.collection('variables').document('global_variables')
         try:
@@ -1561,6 +1627,7 @@ def brand_settings(request):
     context = {
         'user_settings_json': json.dumps(user_settings_strings),
         'user_settings': user_settings,
+        'global_variables': global_variables,
         'user_id' : user_id,
         'cooldown': cooldown
     }
@@ -2311,8 +2378,6 @@ def feadlio_automatic_manager_task_creator(request):
         logger.warning("Unauthorized attempt to access the function.")
         return JsonResponse({'error': 'Unauthorized'}, status=401)
     
-    db = firestore.Client(project='feed-ai-c379d')
-    
     users_ref = db.collection(u'users')
     docs = users_ref.stream()
 
@@ -2326,6 +2391,31 @@ def feadlio_automatic_manager_task_creator(request):
     
     logger.info("All tasks created successfully.")
     return HttpResponse("Tasks created successfully", status=200)
+
+
+@csrf_exempt  
+@require_http_methods(["POST"])
+def master_automatic_manager_task_creator(request):
+    logger.info("Processing request to create tasks.")
+    token = request.headers.get('Authorization')
+    if token != f"Bearer {CRON_TOKEN}":
+        logger.warning("Unauthorized attempt to access the function.")
+        return JsonResponse({'error': 'Unauthorized'}, status=401)
+    
+    user_ref = db.collection(u'users').document(config('MASTER_ID'))
+    doc = user_ref.get()
+    if doc.exists:
+        user = doc.to_dict()
+        if user.get('isAutomated'):
+            payload = {"uid": doc.id}
+            create_queue(doc.id)
+            auth_task(payload, doc.id, config("ELAINE_GENERATE_IMAGE"))
+            logger.info(f"Task created for user ID: {doc.id}")
+            return HttpResponse("Task created successfully for user ID: " + doc.id, status=200)
+        else:
+            return HttpResponse("No action taken. User is not set for automation.", status=200)
+    else:
+        return HttpResponse("User ID 'Blk23fw44' not found.", status=404)
 
 @csrf_exempt  
 @require_http_methods(["POST"])
@@ -2451,18 +2541,25 @@ def create_checkout_session(request, plan, billing_cycle):
     domain_url = config("STRIPE_DOMAIN_URL")
     user_id = request.session.get('user_id', None)
     if user_id == None:
-        return redirect('login')
+        return JsonResponse({'error': 'no user id'}, status=400)
     price_id = settings.PRODUCT_IDS.get(f"{plan}_{billing_cycle}")
     prices_with_trial = [config("PREMIUM_MONTHLY_PRICE_ID"), config("PREMIUM_ANNUAL_PRICE_ID")]
     if price_id in prices_with_trial:
         trial_period_days = 7
     else:
         trial_period_days = None
+
+    stripe_cancel_url = domain_url + 'cancel/'
+    stripe_success_url = domain_url + 'success/'
     
+    if price_id == config("SERVICE_MONTHLY_PRICE_ID"):
+        stripe_cancel_url = domain_url + 'service_dashboard/'
+        stripe_success_url = domain_url + 'service_dashboard/'
+
     try:
         checkout_session  = stripe.checkout.Session.create(
-            success_url=domain_url + 'success/',
-            cancel_url=domain_url + 'cancel/',
+            success_url=stripe_success_url,
+            cancel_url=stripe_cancel_url,
             payment_method_types=['card'],
             mode='subscription',
             client_reference_id=user_id,
@@ -2510,6 +2607,16 @@ def checkout(request):
             key: value.isoformat() if isinstance(value, datetime) else value
             for key, value in user_settings.items()
         }
+    
+    if user_settings.get('isAgency', False):
+        context = {
+            'ENVIRONMENT': config("ENVIRONMENT"),
+            'user_settings': user_settings,
+            'user_settings_json': json.dumps(user_settings_strings),
+            'user_id': user_id,
+            'isStripeDev': global_variables['isStripeDev']
+        }
+        return render(request, 'agency_checkout.html', context)
         
     context = {
         'ENVIRONMENT': config("ENVIRONMENT"),
@@ -2571,14 +2678,14 @@ def stripe_webhook(request):
 
             if subscription_id:
                 user_settings_ref = db.collection('users').document(uid)
-                user_settings_doc = user_settings_ref.get()
-                user_settings = user_settings_doc.to_dict()
-                # send_new_subscriber_email(user_settings.get('email'), user_settings.get('business_description'), user_settings.get('business_name'), 'Elaine')
-                firestore_data = {'customer_id': customer_id, 'subscription_id': subscription_id, 'isSubscriber': True, 'subscription_status': 'Subscribed', 'subscription_plan': plan, 'isUnlimited': isUnlimited}
-                user_settings_ref.set(firestore_data, merge=True)
-                if user_settings.get('isBusiness', False):
-                    new_doc_ref = db.collection('accounts').document(uid)
-                    new_doc_ref.set({'name': user_settings['business_name']})
+                if user_settings_ref.get().exists:
+                    user_settings_doc = user_settings_ref.get()
+                    user_settings = user_settings_doc.to_dict()
+                    firestore_data = {'customer_id': customer_id, 'subscription_id': subscription_id, 'isSubscriber': True, 'subscription_status': 'Subscribed', 'subscription_plan': plan, 'isUnlimited': isUnlimited}
+                    user_settings_ref.set(firestore_data, merge=True)
+                    if user_settings.get('isBusiness', False):
+                        new_doc_ref = db.collection('accounts').document(uid)
+                        new_doc_ref.set({'name': user_settings['business_name']})
             return JsonResponse({'status': 'Checkout Complete'})
         
         if event['type'] == 'customer.subscription.updated':
@@ -2595,6 +2702,7 @@ def stripe_webhook(request):
                     config("STANDARD_ANNUAL_PRICE_ID"): 'Standard Annual Plan',
                     config("PREMIUM_ANNUAL_PRICE_ID"): 'Full Annual Plan',
                     config("AGENCY_ANNUAL_PRICE_ID"): 'Unlimited Annual Plan',
+                    config("AGENCY_USER_PRICE_ID"): 'Agency User Plan',
                 }
                 return plan_mappings.get(plan_id, 'Unknown Plan')
             

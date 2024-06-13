@@ -19,6 +19,8 @@ urlpatterns = [
     path("", include('dashboard.urls')),
     path("", include('admin_panel.urls')),
     path("", include('funnel.urls')),
+    path("", include('service.urls')),
+    path("", include('agency_panel.urls')),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 handler500 = error500

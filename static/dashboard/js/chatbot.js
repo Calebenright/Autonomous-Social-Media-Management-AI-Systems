@@ -193,7 +193,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const toggleCardId = event.currentTarget.getAttribute('data-toggle-card-id');
             const avatarName = event.currentTarget.getAttribute('data-avatar-name');
             const toggleCard = document.getElementById(toggleCardId);
-            toggleCard.style.display = "block";
+            if (toggleCard) {
+                toggleCard.style.display = "block";
+            }
             switchChatCharacter(avatarName);
         } else {
             displayErrorMessage('Please subscribe to use this feature');

@@ -426,6 +426,7 @@
                                         </div>
                                     </div>
 
+                                    {% if user_id == global_variables.DEVELOPER_ID %}
                                     <!-- ELAINE CHARACTER CARD -->
                                     <div class="card toggleCard" id="toggleCard1" style="display:none;">
                                         <div class="card-body task-detail">
@@ -458,7 +459,7 @@
 
                                                 <div class="row task-dates mb-0 mt-2">
                                                     <div class="col-lg-4">
-                                                        {% if user_settings.isAgencyUser %}
+                                                        {% if user_settings.isAgency %}
                                                         <div class="mb-3 mt-2">
                                                             <h5 class="font-600 m-b-5">What's your first name?</h5>
                                                             <input type="text" name="ElaineName" class="form-control" id="floatingInputGrid" value="{{ user_settings.firstName }}" disabled>
@@ -630,7 +631,7 @@
                                         </div>
                                     </div>
                                     <!-- END JERRY CHARACTER CARD -->
-
+                                    {% endif %}
                                 </div>
                             </div>
                             <!-- <div class="row">
@@ -702,15 +703,15 @@
                                         <input type="hidden" name="form" value="formFtue">
                                         <div class="mb-3">
                                             <label for="simpleinput" class="form-label">Business Name</label>
-                                            <input type="text" id="business_name" class="form-control" name="business_name" required>
+                                            <input type="text" id="business_name" class="form-control" name="business_name" value="{{ user_settings.business_name }}" required>
                                         </div>
                                         <div class="mb-3">
                                             <label for="simpleinput" class="form-label">Business Description<br>(1-3 Words Recommended)</label>
-                                            <input type="text" id="business_description" class="form-control" name="business_description" required>
+                                            <input type="text" id="business_description" class="form-control" name="business_description" value="{{ user_settings.business_description }}" required>
                                         </div>
                                         <div class="mb-3">
                                             <label class="form-label">Brand Color</label>
-                                            <input type="text" class="form-control" id="colorpicker-showinput-intial" name="brand_color" required>
+                                            <input type="text" class="form-control" id="colorpicker-showinput-intial" name="brand_color" value="{{ user_settings.brand_color }}" required>
                                         </div>
                                         <button type="submit" class="btn btn-success waves-effect waves-light" onclick="showSpinner()">Save</button>
                                     </form>

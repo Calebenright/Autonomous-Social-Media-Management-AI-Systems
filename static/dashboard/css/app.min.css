@@ -25303,7 +25303,7 @@ body[data-layout-color=dark] .datepicker tfoot tr th:hover {
     width: 60%; 
 }
 
-.error-message {
+.error {
     background-color: #ff5733; /* Background color */
     color: #ffffff; /* Text color */
     padding: 10px; /* Padding around the content */
@@ -25313,7 +25313,7 @@ body[data-layout-color=dark] .datepicker tfoot tr th:hover {
     position: relative; /* Required for the close button positioning */
 }
 
-.success-message {
+.success {
     background-color: #4CAF50; /* Background color for success message */
     color: #ffffff; /* Text color */
     padding: 10px; /* Padding around the content */

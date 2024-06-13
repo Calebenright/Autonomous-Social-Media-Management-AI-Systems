@@ -114,6 +114,15 @@ function setFormValueAndShowSpinner(formType, formId) {
     document.getElementById(formId).submit();
 }
 
+function setElaineValueAndShowSpinner(formType, formId) {
+    var updatedCaption = document.getElementById('prompt').innerText;
+    document.getElementById('editedCaption').value = updatedCaption;
+    document.getElementById('formAction').value = formType;
+    document.getElementById('elaineNum').value = document.getElementById('selectize-select').value;
+    showSpinner();
+    document.getElementById(formId).submit();
+}
+
 function toggleSocialMedia(media) {
     var element = document.getElementById(media);
     var isVisible = element.style.display != "none";

@@ -467,7 +467,7 @@
                                                 </div>
                                                 <div class="mb-3">
                                                     <label for="business_description" class="form-label">Business Description</label>
-                                                    <textarea id="business_description" class="form-control" name="business_description" style="height: 30px;">{{ user_settings.business_description }}</textarea>
+                                                    <textarea id="business_description" class="form-control" name="business_description" style="height: 150px;">{{ user_settings.business_description }}</textarea>
                                                 </div>
                                                 
                                                 <!-- <div class="mb-3">
@@ -582,20 +582,20 @@
                                                 </div>
                                                 <div class="flex-grow-1 overflow-hidden">
                                                     <h5 class="mt-0 mb-1"> Facebook</h5>
-                                                    {% if user_settings.facebook_token and user_settings.facebook_page_id and user_settings.facebook_page_name %}
+                                                    {% if user_settings.facebook_token %}
                                                     <small class="text-blue"><b>{{ user_settings.facebook_page_name }}</b></small><br>
                                                     <small class="text-blue"><b>Linked</b></small>
                                                     {% else %}
                                                     <small class="text-blue"><b>Not Linked</b></small>
                                                     {% endif %}
                                                 </div>
-                                                {% if user_settings.facebook_token and user_settings.facebook_page_id and user_settings.facebook_page_name %}
+                                                {% if user_settings.facebook_token %}
                                                 <input type="hidden" name="provider" value="facebook">
                                                 <input type="hidden" name="isCheck" value="Facebook">
                                                 {% endif %}
                                             </div>
                                         </button>
-                                        {% if user_settings.facebook_token and user_settings.facebook_page_id and user_settings.facebook_page_name %}
+                                        {% if user_settings.facebook_token %}
                                         <script>
                                             var facebookForm = document.getElementById('facebook');
                                             var unlinkUrl = "{% url 'unlink' %}";
@@ -622,54 +622,52 @@
                                                 </div>
                                                 <div class="flex-grow-1 overflow-hidden">
                                                     <h5 class="mt-0 mb-1"> Instagram</h5>
-                                                    {% if user_settings.instagram_token and user_settings.instagram_name and user_settings.instagram_user_id %}
+                                                    {% if user_settings.instagram_token %}
                                                     <small class="text-pink"><b>{{ user_settings.instagram_name }}</b></small><br>
                                                     <small class="text-pink"><b>Linked</b></small>
                                                     {% else %}
                                                     <small class="text-pink"><b>Not Linked</b></small>
                                                     {% endif %}
                                                 </div>
-                                                {% if user_settings.instagram_token and user_settings.instagram_name and user_settings.instagram_user_id %}
+                                                {% if user_settings.instagram_token %}
                                                 <input type="hidden" name="provider" value="instagram">
                                                 <input type="hidden" name="isCheck" value="Instagram">
                                                 {% endif %}
                                             </div>
                                         </button>
-                                        {% if user_settings.instagram_token and user_settings.instagram_name and user_settings.instagram_user_id %}
+                                        {% if user_settings.instagram_token %}
                                         <script>
                                             var instagramForm = document.getElementById('instagram');
                                             var unlinkUrl = "{% url 'unlink' %}";
 
-                                            function showPopup(event) {
-                                                instagramForm.addEventListener('submit', function(event) {
-                                                    event.preventDefault();
-                                                    var userConfirmed = confirm("Are you sure you want to unlink?");
-                                                    if (userConfirmed) {
-                                                        instagramForm.action = unlinkUrl;
-                                                        instagramForm.submit();
-                                                    }
-                                                });
-                                            }
+                                            instagramForm.addEventListener('submit', function(event) {
+                                                event.preventDefault();
+                                                var userConfirmed = confirm("Are you sure you want to unlink?");
+                                                if (userConfirmed) {
+                                                    instagramForm.action = unlinkUrl;
+                                                    instagramForm.submit();
+                                                }
+                                            });
                                         </script>
                                         {% else %}
                                         <script>
                                             function showPopup(event) {
-                                                event.preventDefault(); // Prevent form submission
-                                                document.getElementById('popup').style.display = 'block'; // Show the popup
+                                                event.preventDefault(); 
+                                                document.getElementById('popup').style.display = 'block';
                                             }
 
                                             function hidePopup() {
-                                                document.getElementById('popup').style.display = 'none'; // Hide the popup
+                                                document.getElementById('popup').style.display = 'none';
                                             }
 
                                             function submitForm() {
-                                                document.getElementById('instagram').submit(); // Submit the form
+                                                document.getElementById('instagram').submit();
                                             }
                                         </script>
                                         {% endif %}
                                     </form>
                                     <br>
-                                    {% if user_id == 'JPezmmBl5HMG2FzewECgKyYoZTC2' %}
+                                    {% if user_id == global_variables.DEVELOPER_ID %}
                                     <form id="linkedin" method="post" action="{% url 'all_auth' %}" enctype="multipart/form-data">
                                         {% csrf_token %}
                                         <input type="hidden" name="form" id="formType" value="">
@@ -861,7 +859,7 @@
                                     </div>
                                     {% if user_settings.isAgency %}
                                     <div style="padding-bottom: 10px;">
-                                        <a href="{% url 'feadlio_admin' %}">
+                                        <a href="{% url 'agency_panel' %}">
                                             <i class="fe-users"></i>
                                             <span style="padding-left: 2px;">Agency Panel</span>
                                         </a>
@@ -869,7 +867,7 @@
                                     {% endif %}
                                     {% if user_settings.isMaster %}
                                     <div style="padding-bottom: 10px;">
-                                        <a href="{% url 'feadlio_admin' %}">
+                                        <a href="{% url 'admin_links' %}">
                                             <i class="fe-lock"></i>
                                             <span style="padding-left: 2px;">Admin Panel</span>
                                         </a>

@@ -59,12 +59,6 @@ function updateEventInFirestore(info) {
 // Create a debounced version of updateEventInFirestore
 const debouncedEventUpdate = debounce(updateEventInFirestore, 1000);
 
-onAuthStateChanged(auth, (user) => {
-    if (user) {} else {
-        window.location.href = '/login/';
-    }
-});
-
 await getDocs(eventsCollectionRef)
 .then((querySnapshot) => {
       querySnapshot.forEach((doc) => {

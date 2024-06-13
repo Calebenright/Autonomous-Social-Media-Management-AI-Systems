@@ -11,6 +11,7 @@ venv
 Procfile
 app.yaml
 secrets_manager.py
+Staging Functions
 
 # Ignore other files or directories
 node_modules/

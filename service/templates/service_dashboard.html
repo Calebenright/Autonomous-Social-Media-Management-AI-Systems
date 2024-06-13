@@ -1,0 +1,553 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta name="robots" content="noindex">
+    <meta charset="utf-8" />
+    <title>Dashboard | Feadl.io</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta content="An automonomous social media managing app and ad agency" name="description" />
+    <meta content="CJ Enright" name="author" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+    <!-- App favicon -->
+    <link rel="shortcut icon" href="{% static 'dashboard/images/favicon.ico' %}">
+
+    <!-- PLugins css -->
+    <link href="{% static 'dashboard/libs/mohithg-switchery/switchery.min.css' %}" rel="stylesheet" type="text/css" />
+
+    <!-- icons -->
+    <link href="{% static 'dashboard/css/icons.min.css' %}" rel="stylesheet" type="text/css" />
+    
+    <!-- Plugins css -->
+    <link href="{% static 'dashboard/css/spectrum.min.css' %}" rel="stylesheet" type="text/css">
+    
+    <link href="{% static 'dashboard/libs/bootstrap-tagsinput/bootstrap-tagsinput.css' %}" rel="stylesheet" />
+    <link href="{% static 'dashboard/libs/multiselect/css/multi-select.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'dashboard/libs/select2/css/select2.min.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'dashboard/libs/selectize/css/selectize.bootstrap3.css' %}" rel="stylesheet" type="text/css" />
+    
+    <!-- App css -->
+    <link href="{% static 'dashboard/css/app.min.css' %}" rel="stylesheet" type="text/css" id="app-style" />
+    
+    <!-- Meta Pixel Code -->
+    <script>
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window, document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '7170700856358682');
+    fbq('track', 'PageView');
+    </script>
+    <noscript><img height="1" width="1" style="display:none"
+    src="https://www.facebook.com/tr?id=7170700856358682&ev=PageView&noscript=1"
+    /></noscript>
+    <!-- End Meta Pixel Code -->
+    
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-K42FBSFS');</script>
+    <!-- End Google Tag Manager -->
+
+</head>
+
+<!-- body start -->
+
+<body class="loading" data-layout-color="light" data-layout-mode="default" data-layout-size="fluid"
+    data-topbar-color="light" data-leftbar-position="fixed" data-leftbar-color="light" data-leftbar-size='default'
+    data-sidebar-user='true'>
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-K42FBSFS"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+
+    <!-- Begin page -->
+    <div id="wrapper">
+
+
+        <!-- Topbar Start -->
+        <div class="navbar-custom">
+            <ul class="list-unstyled topnav-menu float-end mb-0">
+
+                <!-- WEB -->
+                {% if not user_settings.isSubscriber %}
+                <li class="d-none d-lg-block sub-margin">
+                    <div class="subscribe-btn">
+                        <a class="btn btn-gradient-stroke subscribe rounded-pill dropdown-toggle arrow-none waves-effect waves-light mb-3" href="{% url 'service_checkout' %}">
+                            <span><span class="crown-icon" aria-hidden="true">👑</span> Unlimited <span class="crown-icon" aria-hidden="true">👑</span></span>
+                        </a>
+                    </div>
+                </li>
+
+                <!-- MOBILE -->
+                <li class="dropdown d-inline-block d-lg-none sub-margin">
+                    <div class="subscribe-btn">
+                        <a class="btn btn-gradient-stroke subscribe rounded-pill dropdown-toggle arrow-none waves-effect waves-light mb-3" href="{% url 'service_checkout' %}">
+                            <span><span class="crown-icon" aria-hidden="true">👑</span> Unlimited <span class="crown-icon" aria-hidden="true">👑</span></span>
+                        </a>
+                    </div>
+                </li>
+                {% endif %}
+
+            </ul>
+
+            <!-- LOGO -->
+            <div class="logo-box">
+                <a href="{% url 'service_dashboard' %}" class="logo logo-light text-center">
+                    <span class="logo-sm">
+                        <img src="{% static 'dashboard/images/brand/logo-sm.png' %}" alt="" height="22">
+                    </span>
+                    <span class="logo-lg">
+                        <img src="{% static 'dashboard/images/brand/logo-light.png' %}" alt="" height="16">
+                    </span>
+                </a>
+                <a href="{% url 'service_dashboard' %}" class="logo logo-dark text-center">
+                    <span class="logo-sm">
+                        <img src="{% static 'dashboard/images/brand/logo-sm.png' %}" alt="" height="22">
+                    </span>
+                    <span class="logo-lg">
+                        <img src="{% static 'dashboard/images/brand/logo-dark.png' %}" alt="" height="16">
+                    </span>
+                </a>
+            </div>
+
+            <ul class="list-unstyled topnav-menu topnav-menu-left mb-0">
+                
+                <li class="dropdown notification-list topbar-dropdown">
+                    <a class="nav-link dropdown-toggle nav-user me-0 button-menu-mobile disable-btn waves-effect waves-light" data-bs-toggle="dropdown"
+                        href="#" role="button" aria-haspopup="false" aria-expanded="false">
+                        <i class="fe-menu"></i>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-end profile-dropdown ">
+                        <!-- item-->
+                        <div class="dropdown-header noti-title">
+                            <h6 class="text-overflow m-0">Where do you want to go?</h6>
+                        </div>
+
+                        <!-- item-->
+                        <a href="{% url 'service_dashboard' %}" class="dropdown-item notify-item">
+                            <i class="mdi mdi-view-dashboard-outline"></i>
+                            <span>Dashboard</span>
+                        </a>
+
+                        <!-- item-->
+                        <a href="{% url 'service_calendar' %}" class="dropdown-item notify-item">
+                            <i class="fas fa-edit"></i>
+                            <span>Schedule</span>
+                        </a>
+
+                        <!-- item-->
+                        <a href="{% url 'service_brand_settings' %}" class="dropdown-item notify-item">
+                            <i class="fe-settings"></i>
+                            <span>Account</span>
+                        </a>
+
+                        <div class="dropdown-divider"></div>
+
+                        <!-- item-->
+                        <a href="{% url 'index' %}" class="dropdown-item notify-item">
+                            <i class="fe-log-out"></i>
+                            <span>Logout</span>
+                        </a>
+
+                    </div>
+                </li>
+
+                <li>
+                    <h4 class="page-title-main">Dashboard</h4>
+                </li>
+
+            </ul>
+
+            <div class="clearfix"></div>
+
+        </div>
+        <!-- end Topbar -->
+
+        <!-- ========== Left Sidebar Start ========== -->
+        <div class="left-side-menu">
+
+            <div class="h-100" data-simplebar>
+
+                <!-- User box -->
+                <div class="user-box text-center">
+                    <div class="dropdown">
+                        {% if user_settings.business_name %}
+                        <a href="#" class="user-name dropdown-toggle h5 mt-2 mb-1 d-block" data-bs-toggle="dropdown" aria-expanded="false">{{ user_settings.business_name }}</a>
+                        {% else %}
+                        <a href="#" class="user-name dropdown-toggle h5 mt-2 mb-1 d-block" data-bs-toggle="dropdown" aria-expanded="false">User Default</a>
+                        {% endif %}
+                    </div>
+
+                    <ul class="list-inline">
+                        <li class="list-inline-item">
+                            <a href="{% url 'service_brand_settings' %}" class="text-muted left-user-info">
+                                <i class="mdi mdi-cog"></i>
+                            </a>
+                        </li>
+
+                        <li class="list-inline-item">
+                            <a href="{% url 'login' %}">
+                                <i class="mdi mdi-power"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!--- Sidemenu -->
+                <div id="sidebar-menu">
+
+                    <ul id="side-menu">
+
+                        <li class="menu-title">Social Media</li>
+
+                        <li>
+                            <a href="{% url 'service_dashboard' %}">
+                                <i class="mdi mdi-view-dashboard-outline"></i>
+                                <span>Dashboard</span>
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="{% url 'service_calendar' %}">
+                                <i class="fas fa-edit"></i>
+                                <span> Schedule </span>
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="{% url 'service_brand_settings' %}">
+                                <i class="fe-settings"></i>
+                                <span> Account </span>
+                            </a>
+                        </li>
+                    </ul>
+
+                </div>
+                <!-- End Sidebar -->
+
+                <div class="clearfix"></div>
+
+            </div>
+            <!-- Sidebar -left -->
+
+        </div>
+        <!-- Left Sidebar End -->
+
+        <!-- ============================================================== -->
+        <!-- Start Page Content here -->
+        <!-- ============================================================== -->
+
+        <div class="content-page">
+            <div class="content">
+                <!-- Start Content-->
+                <div class="container-fluid">
+                    <div class="row">
+                        <div id="error-messages-container"></div>
+                        {% if messages %}
+                        <ul class="messages">
+                            {% for message in messages %}
+                                <li class="{{ message.tags }}" data-message-id="{{ forloop.counter }}">
+                                    {{ message }}
+                                    <span class="closebtn" onclick="closeMessage(this);">&times;</span>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                        {% endif %}
+                        <div class="col-lg-12">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h4>Welcome to your social media management team!</h4>
+                                    <p>This is where we will upload the posts we create for you each week.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        
+                        <div class="row">
+                            <style>
+                                .generated-image-small {
+                                    max-width: 80%;
+                                    height: auto;
+                                }
+                                .generated-post {
+                                    flex-direction: column;
+                                }
+                                
+                            </style>
+                            {% if elaine_settings.scheduled_caption_0 %}
+                            <div class="col-lg-3">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="generated-post">
+                                            <h4 class="header-title">Scheduled Post #1</h4>
+                                            {% if elaine_settings.scheduled_image_0 %}
+                                            <br>
+                                            <img id="loaded-image" src="{{ elaine_settings.scheduled_image_0 }}" alt="Loading" class="generated-image-small rounded">
+                                            <br>
+                                            <form method="post" action="{% url 'download' %}">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-soft-dark rounded waves-effect btn-xs">Download Image</button>
+                                            </form>
+                                            {% endif %}
+                                            <br>
+                                            <div class="mb-3">
+                                                <div class="text-box-wrapper">
+                                                    <div id="prompt" contenteditable="true" class="text-box">{{ elaine_settings.scheduled_caption_0 }}</div>
+                                                </div>
+                                            </div>
+                                            {% if not user_settings.isSubscriber %}
+                                            <form method="post" action="{% url 'service_dashboard' %}">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="form" value="postToSocials">
+                                                <button type="submit" class="btn btn-success rounded waves-effect btn-xs">Post to socials!</button>
+                                            </form>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            {% if elaine_settings.scheduled_caption_1 %}
+                            <div class="col-lg-3">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="generated-post">
+                                            <h4 class="header-title">Scheduled Post #2</h4>
+                                            {% if elaine_settings.scheduled_image_1 %}
+                                            <br>
+                                            <img id="loaded-image" src="{{ elaine_settings.scheduled_image_1 }}" alt="Loading" class="generated-image-small rounded">
+                                            <br>
+                                            <form method="post" action="{% url 'download' %}">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-soft-dark rounded waves-effect btn-xs">Download Image</button>
+                                            </form>
+                                            {% endif %}
+                                            <br>
+                                            <div class="mb-3">
+                                                <div class="text-box-wrapper">
+                                                    <div id="prompt" contenteditable="true" class="text-box">{{ elaine_settings.scheduled_caption_1 }}</div>
+                                                </div>
+                                            </div>
+                                            {% if not user_settings.isSubscriber %}
+                                            <form method="post" action="{% url 'service_dashboard' %}">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="form" value="postToSocials">
+                                                <button type="submit" class="btn btn-success rounded waves-effect btn-xs">Post to socials!</button>
+                                            </form>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                            
+                            {% if elaine_settings.scheduled_caption_2 %}
+                            <div class="col-lg-3">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="generated-post">
+                                            <h4 class="header-title">Scheduled Post #3</h4>
+                                            {% if elaine_settings.scheduled_image_2 %}
+                                            <br>
+                                            <img id="loaded-image" src="{{ elaine_settings.scheduled_image_2 }}" alt="Loading" class="generated-image-small rounded">
+                                            <br>
+                                            <form method="post" action="{% url 'download' %}">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-soft-dark rounded waves-effect btn-xs">Download Image</button>
+                                            </form>
+                                            {% endif %}
+                                            <br>
+                                            <div class="mb-3">
+                                                <div class="text-box-wrapper">
+                                                    <div id="prompt" contenteditable="true" class="text-box">{{ elaine_settings.scheduled_caption_2 }}</div>
+                                                </div>
+                                            </div>
+                                            {% if not user_settings.isSubscriber %}
+                                            <form method="post" action="{% url 'service_dashboard' %}">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="form" value="postToSocials">
+                                                <button type="submit" class="btn btn-success rounded waves-effect btn-xs">Post to socials!</button>
+                                            </form>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                            
+                            {% if elaine_settings.scheduled_caption_3 %}
+                            <div class="col-lg-3">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="generated-post">
+                                            <h4 class="header-title">Scheduled Post #4</h4>
+                                            {% if elaine_settings.scheduled_image_3 %}
+                                            <br>
+                                            <img id="loaded-image" src="{{ elaine_settings.scheduled_image_3 }}" alt="Loading" class="generated-image-small rounded">
+                                            <br>
+                                            <form method="post" action="{% url 'download' %}">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-soft-dark rounded waves-effect btn-xs">Download Image</button>
+                                            </form>
+                                            {% endif %}
+                                            <br>
+                                            <div class="mb-3">
+                                                <div class="text-box-wrapper">
+                                                    <div id="prompt" contenteditable="true" class="text-box">{{ elaine_settings.scheduled_caption_3 }}</div>
+                                                </div>
+                                            </div>
+                                            {% if not user_settings.isSubscriber %}
+                                            <form method="post" action="{% url 'service_dashboard' %}">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="form" value="postToSocials">
+                                                <button type="submit" class="btn btn-success rounded waves-effect btn-xs">Post to socials!</button>
+                                            </form>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                            
+                            {% if elaine_settings.scheduled_caption_4 %}
+                            <div class="col-lg-3">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="generated-post">
+                                            <h4 class="header-title">Scheduled Post #5</h4>
+                                            {% if elaine_settings.scheduled_image_4 %}
+                                            <br>
+                                            <img id="loaded-image" src="{{ elaine_settings.scheduled_image_4 }}" alt="Loading" class="generated-image-small rounded">
+                                            <br>
+                                            <form method="post" action="{% url 'download' %}">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-soft-dark rounded waves-effect btn-xs">Download Image</button>
+                                            </form>
+                                            {% endif %}
+                                            <br>
+                                            <div class="mb-3">
+                                                <div class="text-box-wrapper">
+                                                    <div id="prompt" contenteditable="true" class="text-box">{{ elaine_settings.scheduled_caption_4 }}</div>
+                                                </div>
+                                            </div>
+                                            {% if not user_settings.isSubscriber %}
+                                            <form method="post" action="{% url 'service_dashboard' %}">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="form" value="postToSocials">
+                                                <button type="submit" class="btn btn-success rounded waves-effect btn-xs">Post to socials!</button>
+                                            </form>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div id="loading-overlay">
+                            <div class="spinner-grow text-info" role="status"></div>
+                        </div>
+
+                        <!-- FTUE Script -->
+                        <script>
+                            function showSpinner() {
+                                var form = document.querySelector('form');
+                                if (form.checkValidity()) {
+                                    var loadingOverlay = document.getElementById('loading-overlay');
+                                    var submitButton = document.querySelector('#myForm button[type="submit"]');
+                                    loadingOverlay.style.display = 'flex';
+                                    submitButton.disabled = true;
+                                    var spinnerDuration = 5000;
+                                    setTimeout(function() {
+                                        loadingOverlay.style.display = 'none';
+                                        submitButton.disabled = false;
+                                    }, spinnerDuration);
+                                }
+                            }
+
+                            const animationGifPaths = [
+                                "{% static 'dashboard/images/FTUE/FTUE1.gif' %}",
+                                "{% static 'dashboard/images/FTUE/FTUE2.png' %}",
+                                "{% static 'dashboard/images/FTUE/FTUE3.png' %}",
+                                "{% static 'dashboard/images/FTUE/FTUE4.png' %}",
+                            ];
+                        </script>
+                    </div>
+                </div> <!-- container-fluid -->
+
+            </div> <!-- content -->
+
+    <!-- Footer Start -->
+    <footer class="footer">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-6">
+                    <script>document.write(new Date().getFullYear())</script> &copy; Copyright
+                    <a href="https://www.theenrightgroup.org" target="_blank"> Enright Group</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <!-- end Footer -->
+
+    </div>
+    <!-- ============================================================== -->
+    <!-- End Page content -->
+    <!-- ============================================================== -->
+
+
+    </div>
+    <!-- END wrapper -->
+
+    <!-- Vendor -->
+    <script src="{% static 'dashboard/libs/jquery/jquery.min.js' %}"></script>
+    <script src="{% static 'dashboard/libs/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'dashboard/libs/simplebar/simplebar.min.js' %}"></script>
+    <script src="{% static 'dashboard/libs/node-waves/waves.min.js' %}"></script>
+    <script src="{% static 'dashboard/libs/waypoints/lib/jquery.waypoints.min.js' %}"></script>
+    <script src="{% static 'dashboard/libs/jquery.counterup/jquery.counterup.min.js' %}"></script>
+    <script src="{% static 'dashboard/libs/feather-icons/feather.min.js' %}"></script>
+    <script src="{% static 'dashboard/libs/mohithg-switchery/switchery.min.js' %}"></script>
+
+    <script src="{% static 'dashboard/libs/selectize/js/standalone/selectize.min.js' %}"></script>
+    <script src="{% static 'dashboard/libs/multiselect/js/jquery.multi-select.js' %}"></script>
+    <script src="{% static 'dashboard/libs/select2/js/select2.min.js' %}"></script>
+
+    <!-- Init js-->
+    <script src="{% static 'dashboard/js/pages/form-advanced.init.js' %}"></script>
+
+    <!-- Plugins js-->
+    <script src="{% static 'dashboard/libs/spectrum-colorpicker2/spectrum.min.js' %}"></script>
+    <script src="{% static 'dashboard/libs/flatpickr/flatpickr.min.js' %}"></script>
+    <script src="{% static 'dashboard/libs/tippy.js/tippy.all.min.js' %}"></script>
+    
+    <!-- Init js-->
+    <script src="{% static 'dashboard/js/pages/form-pickers.init.js' %}"></script>
+
+    <script type="module" src="{% static 'dashboard/js/pages/dashboard.init.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <!-- App js-->
+    <script src="{% static 'dashboard/js/app.min.js' %}"></script>
+
+    <script>
+    var jsonDump = {
+        userId: '{{ user_id }}',
+    };
+    var userSettings = JSON.parse('{{ user_settings_json|escapejs }}');
+    </script>
+    
+
+</body>
+
+</html>

@@ -1,0 +1,247 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+  <title>Feadl.io | Log In</title>
+  <meta name="description" content="Elevate your marketing strategy with Feadlio, leveraging cutting-edge AI to automate social media and digital marketing for growth and efficiency.">
+  <meta name="keywords" content="AI marketing, digital transformation, social media automation, marketing technology, AI-driven analytics, online marketing tools">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="canonical" href="https://www.feadl.io/">
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+  
+  <link rel="icon" type="image/png" sizes="32x32" href="{% static 'website/media/favicon-32.ico' %}">
+  <link rel="icon" type="image/png" sizes="16x16" href="{% static 'website/media/favicon-16.ico' %}">
+  <link rel="manifest" href="{% static 'website/media/seo/site.webmanifest' %}">
+  <link rel="shortcut icon" href="{% static 'website/media/favicon.ico' %}">
+  <meta name="msapplication-TileColor" content="#da532c">
+  <meta name="msapplication-config" content="{% static 'website/media/browserconfig.xml' %}">
+  <meta name="theme-color" content="#ffffff">
+
+  <link rel="stylesheet" href="{% static 'website/css/main.css' %}">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Feadlio | Transform Your Marketing with Our AI-Driven Platform">
+  <meta property="og:description" content="Elevate your marketing strategy with Feadlio, leveraging cutting-edge AI to automate social media and digital marketing for growth and efficiency.">
+  <meta property="og:image" content="{% static 'website/media/seo/og-image.png' %}">
+  <meta property="og:image:alt" content="Feadlio's AI-driven marketing platform interface">
+  <meta property="og:url" content="https://www.feadl.io/">
+  <meta property="og:site_name" content="Feadlio">
+  <meta property="og:locale" content="en_US">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Feadlio | Transform Your Marketing with Our AI-Driven Platform">
+  <meta name="twitter:description" content="Elevate your marketing strategy with Feadlio, leveraging cutting-edge AI to automate social media and digital marketing for growth and efficiency.">
+  <meta name="twitter:image" content="{% static 'website/media/seo/twitter-image.png' %}">
+  <meta name="twitter:image:alt" content="Feadlio's AI-driven marketing platform interface">
+
+  <script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Feadlio",
+    "description": "Feadlio is an AI-driven marketing and social media platform that automates and optimizes digital marketing campaigns.",
+    "url": "https://www.feadl.io/",
+    "image": "{% static 'website/media/seo/schema-image.png' %}",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Web",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    }
+  }
+  </script>
+  <!-- Meta Pixel Code -->
+  <script>
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window, document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '7170700856358682');
+    fbq('track', 'PageView');
+    </script>
+    <noscript><img height="1" width="1" style="display:none"
+    src="https://www.facebook.com/tr?id=7170700856358682&ev=PageView&noscript=1"
+    /></noscript>
+    <!-- End Meta Pixel Code -->
+    
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-K42FBSFS');</script>
+      <!-- End Google Tag Manager -->
+</head>
+
+<body class="page page-onboarding preload">
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-K42FBSFS"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+    
+    <a href="{% url 'app_index' %}" class="button button-close" role="button"></a>
+
+    <section class="row no-gutter reverse-order">
+      <div class="col-one-half middle padding">
+        <div id="error-messages-container"></div>
+        {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+                <li class="{{ message.tags }} {% if message.tags == 'info' %}info-message{% endif %}" data-message-id="{{ forloop.counter }}">
+                    {{ message }}
+                    <span class="closebtn" onclick="closeMessage(this);">&times;</span>
+                </li>
+            {% endfor %}
+        </ul>
+        {% endif %}    
+      
+        <div class="max-width-s">
+
+          <h1>Feadl.io</h1>
+          <p class="paragraph">FREE. Social Media Management.</p>
+          <form method="POST" action="{% url 'app_login' %}" id="loginForm">
+            {% csrf_token %}
+            <input type="hidden" id="providerField" name="provider" value="">
+            <input type="hidden" id="uidField" name="uid" value="">
+            <input type="hidden" id="tokenField" name="id_token" value="">
+            <div class="form-group">
+              <label for="email">Email:</label>
+              <input id="email" type="text" name="email" required>
+            </div>
+            <div class="form-group">
+              <label for="password">Password:</label>
+              <input id="password" type="password" name="password" required>
+              <a href="{% url 'forgot_password' %}" class="form-help">Forgot password?</a>
+            </div>
+            <div class="form-group">
+              <input id="remember-me" type="checkbox" name="remember-me">
+              <label for="remember-me" class="checkbox">Remember Me</label>
+            </div>
+            <!-- <button type="submit" class="button button-primary full-width" role="button">Log In</button> -->
+          </form>
+          <form method="POST" action="{% url 'login_redirect' %}" id="redirectForm">{% csrf_token %}</form>
+          <button type="button" class="button button-primary full-width" role="button" id="feadlio-sign-in">Log In</button>
+          <br>
+          <br>
+          <button type="button" id="google-sign-in" class="auth-button">
+            <span class="icon-container"><i class="fab fa-google"></i></span>
+            <span class="button-text">Sign in with Google</span>
+          </button>
+          <!-- <button type="button" id="facebook-sign-in" class="auth-button">
+            <span class="icon-container"><i class="fab fa-facebook-f"></i></span>
+            <span class="button-text">Sign in with Facebook</span>
+          </button> -->
+          <br>
+        </div>
+        <div class="center max-width-s space-top">
+          <span class="muted">Don't have an account?   </span><a href="{% url 'signup' %}">Sign Up</a>
+          <br>
+          <span class="muted">Forgot Your Password?   </span><a href="{% url 'forgot_password' %}">Reset Password</a>
+        </div>
+      </div>
+      <div class="col-one-half bg-image-04 featured-image"></div>
+    </section>
+    <!-- Loader Container -->
+    <div id="loader" class="loader-container" style="display:none;">
+      <div class="loader-dot"></div>
+    </div>
+    <style>
+      /* Loader container covering the entire screen with white opaque background */
+      .loader-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(255, 255, 255, 0.8); /* White with opacity */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000; /* Ensure it's above other content */
+      }
+
+      /* Blue dot loader */
+      .loader-dot {
+        width: 20px;
+        height: 20px;
+        background-color: rgb(69, 139, 219);
+        border-radius: 50%;
+        animation: pulse 2s infinite;
+      }
+
+      /* Animation for the blue dot */
+      @keyframes pulse {
+        0%, 100% {
+          transform: scale(.1);
+        }
+        50% {
+          transform: scale(1.5);
+        }
+      }
+
+      .auth-button {
+        padding: 10px; /* Adjust overall padding */
+        border: none;
+        border-radius: 4px;
+        font-size: 16px;
+        font-weight: Bold;
+        cursor: pointer;
+        font-family: Arial, sans-serif;
+        color: white;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start; /* Align items to the left */
+        margin-top: 10px;
+        overflow: hidden; /* Ensures the border-radius applies to children */
+      }
+
+      .icon-container {
+        background-color: white;
+        border-radius: 4px 0 0 4px; /* Rounded on the left side */
+        padding: 10px; /* Adjust to your preference */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .button-text {
+        flex-grow: 1; /* Makes the text span take up the rest of the button space */
+        text-align: center; /* Centers the text */
+      }
+
+      #google-sign-in {
+        background-color: #4285F4; /* Google's brand color */
+      }
+
+      #facebook-sign-in {
+        background-color: #3b5998; /* Facebook's brand color */
+      }
+
+      /* Adjust the icon colors if necessary */
+      #google-sign-in .icon-container i,
+      #facebook-sign-in .icon-container i {
+        color: #4285F4; /* You might want to set this to a color that's visible on white, possibly the brand color or just black */
+      }
+
+    </style>
+
+  </main>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+  <script src="{% static 'website/js/main.js' %}"></script>
+  <script>
+    var userPid = "{{ user_pid }}";
+    var userEmail = "{{ user_email }}";
+    var isProvider = "{{ isProvider }}";
+  </script>
+  <script type="module" src="{% static 'website/js/login.init.js' %}"></script>
+
+</body>
+
+</html>

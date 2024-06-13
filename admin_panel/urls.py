@@ -3,4 +3,7 @@ from . import views
 
 urlpatterns = [
     path("feadlio_admin/", views.feadlio_admin, name="feadlio_admin"),
+    path("feadlio_crm/", views.feadlio_crm, name="feadlio_crm"),
+    path("admin_links/", views.admin_links, name="admin_links"),
+    path("send_crm_email/", views.send_crm_email, name="send_crm_email"),
 ]

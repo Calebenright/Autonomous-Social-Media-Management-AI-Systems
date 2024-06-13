@@ -22,13 +22,6 @@ const db = getFirestore(firebaseApp);
 const statusDocRef = doc(collection(db, 'users'), jsonDump.userId);
 const logoSwitch = document.getElementById('logo_switch');
 
-onAuthStateChanged(auth, (user) => {
-    if (user) {
-    } else {
-        window.location.href = '/login/';
-    }
-});
-
 function updateStatusInFirestore() {
     onSnapshot(statusDocRef, (docSnapshot) => {
         if (docSnapshot.exists()) {
@@ -167,7 +160,7 @@ document.addEventListener('DOMContentLoaded', function() {
         textarea.classList.add('expanded');
         backdrop.style.display = 'block'; // Show the backdrop
         // Adjust the height based on content, minimum height to be 38px
-        textarea.style.height = '38px';
+        textarea.style.height = '150px';
         textarea.style.height = textarea.scrollHeight + 'px';
     }
 
@@ -175,7 +168,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function collapseTextarea() {
         textarea.classList.remove('expanded');
         backdrop.style.display = 'none'; // Hide the backdrop
-        textarea.style.height = '38px'; // Reset to single line height
+        textarea.style.height = '150px'; // Reset to single line height
     }
 
     // Expand textarea on focus or click

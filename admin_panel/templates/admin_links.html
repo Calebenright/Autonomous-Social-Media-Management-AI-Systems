@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feadl.io Admin Links</title>
+    {% load static %}
+    <meta content="A automonomous social media managing app and ad agency" name="description" />
+    <meta content="CJ Enright" name="author" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <link rel="shortcut icon" href="{% static 'dashboard/images/favicon.ico' %}">
+    <link rel="stylesheet" href="{% static 'admin/css/styles.css' %}">
+</head>
+<body class="link-body">
+    <div class="header">
+        <h1>Admin Links</h1>
+    </div>
+    <div class="links">
+        <a class="link" href="{% url 'feadlio_admin' %}">SaaS Database</a>
+        <a class="link" href="{% url 'feadlio_crm' %}">CRM</a>
+        <a class="link" href="{% url 'my_feadlio' %}">My Feadlio</a>
+        <a class="link" href="{% url 'my_account' %}">Finish Service Account Setup</a>
+        <a class="link" href="{% url 'my_account_relink' %}">Finish Service Account Relink</a>
+        <a class="link" href="{% url 'getting_started' %}">Getting Started</a>
+        <a class="link" href="{% url 'agency_form' %}">Agency Form</a>
+        <a class="link" href="{% url 'smm_form' %}">SMM Form</a>
+        <a class="link" href="{% url 'smm_relink' %}">SMM Relink</a>
+        <a class="link" href="{% url 'social_media_guy' %}">Social Media Guy</a>
+        <a class="link" href="{% url 'social_media_guy_form' %}">$5 Social Media Guy Form</a>
+        <a class="link" href="{% url 'social_media_guy_calendly' %}">Social Media Guy Calendly</a>
+        <a class="link" href="{% url 'free_smm' %}">Free SMM</a>
+        <a class="link" href="{% url 'free_photography' %}">Free Photography</a>
+        <a class="link" href="{% url 'free_airbnb_photography' %}">Free Airbnb Photography</a>
+    </div>
+</body>
+</html>

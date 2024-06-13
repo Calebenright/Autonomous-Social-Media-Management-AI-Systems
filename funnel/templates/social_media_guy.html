@@ -19,6 +19,7 @@
     <meta name="theme-color" content="#ffffff">
   
     <link rel="stylesheet" href="{% static 'website/css/main.css' %}">
+    <link rel="stylesheet" href="{% static 'funnel/forms.css' %}">
   
     <meta property="og:type" content="website">
     <meta property="og:title" content="The Social Media Guy">
@@ -51,50 +52,30 @@
   <!-- End Google Tag Manager (noscript) -->
 
   <header class="header-main dark">
-    <nav>
-      <a href="{% url 'social_media_guy' %}" class="logo" rel="home">
-        <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-        viewBox="0 0 250 250" style="enable-background:new 0 0 250 250; width: 25px; height: 25px; vertical-align: middle" xml:space="preserve" fill="#FFFFFF">
-        <g>
-          <g>
-            <path d="M113.2,143.6v90.7c0,3.8-3.1,6.9-6.9,6.9H15.6c-3.8,0-6.9-3.1-6.9-6.9v-90.7c0-3.8,3.1-6.9,6.9-6.9h90.7
-              C110.1,136.7,113.2,139.9,113.2,143.6z"/>
-          </g>
-          <g>
-            <path d="M241.2,15.6v90.7c0,3.8-3.1,6.9-6.9,6.9H15.6c-3.8,0-6.9-3.1-6.9-6.9V15.6c0-3.8,3.1-6.9,6.9-6.9h218.7
-              C238.2,8.7,241.2,11.8,241.2,15.6z"/>
-          </g>
-          <g>
-            <path d="M177.2,207.6v26.7c0,3.8-3.1,6.9-6.9,6.9h-26.7c-3.8,0-6.9-3.1-6.9-6.9v-26.7c0-3.8,3.1-6.9,6.9-6.9h26.7
-              C174.1,200.7,177.2,203.9,177.2,207.6z"/>
-          </g>
-          <g>
-            <path d="M241.2,207.6v26.7c0,3.8-3.1,6.9-6.9,6.9h-26.6c-3.8,0-6.9-3.1-6.9-6.9v-26.7c0-3.8,3.1-6.9,6.9-6.9h26.7
-              C238.2,200.7,241.2,203.9,241.2,207.6z"/>
-          </g>
-          <g>
-            <path d="M241.2,143.6v26.7c0,3.8-3.1,6.9-6.9,6.9h-90.7c-3.8,0-6.9-3.1-6.9-6.9v-26.7c0-3.8,3.1-6.9,6.9-6.9h90.7
-              C238.1,136.7,241.2,139.9,241.2,143.6z"/>
-          </g>
-        </g>
-      </svg>
-        <span style="vertical-align:middle">Feadl.io</span>
-      </a>
-      <div class="nav-toggle"></div>
-      <ul class="inline right">
-        <li><a href="{% url 'price' %}" class="button button-secondary button-m full-width-tablet" role="button">+ Pricing</a>
-        </li>
-      </ul>
-    </nav>
+    <div class="progress-bar-container">
+      <div class="progress-bar" id="progressBar">
+          <span class="progress-label">Step 2 of 2 - Sign up for FREE SMM</span>
+      </div>
+    </div>
   </header>
 
   <main>
     <section class="bg-image-hero center-tablet dark">
       <div class="margin-top margin-bottom middle center padding padding-top-tablet">
+        {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+                <li class="{{ message.tags }}" data-message-id="{{ forloop.counter }}">
+                    {{ message }}
+                    <span class="closebtn" onclick="closeMessage(this);">&times;</span>
+                </li>
+            {% endfor %}
+        </ul>
+        {% endif %}  
         <div class="row row-center max-width-o">
           <div class=".col-four-fifths middle">
             <div>
-              <h1 class="hero margin-top"><u>$5</u> Social Media Management</h1>
+              <h1 class="hero margin-top">Scale your business <u>Infinitely</u> 💸</h1>
               <style>
                 .hero {
                   font-size: 3rem;
@@ -102,7 +83,7 @@
                   line-height: 3.75rem;
                 }
               </style>
-              <p class="lead">Followers + Marketing + Leads = Sales.</p>
+              <p class="lead">Followers + Marketing + Leads = Sales<sup>3</sup>.</p>
             </div>
           </div>
         </div>
@@ -115,32 +96,54 @@
       </div>
       <br>
       <div class="margin-top max-width-o">
-        <div class="rounded shadow-l youtube-video-placeholder" data-embed="https://www.youtube.com/embed/kJEnHmJyjCA?si=ssLhAk0Z45Cuw0Zg" style="cursor: pointer;">
-          <img src="{% static 'funnel/thumbnail.webp' %}" alt="YouTube video player" class="youtube-video-thumbnail" style="width: 100%; height: auto;">
-        </div>      
+        <iframe src="https://www.youtube.com/embed/eT9SOhrWwB8?si=cMCncuAzQm6ECNFP" class="rounded shadow-l video-player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
       </div>
     </section>
 
     <section class="bg-gradient-dark center dark padding">
       <div class="margin-top max-width-o">
         <div class="margin-bottom">
-          <h2>Step 2: Book a call.</h2>
-          <!-- Calendly inline widget begin -->
-          <div class="calendly-inline-widget" data-url="https://calendly.com/caleb-e105/5_dollar_smm_meeting?primary_color=2c3a8a" style="min-width:320px;height:700px;"></div>
-          <script type="text/javascript" src="https://assets.calendly.com/assets/external/widget.js" async></script>
-          <!-- Calendly inline widget end -->
-        </div>
-      </div>
-    </section>
-    <section class="bg-light center">
-      <div class="row row-center no-gutter">
-        <div class="col-one-half middle padding padding-bottom padding-top">
-          <div class="max-width-m">
-            <p class="paragraph-o">Mark Keeting, small business owner, verbatim:</p>
-            <h3>"Seriously, I saved thousands from hiring a social media manager, and I've increased my sales by a ton."</h3>
+          <h2>Step 2: Signup for FREE Social Media Management.</h2>
+          <br>
+          <div class="card">
+            <form method="POST" action="{% url 'social_media_guy' %}">
+              {% csrf_token %}
+              <input type="hidden" name="funnel" value="Social Guy Lead Form Submission">
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="name">Name</label>
+                  <input type="text" id="name" name="name" required>
+                </div>
+                <div class="form-group">
+                  <label for="email">Email</label>
+                  <input type="email" id="email" name="email" value="" required>
+                </div>
+                <div class="form-group">
+                  <label for="businessName">Business Name</label>
+                  <input type="text" id="businessName" name="businessName" required>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="message">Additional Message (Optional)</label>
+                  <textarea id="message" name="message"rows="3"></textarea>
+                </div>
+              </div>
+              <button type="submit" class="button button-primary full-width space-top" role="button">Submit</button>
+            </form>
           </div>
         </div>
-        <div class="col-one-half bg-image-m padding-bottom padding-top"></div>
+      </div>
+      <br>
+      <br>
+      <br>
+    </section>
+    <section class="bg-gradient-dark center dark padding">
+      <div class="margin-top max-width-l">
+        <div class="max-width-m">
+          <h3>Recent results from our partners:</h3>
+        </div>
+        <img class="margin-top rounded shadow-l" src="{% static 'funnel/media/business_landing.jpg' %}" alt="Customers">
       </div>
     </section>
   </main>
@@ -149,18 +152,43 @@
     <div class="padding">
       <div class="card card-content dark max-width-o">
         <div class="col-two-thirds center-tablet middle center">
-          <h3 class="space-none">Book a quick call?</h3>
+          <h3 class="space-none">Let's chat!</h3>
+          <br>
         </div>
-        <!-- Calendly inline widget begin -->
-        <div class="calendly-inline-widget" data-url="https://calendly.com/caleb-e105/5_dollar_smm_meeting?primary_color=2c3a8a" style="min-width:320px;height:700px;"></div>
-        <script type="text/javascript" src="https://assets.calendly.com/assets/external/widget.js" async></script>
-        <!-- Calendly inline widget end -->
+        
+        <div class="card">
+          <form method="POST" action="{% url 'social_media_guy' %}">
+            {% csrf_token %}
+            <input type="hidden" name="funnel" value="Social Guy Lead Form Submission">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="name">Name</label>
+                <input type="text" id="name" name="name" required>
+              </div>
+              <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required>
+              </div>
+              <div class="form-group">
+                <label for="businessName">Business Name</label>
+                <input type="text" id="businessName" name="businessName" required>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="message">Additional Message (Optional)</label>
+                <textarea id="message" name="message"rows="3"></textarea>
+              </div>
+            </div>
+            <button type="submit" class="button button-primary full-width space-top" role="button">Submit</button>
+          </form>
+        </div>
       </div>
     </div>
     <p class="copyright"><span>Copyright </span><a href="https://www.theenrightgroup.org" target="_blank">© Enright Group</a><span> - 2024, all rights reserved.</span></p>
   </footer>
   <script src="{% static 'website/js/main.js' %}"></script>
-  <script src="{% static 'funnel/funnel.js' %}"></script>
+  <script src="{% static 'funnel/form.js' %}"></script>
 </body>
 
 </html>

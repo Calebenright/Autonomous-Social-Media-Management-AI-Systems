@@ -1,0 +1,210 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Finish Account Setup - Feadl.io</title>
+    <meta name="description" content="Feadlio - Elevate your marketing strategy with Feadl.io, leveraging cutting-edge AI to automate social media and digital marketing for growth and efficiency.">
+    <meta name="keywords" content="AI marketing, digital transformation, social media automation, marketing technology, AI-driven analytics, online marketing tools">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="canonical" href="https://www.feadl.io/">
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+    
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'website/media/favicon-32.ico' %}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'website/media/favicon-16.ico' %}">
+    <link rel="manifest" href="{% static 'website/media/seo/site.webmanifest' %}">
+    <link rel="shortcut icon" href="{% static 'website/media/favicon.ico' %}">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="msapplication-config" content="{% static 'website/media/browserconfig.xml' %}">
+    <meta name="theme-color" content="#ffffff">
+  
+    <link rel="stylesheet" href="{% static 'service/css/main.css' %}">
+  
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Feadl.io">
+    <meta property="og:description" content="Feadlio - Elevate your marketing strategy with Feadl.io">
+    <meta property="og:image" content="{% static 'website/media/seo/og-image.png' %}">
+    <meta property="og:image:alt" content="Feadl.io">
+    <meta property="og:url" content="https://www.feadl.io/">
+    <meta property="og:site_name" content="Feadlio">
+    <meta property="og:locale" content="en_US">
+  
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Feadl.io">
+    <meta name="twitter:description" content="Feadlio - Elevate your marketing strategy with Feadl.io">
+    <meta name="twitter:image" content="{% static 'website/media/seo/twitter-image.png' %}">
+    <meta name="twitter:image:alt" content="Feadl.io">
+  
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-K42FBSFS');</script>
+    <!-- End Google Tag Manager -->
+  </head>
+  
+<body class="page page-home preload">
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-K42FBSFS" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+  <header class="topbar">
+      <img src="{% static 'website/media/white.png' %}" alt="Company Logo" class="logo">
+      <div class="user-email">{{ lead.email }}</div>
+  </header>
+  <main>
+      {% if messages %}
+      <section class="messages-section">
+        <ul class="messages">
+            {% for message in messages %}
+            <li class="{{ message.tags }}" data-message-id="{{ forloop.counter }}">
+                {{ message }}
+                <span class="closebtn" onclick="closeMessage(this);">&times;</span>
+            </li>
+            {% endfor %}
+        </ul>
+      </section>
+      {% endif %}
+
+      <div id="popup">
+        <div class="popup-content">
+            <span class="close-button" onclick="hidePopup()">&times;</span>
+            <h3>To Connect to Instagram</h3>
+            <p>An Instagram business or creator profile must be linked to a Facebook page in order to connect.</p>
+            
+            <h4>Have a Personal Instagram Profile?</h4>
+            <ol>
+                <li>Convert your Instagram profile into a business or creator profile.</li>
+                <li>Link to a Facebook page.</li>
+                <li>Come back and connect.</li>
+            </ol>
+    
+            <button onclick="submitForm()" class="popup-button">Yes, connect</button>
+            <button onclick="hidePopup()" class="popup-button cancel">Cancel</button>
+        </div>
+      </div>
+      
+      <section class="shadow" style="padding-bottom: 60px;">
+        <div class="dashboard enhanced-dashboard">
+          <div class="account-section">
+            <form action="{% url 'my_account' %}" method="POST" class="account-style">
+              {% csrf_token %}
+              <div class="account-row">
+                <div class="account-group">
+                  <label for="email">Email:</label>
+                  <input type="email" id="email" name="email" value="{{ lead.email }}" class="input-blue" style="border: 1px solid transparent;">
+                </div>
+                <div class="account-group">
+                  <label for="business_name">Business Name:</label>
+                  <input type="text" id="business_name" name="business_name" value="{{ lead.business_name }}" class="input-blue" style="border: 1px solid transparent;">
+                </div>
+              </div>
+              <div class="account-group nine-five-width">
+                <label for="business_description">Business Description:</label>
+                <textarea id="business_description" name="business_description" rows="4" class="input-blue">{{ lead.business_description }}</textarea>
+              </div>
+              <button type="submit" class="button-style">Save</button>
+            </form>
+          </div>
+          <div class="link-section">
+            <a href="https://buy.stripe.com/bIYdSK6R39Us9dSfZ2" class="stripe-link">
+              <img src="{% static 'service/media/plan2-check.png' %}" alt="Subscribe to Unlimited Plan" class="stripe-image">
+            </a>
+          </div>
+          <div class="social-media-section">
+            <form id="facebook" method="post" action="{% url 'service_auth' %}" enctype="multipart/form-data" class="social-form">
+              {% csrf_token %}
+              <button class="social-button">
+                <div class="social-content">
+                  <img src="{% static 'dashboard/images/icon/facebook_logo.png' %}" class="social-icon" alt="Facebook">
+                  <div class="text-content">
+                    <h3>Facebook</h3>
+                    {% if lead.facebook_token %}
+                    <small><b>{{ lead.facebook_page_name }}</b></small><br>
+                    <small><b>Linked</b></small>
+                    <script>
+                      var facebookForm = document.getElementById('facebook');
+                      var unlinkUrl = "{% url 'service_unlink' %}";
+    
+                      facebookForm.addEventListener('submit', function (event) {
+                        event.preventDefault();
+                        var userConfirmed = confirm("Are you sure you want to unlink?");
+                        if (userConfirmed) {
+                          facebookForm.action = unlinkUrl;
+                          facebookForm.submit();
+                        }
+                      });
+                    </script>
+                    {% else %}
+                    <small><b>Not Linked</b></small>
+                    {% endif %}
+                  </div>
+                </div>
+              </button>
+              <input type="hidden" name="form" value="formFacebook">
+              <input type="hidden" name="provider" value="facebook">
+              <input type="hidden" name="isCheck" value="Facebook">
+            </form>
+            <br>
+            <form id="instagram" method="post" action="{% url 'service_auth' %}" enctype="multipart/form-data" class="social-form">
+              {% csrf_token %}
+              <button class="social-button">
+                <div class="social-content">
+                  <img src="{% static 'dashboard/images/icon/instagram_logo.png' %}" class="social-icon" alt="Instagram">
+                  <div class="text-content">
+                    <h3>Instagram</h3>
+                    {% if lead.instagram_token %}
+                      <small><b>{{ lead.instagram_name }}</b></small><br>
+                      <small><b>Linked</b></small>
+                      <script>
+                        var instagramForm = document.getElementById('instagram');
+                        var unlinkUrl = "{% url 'service_unlink' %}";
+        
+                        instagramForm.addEventListener('submit', function (event) {
+                          event.preventDefault();
+                          var userConfirmed = confirm("Are you sure you want to unlink?");
+                          if (userConfirmed) {
+                            instagramForm.action = unlinkUrl;
+                            instagramForm.submit();
+                          }
+                        });
+                      </script>
+                      {% else %}
+                      <small><b>Not Linked</b></small>
+                      <script>
+                        function showPopup(event) {
+                          event.preventDefault();
+                          document.getElementById('popup').style.display = 'block';
+                        }
+        
+                        function hidePopup() {
+                          document.getElementById('popup').style.display = 'none';
+                        }
+        
+                        function submitForm() {
+                          document.getElementById('instagram').submit();
+                        }
+                      </script>
+                      {% endif %}
+                  </div>
+                </div>
+              </button>
+              <input type="hidden" name="form" value="formInstagram">
+              <input type="hidden" name="provider" value="instagram">
+              <input type="hidden" name="isCheck" value="Instagram">
+            </form>
+          </div>
+        </div>
+        <div class="descriptive-texts">
+          <p class="status-text">Update Settings</p>
+          <p class="status-text">Checkout</p>
+          <p class="status-text">Connect Socials</p>
+        </div>
+        <div class="progress-container">
+          <div class="progress-circle {% if lead.business_description %}green{% endif %}"></div>
+          <div class="progress-circle {% if lead.isSubscriber %}green{% endif %}"></div>
+          <div class="progress-circle {% if lead.instagram_token or lead.facebook_token %}green{% endif %}"></div>
+        </div>        
+      </section>
+  </main>
+  <script src="{% static 'service/js/main.js' %}"></script>
+</body>
+</html>

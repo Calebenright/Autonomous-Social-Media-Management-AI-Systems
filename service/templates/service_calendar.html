@@ -1,0 +1,385 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta name="robots" content="noindex">
+        <meta charset="utf-8" />
+        <title>Schedule | Feadl.io</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta content="A fully featured admin theme which can be used to build CRM, CMS, etc." name="description" />
+        <meta content="Coderthemes" name="author" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <!-- App favicon -->
+        <link rel="shortcut icon" href="{% static 'dashboard/images/favicon.ico' %}">
+
+        <!-- Plugin css -->
+        <link href="{% static 'dashboard/libs/fullcalendar/main.min.css' %}" rel="stylesheet" type="text/css" />
+
+        <!-- App css -->
+
+        <link href="{% static 'dashboard/css/app.min.css' %}" rel="stylesheet" type="text/css" id="app-style" />
+
+        <!-- icons -->
+        <link href="{% static 'dashboard/css/icons.min.css' %}" rel="stylesheet" type="text/css" />
+
+        <!-- Meta Pixel Code -->
+        <script>
+        !function(f,b,e,v,n,t,s)
+        {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+        n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+        if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+        n.queue=[];t=b.createElement(e);t.async=!0;
+        t.src=v;s=b.getElementsByTagName(e)[0];
+        s.parentNode.insertBefore(t,s)}(window, document,'script',
+        'https://connect.facebook.net/en_US/fbevents.js');
+        fbq('init', '7170700856358682');
+        fbq('track', 'PageView');
+        </script>
+        <noscript><img height="1" width="1" style="display:none"
+        src="https://www.facebook.com/tr?id=7170700856358682&ev=PageView&noscript=1"
+        /></noscript>
+        <!-- End Meta Pixel Code -->
+        
+        <!-- Google Tag Manager -->
+        <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+        new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+        j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+        'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+        })(window,document,'script','dataLayer','GTM-K42FBSFS');</script>
+        <!-- End Google Tag Manager -->
+    </head>
+
+        <!-- body start -->
+        <body class="loading" data-layout-color="light"  data-layout-mode="default" data-layout-size="fluid" data-topbar-color="light" data-leftbar-position="fixed" data-leftbar-color="light" data-leftbar-size='default' data-sidebar-user='true'>
+
+        <!-- Google Tag Manager (noscript) -->
+        <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-K42FBSFS"
+            height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+            <!-- End Google Tag Manager (noscript) -->
+            
+        <!-- Begin page -->
+        <div id="wrapper">
+            
+        <script>
+            const user_id = '{{ user_id }}';
+            const downloadUrl = "{% url 'download' %}";
+        </script>
+
+        <!-- Topbar Start -->
+        <div class="navbar-custom">
+            <ul class="list-unstyled topnav-menu float-end mb-0">
+
+                <!-- WEB -->
+                {% if not user_settings.isSubscriber %}
+                <li class="d-none d-lg-block sub-margin">
+                    <div class="subscribe-btn">
+                        <a class="btn btn-gradient-stroke subscribe rounded-pill dropdown-toggle arrow-none waves-effect waves-light mb-3" href="{% url 'service_checkout' %}">
+                            <span><span class="crown-icon" aria-hidden="true">👑</span> Unlimited <span class="crown-icon" aria-hidden="true">👑</span></span>
+                        </a>
+                    </div>
+                </li>
+
+                <!-- MOBILE -->
+                <li class="dropdown d-inline-block d-lg-none sub-margin">
+                    <div class="subscribe-btn">
+                        <a class="btn btn-gradient-stroke subscribe rounded-pill dropdown-toggle arrow-none waves-effect waves-light mb-3" href="{% url 'service_checkout' %}">
+                            <span><span class="crown-icon" aria-hidden="true">👑</span> Unlimited <span class="crown-icon" aria-hidden="true">👑</span></span>
+                        </a>
+                    </div>
+                </li>
+                {% endif %}
+
+            </ul>
+
+            <!-- LOGO -->
+            <div class="logo-box">
+                <a href="{% url 'service_dashboard' %}" class="logo logo-light text-center">
+                    <span class="logo-sm">
+                        <img src="{% static 'dashboard/images/brand/logo-sm.png' %}" alt="" height="22">
+                    </span>
+                    <span class="logo-lg">
+                        <img src="{% static 'dashboard/images/brand/logo-light.png' %}" alt="" height="16">
+                    </span>
+                </a>
+                <a href="{% url 'service_dashboard' %}" class="logo logo-dark text-center">
+                    <span class="logo-sm">
+                        <img src="{% static 'dashboard/images/brand/logo-sm.png' %}" alt="" height="22">
+                    </span>
+                    <span class="logo-lg">
+                        <img src="{% static 'dashboard/images/brand/logo-dark.png' %}" alt="" height="16">
+                    </span>
+                </a>
+            </div>
+
+            <ul class="list-unstyled topnav-menu topnav-menu-left mb-0">
+                
+                <li class="dropdown notification-list topbar-dropdown">
+                    <a class="nav-link dropdown-toggle nav-user me-0 button-menu-mobile disable-btn waves-effect waves-light" data-bs-toggle="dropdown"
+                        href="#" role="button" aria-haspopup="false" aria-expanded="false">
+                        <i class="fe-menu"></i>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-end profile-dropdown ">
+                        <!-- item-->
+                        <div class="dropdown-header noti-title">
+                            <h6 class="text-overflow m-0">Where do you want to go?</h6>
+                        </div>
+
+                        <!-- item-->
+                        <a href="{% url 'service_dashboard' %}" class="dropdown-item notify-item">
+                            <i class="mdi mdi-view-dashboard-outline"></i>
+                            <span>Dashboard</span>
+                        </a>
+
+                        <!-- item-->
+                        <a href="{% url 'service_calendar' %}" class="dropdown-item notify-item">
+                            <i class="fas fa-edit"></i>
+                            <span>Schedule</span>
+                        </a>
+
+                        <!-- item-->
+                        <a href="{% url 'service_brand_settings' %}" class="dropdown-item notify-item">
+                            <i class="fe-settings"></i>
+                            <span>Account</span>
+                        </a>
+
+                        <div class="dropdown-divider"></div>
+
+                        <!-- item-->
+                        <a href="{% url 'index' %}" class="dropdown-item notify-item">
+                            <i class="fe-log-out"></i>
+                            <span>Logout</span>
+                        </a>
+
+                    </div>
+                </li>
+
+                <li>
+                    <h4 class="page-title-main">Schedule</h4>
+                </li>
+
+            </ul>
+
+            <div class="clearfix"></div>
+
+        </div>
+        <!-- end Topbar -->
+
+        <!-- ========== Left Sidebar Start ========== -->
+        <div class="left-side-menu">
+
+            <div class="h-100" data-simplebar>
+
+                <!-- User box -->
+                <div class="user-box text-center">
+                    <div class="dropdown">
+                        {% if user_settings.business_name %}
+                        <a href="#" class="user-name dropdown-toggle h5 mt-2 mb-1 d-block" data-bs-toggle="dropdown" aria-expanded="false">{{ user_settings.business_name }}</a>
+                        {% else %}
+                        <a href="#" class="user-name dropdown-toggle h5 mt-2 mb-1 d-block" data-bs-toggle="dropdown" aria-expanded="false">User Default</a>
+                        {% endif %}
+                    </div>
+
+                    <ul class="list-inline">
+                        <li class="list-inline-item">
+                            <a href="{% url 'service_brand_settings' %}" class="text-muted left-user-info">
+                                <i class="mdi mdi-cog"></i>
+                            </a>
+                        </li>
+
+                        <li class="list-inline-item">
+                            <a href="{% url 'login' %}">
+                                <i class="mdi mdi-power"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!--- Sidemenu -->
+                <div id="sidebar-menu">
+
+                    <ul id="side-menu">
+
+                        <li class="menu-title">Social Media</li>
+
+                        <li>
+                            <a href="{% url 'service_dashboard' %}">
+                                <i class="mdi mdi-view-dashboard-outline"></i>
+                                <span>Dashboard</span>
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="{% url 'service_calendar' %}">
+                                <i class="fas fa-edit"></i>
+                                <span> Schedule </span>
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="{% url 'service_brand_settings' %}">
+                                <i class="fe-settings"></i>
+                                <span> Account </span>
+                            </a>
+                        </li>
+                    </ul>
+
+                </div>
+                <!-- End Sidebar -->
+
+                <div class="clearfix"></div>
+
+            </div>
+            <!-- Sidebar -left -->
+
+        </div>
+        <!-- Left Sidebar End -->
+
+            <!-- ============================================================== -->
+            <!-- Start Page Content here -->
+            <!-- ============================================================== -->
+
+            <div class="content-page">
+                <div class="content">
+
+                    <!-- Start Content-->
+                    <div class="container-fluid">
+
+                        <div class="row">
+                            {% if messages %}
+                        <ul class="messages">
+                            {% for message in messages %}
+                                <li class="{{ message.tags }}" data-message-id="{{ forloop.counter }}">
+                                    {{ message }}
+                                    <span class="closebtn" onclick="closeMessage(this);">&times;</span>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                        {% endif %}         
+                            <div class="col-12">
+                                <div class="row"></div>
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <div id="calendar"></div>
+                                        </div> <!-- end card body-->
+                                    </div> <!-- end card -->
+                                </div>
+                                
+                                <div id="external-events"></div>
+                                    
+
+                                <!-- Add New Event MODAL -->
+                                <div class="modal fade" id="event-modal" tabindex="-1">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header py-3 px-4 border-bottom-0 d-block">
+                                                <button type="button" class="btn-close float-end" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                <h5 class="modal-title" id="modal-title">Post</h5>
+                                            </div>
+                                            <div class="modal-body px-4 pb-4 pt-0">
+                                                <form class="needs-validation" name="event-form" id="form-event" novalidate>
+                                                    <div class="row">
+                                                        <div class="col-12">
+                                                            <div class="mb-3">
+                                                                <label class="form-label">Image</label>
+                                                                <img src="" style="max-width: 100%; display: block; height: auto; border-radius: 10px;" id="event-image">
+                                                                <br>
+                                                                <!-- <div class="generated-post">
+                                                                    <button type="button" class="btn btn-soft-dark rounded-pill waves-effect btn-xs" id="dark-button">Download Image</button>
+                                                                </div> -->
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-12">
+                                                            <div class="mb-3">
+                                                                <label class="form-label">Pages</label>
+                                                                <div style="display: inline-block;">
+                                                                    <img src="{% static 'dashboard\images\icon\reset_icon.png' %}" style="max-width: 13%; border-radius: 10px; margin: 10px;" id="social_reset">
+                                                                    <img src="{% static 'dashboard\images\icon\facebook_logo.png' %}" style="max-width: 13%; border-radius: 10px; margin: 10px;" id="facebook">
+                                                                    <img src="{% static 'dashboard\images\icon\instagram_logo.png' %}" style="max-width: 13%; border-radius: 10px; margin: 10px;" id="instagram">
+                                                                    <img src="{% static 'dashboard\images\icon\linkedin_logo.png' %}" style="max-width: 13%; border-radius: 10px; margin: 10px;" id="linkedin">
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-12">
+                                                            <div class="mb-3">
+                                                                <label class="form-label">Post Caption</label>
+                                                                <input type="hidden" id="edited-caption"/>
+                                                                <div class="text-box-wrapper">
+                                                                    <div id="event-caption" contenteditable="true" class="form-control-constrain"></div>
+                                                                </div>
+                                                                <div class="invalid-feedback">Please provide a valid caption</div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-12">
+                                                        <div class="mb-3">
+                                                            <label class="form-label">Time</label>
+                                                            <input type="time" id="time" class="form-control">
+                                                        </div>
+                                                    </div>
+                                                    <div class="row mt-2">
+                                                        <div class="col-md-6 col-4">
+                                                            <button type="button" class="btn btn-danger" id="btn-delete-event">Delete</button>
+                                                        </div>
+                                                        <div class="col-md-6 col-8 text-end">
+                                                            <button type="button" class="btn btn-light me-1" data-bs-dismiss="modal">Close</button>
+                                                            <button type="submit" class="btn btn-success" id="btn-save-event">Save</button>
+                                                        </div>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div> <!-- end modal-content-->
+                                    </div> <!-- end modal dialog-->
+                                </div>
+                                <!-- end modal-->
+                            </div>
+                            <!-- end col-12 -->
+                        </div> <!-- end row -->
+                        
+                    </div> <!-- container -->
+
+                </div> <!-- content -->
+
+                <!-- Footer Start -->
+                <footer class="footer">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <script>document.write(new Date().getFullYear())</script> &copy; Copyright <a href="https://www.theenrightgroup.org" target="_blank"> Enright Group</a>
+                            </div>
+                        </div>
+                    </div>
+                </footer>
+                <!-- end Footer -->
+
+            </div>
+
+            <!-- ============================================================== -->
+            <!-- End Page content -->
+            <!-- ============================================================== -->
+
+
+        </div>
+        <!-- END wrapper -->
+
+        <!-- Vendor -->
+        <script src="{% static 'dashboard/libs/jquery/jquery.min.js' %}"></script>
+        <script src="{% static 'dashboard/libs/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+        <script src="{% static 'dashboard/libs/simplebar/simplebar.min.js' %}"></script>
+        <script src="{% static 'dashboard/libs/node-waves/waves.min.js' %}"></script>
+        <script src="{% static 'dashboard/libs/waypoints/lib/jquery.waypoints.min.js' %}"></script>
+        <script src="{% static 'dashboard/libs/jquery.counterup/jquery.counterup.min.js' %}"></script>
+        <script src="{% static 'dashboard/libs/feather-icons/feather.min.js' %}"></script>
+
+        <!-- plugin js -->
+        <script src="{% static 'dashboard/libs/moment/min/moment.min.js' %}"></script>
+        <script src="{% static 'dashboard/libs/fullcalendar/main.min.js' %}"></script>
+        
+        <!-- Calendar init -->
+        <script type="module" src="{% static 'dashboard/js/pages/calendar.init.js' %}"></script>
+        
+        <!-- App js -->
+        <script src="{% static 'dashboard/js/app.min.js' %}"></script>
+    
+        
+    </body>
+</html>

@@ -20,6 +20,9 @@ from urllib.parse import urlencode, quote_plus
 def index(request):
     return render(request, 'index.html')
 
+def app_index(request):
+    return render(request, 'app_index.html')
+
 def privacy_policy(request):
     return render(request, 'privacy_policy.html')
 
@@ -177,7 +180,7 @@ def signup(request):
             try:
                 user = auth.create_user(email=email, password=password)
                 messages.success(request, f'Account created. You can now log in.')
-                return redirect('login')
+                return redirect('app_login')
             
             except Exception as e:
                 error_message = 'An error occurred during registration. Please try again later.'
@@ -191,7 +194,7 @@ def signup(request):
     else:
         return render(request, 'signup.html')
 
-def login(request):
+def app_login(request):
 
     user_id = request.session.get('user_id', None)
     email = request.session.get('user_email', None)
@@ -222,7 +225,33 @@ def login(request):
             
         return redirect('dashboard')
         
-    return render(request, 'login.html', {'user_pid': user_pid, 'user_email': email, 'isProvider': isProvider})
+    return render(request, 'app_login.html', {'user_pid': user_pid, 'user_email': email, 'isProvider': isProvider})
+
+def login(request):
+
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        user_pid = email.split('@')[0]
+        password = user_pid + config('AGENCY_PASSWORD_ADDON')
+        try:
+            id_token = user_login(email, user_pid)
+            decoded_token = auth.verify_id_token(id_token)
+            user_id = decoded_token['uid']
+            request.session['user_id'] = user_id
+            
+        except:
+            try:
+                id_token = user_login(email, password)
+                decoded_token = auth.verify_id_token(id_token)
+                user_id = decoded_token['uid']
+                request.session['user_id'] = user_id
+            except Exception as e:
+                messages.error(request, f'Email not associated with an account. Please sign up to join the beta!')
+                return redirect('login')
+            
+        return redirect('service_dashboard')
+        
+    return render(request, 'login.html')
 
 def login_redirect(request):
     return redirect('dashboard')

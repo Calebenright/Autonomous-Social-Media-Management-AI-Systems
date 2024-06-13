@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feadl.io Agency Panel</title>
+    {% load static %}
+    <meta content="A automonomous social media managing app and ad agency" name="description" />
+    <meta content="CJ Enright" name="author" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <link rel="shortcut icon" href="{% static 'dashboard/images/favicon.ico' %}">
+    <link rel="stylesheet" href="{% static 'admin/css/styles.css' %}">
+</head>
+<body>
+    {% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+            <li class="{{ message.tags }}" data-message-id="{{ forloop.counter }}">
+                {{ message }}
+                <span class="closebtn" onclick="closeMessage(this);">&times;</span>
+            </li>
+        {% endfor %}
+    </ul>
+    <script>
+        function closeMessage(element) {
+            element.parentElement.style.display = 'none'; // Hide the message
+            const messageId = element.parentElement.getAttribute('data-message-id');
+            
+            // Store the closed message ID in local storage
+            const closedMessages = JSON.parse(localStorage.getItem('closed_messages')) || [];
+            closedMessages.push(messageId);
+            localStorage.setItem('closed_messages', JSON.stringify(closedMessages));
+        }
+    </script>
+    {% endif %}    
+
+    <h1>Agency Panel</h1>
+    
+    <div class="top">
+        <form method="POST" action="{% url 'add_account' agency_id %}">
+            {% csrf_token %}
+            <a href="{% url 'brand_settings' %}" class="dashboard-button">Back To Dashboard</a>
+            <button type="submit" style="margin-right: 10px;">Add Account</button>
+        </form>
+    </div>   
+    
+    {% if firestore_data %}
+        <table>
+            <tr>
+                <th>Business Name</th>
+                <th>Automatic Posting Turned On</th>
+                <th>Paid Account</th>
+                <th>Switch Into Account</th>
+                <th>Delete Account</th>
+            </tr>
+            {% for user in page_obj  %}
+            <tr>
+                <td>
+                    <a href="{% url 'agency_switch' user.document_id %}">{{ user.business_name }}</a>
+                </td>
+                <td>{% if user.isAutomated %}✅{% endif %}</td>
+                <td>{% if user.isSubscribed %}✅{% endif %}</td>
+                <td><a href="{% url 'agency_switch' user.document_id %}">🔀</a></td>
+                <td><a href="{% url 'agency_delete' user.document_id %}">❌</a></td>
+            </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <p>No data found</p>
+    {% endif %}
+
+    <div class="pagination">
+        {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}">Previous</a>
+        {% endif %}
+    
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}">Next</a>
+        {% endif %}
+    </div>
+    
+</body>
+</html>

@@ -1,0 +1,157 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Getting Started - Feadl.io</title>
+    <meta name="description" content="Feadlio - Elevate your marketing strategy with Feadl.io, leveraging cutting-edge AI to automate social media and digital marketing for growth and efficiency.">
+    <meta name="keywords" content="AI marketing, digital transformation, social media automation, marketing technology, AI-driven analytics, online marketing tools">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="canonical" href="https://www.feadl.io/">
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+    
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'website/media/favicon-32.ico' %}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'website/media/favicon-16.ico' %}">
+    <link rel="manifest" href="{% static 'website/media/seo/site.webmanifest' %}">
+    <link rel="shortcut icon" href="{% static 'website/media/favicon.ico' %}">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="msapplication-config" content="{% static 'website/media/browserconfig.xml' %}">
+    <meta name="theme-color" content="#ffffff">
+  
+    <link rel="stylesheet" href="{% static 'website/css/main.css' %}">
+    <link rel="stylesheet" href="{% static 'funnel/forms.css' %}">
+  
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Feadl.io">
+    <meta property="og:description" content="Feadlio - Elevate your marketing strategy with Feadl.io">
+    <meta property="og:image" content="{% static 'website/media/seo/og-image.png' %}">
+    <meta property="og:image:alt" content="Feadl.io">
+    <meta property="og:url" content="https://www.feadl.io/">
+    <meta property="og:site_name" content="Feadlio">
+    <meta property="og:locale" content="en_US">
+  
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Feadl.io">
+    <meta name="twitter:description" content="Feadlio - Elevate your marketing strategy with Feadl.io">
+    <meta name="twitter:image" content="{% static 'website/media/seo/twitter-image.png' %}">
+    <meta name="twitter:image:alt" content="Feadl.io">
+  
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-K42FBSFS');</script>
+    <!-- End Google Tag Manager -->
+  </head>
+  
+<body class="page page-home preload">
+  <!-- Google Tag Manager (noscript) -->
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-K42FBSFS"
+  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+  <!-- End Google Tag Manager (noscript) -->
+
+  <header class="header-main dark">
+    <div class="progress-bar-container">
+      <div class="progress-bar" id="progressBar">
+          <span class="progress-label">Step 2 of 2 - Getting Started</span>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="bg-image-hero center-tablet dark">
+      <div class="margin-top margin-bottom middle center padding padding-top-tablet">
+        {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+                <li class="{{ message.tags }}" data-message-id="{{ forloop.counter }}">
+                    {{ message }}
+                    <span class="closebtn" onclick="closeMessage(this);">&times;</span>
+                </li>
+            {% endfor %}
+        </ul>
+        {% endif %}  
+        <div class="row row-center max-width-o">
+          <div class=".col-four-fifths middle">
+            <div>
+              <h1 class="hero margin-top">Getting started with <u>Feadl.io</u></h1>
+              <style>
+                .hero {
+                  font-size: 3rem;
+                  font-weight: 700;
+                  line-height: 3.75rem;
+                }
+              </style>
+              <p class="lead">Free SMM</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="bg-gradient-dark-flipped overlay padding dark">
+      <div class="center max-width-m">
+        <h2>Step 1: Watch the video.</h2>
+      </div>
+      <br>
+      <div class="margin-top max-width-o">
+        <iframe src="https://www.youtube.com/embed/Me1TDK3NGL8?si=UFgfO-1trw_pk9Ky" class="rounded shadow-l video-player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+      </div>
+    </section>
+
+    <section class="bg-gradient-dark center dark padding">
+      <div class="margin-top max-width-o">
+        <div class="margin-bottom">
+          <h2>Step 2: Tell us more.</h2>
+          <br>
+          <div class="card">
+            <form method="POST" action="{% url 'getting_started' %}">
+              {% csrf_token %}
+              <input type="hidden" name="isSendToUser" value="off">
+              <input type="hidden" name="funnel" value="Getting Started Form Submission">
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="email">Email</label>
+                  <input type="email" id="email" name="email" required>
+                </div>
+                <div class="form-group">
+                  <label for="businessName">Business Name</label>
+                  <input type="text" id="businessName" name="businessName" required>
+                </div>
+                <div class="form-group">
+                  <label for="color">Brand Color</label>
+                  <input type="color" id="color" name="color" value="#00ff00" required>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="message">Business Description (1-3 sentences)</label>
+                  <textarea id="message" name="message"rows="3"></textarea>
+                </div>
+              </div>
+              <button type="submit" class="button button-primary full-width space-top" role="button">Submit</button>
+            </form>
+          </div>
+        </div>
+      </div>
+      <br>
+      <br>
+      <br>
+    </section>
+  </main>
+
+  <footer class="footer-main bg-gradient-primary dark overlay-shape-06">
+    <div class="padding">
+      <div class="card card-content dark max-width-o">
+        <div class="col-two-thirds center-tablet middle center">
+          <h3 class="space-none">Let's get started!</h3>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <script src="{% static 'website/js/main.js' %}"></script>
+  <script src="{% static 'funnel/form.js' %}"></script>
+</body>
+
+</html>

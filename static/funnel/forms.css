@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@700&display=swap');
+
 .card {
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
     transition: 0.3s;
@@ -74,4 +76,102 @@ h3 {
     height: auto;
     padding: 20px;
     width: 100%;
+}
+
+.progress-bar-container {
+    width: 100%;
+    background: linear-gradient(to bottom, #05050b 0%, #110f24 100%);
+    padding: 10px;
+    position: fixed;
+    top: 0;
+    left: 0;
+}
+
+.progress-bar {
+    height: 50px;
+    width: 25%;
+    background-color: #00ff94; /* Base color for the progress bar */
+    background-image: linear-gradient(135deg, rgba(0, 255, 148, 0.8) 25%, #00cc75 25%, #00cc75 50%, rgba(0, 255, 148, 0.8) 50%, #00cc75 75%, transparent 75%, transparent);
+    text-align: center;
+    line-height: 50px; 
+    color: #05050b;
+    animation: move 20s linear infinite;
+    transition: width 2s;
+    box-shadow: inset 0 -1px 1px rgba(0,0,0,0.2); 
+    border-radius: 5px;
+    position: relative; 
+    overflow: hidden; 
+}
+
+@keyframes move {
+    0% { background-position: 0 0; }
+    100% { background-position: 98vw 0; }
+}
+
+.progress-label {
+    position: absolute;
+    width: 100%;
+    left: 0;
+    top: 15px;
+    line-height: 20px; /* Same as bar height to center vertically */
+    font-family: 'Poppins', sans-serif;
+    color: #05050b;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden; /* Avoid text spilling out during animation */
+    text-overflow: ellipsis; /* Adds '...' if text is too long */
+    font-weight: bold; /* Bold text for better visibility */
+}
+
+@media only screen and (max-width: 767px) {
+    .progress-label {
+        font-size: 10px;
+    }
+}
+
+.airbnb-container {
+    background: linear-gradient(to bottom, #00a699 0%, #00a699 100%);
+}
+
+.airbnb-progress-bar {
+    background-color: #ff5a5f; /* Base color for the progress bar */
+    background-image: linear-gradient(135deg, rgba(255, 90, 95, 0.8) 25%, #e25053 25%, #e25053 50%, rgba(255, 90, 95, 0.8) 50%, #e25053 75%, transparent 75%, transparent);
+    color: #05050b;
+}
+
+
+.dashboard {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.slider-container {
+    width: 300px;
+    position: relative;
+    overflow: hidden;
+}
+
+.slides {
+    width: 300%;
+    display: flex;
+    transition: transform 0.5s ease;
+}
+
+.slide {
+    width: 100%;
+    flex: 0 0 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+input[type="text"], input[type="email"] {
+    padding: 10px;
+    margin: 10px 0;
+    width: 90%;
+    box-sizing: border-box;
 }
