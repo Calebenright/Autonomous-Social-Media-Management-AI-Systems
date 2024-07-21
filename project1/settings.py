@@ -112,17 +112,28 @@ INTERNAL_RECIPIENTS = config('INTERNAL_RECIPIENTS')
 
 ENVIRONMENT = config('ENVIRONMENT')
 
-STANDARD_MONTHLY_PRICE_ID = config('STANDARD_MONTHLY_PRICE_ID')
-PREMIUM_MONTHLY_PRICE_ID = config('PREMIUM_MONTHLY_PRICE_ID')
-AGENCY_MONTHLY_PRICE_ID = config('AGENCY_MONTHLY_PRICE_ID')
-STANDARD_ANNUAL_PRICE_ID = config('STANDARD_ANNUAL_PRICE_ID')
-PREMIUM_ANNUAL_PRICE_ID = config('PREMIUM_ANNUAL_PRICE_ID')
-AGENCY_ANNUAL_PRICE_ID = config('AGENCY_ANNUAL_PRICE_ID')
-AGENCY_USER_PRICE_ID = config('AGENCY_USER_PRICE_ID')
-SERVICE_MONTHLY_PRICE_ID = config('SERVICE_MONTHLY_PRICE_ID')
+AGENCY_USER_PRICE_ID = config('3_DOLLAR_MONTHLY_PRICE_ID')
+SERVICE_MONTHLY_PRICE_ID = config('60_DOLLAR_MONTHLY_PRICE_ID')
+STANDARD_MONTHLY_PRICE_ID = config('5_DOLLAR_MONTHLY_PRICE_ID')
+PREMIUM_MONTHLY_PRICE_ID = config('20_DOLLAR_MONTHLY_PRICE_ID')
+AGENCY_MONTHLY_PRICE_ID = config('25_DOLLAR_MONTHLY_PRICE_ID')
+STANDARD_ANNUAL_PRICE_ID = config('5_DOLLAR_ANNUAL_PRICE_ID')
+PREMIUM_ANNUAL_PRICE_ID = config('20_DOLLAR_ANNUAL_PRICE_ID')
+AGENCY_ANNUAL_PRICE_ID = config('20_DOLLAR_ANNUAL_PRICE_ID')
+
+PRODUCT_IDS = {
+    'agency_user_monthly': config('3_DOLLAR_MONTHLY_PRICE_ID'),
+    'unlimited_service_monthly': config('5_DOLLAR_MONTHLY_PRICE_ID'),
+    'standard_monthly': config('5_DOLLAR_MONTHLY_PRICE_ID'),
+    'premium_monthly': config('5_DOLLAR_MONTHLY_PRICE_ID'),
+    'agency_monthly': config('20_DOLLAR_MONTHLY_PRICE_ID'),
+    'standard_annual': config('5_DOLLAR_ANNUAL_PRICE_ID'),
+    'premium_annual': config('5_DOLLAR_ANNUAL_PRICE_ID'),
+    'agency_annual': config('20_DOLLAR_ANNUAL_PRICE_ID'),
+}
 
 if ENVIRONMENT == 'production':
-
+    print('production')
     # ##------------ DEPLOY -------------##
     # STRIPE_ENDPOINT = config('STRIPE_DEV_ENDPOINT')
 
@@ -144,19 +155,18 @@ if ENVIRONMENT == 'production':
     ########################
 
     REDIRECT_URI = config('REDIRECT_URI')
-    PRODUCT_IDS = {
-        'standard_monthly': STANDARD_MONTHLY_PRICE_ID,
-        'premium_monthly': PREMIUM_MONTHLY_PRICE_ID,
-        'agency_monthly': AGENCY_MONTHLY_PRICE_ID,
-        'standard_annual': STANDARD_ANNUAL_PRICE_ID,
-        'premium_annual': PREMIUM_ANNUAL_PRICE_ID,
-        'agency_annual': AGENCY_ANNUAL_PRICE_ID,
-        'agency_user_monthly': AGENCY_USER_PRICE_ID,
-        'unlimited_service_monthly': SERVICE_MONTHLY_PRICE_ID,
-    }
 
 else:
+    print('dev')
     ##------------ DEV -------------##
+    SECURE_SSL_REDIRECT = False
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = False
+    SECURE_HSTS_PRELOAD = False
+    SECURE_CONTENT_TYPE_NOSNIFF = False
+    SECURE_PROXY_SSL_HEADER = None
+    SESSION_COOKIE_SECURE = False
+    CSRF_COOKIE_SECURE = False
+    
     DEBUG = True
     STRIPE_ENDPOINT = config('STRIPE_LOCAL_ENDPOINT')
     STRIPE_CANCEL_URL = config('STRIPE_DEV_CANCEL_URL')
@@ -165,12 +175,3 @@ else:
     STRIPE_DOMAIN_URL = config('STRIPE_DEV_DOMAIN_URL')
     REDIRECT_URI = config('DEV_REDIRECT_URI')
     STRIPE_SECRET_KEY = config('STRIPE_DEV_SECRET_KEY')
-    PRODUCT_IDS = {
-        'standard_monthly': 'price_1OkDhCAy1fGRWtyhmMM9ykcB',
-        'premium_monthly': 'price_1OkDi7Ay1fGRWtyhqQm6mBqJ',
-        'agency_monthly': 'price_1OkDjCAy1fGRWtyh99TI7sMm',
-        'standard_annual': 'price_1OkDjuAy1fGRWtyhSlrvIhfP',
-        'premium_annual': 'price_1OkDkcAy1fGRWtyhOqmbIyew',
-        'agency_annual': 'price_1OkDlXAy1fGRWtyhPZx17tox',
-        'agency_user_monthly': 'price_1OkDlXAy1fGRWtyhPZx17tox',
-    }

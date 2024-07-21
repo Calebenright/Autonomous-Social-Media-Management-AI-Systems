@@ -294,15 +294,15 @@ def google_auth_callback(request):
         request.session['user_pid'] = pid
         request.session['isProvider'] = True
 
-        return redirect('login')
+        return redirect('app_login')
     
     except ValueError as e:
         messages.error(request, str(e))
-        return redirect('login')
+        return redirect('app_login')
 
     except Exception as e:
         messages.error(request, f'Credentials Invalid. {e}')
-        return redirect('login')
+        return redirect('app_login')
 
 def facebook_sign_in(request):
     
@@ -349,11 +349,11 @@ def facebook_auth_callback(request):
         request.session['user_pid'] = pid
         request.session['isProvider'] = True
         
-        return redirect('login')
+        return redirect('app_login')
 
     except Exception as e:
         messages.error(request, f'Credentials Invalid. {e}')
-        return redirect('login')
+        return redirect('app_login')
     
 def robots_txt(request):
     lines = [

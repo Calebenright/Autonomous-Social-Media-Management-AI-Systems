@@ -28,6 +28,7 @@ urlpatterns = [
     path('add_graphics_api/', views.add_graphics_api, name='add_graphics_api'),
     path('elaine_email/', views.elaine_email, name='elaine_email'),
     path('elaine_functions/', views.elaine_functions, name='elaine_functions'),
+    path('automated_email/', views.automated_email, name='automated_email'),
     path('feadlio_automatic_manager_task_creator/', views.feadlio_automatic_manager_task_creator, name='feadlio_automatic_manager_task_creator'),
     path('master_automatic_manager_task_creator/', views.master_automatic_manager_task_creator, name='master_automatic_manager_task_creator'),
     path('cron_delete_images_in_gcp_folder/', views.cron_delete_images_in_gcp_folder, name='cron_delete_images_in_gcp_folder'),

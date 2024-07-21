@@ -37,10 +37,19 @@
     <h1>Agency Panel</h1>
     
     <div class="top">
+        <form method="get" action="">
+            <button type="submit" style="margin-right: 10px;">Filter</button>
+            <select name="sort" placeholder="Filter by Type" style="margin-right: 10px;">
+                <option value="Paid">Paid</option>
+                <option value="Free">Free</option>
+                <option value="Lead">New</option>
+                <option value="Archive">Archive</option>
+            </select>
+        </form>
         <form method="POST" action="{% url 'add_account' agency_id %}">
             {% csrf_token %}
-            <a href="{% url 'brand_settings' %}" class="dashboard-button">Back To Dashboard</a>
             <button type="submit" style="margin-right: 10px;">Add Account</button>
+            <a href="{% url 'brand_settings' %}" class="dashboard-button">Back To Dashboard</a>
         </form>
     </div>   
     
@@ -48,9 +57,15 @@
         <table>
             <tr>
                 <th>Business Name</th>
-                <th>Automatic Posting Turned On</th>
+                <th>Auto Posting</th>
                 <th>Paid Account</th>
-                <th>Switch Into Account</th>
+                <th>Needs Graphic Edit</th>
+                <th>Needs Video Edit</th>
+                <th>Needs Ad Review</th>
+                <th>Switch Into App</th>
+                <th>Switch Into Service</th>
+                <th>View Tasks</th>
+                <th>Archive Account</th>
                 <th>Delete Account</th>
             </tr>
             {% for user in page_obj  %}
@@ -60,7 +75,13 @@
                 </td>
                 <td>{% if user.isAutomated %}✅{% endif %}</td>
                 <td>{% if user.isSubscribed %}✅{% endif %}</td>
-                <td><a href="{% url 'agency_switch' user.document_id %}">🔀</a></td>
+                <td>{% if user.george_settings and user.george_settings.isLoading %}⚠️{% endif %}</td>
+                <td>{% if user.susan_settings and user.susan_settings.isLoading %}⚠️{% endif %}</td>
+                <td>{% if user.david_settings and user.david_settings.isLoading %}⚠️{% endif %}</td>
+                <td><a href="{% url 'agency_switch' user.document_id %}">🔄</a></td>
+                <td><a href="{% url 'agency_service_switch' user.document_id %}">🔀</a></td>
+                <td><a href="{% url 'agency_tasks' user.document_id %}">📁</a></td>
+                <td><a href="{% url 'agency_archive' user.document_id %}">🗃️</a></td>
                 <td><a href="{% url 'agency_delete' user.document_id %}">❌</a></td>
             </tr>
             {% endfor %}

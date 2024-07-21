@@ -1,0 +1,201 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Virtual Baseball Training | KE</title>
+    <meta name="description" content="Virtual Baseball Training | KE">
+    <meta name="keywords" content="Virtual Baseball Training | KE">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="canonical" href="https://www.feadl.io/">
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+    
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'website/media/favicon-32.ico' %}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'website/media/favicon-16.ico' %}">
+    <link rel="manifest" href="{% static 'website/media/seo/site.webmanifest' %}">
+    <link rel="shortcut icon" href="{% static 'website/media/favicon.ico' %}">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="msapplication-config" content="{% static 'website/media/browserconfig.xml' %}">
+    <meta name="theme-color" content="#ffffff">
+  
+    <link rel="stylesheet" href="{% static 'website/css/main.css' %}">
+    <link rel="stylesheet" href="{% static 'funnel/forms.css' %}">
+    <link href="{% static 'dashboard/libs/dropify/css/dropify.min.css' %}" rel="stylesheet" type="text/css" />
+  
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Virtual Baseball Training | KE">
+    <meta property="og:description" content="Virtual Baseball Training | KE">
+    <meta property="og:image" content="{% static 'funnel/ke.png' %}">
+    <meta property="og:image:alt" content="Virtual Baseball Training | KE">
+    <meta property="og:url" content="https://www.feadl.io/">
+    <meta property="og:site_name" content="Feadlio">
+    <meta property="og:locale" content="en_US">
+  
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Virtual Baseball Training | KE">
+    <meta name="twitter:description" content="Virtual Baseball Training | KE">
+    <meta name="twitter:image" content="{% static 'funnel/ke.png' %}">
+    <meta name="twitter:image:alt" content="Virtual Baseball Training | KE">
+  
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-K42FBSFS');</script>
+    <!-- End Google Tag Manager -->
+  </head>
+  
+<body class="page page-home preload">
+  <!-- Google Tag Manager (noscript) -->
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-K42FBSFS"
+  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+  <!-- End Google Tag Manager (noscript) -->
+
+  <header class="header-main dark">
+    <div class="progress-bar-container">
+      <div class="progress-bar" id="progressBar">
+          <span class="progress-label">Step 2 of 2 - Send Video</span>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="bg-image-hero center-tablet dark">
+      <div class="margin-top margin-bottom middle center padding padding-top-tablet">
+        {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+                <li class="{{ message.tags }}" data-message-id="{{ forloop.counter }}">
+                    {{ message }}
+                    <span class="closebtn" onclick="closeMessage(this);">&times;</span>
+                </li>
+            {% endfor %}
+        </ul>
+        {% endif %}  
+        <div class="row row-center max-width-o">
+          <div class=".col-four-fifths middle">
+            <div>
+              <style>
+                .hero {
+                  font-size: 3rem;
+                  font-weight: 700;
+                  line-height: 3.75rem;
+                }
+                @media only screen and (max-width: 479px) {
+                    h1.hero {
+                        font-size: 1.5rem;
+                        line-height: 2rem;
+                    }
+                    .lead {
+                        font-size: 1rem;
+                        line-height: 2rem;
+                    }
+                    h2 {
+                        font-size: 1.5rem;
+                        line-height: 2rem;
+                    }
+                }
+              </style>
+              <h1 class="hero margin-top">Swing breakdown from a <i><u>PRO</u></i>.</h1>
+              <p class="lead">Kole Enright Remote Training ⚾</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="bg-gradient-dark-flipped overlay padding dark">
+      <div class="center max-width-m">
+        <h2>Step 1: Take a video.</h2>
+      </div>
+      <br>
+      <div class="margin-top max-width-o">
+        <iframe src="https://www.youtube.com/embed/Kh7zU7mA7T0?si=cI5P1gEvvrhvW1Gf" class="rounded shadow-l video-player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+      </div>
+    </section>
+
+    <section class="bg-gradient-dark center dark padding">
+      <div class="margin-top max-width-o">
+        <div class="margin-bottom">
+          <h2>Step 2: Send your video.</h2>
+          <br>
+          <div class="card">
+            <form id="uploadForm" action="/upload/" method="post" enctype="multipart/form-data">
+              {% csrf_token %}
+              <input type="hidden" name="funnel" value="">
+              <div class="form-row" style="flex-direction: column;">
+                <div class="form-group">
+                  <label for="email">Email</label>
+                  <input type="email" id="emailInput" name="email" placeholder="Insert your email..." required>
+                </div>
+                <div class="form-group">
+                    <label for="file">Drag & drop video or select</label>
+                    <input type="file" name="file" id="fileInput" data-plugins="dropify" data-height="300" accept="video/*" required>
+                </div>
+              </div>
+              <button id="submitButton" type="submit" class="button button-primary full-width space-top" role="button">Submit</button>
+              <br>
+              <br>
+              <div class="progress mb-0" style="width: 100%; background-color: #e4e4e4;">
+                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100" style="width: 0%; background-color: #00ff94; height: 20px; background-image: none; animation: none; transition: none;"></div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      <br>
+      <br>
+      <br>
+    </section>
+    <section class="bg-gradient-dark center dark padding">
+      <div class="margin-top max-width-l">
+        <div class="max-width-m">
+          <h3>Swing breakdown from a 3rd round MLB draft pick:</h3>
+        </div>
+        <img class="margin-top rounded shadow-l" src="{% static 'funnel/media/ke.png' %}" alt="Customers">
+      </div>
+    </section>
+  </main>
+
+  <!-- <footer class="footer-main bg-gradient-primary dark overlay-shape-06">
+    <div class="padding">
+      <div class="card card-content dark max-width-o">
+        <div class="col-two-thirds center-tablet middle center">
+          <h3 class="space-none">Let's chat!</h3>
+          <br>
+        </div>
+        
+        <div class="card">
+        </div>
+      </div>
+    </div>
+    <p class="copyright"><span>Copyright </span><a href="https://www.theenrightgroup.org" target="_blank">© Enright Group</a><span> - 2024, all rights reserved.</span></p>
+  </footer> -->
+  
+  <script src="{% static 'dashboard/libs/jquery/jquery.min.js' %}"></script>
+  <script src="{% static 'dashboard/libs/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+  <script src="{% static 'dashboard/libs/simplebar/simplebar.min.js' %}"></script>
+  <script src="{% static 'dashboard/libs/node-waves/waves.min.js' %}"></script>
+  <script src="{% static 'dashboard/libs/waypoints/lib/jquery.waypoints.min.js' %}"></script>
+  <script src="{% static 'dashboard/libs/jquery.counterup/jquery.counterup.min.js' %}"></script>
+  <script src="{% static 'dashboard/libs/feather-icons/feather.min.js' %}"></script>
+  <script src="{% static 'dashboard/libs/selectize/js/standalone/selectize.min.js' %}"></script>
+  <script src="{% static 'dashboard/libs/multiselect/js/jquery.multi-select.js' %}"></script>
+  <script src="{% static 'dashboard/libs/select2/js/select2.min.js' %}"></script>
+
+  <script src="{% static 'website/js/main.js' %}"></script>
+  <script src="{% static 'funnel/video.js' %}"></script>
+  <script src="{% static 'funnel/form.js' %}"></script>
+  
+  <script src="{% static 'dashboard/libs/dropify/js/dropify.min.js' %}"></script>
+  <script src="{% static 'dashboard/js/pages/form-fileuploads.init.js' %}"></script>
+  <script>
+    $(document).ready(function () {
+        // Initialize dropify plugin
+        $('.dropify').dropify();
+    });
+</script>
+  </body>
+
+</html>

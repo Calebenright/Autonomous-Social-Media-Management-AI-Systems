@@ -96,9 +96,6 @@ def dashboard(request):
             brand_color = all_color_to_hex(request.POST.get('brand_color'))
             colors = generate_secondary_colors(brand_color)
             tags = create_tags(business_description)
-            library_folder_path = f'user_folders/{user_id}/image_library/'
-            image_tags = add_pixabay_tags(tags, None, config("GS_BUCKET_NAME"),  config("GS_CREDENTIALS"), library_folder_path)
-            image_tags_string = json.dumps(image_tags).replace("'", '"')
 
             firestore_data = {
                 'tags': tags,
@@ -107,8 +104,6 @@ def dashboard(request):
                 'brand_color': brand_color,
                 'secondary_colors' : colors,
                 'ftue': True,
-                'isSubscriber': False,
-                'isUnlimited': False,
                 'isAutomated': False,
                 'isLogo': False,
                 'images_generated': 0,
@@ -120,7 +115,6 @@ def dashboard(request):
                 'num_sent': 0,
                 'last_reset_time': datetime.now(),
                 'trial': 0,
-                'image_tags': image_tags_string
             }
 
             db_ref.set(firestore_data, merge=True)
@@ -144,7 +138,7 @@ def dashboard(request):
                 'ElainePostType': request.POST.getlist('ElainePostType[]'),
                 'isElaineEmail': isElaineEmail,
                 'ElaineEmail': request.POST.get('ElaineEmail'),
-                'ElaineTimezone': request.POST.get('ElaineTimezone')
+                'ElaineTimezone': request.POST.get('ElaineTimezone'),
             }
 
             isElaineOn = request.POST.get('isElaineOn') == "on"
@@ -178,7 +172,8 @@ def dashboard(request):
         'user_settings': user_settings,
         'user_id' : user_id,
         'elaine_settings': elaine_settings,
-        'jerry_settings': jerry_settings
+        'jerry_settings': jerry_settings,
+        'global_variables': global_variables
     }
     
     return render(request, 'dashboard.html', context)
@@ -470,6 +465,7 @@ def download(request):
     # ---------------------------------------------------------------------- #
     url = user_settings['next_image_url']
     parsed_url = urlparse(url)
+    print(parsed_url.netloc)
     if parsed_url.netloc == 'storage.googleapis.com':
         parts = parsed_url.path.strip('/').split('/')
         bucket_name = parts[0]
@@ -828,11 +824,22 @@ def post_creator(request):
                 elaine_doc_ref = db.collection(u'users').document(user_id).collection(u'agents').document(u'elaine')
                 elaine_data = {}
 
-                for n in range(0, 4):
+                for n in range(0, 5):
                     elaine_data[f'scheduled_caption_{n}'] = None 
                     elaine_data[f'scheduled_image_{n}'] = None
                 elaine_doc_ref.set(elaine_data, merge=True)
                 messages.success(request, 'Client dashboard has been cleared!')
+                return redirect('post_creator')
+            # -------------- FTUE --------------- #
+            elif form_name == 'formClearFtue':
+                try:
+                    query = db.collection('service').where('user_id', '==', user_id).limit(1).get()
+                    for document in query:
+                        document.reference.set({'leadPriority': 4}, merge=True)
+                except:
+                    pass
+                user_settings_ref.set({'service_ftue': '0'}, merge=True)
+                messages.success(request, 'Ftue ended!')
                 return redirect('post_creator')
             # -------------- POST --------------- #
             elif form_name == 'formPostFeed':
@@ -857,7 +864,8 @@ def post_creator(request):
                 num_sent = user_settings.get('num_sent', 0)
                 max_sent = global_variables.get('max_sent', 5)
 
-                current_time = timezone.now()
+                tz = pytz.UTC
+                current_time = datetime.now(tz)
                 default_reset_time = current_time - timedelta(days=1)
 
                 last_reset_time = user_settings.get('last_reset_time', default_reset_time)
@@ -1409,6 +1417,33 @@ def library(request):
                     
                 image_tags_string = json.dumps(image_tags).replace("'", '"')
                 user_settings_ref.set({'image_tags': image_tags_string}, merge=True)
+                messages.success(request, 'Settings Updated.')
+                return redirect('library')
+            
+            if form_name == 'video-tags':
+                file_name = request.POST.get('file-name', None)
+                if file_name:
+                    library_folder_path = f'user_folders/{user_id}/video_library/{file_name}'
+                    bucket_credentials = config('GS_CREDENTIALS')
+                    bucket_name = config('GS_BUCKET_NAME')
+                    credentials = service_account.Credentials.from_service_account_file(bucket_credentials)
+                    client = storage.Client(project=credentials.project_id, credentials=credentials)
+                    bucket = client.bucket(bucket_name)
+                    blob = bucket.blob(library_folder_path)
+                    blob.make_public()
+                    url = blob.public_url
+                get_old_video_tags = user_settings.get('video_tags', '[]')
+                old_video_tags = json.loads(get_old_video_tags)
+                old_video_tags = [item.strip() for item in old_video_tags]
+                post_video_tags = request.POST.get('videoTags')
+                video_tags = [item.strip() for item in post_video_tags.split(',')] if post_video_tags else []
+                removed_tags = set(old_video_tags) - set(video_tags)
+                if removed_tags:
+                    delete_library_images_from_gcs(removed_tags, config("GS_BUCKET_NAME"),  config("GS_CREDENTIALS"))
+                if file_name:
+                    video_tags.append(url)
+                video_tags_string = json.dumps(video_tags).replace("'", '"')
+                user_settings_ref.set({'video_tags': video_tags_string}, merge=True)
                 messages.success(request, 'Settings Updated.')
                 return redirect('library')
         except Exception as e:
@@ -2350,6 +2385,30 @@ def elaine_functions(request):
         return JsonResponse({'error': f'Failed to retrieve Elaine settings: {str(e)}'}, status=500)
     
 
+@csrf_exempt  
+@require_http_methods(["POST"])
+def automated_email(request):
+    token = request.headers.get('Authorization')
+    if token != f"Bearer {API_TOKEN}":
+        return JsonResponse({'error': 'Unauthorized'}, status=401)
+
+    try:
+        request_json = json.loads(request.body)
+        to_email = request_json.get('to_email')
+        subject = request_json.get('subject')
+        message = request_json.get('message')
+
+        db = firestore.Client(project='feed-ai-c379d')
+
+        from_email = config("EMAIL_HOST_USER")
+        recipient_list = [to_email]
+        to_user_email_message = EmailMessage(subject, message, from_email, [to_email])
+        to_user_email_message.send()
+        
+        return JsonResponse({'success': 'Task completed'}, status=200)
+    except Exception as e:
+        return JsonResponse({'error': f'Exception: {e}'}, status=400)
+    
 # ..............................................................................................................
 # ....CCCCCCC....RRRRRRRRRR.....OOOOOOO.....NNNN...NNNN...........JJJJ....OOOOOOO.....BBBBBBBBBB....SSSSSSS.....
 # ...CCCCCCCCC...RRRRRRRRRRR...OOOOOOOOOO...NNNNN..NNNN...........JJJJ...OOOOOOOOOO...BBBBBBBBBBB..SSSSSSSSS....
@@ -2543,18 +2602,9 @@ def create_checkout_session(request, plan, billing_cycle):
     if user_id == None:
         return JsonResponse({'error': 'no user id'}, status=400)
     price_id = settings.PRODUCT_IDS.get(f"{plan}_{billing_cycle}")
-    prices_with_trial = [config("PREMIUM_MONTHLY_PRICE_ID"), config("PREMIUM_ANNUAL_PRICE_ID")]
-    if price_id in prices_with_trial:
-        trial_period_days = 7
-    else:
-        trial_period_days = None
 
-    stripe_cancel_url = domain_url + 'cancel/'
-    stripe_success_url = domain_url + 'success/'
-    
-    if price_id == config("SERVICE_MONTHLY_PRICE_ID"):
-        stripe_cancel_url = domain_url + 'service_dashboard/'
-        stripe_success_url = domain_url + 'service_dashboard/'
+    stripe_cancel_url = domain_url + 'login/'
+    stripe_success_url = domain_url + 'login/'
 
     try:
         checkout_session  = stripe.checkout.Session.create(
@@ -2569,7 +2619,7 @@ def create_checkout_session(request, plan, billing_cycle):
                     'quantity': 1,
                 },
             ],
-            subscription_data={'trial_period_days': 7} if trial_period_days is not None else {},
+            discounts=[{'coupon': '13ovLCOL'}],
         )
         
         return JsonResponse({
@@ -2665,23 +2715,40 @@ def stripe_webhook(request):
         if event['type'] == 'checkout.session.completed':
             customer_id = event['data']['object']['customer']
             subscription_id = event['data']['object']['subscription']
+            plan_id = event['data']['object']['display_items'][0]['price']['id']
             isUnlimited = False
+            isAds = False
             try:
-                line_items = stripe.checkout.Session.list_line_items(session['id'], limit=1)
-                for item in line_items.data:
-                    plan = item.description
-                    if plan == "Unlimited Plan":
-                        isUnlimited = True
+                def get_plan_name_by_id(plan_id):
+                    plan_mappings = {
+                        config("3_DOLLAR_MONTHLY_PRICE_ID"): '3 Dollar Plan',
+                        config("5_DOLLAR_MONTHLY_PRICE_ID"): '5 Dollar Plan',
+                        config("10_DOLLAR_MONTHLY_PRICE_ID"): '10 Dollar Plan',
+                        config("20_DOLLAR_MONTHLY_PRICE_ID"): '20 Dollar Plan',
+                        config("25_DOLLAR_MONTHLY_PRICE_ID"): '25 Dollar Plan',
+                        config("60_DOLLAR_MONTHLY_PRICE_ID"): '60 Dollar Plan',
+                        config("120_DOLLAR_MONTHLY_PRICE_ID"): '120 Dollar Plan',
+                        config("300_DOLLAR_MONTHLY_PRICE_ID"): '300 Dollar Plan',
+                        config("500_DOLLAR_MONTHLY_PRICE_ID"): '500 Dollar Plan',
+                        config("1500_DOLLAR_MONTHLY_PRICE_ID"): '1500 Dollar Plan',
+                        config("5_DOLLAR_ANNUAL_PRICE_ID"): '5 Dollar Annual Plan',
+                        config("20_DOLLAR_ANNUAL_PRICE_ID"): '20 Dollar Annual Plan',
+                    }
+                    return plan_mappings.get(plan_id, 'Unknown Plan')
+            
+                plan = get_plan_name_by_id(plan_id)
+                isUnlimited = plan in ["60 Dollar Plan"]
+                isAds = plan in ['120 Dollar Plan', '300 Dollar Plan', '500 Dollar Plan', '1500 Dollar Plan']
             except Exception as e:
-                print(f"Error fetching line items: {e}")
-                return JsonResponse({'errro': f'{e}'})
+                plan = 'Unknown Plan'
+                pass
 
             if subscription_id:
                 user_settings_ref = db.collection('users').document(uid)
                 if user_settings_ref.get().exists:
                     user_settings_doc = user_settings_ref.get()
                     user_settings = user_settings_doc.to_dict()
-                    firestore_data = {'customer_id': customer_id, 'subscription_id': subscription_id, 'isSubscriber': True, 'subscription_status': 'Subscribed', 'subscription_plan': plan, 'isUnlimited': isUnlimited}
+                    firestore_data = {'customer_id': customer_id, 'service_ftue': '0','subscription_id': subscription_id, 'isSubscriber': True, 'subscription_status': 'Subscribed', 'subscription_plan': plan, 'isUnlimited': isUnlimited, 'isAds': isAds}
                     user_settings_ref.set(firestore_data, merge=True)
                     if user_settings.get('isBusiness', False):
                         new_doc_ref = db.collection('accounts').document(uid)
@@ -2696,13 +2763,18 @@ def stripe_webhook(request):
 
             def get_plan_name_by_id(plan_id):
                 plan_mappings = {
-                    config("STANDARD_MONTHLY_PRICE_ID"): 'Standard Plan',
-                    config("PREMIUM_MONTHLY_PRICE_ID"): 'Full Plan',
-                    config("AGENCY_MONTHLY_PRICE_ID"): 'Unlimited Plan',
-                    config("STANDARD_ANNUAL_PRICE_ID"): 'Standard Annual Plan',
-                    config("PREMIUM_ANNUAL_PRICE_ID"): 'Full Annual Plan',
-                    config("AGENCY_ANNUAL_PRICE_ID"): 'Unlimited Annual Plan',
-                    config("AGENCY_USER_PRICE_ID"): 'Agency User Plan',
+                    config("3_DOLLAR_MONTHLY_PRICE_ID"): '3 Dollar Plan',
+                    config("5_DOLLAR_MONTHLY_PRICE_ID"): '5 Dollar Plan',
+                    config("10_DOLLAR_MONTHLY_PRICE_ID"): '10 Dollar Plan',
+                    config("20_DOLLAR_MONTHLY_PRICE_ID"): '20 Dollar Plan',
+                    config("25_DOLLAR_MONTHLY_PRICE_ID"): '25 Dollar Plan',
+                    config("60_DOLLAR_MONTHLY_PRICE_ID"): '60 Dollar Plan',
+                    config("120_DOLLAR_MONTHLY_PRICE_ID"): '120 Dollar Plan',
+                    config("300_DOLLAR_MONTHLY_PRICE_ID"): '300 Dollar Plan',
+                    config("500_DOLLAR_MONTHLY_PRICE_ID"): '500 Dollar Plan',
+                    config("1500_DOLLAR_MONTHLY_PRICE_ID"): '1500 Dollar Plan',
+                    config("5_DOLLAR_ANNUAL_PRICE_ID"): '5 Dollar Annual Plan',
+                    config("20_DOLLAR_ANNUAL_PRICE_ID"): '20 Dollar Annual Plan',
                 }
                 return plan_mappings.get(plan_id, 'Unknown Plan')
             
@@ -2721,15 +2793,18 @@ def stripe_webhook(request):
                         'isSubscriber': False,
                         'subscription_status': 'Canceled',
                         'subscription_plan': 'Canceled',
-                        'isUnlimited': False
+                        'isUnlimited': False,
+                        'isAds': False
                     }
                 elif plan_name != user_settings.get('subscription_plan', None):
-                    isUnlimited = plan_name in ["Unlimited Plan", "Unlimited Annual Plan"]
+                    isUnlimited = plan_name in ["60 Dollar Plan"]
+                    isAds = plan_name in ['120 Dollar Plan', '300 Dollar Plan', '500 Dollar Plan', '1500 Dollar Plan']
                     update_data = {
                         'subscription_plan': plan_name,
-                        'isUnlimited': isUnlimited
+                        'isUnlimited': isUnlimited,
+                        'isAds': isAds,
+                        
                     }
-
                 if update_data:
                     user_settings_ref.set(update_data, merge=True)
                     action = "Handled cancellation" if subscription_status == "canceled" or canceled_at is not None else "Plan Changed"
@@ -2765,7 +2840,8 @@ def stripe_webhook(request):
                     'isSubscriber': False,
                     'subscription_status': 'Canceled',
                     'subscription_plan': 'Canceled',
-                    'isUnlimited': False
+                    'isUnlimited': False,
+                    'isAds': False
                 }
                 user_settings_ref.set(firestore_data, merge=True)
             return JsonResponse({'status': 'Payment Failed'})
@@ -2784,7 +2860,8 @@ def stripe_webhook(request):
                     'isSubscriber': False,
                     'subscription_status': 'Canceled',
                     'subscription_plan': 'Canceled',
-                    'isUnlimited': False
+                    'isUnlimited': False,
+                    'isAds': False
                 }
                 user_settings_ref.set(firestore_data, merge=True)
             return JsonResponse({'status': 'Subscription Canceled'})

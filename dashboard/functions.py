@@ -20,6 +20,10 @@ from zoneinfo import ZoneInfo
 from collections import defaultdict
 from datetime import date, datetime, timedelta, timezone
 import webcolors
+from django.shortcuts import render, redirect
+from django.contrib import messages
+import pytz
+from .post_to_socials import *
 
 # FOR DEVELOPMENT
 from decouple import config
@@ -38,6 +42,10 @@ def create_text_post(select, business_description, business_name):
     f"Generate copy for a business-toned social media post for the business named [BUSINESS NAME = {business_name}] and has a business description [BUSINESS DESCRIPTION = {business_description}].",
     f"Generate copy for a professional-toned social media post for the business named [BUSINESS NAME = {business_name}] and has a business description [BUSINESS DESCRIPTION = {business_description}].",
     f"Generate copy for a fun-toned social media post for the business named [BUSINESS NAME = {business_name}] and has a business description [BUSINESS DESCRIPTION = {business_description}].",
+    f"Generate copy for a detailed social media post for the business named [BUSINESS NAME = {business_name}] and has a business description [BUSINESS DESCRIPTION = {business_description}]. The copy should not include the business name or description.",
+    f"Generate copy for a business-toned social media post for the business named [BUSINESS NAME = {business_name}] and has a business description [BUSINESS DESCRIPTION = {business_description}]. The copy should not include the business name or description.",
+    f"Generate copy for a professional-toned social media post for the business named [BUSINESS NAME = {business_name}] and has a business description [BUSINESS DESCRIPTION = {business_description}]. The copy should not include the business name or description.",
+    f"Generate copy for a fun-toned social media post for the business named [BUSINESS NAME = {business_name}] and has a business description [BUSINESS DESCRIPTION = {business_description}]. The copy should not include the business name or description.",
     ]
     prompt = random.choice(prompts)
     options = [15, 25, 50, 75, 100]
@@ -412,7 +420,7 @@ def create_caption (business_description, business_name):
     prompts = [
     f"Create a caption for a social media post for a (BUSINESS NAMED = {business_name}) and (BUSINESS DESCRIPTION = {business_description})",
     f"Create a cta for a social media post for a (BUSINESS NAMED = {business_name}) and (BUSINESS DESCRIPTION = {business_description})",
-    f"Create a creative for a social media post for a (BUSINESS NAMED = {business_name}) and (BUSINESS DESCRIPTION = {business_description})",
+    f"Create a creative caption for a social media post for a (BUSINESS NAMED = {business_name}) and (BUSINESS DESCRIPTION = {business_description})",
     f"Create a fun caption for a social media post for a (BUSINESS NAME = {business_name}) and (BUSINESS DESCRIPTION = {business_description})",
     f"Create a business toned caption for a social media post for a (BUSINESS NAME = {business_name}) and (BUSINESS DESCRIPTION = {business_description})",
     ]
@@ -815,21 +823,14 @@ def delete_library_images_from_gcs(removed_image_urls, bucket_name, bucket_crede
 
 def upload_video_to_google(video, bucket_name, bucket_credentials, user_folder_path, file_extension):
     credentials = service_account.Credentials.from_service_account_file(bucket_credentials)
-    print(1)
     client = storage.Client(project=credentials.project_id, credentials=credentials)
-    print(2)
     bucket = client.bucket(bucket_name)
-    print(3)
     filename = str(uuid.uuid4()) + "." + file_extension
-    print(4)
     blob = bucket.blob(user_folder_path + filename)
-    print(5)
     content_type = 'video/' + file_extension
     chunk_size = 1024 * 1024
     blob.chunk_size = chunk_size
-    print(6)
     blob.upload_from_file(video, content_type=content_type)
-    print(7)
     blob.make_public()
 
     return blob.public_url
@@ -1027,7 +1028,10 @@ def send_new_subscriber_email (email, business_description, business_name, chara
 
 def find_next_optimal_day_for_new_post(existing_event_dates):
     today = datetime.now(timezone.utc).date()
-    start_of_this_week = today - timedelta(days=today.weekday())
+    if today.weekday() == 0:  # If today is Monday
+        start_of_this_week = today
+    else:
+        start_of_this_week = today + timedelta(days=(7 - today.weekday()))
 
     weekly_posts = defaultdict(list)
     last_date = today
@@ -1063,8 +1067,10 @@ def generate_random_date(last_date, existing_dates):
     new_datetime = last_date + timedelta(days=days_to_add)
     return new_datetime.date()
 
-def convert_optimal_posting_time(optimal_time, user_timezone_str):
+def convert_optimal_posting_time(optimal_time, user_timezone_str='America/Chicago'):
     today = datetime.now().date()
+    if not user_timezone_str:
+        user_timezone_str = 'America/Chicago'
     user_timezone = ZoneInfo(user_timezone_str)
     UTC = ZoneInfo('UTC')
     optimal_posting_time = datetime.strptime(optimal_time, '%I:%M %p').time()
@@ -1122,3 +1128,170 @@ def all_color_to_hex(color):
             return webcolors.name_to_hex(color)
     except ValueError:
         return "#000000"
+    
+def post_to_social_feed(request, user_settings, user_settings_ref, redirect_to):
+    caption = request.POST.get('edited_caption', None)
+    image_url = request.POST.get('url', None)
+
+    if caption is None:
+        messages.error(request, 'Please enter a caption.')
+        return redirect(redirect_to)
+
+    facebook_checked = user_settings.get('isFacebook', False)
+    instagram_checked = user_settings.get('isInstagram', False)
+
+    print(facebook_checked, instagram_checked)
+    
+    socials = [platform for platform, checked in [
+        ('facebook', facebook_checked),
+        ('instagram', instagram_checked)
+    ] if checked]
+
+    if not socials:
+        messages.error(request, 'Please select at least one social media platform.')
+        return redirect(redirect_to)
+
+    linkedin_checked = False
+
+    num_sent = user_settings.get('num_sent', 0)
+
+    tz = pytz.UTC
+    current_time = datetime.now(tz)
+    default_reset_time = current_time - timedelta(days=1)
+
+    last_reset_time = user_settings.get('last_reset_time', default_reset_time)
+
+    if current_time - last_reset_time > timedelta(days=1):
+        firestore_data = {'num_sent': 0, 'last_reset_time': current_time}
+        user_settings_ref.set(firestore_data, merge=True)
+        
+    try:
+        isAllPosted = False
+        if image_url == '' or image_url is None or image_url == 'None':
+            if facebook_checked:
+                try:
+                    page_id = user_settings['facebook_page_id']
+                    facebook_page_token = user_settings['facebook_page_token']
+                    post_text_to_facebook_page_feed(caption, page_id, facebook_page_token)
+                    num_sent += 1
+                    firestore_data = {'num_sent': num_sent}
+                    user_settings_ref.set(firestore_data, merge=True)
+                    isAllPosted = True
+                except Exception as e:
+                    isAllPosted = False
+                    error_message = str(e)
+                    if 'Access token error' in error_message:
+                        print(f"Failed due to access token expiry: {error_message}")
+                        messages.warning(request, 'Your Facebook access token has expired. Please re-link your account.')
+                        firestore_data = {'isFacebook': False, 'facebook_token': None}
+                        user_settings_ref.set(firestore_data, merge=True)
+                    else:
+                        messages.error(request, 'There was an error with your post. Please try again.')
+                        print(f"Failed to post to Facebook: {error_message}")
+
+            if linkedin_checked:
+                try:
+                    page_id = user_settings['linkedin_id']
+                    access_token = user_settings['linkedin_token']
+                    page_type = user_settings['linkedin_type']
+                    post_text_to_linkedin(access_token, page_id, caption, page_type)
+                    num_sent += 1
+                    firestore_data = {'num_sent': num_sent}
+                    user_settings_ref.set(firestore_data, merge=True)
+                    isAllPosted = True
+                except Exception as e:
+                    isAllPosted = False
+                    error_message = str(e)
+                    if 'Access token error' in error_message:
+                        print(f"Failed due to access token expiry: {error_message}")
+                        messages.warning(request, 'Your Linkedin access token has expired. Please re-link your account.')
+                        firestore_data = {'isLinkedin': False, 'linkedin_token': None}
+                        user_settings_ref.set(firestore_data, merge=True)
+                    else:
+                        messages.error(request, 'There was an error with your post. Please try again.')
+                        print(f"Failed to post to Linkedin: {error_message}")
+        else:
+            if facebook_checked:
+                try:
+                    page_id = user_settings['facebook_page_id']
+                    facebook_page_token = user_settings['facebook_page_token']
+                    post_to_facebook_page_feed(caption, image_url, page_id, facebook_page_token)
+                    num_sent += 1
+                    firestore_data = {'num_sent': num_sent}
+                    user_settings_ref.set(firestore_data, merge=True)
+                    isAllPosted = True
+                except Exception as e:
+                    isAllPosted = False
+                    error_message = str(e)
+                    if 'Access token error' in error_message:
+                        print(f"Failed due to access token expiry: {error_message}")
+                        messages.warning(request, 'Your Facebook access token has expired. Please re-link your account.')
+                        firestore_data = {'isFacebook': False, 'facebook_token': None}
+                        user_settings_ref.set(firestore_data, merge=True)
+                    else:
+                        messages.error(request, 'There was an error with your post. Please try again.')
+                        print(f"Failed to post to Facebook: {error_message}")
+
+            if instagram_checked:
+                try:
+                    instagram_user_id = user_settings['instagram_user_id']
+                    access_token = user_settings['instagram_token']
+                    post_to_instagram(access_token, image_url, caption, instagram_user_id)
+                    num_sent += 1
+                    firestore_data = {'num_sent': num_sent}
+                    user_settings_ref.set(firestore_data, merge=True)
+                    isAllPosted = True
+                except Exception as e:
+                    isAllPosted = False
+                    error_message = str(e)
+                    if 'Access token error' in error_message:
+                        print(f"Failed due to access token expiry: {error_message}")
+                        messages.warning(request, 'Your Instagram access token has expired. Please re-link your account.')
+                        firestore_data = {'isInstagram': False, 'instagram_token': None}
+                        user_settings_ref.set(firestore_data, merge=True)
+                    else:
+                        messages.error(request, 'There was an error with your post. Please try again.')
+                        print(f"Failed to post to Instagram: {error_message}")
+
+            if linkedin_checked:
+                try:
+                    access_token = user_settings['linkedin_token']
+                    page_id = user_settings['linkedin_id']
+                    page_type = user_settings['linkedin_type']
+                    personal_id = user_settings.get('linkedin_personal_id', None)
+                    post_to_linkedin(caption, image_url, access_token, page_id, page_type)
+                    num_sent += 1
+                    firestore_data = {'num_sent': num_sent}
+                    user_settings_ref.set(firestore_data, merge=True)
+                    isAllPosted = True
+                except Exception as e:
+                    isAllPosted = False
+                    error_message = str(e)
+                    if 'Access token error' in error_message:
+                        print(f"Failed due to access token expiry: {error_message}")
+                        messages.warning(request, 'Your Linkedin access token has expired. Please re-link your account.')
+                        firestore_data = {'isLinkedin': False, 'linkedin_token': None}
+                        user_settings_ref.set(firestore_data, merge=True)
+                    else:
+                        messages.error(request, 'There was an error with your post. Please try again.')
+                        print(f"Failed to post to Linkedin: {error_message}")
+
+        if isAllPosted:
+            messages.success(request, 'Your post has been successfully uploaded to your Social Media!')
+        
+
+    except Exception as e:
+        messages.error(request, "An unexpected error occurred. Please try again.")
+
+    return redirect(redirect_to)
+
+def delete_gcs_folder(user_id, folder_name):
+    credentials = service_account.Credentials.from_service_account_file(config("GS_CREDENTIALS"))
+    client = storage.Client(project=credentials.project_id, credentials=credentials)
+    bucket = client.bucket(config("GS_BUCKET_NAME"))
+    prefix = f'user_folders/{user_id}/{folder_name}/'
+    
+    blobs = bucket.list_blobs(prefix=prefix)
+    for blob in blobs:
+        blob.delete()
+

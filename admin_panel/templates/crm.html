@@ -17,6 +17,7 @@
     <div class="top">
         <form method="get" action="">
             <input type="text" name="email" placeholder="Search by email" style="margin-right: 10px;">
+            <input type="number" name="priority" placeholder="Filter by Priority" style="margin-right: 10px;">
             <button type="submit" style="margin-right: 10px;">Filter</button>
             <a href="/feadlio_crm/" class="clear-filters-button">Clear Filters</a>
             <a href="{% url 'brand_settings' %}" class="dashboard-button">Back To Dashboard</a>
@@ -92,17 +93,19 @@
                         </form>
                         <script>
                             document.getElementById('first-email').addEventListener('click', function() {
-                                document.getElementById('subject').value = 'Free Social Media Management';
+                                document.getElementById('subject').value = 'Your social media posts are waiting for you...';
                                 document.getElementById('message').value = `Hey {{ user_data.email }},
 
-Let's start running your social media! Would you like to schedule a quick call for me to learn more about your business's needs or just skip it and we will get right into scheduling your first posts for you?
+We've carefully crafted some social media posts for you. You can view them on your Feadl.io dashboard. This is where you will find the posts we create for your business every week. That way you never have to worry about running your business's social media.
+
+Let me know what you think of them and if you have any questions feel free to reach out :)
 
 Best,
 CJ
 
 CJ | Marketing Agent @ Feadl.io
 Give me a call: 407.516.6380
-Experience our platform: https://feadl.io/beta_signup/`;
+Sign back in: https://feadl.io/login/`;
 });
                         
                             document.getElementById('calendly-response').addEventListener('click', function() {
@@ -206,19 +209,34 @@ Experience our platform: https://feadl.io/beta_signup/`;
             <table>
                 <tr>
                     <th>Email</th>
-                    <th>Email Sent?</th>
-                    <th>Full Lead</th>
+                    <!-- <th>User</th> -->
+                    <th>Priority</th> 
+                    <!-- Click priority to sort by priority -->
                 </tr>
-                <tr class="total-row">
+                <!-- <tr class="total-row">
                     <th>Total</th>
-                    <td>{{ need_email_count }}</td>
+                    <td>{{ total }}</td>
                     <td>-</td>
-                </tr>        
+                </tr>         -->
                 {% for user in page_obj  %}
                 <tr>
                     <td>{{ user.email }}</td>
-                    <td>{% if user.emailSent %}✅{% endif %}</td>
-                    <td>{% if user.selectedPlan %}✅{% endif %}</td>
+                    <!-- <td>
+                        <input type="checkbox" id="subscriber_{{ user.id }}" {% if user.isSubscriber %}checked{% endif %} onclick="updateSubscriber('{{ user.id }}', this.checked)">
+                        <label for="subscriber_{{ user.id }}"></label>
+                    </td> -->
+                    <td>
+                        <select onchange="updatePriority('{{ user.email }}', this.value)">
+                            <option value="0" {% if user.leadPriority == 0 %}selected{% endif %}>0</option>
+                            <option value="1" {% if user.leadPriority == 1 %}selected{% endif %}>1</option>
+                            <option value="2" {% if user.leadPriority == 2 %}selected{% endif %}>2</option>
+                            <option value="3" {% if user.leadPriority == 3 %}selected{% endif %}>3</option>
+                            <option value="4" {% if user.leadPriority == 4 %}selected{% endif %}>4</option>
+                            <option value="5" {% if user.leadPriority == 5 %}selected{% endif %}>5</option>
+                            <option value="6" {% if user.leadPriority == 6 %}selected{% endif %}>6</option>
+                            <option value="7" {% if user.leadPriority == 7 %}selected{% endif %}>7</option>
+                        </select>
+                    </td>
                 </tr>
                 {% endfor %}
             </table>
@@ -226,7 +244,64 @@ Experience our platform: https://feadl.io/beta_signup/`;
     {% else %}
         <p>No data found</p>
     {% endif %}
+    <script>
+        function updateSubscriber(userId, isChecked) {
+            fetch('/update_subscriber/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({ user_id: userId, is_subscriber: isChecked })
+            })
+            .then(response => {
+                if (response.ok) {
+                    console.log(`User ${userId} is now ${isChecked ? 'subscribed' : 'unsubscribed'}`);
+                } else {
+                    console.error('Failed to update subscriber status');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
 
+        function updatePriority(userId, priority) {
+            fetch('/update_priority/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({ user_id: userId, leadPriority: priority })
+            })
+            .then(response => {
+                if (response.ok) {
+                    console.log(`User ${userId} priority is now ${priority}`);
+                } else {
+                    console.error('Failed to update priority');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        function deleteUser(userId) {
+            fetch('/delete_user/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({ user_id: userId })
+            })
+            .then(response => {
+                if (response.ok) {
+                    console.log(`Deleted user ${userId}`);
+                } else {
+                    console.error('Failed to delete user');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    </script>
     <div class="pagination">
         {% if page_obj.has_previous %}
             <a href="?page={{ page_obj.previous_page_number }}">Previous</a>

@@ -15,9 +15,16 @@ import secrets
 from dashboard.post_to_socials import *
 from app1.login import *
 from google.cloud import storage, firestore
-import random
-import string
+from google.oauth2 import service_account
+import uuid
+from django.conf import settings
 from django.core.mail import EmailMessage
+from moviepy.editor import VideoFileClip
+from PIL import Image
+from dashboard.tasks import enqueue_time_task, create_queue
+from django.core.files.storage import default_storage
+from django.core.files.base import ContentFile
+from dashboard.functions import correct_orientation
 
 db = firestore.Client(project='feed-ai-c379d')
 
@@ -28,22 +35,18 @@ def process_email(request, redirect_success, redirect_fail, template):
         email = request.POST.get('email')
         request.session['email'] = email
         details = {
-            'name': request.POST.get('name'),
             'email': email,
-            'businessName': request.POST.get('businessName', ''),
-            'color': request.POST.get('color', ''),
-            'message': request.POST.get('message'),
-            'link': request.POST.get('link', ''),
-            'funnel': subject
+            'funnel': subject,
+            'leadPriority': 1,
         }
-        message = 'Name: {name}\nEmail: {email}\nBusiness Name: {businessName}\nMessage: {message}\nLink: {link}'.format(**details)
+        message = 'Email: {email}\n'.format(**details)
         
         from_email = config("EMAIL_HOST_USER")
         recipient_list = [config("INTERNAL_RECIPIENTS")]
         to_admin_email_message = EmailMessage(subject, message, from_email, recipient_list)
         
         try:
-            to_admin_email_message.send()
+            # to_admin_email_message.send()
             doc_ref = db.collection('service').document(details['email'])
             doc_ref.set(details)
         except Exception:
@@ -53,7 +56,7 @@ def process_email(request, redirect_success, redirect_fail, template):
         # Send to User
         if request.POST.get('isSendToUser', False) == 'on':
             suggested_subject = request.POST.get('subject', "Feadl.io - Let's Get Started!")
-            suggested_message = f"Hi {email},\n\nI'm excited to get you setup with feadl.io. To continue, follow this link to get your social media up and running!\n\nGetting Started Guide\nhttps://feadl.io/my_feadlio/\n\nSincerely,\nCJ\n\nMarketing Agent @ Feadl.io"
+            suggested_message = f"Hi {email},\n\nI'm excited to get you setup with feadl.io. To continue, follow this link to get your social media up and running!\n\nGetting Started Guide\nhttps://feadl.io/my_feadlio/\n\nSincerely,\nElaine\n\nMarketing Agent @ Feadl.io"
 
             to_user_email_message = EmailMessage(suggested_subject, suggested_message, from_email, [email])
             
@@ -99,6 +102,148 @@ def social_media_guy_success(request):
 
 def price_5(request):
     return render(request, 'price_5.html')
+
+def add_logo_to_thumbnail(thumbnail_path):
+    thumbnail = Image.open(thumbnail_path)
+    logo = Image.open('static/funnel/media/Youtube_logo.png')
+
+    logo_width = int(thumbnail.width * 0.2)
+    logo_height = int((logo_width / logo.width) * logo.height)
+    logo_resized = logo.resize((logo_width, logo_height))
+
+    x = (thumbnail.width - logo_resized.width) // 2
+    y = (thumbnail.height - logo_resized.height) // 2
+    thumbnail.paste(logo_resized, (x, y), logo_resized)
+
+    thumbnail.save(thumbnail_path)
+
+def kole_enright_baseball_training(request):
+    return render(request, 'kole_enright_baseball_training.html')
+
+def kole_enright_success(request):
+    return render(request, 'kole_enright_success.html')
+
+def kole_enright_paid(request):
+    to_email = request.session.get('email')
+    subject = "Your video is processing!"
+    message = f"Your professional video breakdown from Kole Enright is processing on our server. We will email you once it's finished."
+    
+    from_email = config("EMAIL_HOST_USER")
+    recipient_list = [to_email]
+    to_kole_email = EmailMessage(subject, message, from_email, recipient_list)
+    to_kole_email.send()
+    return render(request, 'kole_enright_paid.html')
+
+def kole_enright_video_breakdown(request):
+    email = request.GET.get('email')
+    
+    bucket_credentials = config('GS_CREDENTIALS')
+    bucket_name = config('GS_BUCKET_NAME')
+    credentials = service_account.Credentials.from_service_account_file(bucket_credentials)
+    client = storage.Client(project=credentials.project_id, credentials=credentials)
+    bucket = client.bucket(bucket_name)
+    
+    filename = 'thumbnail.jpg'
+    folder_path = 'kole_training/' + email + '/'
+    blob = bucket.blob(folder_path + filename)
+
+    image = blob.public_url
+
+    return render(request, 'kole_enright_video_breakdown.html', {'image': image})
+
+@csrf_exempt
+def generate_signed_url(request):
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        request.session['email'] = email
+        bucket_credentials = config('GS_CREDENTIALS')
+        bucket_name = config('GS_BUCKET_NAME')
+        credentials = service_account.Credentials.from_service_account_file(bucket_credentials)
+        client = storage.Client(project=credentials.project_id, credentials=credentials)
+        bucket = client.bucket(bucket_name)
+        folder_path = 'kole_training/' + email + '/'
+        file_name = request.POST.get('file_name')
+        extension = os.path.splitext(file_name)[1] if file_name else None
+        filename = folder_path + 'video_upload' + extension
+        blob = bucket.blob(filename)
+
+        signed_url = blob.generate_signed_url(
+            version='v4',
+            expiration=600,
+            method='PUT',
+            content_type='application/octet-stream'
+        )
+
+        public_url = f"https://storage.googleapis.com/{bucket_name}/{filename}"
+
+
+        return JsonResponse({'url': signed_url, 'public_url': public_url, 'extension': extension})
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=405)
+    
+@csrf_exempt
+def upload_file(request):
+    if request.method == 'GET':
+        email = request.GET.get('email')
+        signed_url = request.GET.get('file_url')
+        extension = request.GET.get('extension')
+        bucket_credentials = config('GS_CREDENTIALS')
+        bucket_name = config('GS_BUCKET_NAME')
+        credentials = service_account.Credentials.from_service_account_file(bucket_credentials)
+        client = storage.Client(project=credentials.project_id, credentials=credentials)
+        bucket = client.bucket(bucket_name)
+        folder_path = f'kole_training/{email}/'
+        filename = folder_path + 'video_upload' + extension
+        blob = bucket.blob(filename)
+        blob.make_public()
+        public_url = f"https://storage.googleapis.com/{bucket_name}/{filename}"
+        
+        with requests.get(public_url, stream=True) as r:
+            r.raise_for_status()
+            with tempfile.NamedTemporaryFile(delete=False, suffix=extension) as temp_video:
+                for chunk in r.iter_content(chunk_size=8192):
+                    temp_video.write(chunk)
+                temp_video_path = temp_video.name
+
+        with VideoFileClip(temp_video_path) as video_clip:
+            if video_clip.rotation == 90:
+                video_clip = video_clip.resize(video_clip.size[::-1])
+                video_clip.rotation = 0
+            thumbnail = video_clip.get_frame(0)
+            with tempfile.NamedTemporaryFile(delete=False, suffix='.jpg') as temp_thumbnail:
+                thumbnail_path = temp_thumbnail.name
+                Image.fromarray(thumbnail).save(thumbnail_path)
+
+                add_logo_to_thumbnail(thumbnail_path)
+
+        thumbnail_blob = bucket.blob(folder_path + "thumbnail.jpg")
+        thumbnail_blob.upload_from_filename(thumbnail_path, content_type='image/jpeg')
+        thumbnail_blob.make_public()
+        thumbnail_url = thumbnail_blob.public_url
+
+        os.remove(temp_video_path)
+        os.remove(thumbnail_path)
+        
+        subject = "New Training Video Submission"
+        kole_email = "enrightkole@gmail.com"
+        message = f"Hi Kole,\n\nA new training video has been submitted. You can view it here: {public_url}\n\nSincerely,\nCJ Bot"
+        
+        from_email = config("EMAIL_HOST_USER")
+        recipient_list = [kole_email]
+        to_kole_email = EmailMessage(subject, message, from_email, recipient_list)
+        to_kole_email.send()
+
+        link = f"https://feadl.io/kole_enright_video_breakdown/?email={email}"
+        payload = {
+            "to_email": email,
+            "subject": "View your remote training video breakdown!",
+            "message": f"Hi {email},\n\nThank you for submitting your training video. You can view it here: {link}\n\nSincerely,\nKole Enright"
+        }
+        enqueue_time_task(payload, "kole-enright-baseball-training-queue", "https://feadl.io/automated_email/", 3)
+        print("Task enqueued")
+        return redirect('kole_enright_success')
+    else:
+        return redirect('kole_enright_baseball_training')
 
 def smm_relink(request):
     if request.method == 'POST':

@@ -5,6 +5,7 @@ from google.protobuf import duration_pb2
 from google.api_core.exceptions import NotFound
 import json
 from decouple import config
+from datetime import datetime, timedelta, timezone
 
 credentials = service_account.Credentials.from_service_account_file('credentials.json')
 
@@ -26,6 +27,32 @@ def enqueue_task(payload, queue_name, queue_url):
             "body": json.dumps(payload).encode(),
         }
     }
+
+    task = client.create_task(parent=parent, task=task_payload)
+    print(f"Task created: {task.name}")
+
+def enqueue_time_task(payload, queue_name, queue_url, hours_ahead=0):
+    client = get_cloud_tasks_client()
+    parent = client.queue_path(config("GS_PROJECT_ID"), config("GS_QUEUE_REGION"), queue_name)
+    API_TOKEN = config("API_TOKEN")
+
+    task_payload = {
+        "http_request": {
+            "http_method": tasks_v2.HttpMethod.POST,
+            "url": queue_url,
+            "headers": {
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {API_TOKEN}"
+            },
+            "body": json.dumps(payload).encode(),
+        }
+    }
+
+    if hours_ahead:
+        current_time = datetime.now(timezone.utc)
+        scheduled_time = current_time + timedelta(hours=hours_ahead)
+        schedule_timestamp = scheduled_time.isoformat()
+        task_payload["schedule_time"] = {"seconds": int(scheduled_time.timestamp())}
 
     task = client.create_task(parent=parent, task=task_payload)
     print(f"Task created: {task.name}")

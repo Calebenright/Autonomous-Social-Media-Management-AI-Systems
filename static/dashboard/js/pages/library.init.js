@@ -1,26 +1,5 @@
 "use strict";
 
-// FIREBASE LISTENER //
-
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.6.6/firebase-app.js';
-import { getFirestore, collection, doc, setDoc, getDoc, onSnapshot } from 'https://www.gstatic.com/firebasejs/9.6.6/firebase-firestore.js';
-import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.6.6/firebase-auth.js';
-
-var firebaseConfig = {
-apiKey: "AIzaSyCJTdpRMOwfhDosa6MTPbsh38kxxiqllc4",
-authDomain: "feed-ai-c379d.firebaseapp.com",
-projectId: "feed-ai-c379d",
-storageBucket: "feed-ai-c379d.appspot.com",
-messagingSenderId: "825164430085",
-appId: "1:825164430085:web:a41ec57b7c3c0d92c5156c",
-measurementId: "G-0K43VDRKJP"
-};
-
-const firebaseApp = initializeApp(firebaseConfig);
-const auth = getAuth(firebaseApp);
-const db = getFirestore(firebaseApp);
-const statusDocRef = doc(collection(db, 'users'), jsonDump.userId);
-
 0 < $('[data-plugins="dropify"]').length && $('[data-plugins="dropify"]').dropify({
     messages: {
         default: "File Upload",
@@ -85,21 +64,26 @@ function updateImageTagThumbnails() {
 
         // Create a remove button
         const removeBtn = document.createElement('button');
-        removeBtn.innerHTML = 'X';
+        const icon = document.createElement('i');
+        icon.classList.add('fe-delete');
+        removeBtn.appendChild(icon);
         removeBtn.classList.add('remove-btn');
         removeBtn.onclick = function(event) {
             event.preventDefault();
             removeImageTag(imageUrl);
         };
-        overlay.appendChild(removeBtn); // Append removeBtn to overlay instead of imageThumbnail
+        overlay.appendChild(removeBtn);
+
 
         // Create a download link
         const downloadLink = document.createElement('a');
         downloadLink.href = imageUrl;
-        downloadLink.download = imageUrl.split('/').pop(); // Suggest filename from URL
-        downloadLink.innerHTML = 'Download';
+        downloadLink.download = imageUrl.split('/').pop();
+        const icon2 = document.createElement('i');
+        icon2.classList.add('fe-download-cloud');
+        downloadLink.appendChild(icon2);
         downloadLink.classList.add('download-link');
-        overlay.appendChild(downloadLink); // Append downloadLink to overlay instead of imageThumbnail
+        overlay.appendChild(downloadLink);
 
         // Append overlay to imageThumbnail
         imageThumbnail.appendChild(overlay);
@@ -205,3 +189,181 @@ imageTagFormSubmit.addEventListener('click', function() {
 });
 
 updateImageTagThumbnails();
+
+// -------------------- VIDEO TAGS ------------------------ //
+
+let currentvideoPage = 1;
+const videosPerPage = 30;
+const videoTags = videoTagsArray;
+let totalvideos = videoTags.length; // Should be declared with 'let' if it needs to be updated
+
+function removevideoTag(videoUrl) {
+    const index = videoTags.indexOf(videoUrl);
+    if (index !== -1) {
+        videoTags.splice(index, 1);
+        updateTotalvideosAndThumbnails();
+    }
+}
+
+function updateTotalvideosAndThumbnails() {
+    totalvideos = videoTags.length; // Update totalvideos based on the current number of video tags
+    updatevideoTagThumbnails(); // Then update the thumbnails displayed
+    updatePaginationControls(); // And also update the pagination controls accordingly
+}
+
+function updatevideoTagThumbnails() {
+    const startvideoIndex = (currentvideoPage - 1) * videosPerPage;
+    const endIndex = startvideoIndex + videosPerPage;
+    const paginatedvideoUrls = videoTags.slice(startvideoIndex, endIndex); // Get videos for the current page
+
+    const videoTagThumbnails = document.getElementById("videoTagThumbnails");
+    videoTagThumbnails.innerHTML = ''; // Clear existing thumbnails
+
+    paginatedvideoUrls.forEach(videoUrl => {
+        const videoThumbnail = document.createElement('div');
+        videoThumbnail.classList.add('video-tag-thumbnail');
+
+        const videoElement = document.createElement('video');
+        videoElement.src = videoUrl;
+        videoElement.controls = true;
+        videoElement.alt = "Video Tag";
+        videoThumbnail.appendChild(videoElement);
+
+        // Create a remove button
+        const removeBtn = document.createElement('button');
+        const icon3 = document.createElement('i');
+        icon3.classList.add('fe-delete');
+        removeBtn.appendChild(icon3);
+        removeBtn.classList.add('video-tag-remove-btn');
+        removeBtn.onclick = function(event) {
+            event.preventDefault();
+            removevideoTag(videoUrl);
+        };
+
+        // Append overlay to videoThumbnail
+        videoThumbnail.appendChild(removeBtn);
+
+        videoTagThumbnails.appendChild(videoThumbnail);
+    });
+
+    updatevideoPaginationControls(); // Call to update pagination controls based on current state
+}
+
+function updatevideoPaginationControls() {
+    const container = document.getElementById('video-pagination-controls');
+    container.innerHTML = '';
+    container.style.display = 'flex';
+    container.style.flexDirection = 'column';
+
+    const buttonContainer = document.createElement('div');
+    buttonContainer.style.display = 'flex';
+    buttonContainer.style.justifyContent = 'space-between';
+    buttonContainer.style.marginBottom = '10px';
+
+    const totalPages = Math.ceil(totalvideos / videosPerPage);
+
+    // Previous Button
+    if (currentvideoPage > 1) {
+        const prevButton = document.createElement('button');
+        prevButton.textContent = 'Previous';
+        prevButton.className = 'pagination-button prev-button';
+        prevButton.type = 'button';
+        prevButton.onclick = function() {
+            if (currentvideoPage > 1) {
+                currentvideoPage--;
+                updatevideoTagThumbnails(); 
+            }
+        };
+        buttonContainer.appendChild(prevButton);
+    }
+
+    // Next Button
+    if (currentvideoPage < totalPages) {
+        const nextButton = document.createElement('button');
+        nextButton.textContent = 'Next';
+        nextButton.className = 'pagination-button next-button';
+        nextButton.type = 'button';
+        nextButton.onclick = function() {
+            if (currentvideoPage < totalPages) {
+                currentvideoPage++;
+                updatevideoTagThumbnails(); // Refresh thumbnails to show the next page
+            }
+        };
+        buttonContainer.appendChild(nextButton);
+    }
+
+    // Page Information Display
+    container.appendChild(buttonContainer);
+    const videopageInfo = document.createElement('span');
+    videopageInfo.textContent = `Page ${currentvideoPage} of ${totalPages}`;
+    videopageInfo.className = 'page-info';
+    container.appendChild(videopageInfo);
+}
+
+function generateSignedUrl() {
+    var videoFile = document.getElementById('videoUpload').files[0];
+    var folderName = 'video_library';
+
+    if (!videoFile) {
+        sendVideoTagForm();
+    } else {
+        var formData = new FormData();
+        formData.append('folder_name', folderName);
+        formData.append('file_name', videoFile.name);
+
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', formUrl, true);
+        xhr.setRequestHeader('X-CSRFToken', csrf_token);
+
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                var response = JSON.parse(xhr.responseText);
+                var signedUrl = response.url;
+                var fileName = response.file_name;
+                
+                uploadVideo(signedUrl, videoFile);
+            }
+        };
+
+        xhr.send(formData);
+    }
+}
+
+function uploadVideo(signedUrl, videoFile) {
+    var xhr = new XMLHttpRequest();
+    xhr.open('PUT', signedUrl, true);
+    xhr.setRequestHeader('Content-Type', 'application/octet-stream');
+
+    xhr.upload.onprogress = function(e) {
+        if (e.lengthComputable) {
+            var percentComplete = (e.loaded / e.total) * 100;
+            document.getElementById('upload-progress-bar').style.width = percentComplete + '%';
+            document.getElementById('upload-progress-bar').innerText = percentComplete.toFixed(2) + '%';
+        }
+    };
+
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+                document.getElementById('video-url').value = videoFile.name;
+                sendVideoTagForm();
+            } else {
+                alert('Error uploading video: ' + xhr.statusText);
+            }
+        }
+    };
+
+    xhr.send(videoFile);
+}
+
+function sendVideoTagForm() {
+    updateHiddenvideoInput();
+    document.getElementById('videoTagForm').submit();
+}
+
+function updateHiddenvideoInput() {
+    const videoTagsInput = document.querySelector('input[name="videoTags"]');
+    videoTagsInput.value = videoTagsArray.join(',');
+}
+
+updatevideoTagThumbnails();

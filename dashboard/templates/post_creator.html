@@ -624,7 +624,7 @@
                                                 <h4 class="header-title">Scheduled Post #1</h4>
                                                 {% if elaine_settings.scheduled_image_0 %}
                                                 <br>
-                                                <img id="loaded-image" src="{{ elaine_settings.scheduled_image_0 }}" alt="Loading" class="generated-image-small rounded">
+                                                <img src="{{ elaine_settings.scheduled_image_0 }}" alt="Loading" class="generated-image-small rounded">
                                                 <br>
                                                 {% endif %}
                                                 <br>
@@ -640,7 +640,7 @@
                                                 <h4 class="header-title">Scheduled Post #2</h4>
                                                 {% if elaine_settings.scheduled_image_1 %}
                                                 <br>
-                                                <img id="loaded-image" src="{{ elaine_settings.scheduled_image_1 }}" alt="Loading" class="generated-image-small rounded">
+                                                <img src="{{ elaine_settings.scheduled_image_1 }}" alt="Loading" class="generated-image-small rounded">
                                                 <br>
                                                 {% endif %}
                                                 <br>
@@ -656,7 +656,7 @@
                                                 <h4 class="header-title">Scheduled Post #3</h4>
                                                 {% if elaine_settings.scheduled_image_2 %}
                                                 <br>
-                                                <img id="loaded-image" src="{{ elaine_settings.scheduled_image_2 }}" alt="Loading" class="generated-image-small rounded">
+                                                <img src="{{ elaine_settings.scheduled_image_2 }}" alt="Loading" class="generated-image-small rounded">
                                                 <br>
                                                 {% endif %}
                                                 <br>
@@ -672,7 +672,7 @@
                                                 <h4 class="header-title">Scheduled Post #4</h4>
                                                 {% if elaine_settings.scheduled_image_3 %}
                                                 <br>
-                                                <img id="loaded-image" src="{{ elaine_settings.scheduled_image_3 }}" alt="Loading" class="generated-image-small rounded">
+                                                <img src="{{ elaine_settings.scheduled_image_3 }}" alt="Loading" class="generated-image-small rounded">
                                                 <br>
                                                 {% endif %}
                                                 <br>
@@ -688,7 +688,7 @@
                                                 <h4 class="header-title">Scheduled Post #5</h4>
                                                 {% if elaine_settings.scheduled_image_4 %}
                                                 <br>
-                                                <img id="loaded-image" src="{{ elaine_settings.scheduled_image_4 }}" alt="Loading" class="generated-image-small rounded">
+                                                <img src="{{ elaine_settings.scheduled_image_4 }}" alt="Loading" class="generated-image-small rounded">
                                                 <br>
                                                 {% endif %}
                                                 <br>
@@ -715,6 +715,14 @@
                                             <button type="button" class="btn btn-warning w-md waves-effect waves-light mb-3" onclick="setElaineValueAndShowSpinner('formClearElaine', 'sendPost')">
                                                 <i class="mdi mdi-bookshelf"></i> Clear Client Dashboard.
                                             </button>
+                                            {% if user_settings.service_ftue == '1' or user_settings.service_ftue == '2' %}
+                                            <button type="button" class="btn btn-dark w-md waves-effect waves-light mb-3" onclick="setElaineValueAndShowSpinner('formClearFtue', 'sendPost')">
+                                                <i class="mdi mdi-face"></i> End Ftue.
+                                            </button>
+                                            {% endif %}
+                                            <a href="{% url 'service_dashboard' %}" class="btn btn-light w-md waves-effect waves-light mb-3">
+                                                <i class="mdi mdi-desktop-mac-dashboard"></i> Go To Client Dashboard.
+                                            </a>
 
                                         </div>
                                     </div>

@@ -12,6 +12,7 @@ Procfile
 app.yaml
 secrets_manager.py
 Staging Functions
+cors-config.json
 
 # Ignore other files or directories
 node_modules/

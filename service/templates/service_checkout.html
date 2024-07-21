@@ -68,31 +68,11 @@
         <div class="navbar-custom">
             <ul class="list-unstyled topnav-menu float-end mb-0">
 
-                <!-- WEB -->
-                {% if not user_settings.isSubscriber %}
-                <li class="d-none d-lg-block sub-margin">
-                    <div class="subscribe-btn">
-                        <a class="btn btn-gradient-stroke subscribe rounded-pill dropdown-toggle arrow-none waves-effect waves-light mb-3" href="{% url 'service_checkout' %}">
-                            <span><span class="crown-icon" aria-hidden="true">👑</span> Unlimited <span class="crown-icon" aria-hidden="true">👑</span></span>
-                        </a>
-                    </div>
-                </li>
-
-                <!-- MOBILE -->
-                <li class="dropdown d-inline-block d-lg-none sub-margin">
-                    <div class="subscribe-btn">
-                        <a class="btn btn-gradient-stroke subscribe rounded-pill dropdown-toggle arrow-none waves-effect waves-light mb-3" href="{% url 'service_checkout' %}">
-                            <span><span class="crown-icon" aria-hidden="true">👑</span> Unlimited <span class="crown-icon" aria-hidden="true">👑</span></span>
-                        </a>
-                    </div>
-                </li>
-                {% endif %}
-
             </ul>
 
             <!-- LOGO -->
             <div class="logo-box">
-                <a href="{% url 'service_dashboard' %}" class="logo logo-light text-center">
+                <a href="#" class="logo logo-light text-center">
                     <span class="logo-sm">
                         <img src="{% static 'dashboard/images/brand/logo-sm.png' %}" alt="" height="22">
                     </span>
@@ -100,7 +80,7 @@
                         <img src="{% static 'dashboard/images/brand/logo-light.png' %}" alt="" height="16">
                     </span>
                 </a>
-                <a href="{% url 'service_dashboard' %}" class="logo logo-dark text-center">
+                <a href="#" class="logo logo-dark text-center">
                     <span class="logo-sm">
                         <img src="{% static 'dashboard/images/brand/logo-sm.png' %}" alt="" height="22">
                     </span>
@@ -118,33 +98,51 @@
                         <i class="fe-menu"></i>
                     </a>
                     <div class="dropdown-menu dropdown-menu-end profile-dropdown ">
-                        <!-- item-->
+
                         <div class="dropdown-header noti-title">
                             <h6 class="text-overflow m-0">Where do you want to go?</h6>
                         </div>
 
-                        <!-- item-->
-                        <a href="{% url 'service_dashboard' %}" class="dropdown-item notify-item">
+                        <a href="#" class="dropdown-item notify-item">
                             <i class="mdi mdi-view-dashboard-outline"></i>
-                            <span>Dashboard</span>
+                            <span>Social Media Manager</span>
                         </a>
 
-                        <!-- item-->
-                        <a href="{% url 'service_calendar' %}" class="dropdown-item notify-item">
-                            <i class="fas fa-edit"></i>
-                            <span>Schedule</span>
+                        <a href="#" class="dropdown-item notify-item">
+                            <i class="fas fa-palette"></i>
+                            <span>Graphic Designer</span>
                         </a>
 
-                        <!-- item-->
-                        <a href="{% url 'service_brand_settings' %}" class="dropdown-item notify-item">
-                            <i class="fe-settings"></i>
-                            <span>Account</span>
+                        <a href="#" class="dropdown-item notify-item">
+                            <i class="fas fa-video"></i>
+                            <span>Video Editor</span>
+                        </a>
+                        
+                        <a href="#" class="dropdown-item notify-item">
+                            <i class="fe-trending-up"></i>
+                            <span>Advertising Specialist</span>
                         </a>
 
                         <div class="dropdown-divider"></div>
 
-                        <!-- item-->
-                        <a href="{% url 'index' %}" class="dropdown-item notify-item">
+                        <a href="#" class="dropdown-item notify-item">
+                            <i class="fas fa-edit"></i>
+                            <span>Content Calendar</span>
+                        </a>
+
+                        <a href="#" class="dropdown-item notify-item">
+                            <i class="mdi mdi-bookshelf"></i>
+                            <span>Content Library</span>
+                        </a>
+
+                        <a href="#" class="dropdown-item notify-item">
+                            <i class="fe-settings"></i>
+                            <span>Settings</span>
+                        </a>
+
+                        <div class="dropdown-divider"></div>
+
+                        <a href="#" class="dropdown-item notify-item">
                             <i class="fe-log-out"></i>
                             <span>Logout</span>
                         </a>
@@ -153,7 +151,7 @@
                 </li>
 
                 <li>
-                    <h4 class="page-title-main">Checkout</h4>
+                    <h4 class="page-title-main">Choose Plan</h4>
                 </li>
 
             </ul>
@@ -180,7 +178,7 @@
 
                     <ul class="list-inline">
                         <li class="list-inline-item">
-                            <a href="{% url 'service_brand_settings' %}" class="text-muted left-user-info">
+                            <a href="#" class="text-muted left-user-info">
                                 <i class="mdi mdi-cog"></i>
                             </a>
                         </li>
@@ -198,26 +196,56 @@
 
                     <ul id="side-menu">
 
-                        <li class="menu-title">Social Media</li>
+                        <li class="menu-title">Agents</li>
 
                         <li>
-                            <a href="{% url 'service_dashboard' %}">
+                            <a href="#">
                                 <i class="mdi mdi-view-dashboard-outline"></i>
-                                <span>Dashboard</span>
+                                <span> Social Media Manager </span>
                             </a>
                         </li>
 
                         <li>
-                            <a href="{% url 'service_calendar' %}">
+                            <a href="#">
+                                <i class="fas fa-palette"></i>
+                                <span> Graphic Designer </span>
+                            </a>
+                        </li>
+                        
+                        <li>
+                            <a href="#">
+                                <i class="fas fa-video"></i>
+                                <span> Video Editor </span>
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="#">
+                                <i class="fe-trending-up"></i>
+                                <span> Advertising Specialist </span>
+                            </a>
+                        </li>
+
+                        <li class="menu-title">Account</li>
+
+                        <li>
+                            <a href="#">
                                 <i class="fas fa-edit"></i>
-                                <span> Schedule </span>
+                                <span> Content Calendar </span>
                             </a>
                         </li>
 
                         <li>
-                            <a href="{% url 'service_brand_settings' %}">
+                            <a href="#">
+                                <i class="mdi mdi-bookshelf"></i>
+                                <span>Content Library</span>
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="#">
                                 <i class="fe-settings"></i>
-                                <span> Account </span>
+                                <span> Settings </span>
                             </a>
                         </li>
                     </ul>
@@ -259,45 +287,64 @@
                                 <div class="card-body">
                                     <div class="row">
                                         <div class="pricing-center">
-                                            <div class="col-pricing pricing-card card-content">
-                                                <p class="pricing-title">Standard</p>
+                                            <div class="col-pricing pricing-card card-content most-popular">
+                                                <div class="most-popular-tag">Most Popular</div>
+                                                <p class="pricing-title">Complete Social Media</p>
                                                 <h2 class="pricing-header">
-                                                    <span class="sale-price-lite" id="agency-sale-price">Free</span>
+                                                    <span class="original-price-wrapper">
+                                                        <span class="pricing-price original-price" id="standard-original-price">$5</span>
+                                                    </span>
+                                                    <span class="sale-price">Free</span>
+                                                    <span class="pricing-duration sans">First Month</span>
                                                 </h2>
-                                                <div class="pricing-button pricing-button-secondary full-width space-top" role="button">Subscribed</div>
+                                                <a href="#" id="checkout-1" class="pricing-button pricing-button-secondary full-width space-top" role="button">Subscribe</a>
                                                 <div class="vertical-line"></div>
-                                                <p class="paragraph space-top">Standard Plan</p>
+                                                <p class="paragraph space-top">Social Media Management Plan</p>
                                                 <ul class="space-bottom">
                                                     <!-- <li>Everything From The Full Plan.</li> -->
                                                     <li>Your personalized social media manager.</li>
-                                                    <li>1 business page.</li>
-                                                    <li>4 posts a month.</li>
+                                                    <li>8 posts a month.</li>
+                                                    <li>Custom posts.</li>
                                                     <li>Email updates.</li>
                                                 </ul>
                                             </div>
-                                            <div class="col-pricing pricing-card card-content dark  most-popular">
-                                                <div class="most-popular-tag">Most Popular</div>
-                                                <p class="pricing-title">Unlimited</p>
+                                            <div class="col-pricing pricing-card card-content dark">
+                                                <p class="pricing-title">Unlimited Social Media</p>
                                                 <h2 class="pricing-header">
-                                                    <span class="sale-price-lite dark" id="agency-sale-price">$5</span>
+                                                    <span class="sale-price-lite dark" id="agency-sale-price">$20</span>
                                                     <span class="pricing-duration dark sans">/MO</span>
                                                 </h2>
-                                                <a href="#" id="checkout-agency-user" class="pricing-button pricing-button-primary full-width space-top" role="button">Subscribe</a>
+                                                <a href="#" id="checkout-2" class="pricing-button pricing-button-primary full-width space-top" role="button">Subscribe</a>
                                                 <div class="vertical-line"></div>
                                                 <p class="paragraph space-top">Unlimited Plan</p>
                                                 <ul class="space-bottom">
                                                     <!-- <li>Everything From The Full Plan.</li> -->
                                                     <li>Your personalized social media manager.</li>
-                                                    <li>1 business page.</li>
                                                     <li>Unlimited posts a month.</li>
+                                                    <li>Custom posts.</li>
                                                     <li>Scheduled directly to your socials.</li>
                                                     <li>Email updates.</li>
                                                     <li>And More!</li>
                                                 </ul>
                                             </div>
-                                            <script>
-                                                ENVIRONMENT = '{{ ENVIRONMENT }}';
-                                            </script>
+                                            <div class="col-pricing pricing-card card-content dark">
+                                                <p class="pricing-title">Full Marketing Team</p>
+                                                <h2 class="pricing-header">
+                                                    <span class="sale-price-lite dark">$60</span>
+                                                    <span class="pricing-duration dark sans">/MO</span>
+                                                </h2>
+                                                <a href="#" id="checkout-3" class="pricing-button pricing-button-primary full-width space-top" role="button">Subscribe</a>
+                                                <div class="vertical-line"></div>
+                                                <p class="paragraph space-top">Marketing Plan</p>
+                                                <ul class="space-bottom">
+                                                    <li>Everything from Unlimited Social Media.</li>
+                                                    <li>Your personalized marketing team.</li>
+                                                    <li>Personalized video editor.</li>
+                                                    <li>Personalized graphic designer.</li>
+                                                    <li>Everything you need to earn money online.</li>
+                                                    <li>Lots of value for a low price!</li>
+                                                </ul>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -315,6 +362,9 @@
                         
                         const imageTagsArray = '{{ user_settings.image_tags|safe }}' !== '' ?
                         JSON.parse('{{ user_settings.image_tags|safe }}') : [];
+
+                        ENVIRONMENT = '{{ ENVIRONMENT }}';
+
                     </script>
                 </div> <!-- container-fluid -->
 

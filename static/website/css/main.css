@@ -1096,42 +1096,42 @@ p:last-child {
 }
 
 .bg-image-03:after {
-  background: url(../media/bg/image-03@2x.jpg);
+  background: url(../media/bg/image-03@2x.webp);
 }
 
 @media only screen and (max-width: 479px) {
   .bg-image-03:after {
-    background: url(../media/bg/image-03@2x.jpg);
+    background: url(../media/bg/image-03@2x.webp);
   }
 }
 
 .bg-image-04:after {
-  background: url(../media/bg/image-04@2x.jpg);
+  background: url(../media/bg/image-04@2x.webp);
 }
 
 @media only screen and (max-width: 479px) {
   .bg-image-04:after {
-    background: url(../media/bg/image-04.jpg);
+    background: url(../media/bg/image-04.webp);
   }
 }
 
 .bg-image-05:after {
-  background: url(../media/bg/image-05@2x.jpg);
+  background: url(../media/bg/image-05@2x.webp);
 }
 
 @media only screen and (max-width: 479px) {
   .bg-image-05:after {
-    background: url(../media/bg/image-05.jpg);
+    background: url(../media/bg/image-05.webp);
   }
 }
 
 .bg-image-06:after {
-  background: url(../media/bg/image-06@2x.jpg);
+  background: url(../media/bg/image-06@2x.webp);
 }
 
 @media only screen and (max-width: 479px) {
   .bg-image-06:after {
-    background: url(../media/bg/image-06.jpg);
+    background: url(../media/bg/image-06.webp);
   }
 }
 

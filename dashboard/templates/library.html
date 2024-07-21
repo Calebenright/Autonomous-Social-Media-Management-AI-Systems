@@ -407,7 +407,7 @@
                             {% endfor %}
                         </ul>
                         {% endif %}                   
-                        <div class="col-md-12">
+                        <div class="col-md-6">
                             <div class="card">
                                 <div class="card-body">
                                     <h4 class="header-title">Image Library</h4>
@@ -450,8 +450,7 @@
                                 </div> <!-- end card-body -->
                             </div> <!-- end card -->
                         </div><!-- end col -->
-                        <!-- {% if user_settings.isBusiness %}
-                        <div class="col-md-12">
+                        <div class="col-md-6">
                             <div class="card">
                                 <div class="card-body">
                                     <h4 class="header-title">Video Library</h4>
@@ -465,17 +464,45 @@
                                                     <form id="videoTagForm" method="post" action="{% url 'library' %}" enctype="multipart/form-data">
                                                         {% csrf_token %}
                                                         <input type="file" name="file" id="videoUpload" data-plugins="dropify" data-height="200" accept=".mov, .mp4" />
-                                                        <input type="hidden" name="form" value="video-tags">
-                                                        <input type="hidden" name="videoTags" value="">
                                                         <br>
+                                                        <div id="upload-overlay" class="mb-2">
+                                                            <div id="progress-bar-container">
+                                                                <div id="upload-progress-bar"></div>
+                                                            </div>
+                                                        </div>
+                                                        <input type="hidden" name="form" value="video-tags">
+                                                        <input type="hidden" id="video-url" name="file-name">
+                                                        <input type="hidden" name="videoTags" value="">
                                                         <div class="generated-post">
                                                             <div style="display: inline-block;">
-                                                                <button type="submit" id="videoTagFormSubmit" class="btn btn-success waves-effect waves-light">Add Video To Library</button>
+                                                                <button type="button" id="videoTagFormSubmit" class="btn btn-success waves-effect waves-light" onclick="generateSignedUrl()">Save Settings & Add Video To Library</button>
                                                             </div>
                                                         </div>
                                                         <br>
                                                         <div class="video-tag-thumbnails" id="videoTagThumbnails"></div>
+                                                        <div style="display: flex; justify-content: center; margin-bottom: 10px;">
+                                                            <div id="video-pagination-controls" class="pagination-controls"  style="display: flex;flex-direction: column;"></div>
+                                                        </div>
                                                     </form>
+                                                    <style>
+                                                        #progress-bar-container {
+                                                            width: 100%;
+                                                            background-color: #f3f3f3;
+                                                            border-radius: 25px;
+                                                            padding: 3px;
+                                                        }
+            
+                                                        #upload-progress-bar {
+                                                            width: 0;
+                                                            height: 20px;
+                                                            background-color: #4caf50;
+                                                            border-radius: 20px;
+                                                            text-align: center;
+                                                            line-height: 20px;
+                                                            color: white;
+                                                            transition: width 0.4s;
+                                                        }
+                                                    </style>
                                                 </div>
                                             </div>
                                         </div>
@@ -483,7 +510,6 @@
                                 </div>
                             </div>
                         </div>
-                        {% endif %} -->
                     </div>
                     <!-- end row -->
                                     
@@ -497,6 +523,12 @@
                         
                         const imageTagsArray = '{{ user_settings.image_tags|safe }}' !== '' ?
                         JSON.parse('{{ user_settings.image_tags|safe }}') : [];
+
+                        const videoTagsArray = '{{ user_settings.video_tags|safe }}' !== '' ?
+                        JSON.parse('{{ user_settings.video_tags|safe }}') : [];
+
+                        const csrf_token = '{{ csrf_token }}';
+                        const formUrl = "{% url 'service_generate_signed_url' %}";
                     </script>
                 </div> <!-- container-fluid -->
 
@@ -546,7 +578,7 @@
     <script src="{% static 'dashboard/js/app.min.js' %}"></script>
     <script src="{% static 'dashboard/libs/dropify/js/dropify.min.js' %}"></script>
     <script src="{% static 'dashboard/js/pages/form-advanced.init.js' %}"></script>
-    <script type="module" src="{% static 'dashboard/js/pages/library.init.js' %}"></script>
+    <script src="{% static 'dashboard/js/pages/library.init.js' %}"></script>
     <script>
     var userSettings = JSON.parse('{{ user_settings_json|escapejs }}');
     var jsonDump = {

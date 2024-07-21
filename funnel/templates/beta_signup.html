@@ -86,7 +86,7 @@
         {% endif %}    
         <div class="max-width-s">
           <h1>Feadl.io</h1>
-          <p class="paragraph">Free. Social Media Management.</p>
+          <p class="paragraph">Passive. Social Media Management.</p>
           <form method="POST" action="{% url 'beta_signup' %}">
             {% csrf_token %}
           <input type="hidden" name="isSendToUser" value="off">
@@ -96,7 +96,7 @@
               <label for="email">Email:</label>
               <input id="email" type="email" name="email" required>
             </div>
-            <button type="submit" class="button button-primary full-width space-top" role="button">Join The Beta</button>
+            <button type="submit" class="button button-primary full-width" role="button">Join The Beta</button>
           </form>
           <div class="center max-width-s space-top">
             <span class="muted">Already have an account?   </span><a href="{% url 'login' %}">Login</a>

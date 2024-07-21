@@ -1,0 +1,556 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta name="robots" content="noindex">
+    <meta charset="utf-8" />
+    <title>Dashboard | Feadl.io</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta content="An automonomous social media managing app and ad agency" name="description" />
+    <meta content="CJ Enright" name="author" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+    <!-- App favicon -->
+    <link rel="shortcut icon" href="{% static 'dashboard/images/favicon.ico' %}">
+
+    <!-- PLugins css -->
+    <link href="{% static 'dashboard/libs/mohithg-switchery/switchery.min.css' %}" rel="stylesheet" type="text/css" />
+
+    <!-- icons -->
+    <link href="{% static 'dashboard/css/icons.min.css' %}" rel="stylesheet" type="text/css" />
+    
+    <!-- Plugins css -->
+    <link href="{% static 'dashboard/css/spectrum.min.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'dashboard/libs//hopscotch/css/hopscotch.min.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'dashboard/libs/bootstrap-tagsinput/bootstrap-tagsinput.css' %}" rel="stylesheet" />
+    <link href="{% static 'dashboard/libs/multiselect/css/multi-select.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'dashboard/libs/select2/css/select2.min.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'dashboard/libs/selectize/css/selectize.bootstrap3.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'dashboard/libs/fullcalendar/main.min.css' %}" rel="stylesheet" type="text/css" />
+    
+    <!-- App css -->
+    <link href="{% static 'dashboard/css/app.min.css' %}" rel="stylesheet" type="text/css" id="app-style" />
+    
+</head>
+
+<!-- body start -->
+
+<body class="loading" data-layout-color="light" data-layout-mode="default" data-layout-size="fluid"
+    data-topbar-color="light" data-leftbar-position="fixed" data-leftbar-color="light" data-leftbar-size='default'
+    data-sidebar-user='true'>
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-K42FBSFS"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+
+    <!-- Begin page -->
+    <div id="wrapper">
+
+
+        <!-- Topbar Start -->
+        <div class="navbar-custom">
+            <ul class="list-unstyled topnav-menu float-end mb-0">
+
+            </ul>
+
+            <!-- LOGO -->
+            <div class="logo-box">
+                <a href="#" class="logo logo-light text-center">
+                    <span class="logo-sm">
+                        <img src="{% static 'dashboard/images/brand/logo-sm.png' %}" alt="" height="22">
+                    </span>
+                    <span class="logo-lg">
+                        <img src="{% static 'dashboard/images/brand/logo-light.png' %}" alt="" height="16">
+                    </span>
+                </a>
+                <a href="#" class="logo logo-dark text-center">
+                    <span class="logo-sm">
+                        <img src="{% static 'dashboard/images/brand/logo-sm.png' %}" alt="" height="22">
+                    </span>
+                    <span class="logo-lg">
+                        <img src="{% static 'dashboard/images/brand/logo-dark.png' %}" alt="" height="16">
+                    </span>
+                </a>
+            </div>
+
+            <ul class="list-unstyled topnav-menu topnav-menu-left mb-0">
+                
+                <li class="dropdown notification-list topbar-dropdown">
+                    <a class="nav-link dropdown-toggle nav-user me-0 button-menu-mobile disable-btn waves-effect waves-light" data-bs-toggle="dropdown"
+                        href="#" role="button" aria-haspopup="false" aria-expanded="false">
+                        <i class="fe-menu"></i>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-end profile-dropdown ">
+
+                        <div class="dropdown-header noti-title">
+                            <h6 class="text-overflow m-0">Where do you want to go?</h6>
+                        </div>
+
+                        <a href="#">
+                            <i class="mdi mdi-view-dashboard-outline"></i>
+                            <span>Social Media Manager</span>
+                        </a>
+
+                        <a href="#">
+                            <i class="fas fa-palette"></i>
+                            <span>Graphic Designer</span>
+                        </a>
+
+                        <a href="#">
+                            <i class="fas fa-video"></i>
+                            <span>Video Editor</span>
+                        </a>
+                        
+                        <a href="#">
+                            <i class="fe-trending-up"></i>
+                            <span>Advertising Specialist</span>
+                        </a>
+
+                        <div class="dropdown-divider"></div>
+
+                        <a href="#">
+                            <i class="fas fa-edit"></i>
+                            <span>Content Calendar</span>
+                        </a>
+
+                        <a href="#">
+                            <i class="mdi mdi-bookshelf"></i>
+                            <span>Content Library</span>
+                        </a>
+
+                        <a href="#">
+                            <i class="fe-settings"></i>
+                            <span>Settings</span>
+                        </a>
+
+                        <div class="dropdown-divider"></div>
+
+                        <a href="#">
+                            <i class="fe-log-out"></i>
+                            <span>Logout</span>
+                        </a>
+
+                    </div>
+                </li>
+
+                <li>
+                    <h4 class="page-title-main">Social Media Manager</h4>
+                </li>
+
+            </ul>
+
+            <div class="clearfix"></div>
+
+        </div>
+        <!-- end Topbar -->
+
+        <!-- ========== Left Sidebar Start ========== -->
+        <div class="left-side-menu">
+
+            <div class="h-100" data-simplebar>
+
+                <!-- User box -->
+                <div class="user-box text-center">
+                    <div class="dropdown">
+                        {% if user_settings.business_name %}
+                        <a href="#" class="user-name dropdown-toggle h5 mt-2 mb-1 d-block" data-bs-toggle="dropdown" aria-expanded="false">{{ user_settings.business_name }}</a>
+                        {% else %}
+                        <a href="#" class="user-name dropdown-toggle h5 mt-2 mb-1 d-block" data-bs-toggle="dropdown" aria-expanded="false">User Default</a>
+                        {% endif %}
+                    </div>
+
+                    <ul class="list-inline">
+                        <li class="list-inline-item">
+                            <a href="#" class="text-muted left-user-info">
+                                <i class="mdi mdi-cog"></i>
+                            </a>
+                        </li>
+
+                        <li class="list-inline-item">
+                            <a href="#">
+                                <i class="mdi mdi-power"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!--- Sidemenu -->
+                <div id="sidebar-menu">
+
+                    <ul id="side-menu">
+
+                        <li class="menu-title">Agents</li>
+
+                        <li>
+                            <a href="#">
+                                <i class="mdi mdi-view-dashboard-outline"></i>
+                                <span> Social Media Manager </span>
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="#">
+                                <i class="fas fa-palette"></i>
+                                <span> Graphic Designer </span>
+                            </a>
+                        </li>
+                        
+                        <li>
+                            <a href="#">
+                                <i class="fas fa-video"></i>
+                                <span> Video Editor </span>
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="#">
+                                <i class="fe-trending-up"></i>
+                                <span> Advertising Specialist </span>
+                            </a>
+                        </li>
+
+                        <li class="menu-title">Account</li>
+
+                        <li>
+                            <a href="#">
+                                <i class="fas fa-edit"></i>
+                                <span> Content Calendar </span>
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="#">
+                                <i class="mdi mdi-bookshelf"></i>
+                                <span>Content Library</span>
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="#">
+                                <i class="fe-settings"></i>
+                                <span> Settings </span>
+                            </a>
+                        </li>
+                    </ul>
+
+                </div>
+                <!-- End Sidebar -->
+                 
+                <div class="clearfix"></div>
+
+            </div>
+        </div>
+        <!-- Left Sidebar End -->
+
+        <!-- ============================================================== -->
+        <!-- Start Page Content here -->
+        <!-- ============================================================== -->
+
+        <div class="content-page">
+            <div class="content">
+                <!-- Start Content-->
+                <div class="container-fluid">
+                    <div class="row">
+                        <div id="error-messages-container"></div>
+                        {% if messages %}
+                        <ul class="messages">
+                            {% for message in messages %}
+                                <li class="{{ message.tags }}" data-message-id="{{ forloop.counter }}">
+                                    {{ message }}
+                                    <span class="closebtn" onclick="closeMessage(this);">&times;</span>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                        {% endif %}
+                        
+                        <div class="col-lg-12">
+                            <div class="card">
+                                <div class="card-body generated-post">
+                                    <img src="{% static 'service/media/refresh.webp' %}" alt="Loading" class="rounded" style="width: 50%;">
+                                    <h4>New Posts Created & Scheduled to Your Socials In: </h4>
+                                    <p id="countdown"></p>
+                                </div>
+                            </div>
+                        </div>
+                        <style>
+                            #countdown {
+                                font-size: 18px;
+                                font-weight: bold;
+                                margin-top: 5px;
+                            }
+                        </style>
+                        <script>
+                            function getNextMondayAt5pm() {
+                                const now = new Date();
+                                const dayOfWeek = now.getDay();
+                                const daysUntilMonday = (8 - dayOfWeek) % 7;
+                                const nextMonday = new Date(now);
+                                nextMonday.setDate(now.getDate() + daysUntilMonday);
+                                nextMonday.setHours(17, 0, 0, 0); // Set to 5 PM
+                                return nextMonday;
+                            }
+
+                            function updateCountdown() {
+                                const countdownElement = document.getElementById('countdown');
+                                const nextMonday = getNextMondayAt5pm();
+                                const now = new Date();
+                                const timeDifference = nextMonday - now;
+
+                                if (timeDifference <= 0) {
+                                    countdownElement.innerHTML = "Time's up!";
+                                    return;
+                                }
+
+                                const days = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
+                                const hours = Math.floor((timeDifference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                                const minutes = Math.floor((timeDifference % (1000 * 60 * 60)) / (1000 * 60));
+                                const seconds = Math.floor((timeDifference % (1000 * 60)) / 1000);
+
+                                countdownElement.innerHTML = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+
+                                setTimeout(updateCountdown, 1000);
+                            }
+
+                            updateCountdown();
+                        </script>
+
+                        
+                        <div class="row">
+                            <style>
+                                .generated-image-small {
+                                    max-width: 80%;
+                                    height: auto;
+                                }
+                                .generated-post {
+                                    flex-direction: column;
+                                }
+                                
+                            </style>
+                            <div class="col-lg-3">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="generated-post">
+                                            <h4 class="header-title">New Post #1</h4>
+                                            <br>
+                                            <img id="loaded-image" src="{% static 'service/media/ftue-post.webp' %}" alt="Loading" class="generated-image-small rounded">
+                                            <br>
+                                            <div class="mb-2">
+                                                <div class="text-box-wrapper">
+                                                    <div id="prompt" contenteditable="true" class="text-box">Transform your living space with the elegance and sophistication of our exclusive luxury home goods. Discover the art of fine living. ✨🏡 #LuxuryLiving #HomeDecor #EleganceRedefined</div>
+                                                </div>
+                                            </div>
+                                            <!-- <form method="post" action="#" id="post-to-socials-button">
+                                                <button type="button" class="btn btn-success rounded waves-effect btn-xs">Post to socials!</button>
+                                            </form> -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-3">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="generated-post">
+                                            <h4 class="header-title">New Post #2</h4>
+                                            <br>
+                                            <img id="loaded-image" src="{% static 'service/media/ftue-post2.webp' %}" alt="Loading" class="generated-image-small rounded">
+                                            <br>
+                                            <div class="mb-2">
+                                                <div class="text-box-wrapper">
+                                                    <div id="prompt" contenteditable="true" class="text-box">From chic décor to cozy essentials, we have everything you need to elevate your space. Link in Bio #FlipOrFlop</div>
+                                                </div>
+                                            </div>
+                                            <!-- <form method="post" action="#" id="post-to-socials-button">
+                                                <button type="button" class="btn btn-success rounded waves-effect btn-xs">Post to socials!</button>
+                                            </form> -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="row"></div>
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <div id="calendar"></div>
+                                        </div> <!-- end card body-->
+                                    </div> <!-- end card -->
+                                </div>
+                                
+                                <div id="external-events"></div>
+                                    
+
+                                <!-- Add New Event MODAL -->
+                                <div class="modal fade" id="event-modal" tabindex="-1">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header py-3 px-4 border-bottom-0 d-block">
+                                                <button type="button" class="btn-close float-end" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                <h5 class="modal-title" id="modal-title">Post</h5>
+                                            </div>
+                                            <div class="modal-body px-4 pb-4 pt-0">
+                                                <form class="needs-validation" name="event-form" id="form-event" novalidate>
+                                                    <div class="row">
+                                                        <div class="col-12">
+                                                            <div class="mb-3">
+                                                                <label class="form-label">Image</label>
+                                                                <img src="" style="max-width: 100%; display: block; height: auto; border-radius: 10px;" id="event-image">
+                                                                <br>
+                                                                <!-- <div class="generated-post">
+                                                                    <button type="button" class="btn btn-soft-dark rounded-pill waves-effect btn-xs" id="dark-button">Download Image</button>
+                                                                </div> -->
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-12">
+                                                            <div class="mb-3">
+                                                                <label class="form-label">Pages</label>
+                                                                <div style="display: inline-block;">
+                                                                    <img src="{% static 'dashboard\images\icon\reset_icon.png' %}" style="max-width: 13%; border-radius: 10px; margin: 10px;" id="social_reset">
+                                                                    <img src="{% static 'dashboard\images\icon\facebook_logo.png' %}" style="max-width: 13%; border-radius: 10px; margin: 10px;" id="facebook">
+                                                                    <img src="{% static 'dashboard\images\icon\instagram_logo.png' %}" style="max-width: 13%; border-radius: 10px; margin: 10px;" id="instagram">
+                                                                    <img src="{% static 'dashboard\images\icon\linkedin_logo.png' %}" style="max-width: 13%; border-radius: 10px; margin: 10px;" id="linkedin">
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-12">
+                                                            <div class="mb-3">
+                                                                <label class="form-label">Post Caption</label>
+                                                                <input type="hidden" id="edited-caption"/>
+                                                                <div class="text-box-wrapper">
+                                                                    <div id="event-caption" contenteditable="true" class="form-control-constrain"></div>
+                                                                </div>
+                                                                <div class="invalid-feedback">Please provide a valid caption</div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-12">
+                                                        <div class="mb-3">
+                                                            <label class="form-label">Time</label>
+                                                            <input type="time" id="time" class="form-control">
+                                                        </div>
+                                                    </div>
+                                                    <div class="row mt-2">
+                                                        <div class="col-md-6 col-4">
+                                                            <button type="button" class="btn btn-danger" id="btn-delete-event">Delete</button>
+                                                        </div>
+                                                        <div class="col-md-6 col-8 text-end">
+                                                            <button type="button" class="btn btn-light me-1" data-bs-dismiss="modal">Close</button>
+                                                            <button type="submit" class="btn btn-success" id="btn-save-event">Save</button>
+                                                        </div>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div> <!-- end modal-content-->
+                                    </div> <!-- end modal dialog-->
+                                </div>
+                                <!-- end modal-->
+                            </div>
+                            <!-- end col-12 -->
+                        </div>
+
+                        <div class="ftue-modal" id="ftueOverlay">
+                            <img class="animatedCharacter" loading="lazy" src="#" alt="Animated Character" id="animatedCharacter">
+                            <form method="post" id="ftueFormContainer" action="{% url 'service_dashboard_ftue' %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="form" value="formFtue2">
+                            </form>            
+                        </div>
+                        <style>
+                            .hide {
+                                display: none;
+                            }
+                        </style>
+
+                        <div id="loading-overlay">
+                            <div class="spinner-grow text-info" role="status"></div>
+                        </div>
+
+                        <!-- FTUE Script -->
+                        <script>
+                            const animationGifPaths = [
+                                "{% static 'service/media/ServiceFtue1.webp' %}",
+                                "{% static 'service/media/ServiceFtue2.webp' %}",
+                                "{% static 'service/media/ServiceFtue3.webp' %}",
+                                "{% static 'service/media/ServiceFtue4.webp' %}",
+                                "{% static 'service/media/ServiceFtue10.webp' %}",
+                                "{% static 'service/media/ServiceFtue11.webp' %}",
+                                "{% static 'service/media/ServiceFtue7.webp' %}",
+                            ];
+                        </script>
+                    </div>
+                </div> <!-- container-fluid -->
+
+            </div> <!-- content -->
+
+    <!-- Footer Start -->
+    <footer class="footer">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-6">
+                    <script>document.write(new Date().getFullYear())</script> &copy; Copyright
+                    <a href="https://www.theenrightgroup.org" target="_blank"> Enright Group</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <!-- end Footer -->
+
+    </div>
+    <!-- ============================================================== -->
+    <!-- End Page content -->
+    <!-- ============================================================== -->
+
+
+    </div>
+    <!-- END wrapper -->
+
+    <!-- Vendor -->
+    <script src="{% static 'dashboard/libs/jquery/jquery.min.js' %}"></script>
+    <script src="{% static 'dashboard/libs/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'dashboard/libs/simplebar/simplebar.min.js' %}"></script>
+    <script src="{% static 'dashboard/libs/node-waves/waves.min.js' %}"></script>
+    <script src="{% static 'dashboard/libs/waypoints/lib/jquery.waypoints.min.js' %}"></script>
+    <script src="{% static 'dashboard/libs/jquery.counterup/jquery.counterup.min.js' %}"></script>
+    <script src="{% static 'dashboard/libs/feather-icons/feather.min.js' %}"></script>
+    <script src="{% static 'dashboard/libs/mohithg-switchery/switchery.min.js' %}"></script>
+
+    <script src="{% static 'dashboard/libs/selectize/js/standalone/selectize.min.js' %}"></script>
+    <script src="{% static 'dashboard/libs/multiselect/js/jquery.multi-select.js' %}"></script>
+    <script src="{% static 'dashboard/libs/select2/js/select2.min.js' %}"></script>
+
+    <!-- Init js-->
+    <script src="{% static 'dashboard/js/pages/form-advanced.init.js' %}"></script>
+
+    <!-- Plugins js-->
+    <script src="{% static 'dashboard/libs/spectrum-colorpicker2/spectrum.min.js' %}"></script>
+    <script src="{% static 'dashboard/libs/flatpickr/flatpickr.min.js' %}"></script>
+    <script src="{% static 'dashboard/libs/tippy.js/tippy.all.min.js' %}"></script>
+    
+    <!-- Init js-->
+    <script src="{% static 'dashboard/js/pages/form-pickers.init.js' %}"></script>
+    <script src="{% static 'service/js/service_ftue.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <!-- plugin js -->
+    <script src="{% static 'dashboard/libs/moment/min/moment.min.js' %}"></script>
+    <script src="{% static 'dashboard/libs/fullcalendar/main.min.js' %}"></script>
+
+    <!-- Calendar init -->
+    <script type="module" src="{% static 'dashboard/js/pages/calendar.init.js' %}"></script>
+
+    <script src="{% static 'dashboard/libs/hopscotch/js/hopscotch.min.js' %}"></script>
+    <script src="{% static 'dashboard/js/pages/tour.init.js' %}"></script>
+
+    <!-- App js-->
+    <script src="{% static 'dashboard/js/app.min.js' %}"></script>
+
+    <script>
+    var jsonDump = {
+        userId: '{{ user_id }}',
+    };
+    user_id = '{{ user_id }}';
+    </script>
+    
+
+</body>
+
+</html>
