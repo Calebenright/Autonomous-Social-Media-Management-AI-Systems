@@ -157,36 +157,71 @@ imageTagForm.addEventListener('submit', function(event) {
     imageTagForm.submit();
 });
 
-var isGenerateStockImagesClicked = false;
-var generateStockImagesButton = document.getElementById('generateStockImages');
-if (generateStockImagesButton) {
-    generateStockImagesButton.addEventListener('click', function() {
-        isGenerateStockImagesClicked = true;
-        document.getElementById('isGenerateStockImagesClickedField').value = 'true';
-        updateHiddenImageInput();
-        showSpinner();
-        imageTagForm.submit();
-    });
+function generateImageSignedUrl() {
+    var photoFile = document.getElementById('imageUpload').files[0];
+    var folderName = 'image_library';
+
+    if (!photoFile) {
+        sendPhotoTagForm();
+    } else {
+        var formData = new FormData();
+        formData.append('folder_name', folderName);
+        formData.append('file_name', photoFile.name);
+
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', formUrl, true);
+        xhr.setRequestHeader('X-CSRFToken', csrf_token);
+
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                var response = JSON.parse(xhr.responseText);
+                var signedUrl = response.url;
+                var fileName = response.file_name;
+                
+                uploadPhoto(signedUrl, photoFile);
+            }
+        };
+
+        xhr.send(formData);
+    }
 }
 
-var isGeneratePixabayImagesClicked = false;
-var generatePixabayImagesButton = document.getElementById('generatePixabayImages');
-if (generatePixabayImagesButton) {
-    generatePixabayImagesButton.addEventListener('click', function() {
-        isGeneratePixabayImagesClicked = true;
-        document.getElementById('isGeneratePixabayImagesClickedField').value = 'true';
-        updateHiddenImageInput();
-        showSpinner();
-        imageTagForm.submit();
-    });
+function uploadPhoto(signedUrl, photoFile) {
+    var xhr = new XMLHttpRequest();
+    xhr.open('PUT', signedUrl, true);
+    xhr.setRequestHeader('Content-Type', 'application/octet-stream');
+
+    xhr.upload.onprogress = function(e) {
+        if (e.lengthComputable) {
+            var percentComplete = (e.loaded / e.total) * 100;
+            document.getElementById('image-upload-progress-bar').style.width = percentComplete + '%';
+            document.getElementById('image-upload-progress-bar').innerText = percentComplete.toFixed(2) + '%';
+        }
+    };
+
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+                document.getElementById('image-url').value = photoFile.name;
+                sendPhotoTagForm();
+            } else {
+                alert('Error uploading photo: ' + xhr.statusText);
+            }
+        }
+    };
+
+    xhr.send(photoFile);
 }
 
-var imageTagFormSubmit = document.getElementById('imageTagFormSubmit');
-imageTagFormSubmit.addEventListener('click', function() {
-    showSpinner();
-    updateHiddenImageInput();
-    imageTagForm.submit();
-});
+function sendPhotoTagForm() {
+    updateHiddenPhotoInput();
+    document.getElementById('imageTagForm').submit();
+}
+
+function updateHiddenPhotoInput() {
+    const photoTagsInput = document.querySelector('input[name="imageTags"]');
+    photoTagsInput.value = photoTagsArray.join(',');
+}
 
 updateImageTagThumbnails();
 

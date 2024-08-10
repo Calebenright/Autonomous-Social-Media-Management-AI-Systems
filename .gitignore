@@ -13,6 +13,7 @@ app.yaml
 secrets_manager.py
 Staging Functions
 cors-config.json
+downloads
 
 # Ignore other files or directories
 node_modules/

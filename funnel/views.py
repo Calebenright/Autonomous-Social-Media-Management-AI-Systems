@@ -12,8 +12,8 @@ import requests
 import google.oauth2.id_token
 import google.auth.transport.requests
 import secrets
-from dashboard.post_to_socials import *
-from app1.login import *
+from app.post_to_socials import *
+from website.login import *
 from google.cloud import storage, firestore
 from google.oauth2 import service_account
 import uuid
@@ -21,12 +21,12 @@ from django.conf import settings
 from django.core.mail import EmailMessage
 from moviepy.editor import VideoFileClip
 from PIL import Image
-from dashboard.tasks import enqueue_time_task, create_queue
+from app.tasks import enqueue_time_task, create_queue
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
-from dashboard.functions import correct_orientation
+from app.functions import correct_orientation
 
-db = firestore.Client(project='feed-ai-c379d')
+db = firestore.Client(project=config('FIRESTORE_ID'))
 
 def process_email(request, redirect_success, redirect_fail, template):
     if request.method == 'POST':
@@ -87,9 +87,6 @@ def free_photography(request):
 
 def free_smm(request):
     return process_email(request, 'social_media_guy_success', 'free_smm', 'free_smm.html')
-
-def getting_started(request):
-    return process_email(request, 'social_media_guy_success', 'getting_started', 'getting_started.html')
 
 def social_media_guy_calendly(request):
     return render(request, 'social_media_guy_calendly.html')

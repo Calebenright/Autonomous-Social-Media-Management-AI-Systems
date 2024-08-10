@@ -1,0 +1,179 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Getting Started - Feadl.io</title>
+    <meta name="description" content="Feadlio - Elevate your marketing strategy with Feadl.io, leveraging cutting-edge AI to automate social media and digital marketing for growth and efficiency.">
+    <meta name="keywords" content="AI marketing, digital transformation, social media automation, marketing technology, AI-driven analytics, online marketing tools">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="canonical" href="https://www.feadl.io/">
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+    
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'website/media/favicon-32.ico' %}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'website/media/favicon-16.ico' %}">
+    <link rel="manifest" href="{% static 'website/media/seo/site.webmanifest' %}">
+    <link rel="shortcut icon" href="{% static 'website/media/favicon.ico' %}">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="msapplication-config" content="{% static 'website/media/browserconfig.xml' %}">
+    <meta name="theme-color" content="#ffffff">
+  
+    <link rel="stylesheet" href="{% static 'service/css/main.css' %}">
+  
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Feadl.io">
+    <meta property="og:description" content="Feadlio - Elevate your marketing strategy with Feadl.io">
+    <meta property="og:image" content="{% static 'website/media/seo/og-image.png' %}">
+    <meta property="og:image:alt" content="Feadl.io">
+    <meta property="og:url" content="https://www.feadl.io/">
+    <meta property="og:site_name" content="Feadlio">
+    <meta property="og:locale" content="en_US">
+  
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Feadl.io">
+    <meta name="twitter:description" content="Feadlio - Elevate your marketing strategy with Feadl.io">
+    <meta name="twitter:image" content="{% static 'website/media/seo/twitter-image.png' %}">
+    <meta name="twitter:image:alt" content="Feadl.io">
+  
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-K42FBSFS');</script>
+    <!-- End Google Tag Manager -->
+  </head>
+  
+<body class="page page-home preload">
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-K42FBSFS" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+  <header class="topbar">
+      <img src="{% static 'website/media/white.png' %}" alt="Company Logo" class="logo">
+      <div class="user-email">{{ email }}</div>
+  </header>
+  <main>
+      {% if messages %}
+      <section class="messages-section">
+        <ul class="messages">
+            {% for message in messages %}
+            <li class="{{ message.tags }}" data-message-id="{{ forloop.counter }}">
+                {{ message }}
+                <span class="closebtn" onclick="closeMessage(this);">&times;</span>
+            </li>
+            {% endfor %}
+        </ul>
+      </section>
+      {% endif %}  
+      <form id="feadlForm" action="{% url 'service:getting_started' %}" method="POST">
+        {% csrf_token %}
+        <input type="hidden" id="selectedImage" name="selectedImage">
+        <input type="hidden" id="selectedPlan" name="selectedPlan">
+        <section class="form-section">
+          <div class="dashboard">
+            <div class="slider-container">
+              <div class="slides">
+                <div class="slide" id="slide1">
+                  <div class="slide-image-container">
+                      <img src="{% static 'service/media/slide1.webp' %}" alt="Illustration for Slide 1" class="slide-image">
+                  </div>
+                  <div class="slide-content">
+                      <h1>Welcome to Feadl.io!</h1>
+                      <p>Let's get your social media management set up.</p>
+                      <div class="button-container">
+                          <button type="button" onclick="nextSlide(2)">Next</button>
+                      </div>
+                  </div>
+              </div>
+              <div class="slide" id="slide2">
+                <div class="slide-image-container">
+                    <img src="{% static 'service/media/slide2.webp' %}" alt="Illustration for Slide 2" class="slide-image">
+                </div>
+                <div class="slide-content">
+                  <h1>What's your business's name?</h1>
+                  <div class="form-row">
+                    <input type="text" placeholder="Sara's Emporium Co." id="business-name" name="business-name">
+                  </div>
+                  <div class="button-container">
+                    <button type="button" onclick="previousSlide(1)">Back</button>
+                    <button type="button" onclick="nextSlide(3)">Next</button>
+                  </div>
+                </div>
+              </div>
+              <div class="slide-choice slide" id="slide3">
+                <h1>Which style do you prefer?</h1>
+                <div class="image-container">
+                  <div class="image-wrapper" onclick="selectImage('image1')">
+                      <img src="{% static 'service/media/style1.webp' %}" alt="Illustration for Slide 3-1" class="select-image" id="image1">
+                  </div>
+                  <div class="image-wrapper" onclick="selectImage('image2')">
+                      <img src="{% static 'service/media/style2.webp' %}" alt="Illustration for Slide 3-2" class="select-image" id="image2">
+                  </div>
+                </div>
+                <div class="button-container">
+                    <button type="button" onclick="previousSlide(2)">Back</button>
+                    <button type="button" onclick="nextSlide(4)">Next</button>
+                </div>
+              </div>                     
+              <div class="slide" id="slide4">
+                <div class="slide-image-container">
+                    <img src="{% static 'service/media/slide4.webp' %}" alt="Illustration for Slide 2" class="slide-image">
+                </div>
+                <div class="slide-content">
+                  <h1>What does your business do?</h1>
+                  <textarea name="business-description" placeholder="At Sara's Emporium we create lvl. 78 elixirs and magic potions that have various lasting effects. We throw in a a free Herblore with every purchase that can be used in the potion making process." id="business-description" rows="3"></textarea>
+                  <div class="button-container">
+                    <button type="button" onclick="previousSlide(3)">Back</button>
+                    <button type="button" onclick="nextSlide(5)">Next</button>
+                  </div>
+                </div>
+              </div>
+              <div class="slide" id="slide5">
+                <div class="slide-image-container">
+                    <img src="{% static 'service/media/slide3.webp' %}" alt="Illustration for Slide 2" class="slide-image">
+                </div>
+                <div class="slide-content">
+                  <h1>What is your business's main color?</h1>
+                  <div class="form-row">
+                    <input type="color" value="#00ff94" id="brand-color" name="brand-color">
+                  </div>
+                  <div class="button-container">
+                    <button type="button" onclick="previousSlide(4)">Back</button>
+                    <button type="button" onclick="nextSlide(6)">Next</button>
+                  </div>
+                </div>
+              </div>
+              <!-- <div class="slide-choice slide" id="slide6">
+                <h1>Which plan would you prefer?</h1>
+                <div class="image-container">
+                  <div class="image-wrapper" onclick="selectPlan('plan1')">
+                      <img src="{% static 'service/media/plan1.webp' %}" alt="Illustration for Slide 5-1" class="select-plan" id="plan1">
+                  </div>
+                  <div class="image-wrapper" onclick="selectPlan('plan2')">
+                      <img src="{% static 'service/media/plan2.webp' %}" alt="Illustration for Slide 5-2" class="select-plan" id="plan2">
+                  </div>
+                </div>
+                <div class="button-container">
+                    <button type="button" onclick="previousSlide(5)">Back</button>
+                    <button type="button" onclick="nextSlide(7)">Next</button>
+                </div>
+              </div>     -->
+              <div class="slide" id="slide6">
+                  <div class="slide-image-container">
+                      <img src="{% static 'service/media/slide5.webp' %}" alt="Illustration for Slide 3" class="slide-image">
+                  </div>
+                  <div class="slide-content">
+                      <h1>Review and Submit</h1>
+                      <p>We will collect your responses and get started creating content for you.</p>
+                      <div class="button-container">
+                          <button type="button" onclick="previousSlide(5)">Back</button>
+                          <button type="button" onclick="submitForm()">Submit</button>
+                      </div>
+                  </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </form>
+  </main>
+  <script src="{% static 'service/js/main.js' %}"></script>
+</body>
+</html>

@@ -1,0 +1,532 @@
+{% extends "service_base.html" %}
+
+{% block title %}Settings{% endblock %}
+{% block name %}Settings{% endblock %}
+
+{% block content %}
+    {% load static %}
+    <div class="content">
+        <div id="popup">
+            <div class="popup-content">
+                <span class="close-button" onclick="hidePopup()">&times;</span>
+                <h3>To Connect to Instagram</h3>
+                <p>An Instagram business or creator profile must be linked to a Facebook page in order to connect.</p>
+                
+                <h4>Have a Personal Instagram Profile?</h4>
+                <ol>
+                    <li>Convert your Instagram profile into a business or creator profile.</li>
+                    <li>Link to a Facebook page.</li>
+                    <li>Come back and connect.</li>
+                </ol>
+        
+                <button onclick="submitForm()" class="popup-button">Yes, connect</button>
+                <button onclick="hidePopup()" class="popup-button cancel">Cancel</button>
+            </div>
+        </div>
+        
+        <div id="linkedinPopup" style="display:none;">
+            <div class="popup-content">
+                <span class="close-button" onclick="hideLinkedinPopup()">&times;</span>
+                <h3>To Connect to LinkedIn</h3>
+                <p>Select whether you want to connect a personal or business LinkedIn profile.</p>
+                
+                <h4>Select Your Profile Type</h4>
+                <button onclick="submitLinkedinForm('personal')" class="popup-button">Personal Profile</button>
+                <button onclick="submitLinkedinForm('business')" class="popup-button">Business Profile</button>
+                <button onclick="hideLinkedinPopup()" class="popup-button cancel">Cancel</button>
+            </div>
+        </div>
+        
+        <div class="container-fluid">
+            <div class="row">
+                {% if messages %}
+                <ul class="messages">
+                    {% for message in messages %}
+                        <li class="{{ message.tags }}" data-message-id="{{ forloop.counter }}">
+                            {{ message }}
+                            <span class="closebtn" onclick="closeMessage(this);">&times;</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+                {% endif %}                   
+                <div class="col-md-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="header-title">Business Info</h4>
+                            <p class="sub-header">
+                                Tell us about you and your business so we can generate content specifically
+                                tailored towards you.
+                            </p>
+
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <form id="tagForm" method="post" action="{% url 'service:settings' %}"
+                                        enctype="multipart/form-data">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="form" value="brand-settings">
+                                        <div class="mb-3">
+                                            <label for="business_name" class="form-label">Business Name</label>
+                                            <input type="text" id="business_name" class="form-control"
+                                                name="business_name"
+                                                value="{{ user_settings.business_name }}">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="business_description" class="form-label">Business Description</label>
+                                            <textarea id="business_description" class="form-control" name="business_description" style="height: 150px;">{{ user_settings.business_description }}</textarea>
+                                        </div>
+                                        
+                                        <!-- <div class="mb-3">
+                                            <label for="simpleinput" class="form-label">Website</label>
+                                            <input type="text" id="website" class="form-control"
+                                                name="website"
+                                                value="{{ user_settings.website }}">
+                                        </div> -->
+                                        {% if user_settings.business_description %}
+                                        <div class="mb-3">
+                                            <h4 class="header-title">Tags</h4>
+                                            <p></p> 
+                                            <div class="tag-input-container">
+                                                <input type="hidden" name="tags" value="">
+                                                <input type="text" id="tagInput" class="form-control" placeholder="Enter tags separated by a comma...">
+                                                <div class="tag-bubbles" id="tagBubbles"></div>
+                                            </div>
+                                        </div>
+                                        {% endif %}
+                                        <button type="submit" class="btn btn-primary waves-effect waves-light" onclick="showSpinner()">Save</button>
+                                    </form>
+                                </div> <!-- end col -->
+                            </div>
+                            <!-- end row-->
+
+                        </div> <!-- end card-body -->
+                    </div> <!-- end card -->
+                </div><!-- end col -->
+                <div class="col-xl-3 col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="header-title">Branding</h4>
+                            <br>
+                            <form method="post" action="{% url 'service:settings' %}" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <input type="hidden" name="form" value="branding">
+                                <div class="mb-3">
+                                    <label for="colorpicker-showinput-intial" class="form-label">Primary Brand Color</label>
+                                    <input type="text" class="form-control" id="colorpicker-showinput-intial" name="brand_color" value="{{ user_settings.brand_color }}">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Secondary Brand Colors</label>
+                                    <input type="text" name="color2" class="form-control" id="colorpicker-showinput-intial2">
+                                    <br>
+                                    <input type="text" name="color3" class="form-control" id="colorpicker-showinput-intial3">
+                                    <br>
+                                    <input type="text" name="color4" class="form-control" id="colorpicker-showinput-intial4">
+                                    <br>
+                                    <input type="text" name="color5" class="form-control" id="colorpicker-showinput-intial5">
+                                </div>
+                                <script>
+                                    let colorsArray = {{ user_settings.secondary_colors|safe }};
+
+                                    if(colorsArray.length > 0) {
+                                        document.getElementById("colorpicker-showinput-intial2").value = colorsArray[0];
+                                    }
+
+                                    if(colorsArray.length > 1) {
+                                        document.getElementById("colorpicker-showinput-intial3").value = colorsArray[1];
+                                    }
+
+                                    if(colorsArray.length > 2) {
+                                        document.getElementById("colorpicker-showinput-intial4").value = colorsArray[2];
+                                    }
+
+                                    if(colorsArray.length > 3) {
+                                        document.getElementById("colorpicker-showinput-intial5").value = colorsArray[3];
+                                    }
+
+                                </script>
+
+                                <h4 class="header-title">Logo</h4>
+
+                                <p class="sub-header" style="margin-bottom: 1rem;">
+                                    ( .PNG Files Only )
+                                </p>
+                                {% if user_settings.logo %}
+                                <div class="social-button">
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar-lg me-3 flex-shrink-0" style="margin-right: 0 1rem;">
+                                            <img src="{{ user_settings.logo }}" class="img-fluid" alt="Generated Image">
+                                        </div>
+                                        <p style="color: #71b6f9; text-align: center; font-size: 16px; align-items: center; margin: 0;"><b>Add Logo To Images</b></p>
+
+                                        <div class="me-3 flex-shrink-0" style="align-items: center; margin: 0 1rem;">
+                                            <input id="logo_switch" type="checkbox" {% if user_settings.isLogo %}checked{% endif %} data-plugin="switchery" data-color="#039cfd"/>
+                                        </div>
+                                    </div>
+                                </div>
+                                <br>
+                                {% endif %}
+                                <div class="mb-3">
+                                    <input type="file" id="logo" name="logo" data-plugins="dropify" data-height="100" accept=".png"/>
+                                </div>
+                                <button type="submit" class="btn btn-primary waves-effect waves-light" onclick="showSpinner()">Save</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6">
+                    <div class="card">
+                        <div class="card-body widget-user">
+                            <h4 class="header-title">Link Social Accounts</h4>
+                            <br>
+                            <form id="facebook" method="post" action="{% url 'service:social_auth' %}" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <input type="hidden" name="form" value="formFacebook">
+                                <button class="social-button">
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar-sm me-3 flex-shrink-0">
+                                            <img src="{% static 'dashboard/images/icon/facebook_logo.png' %}" class="img-fluid rounded-circle" alt="Facebook">
+                                        </div>
+                                        <div class="flex-grow-1 overflow-hidden">
+                                            <h5 class="mt-0 mb-1"> Facebook</h5>
+                                            {% if user_settings.facebook_token %}
+                                            <small class="text-blue"><b>{{ user_settings.facebook_page_name }}</b></small><br>
+                                            <small class="text-blue"><b>Linked</b></small>
+                                            {% else %}
+                                            <small class="text-blue"><b>Not Linked</b></small>
+                                            {% endif %}
+                                        </div>
+                                        {% if user_settings.facebook_token %}
+                                        <input type="hidden" name="provider" value="facebook">
+                                        <input type="hidden" name="isCheck" value="Facebook">
+                                        {% endif %}
+                                    </div>
+                                </button>
+                                {% if user_settings.facebook_token %}
+                                <script>
+                                    var facebookForm = document.getElementById('facebook');
+                                    var unlinkUrl = "{% url 'service:unlink' %}";
+
+                                    facebookForm.addEventListener('submit', function(event) {
+                                        event.preventDefault();
+                                        var userConfirmed = confirm("Are you sure you want to unlink?");
+                                        if (userConfirmed) {
+                                            facebookForm.action = unlinkUrl;
+                                            facebookForm.submit();
+                                        }
+                                    });
+                                </script>
+                                {% endif %}
+                            </form>
+                            <br>
+                            <form id="instagram" method="post" action="{% url 'service:social_auth' %}" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <input type="hidden" name="form" value="formInstagram">
+                                <button class="social-button" onclick="showPopup(event)">
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar-sm me-3 flex-shrink-0">
+                                            <img src="{% static 'dashboard/images/icon/instagram_logo.png' %}" class="img-fluid rounded-circle" alt="Instagram">
+                                        </div>
+                                        <div class="flex-grow-1 overflow-hidden">
+                                            <h5 class="mt-0 mb-1"> Instagram</h5>
+                                            {% if user_settings.instagram_token %}
+                                            <small class="text-pink"><b>{{ user_settings.instagram_name }}</b></small><br>
+                                            <small class="text-pink"><b>Linked</b></small>
+                                            {% else %}
+                                            <small class="text-pink"><b>Not Linked</b></small>
+                                            {% endif %}
+                                        </div>
+                                        {% if user_settings.instagram_token %}
+                                        <input type="hidden" name="provider" value="instagram">
+                                        <input type="hidden" name="isCheck" value="Instagram">
+                                        {% endif %}
+                                    </div>
+                                </button>
+                                {% if user_settings.instagram_token %}
+                                <script>
+                                    var instagramForm = document.getElementById('instagram');
+                                    var unlinkUrl = "{% url 'service:unlink' %}";
+
+                                    instagramForm.addEventListener('submit', function(event) {
+                                        event.preventDefault();
+                                        var userConfirmed = confirm("Are you sure you want to unlink?");
+                                        if (userConfirmed) {
+                                            instagramForm.action = unlinkUrl;
+                                            instagramForm.submit();
+                                        }
+                                    });
+                                </script>
+                                {% else %}
+                                <script>
+                                    function showPopup(event) {
+                                        event.preventDefault(); 
+                                        document.getElementById('popup').style.display = 'block';
+                                    }
+
+                                    function hidePopup() {
+                                        document.getElementById('popup').style.display = 'none';
+                                    }
+
+                                    function submitForm() {
+                                        document.getElementById('instagram').submit();
+                                    }
+                                </script>
+                                {% endif %}
+                            </form>
+                            <br>
+                            {% if user_id == global_variables.DEVELOPER_ID %}
+                            <form id="linkedin" method="post" action="{% url 'service:social_auth' %}" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <input type="hidden" name="form" id="formType" value="">
+                                <button type="button" class="social-button" id="connectLinkedin">
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar-sm me-3 flex-shrink-0">
+                                            <img src="{% static 'dashboard/images/icon/linkedin_logo.png' %}" class="img-fluid rounded-circle" alt="LinkedIn">
+                                        </div>
+                                        <div class="flex-grow-1 overflow-hidden">
+                                            <h5 class="mt-0 mb-1"> LinkedIn</h5>
+                                            {% if user_settings.linkedin_token and user_settings.linkedin_id and user_settings.linkedin_name %}
+                                            <small class="text-blue"><b>{{ user_settings.linkedin_name }}</b></small><br>
+                                            <small class="text-blue"><b>Linked</b></small>
+                                            {% else %}
+                                            <small class="text-blue"><b>Not Linked</b></small>
+                                            {% endif %}
+                                        </div>
+                                        {% if user_settings.linkedin_token and user_settings.linkedin_id and user_settings.linkedin_name  %}
+                                        <input type="hidden" name="provider" value="linkedin">
+                                        <input type="hidden" name="isCheck" value="Linkedin">
+                                        {% endif %}
+                                    </div>
+                                </button>
+                                {% if user_settings.linkedin_token and user_settings.linkedin_name and user_settings.linkedin_id %}
+                                <script>
+                                    
+                                    var linkedinForm = document.getElementById('linkedin');
+                                    var unlinkUrl = "{% url 'service:unlink' %}";
+
+                                    function unlink() {
+                                        var userConfirmed = confirm("Are you sure you want to unlink?");
+                                        if (userConfirmed) {
+                                            linkedinForm.action = unlinkUrl;
+                                            linkedinForm.submit();
+                                            }
+                                    }
+
+                                    document.getElementById('connectLinkedin').addEventListener('click', function(event) {
+                                        event.preventDefault();
+                                        unlink();
+                                    });
+
+                                </script>
+                                {% else %}
+                                <script>
+                                    function showLinkedinPopup() {
+                                        document.getElementById('linkedinPopup').style.display = 'flex';
+                                    }
+
+                                    function hideLinkedinPopup() {
+                                        document.getElementById('linkedinPopup').style.display = 'none';
+                                    }
+
+                                    function submitLinkedinForm(profileType) {
+                                        const formTypeInput = document.getElementById('formType');
+                                        formTypeInput.value = profileType === 'personal' ? 'formLinkedinPersonal' : 'formLinkedinBusiness';
+                                        hideLinkedinPopup();
+                                        document.getElementById('linkedin').submit();
+                                    }
+
+                                    document.getElementById('connectLinkedin').addEventListener('click', function(event) {
+                                        showLinkedinPopup();
+                                    });
+                                </script>
+                                {% endif %}
+                            </form>
+                            {% else %}
+                            <form id="linkedin" method="post" action="{% url 'service:social_auth' %}" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <input type="hidden" name="form" id="formType" value="">
+                                <button type="button" class="social-button" id="connectLinkedin">
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar-sm me-3 flex-shrink-0">
+                                            <img src="{% static 'dashboard/images/icon/linkedin_logo.png' %}" class="img-fluid rounded-circle" alt="LinkedIn">
+                                        </div>
+                                        <div class="flex-grow-1 overflow-hidden">
+                                            <h5 class="mt-0 mb-1"> LinkedIn</h5>
+                                            <small class="text-blue"><b>Coming Soon</b></small>
+                                        </div>
+                                    </div>
+                                </button>
+                            </form>
+                            {% endif %}
+                            <br>
+                            <form id="google_business" method="post" action="{% url 'service:social_auth' %}" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <input type="hidden" name="form" value="">
+                                <button class="social-button">
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar-sm me-3 flex-shrink-0">
+                                            <img src="{% static 'dashboard/images/icon/google_business_logo.png' %}" class="img-fluid rounded-circle" alt="Google Business">
+                                        </div>
+                                        <div class="flex-grow-1 overflow-hidden">
+                                            <h5 class="mt-0 mb-1"> Google Business</h5>
+                                            <small class="text-warning"><b>Coming Soon</b></small>
+                                        </div>
+                                    </div>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    {% if not user_settings.isUnlimited %}
+                    <div class="card">
+                        <div class="card-body generated-post">
+                            <h4 class="header-title">AI Generator Cooldown</h4>
+                            <br>
+                            <div class="mt-3" dir="ltr">
+                                <input data-plugin="knob" data-width="150" data-height="150" data-linecap=round
+                                data-displayInput=false value="{{ cooldown }}"
+                                data-skin="tron" data-angleOffset="180" data-readOnly=true data-thickness=".5"
+                                {% if cooldown < 40 %}
+                                    data-fgColor="#3CB371"
+                                {% elif cooldown >= 40 and cooldown <= 80 %}
+                                    data-fgColor="#FFD700"
+                                {% else %}
+                                    data-fgColor="#f97171"
+                                {% endif %}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="col-xl-3 col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="header-title">Manage Account</h4>
+                            <div style="padding-bottom: 10px; padding-top: 10px;">
+                                <a href="https://billing.stripe.com/p/login/9AQg2W9gog0r4006oo">
+                                    <i class="fe-user-plus"></i>
+                                    <span style="padding-left: 2px;">Account Settings</span>
+                                </a>
+                            </div>
+                            <div style="padding-bottom: 10px;">
+                                <a href="{% url 'change_email' %}">
+                                    <i class="fe-inbox"></i>
+                                    <span style="padding-left: 2px;">Change Email</span>
+                                </a>
+                            </div>
+                            <div style="padding-bottom: 10px;">
+                                <a href="{% url 'forgot_password' %}">
+                                    <i class="fe-refresh-cw"></i>
+                                    <span style="padding-left: 2px;">Reset Password</span>
+                                </a>
+                            </div>
+                            <div style="padding-bottom: 10px;">
+                                <a href="https://billing.stripe.com/p/login/9AQg2W9gog0r4006oo">
+                                    <i class="fe-arrow-up"></i>
+                                    <span style="padding-left: 2px;">Upgrade Plan</span>
+                                </a>
+                            </div>
+                            <div style="padding-bottom: 10px;">
+                                <a href="https://billing.stripe.com/p/login/9AQg2W9gog0r4006oo">
+                                    <i class="fas fa-exclamation-circle"></i>
+                                    <span style="padding-left: 2px;">Unsubscribe</span>
+                                </a>
+                            </div>
+                            <div>
+                                <a href="{% url 'contact' %}">
+                                    <i class="fe-help-circle"></i>
+                                    <span style="padding-left: 2px;">More Questions? Call: (407) 516 6380</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="header-title">User Info</h4>
+                            <p class="sub-header">
+                                Tell us about you to help tailor your experience.
+                            </p>
+
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <form method="post" action="{% url 'service:settings' %}" enctype="multipart/form-data">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="form" value="user-settings">
+                                        <div class="row">
+                                            <div class="mb-3 col-md-6">
+                                                <label for="firstName" class="form-label">First Name</label>
+                                                <input type="text" id="firstName" class="form-control" name="firstName" value="{{ user_settings.firstName }}">
+                                            </div>
+                                            <div class="mb-3 col-md-6">
+                                                <label for="lastName" class="form-label">Last Name</label>
+                                                <input type="text" id="lastName" class="form-control" name="lastName" value="{{ user_settings.lastName }}">
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="mb-3 col-md-6">
+                                                <label for="website" class="form-label">Website</label>
+                                                <input type="text" id="website" class="form-control" name="website" value="{{ user_settings.website }}">
+                                            </div>
+                                            <div class="mb-3 col-md-6">
+                                                <label for="phone" class="form-label">Phone Number</label>
+                                                <input type="text" id="phone" class="form-control" name="phone" value="{{ user_settings.phone }}">
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="address1" class="form-label">Address</label>
+                                            <input type="text" id="address1" class="form-control" name="address1" value="{{ user_settings.address1 }}">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="ElaineTimezone" class="form-label">Timezone (For Scheduling Posts)</label>
+                                            <select name="ElaineTimezone" id="selectize-select2">
+                                                <option value="America/New_York" {% if elaine_settings.ElaineTimezone == 'America/New_York' %}selected{% endif %}>Eastern Standard Time (EST)</option>
+                                                <option value="America/Chicago" {% if elaine_settings.ElaineTimezone == 'America/Chicago' %}selected{% endif %}>Central Standard Time (CST)</option>
+                                                <option value="America/Denver" {% if elaine_settings.ElaineTimezone == 'America/Denver' %}selected{% endif %}>Mountain Standard Time (MST)</option>
+                                                <option value="America/Los_Angeles" {% if elaine_settings.ElaineTimezone == 'America/Los_Angeles' %}selected{% endif %}>Pacific Standard Time (PST)</option>
+                                                <option value="America/Anchorage" {% if elaine_settings.ElaineTimezone == 'America/Anchorage' %}selected{% endif %}>Alaska Standard Time (AKST)</option>
+                                                <option value="Pacific/Honolulu" {% if elaine_settings.ElaineTimezone == 'Pacific/Honolulu' %}selected{% endif %}>Hawaii-Aleutian Standard Time (HST)</option>
+                                                <option value="UTC" {% if elaine_settings.ElaineTimezone == 'UTC' %}selected{% endif %}>Coordinated Universal Time (UTC)</option>
+                                                <option value="Etc/GMT" {% if elaine_settings.ElaineTimezone == 'Etc/GMT' %}selected{% endif %}>Greenwich Mean Time (GMT)</option>
+                                            </select>     
+                                        </div>
+                                        <button type="submit" class="btn btn-primary waves-effect waves-light" onclick="showSpinner()">Save</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- end row -->
+            <div id="backdrop" class="backdrop"></div>
+            <div id="loading-overlay">
+                <div class="spinner-grow text-info" role="status"></div>
+            </div>
+
+            <script>
+                function showSpinner() {
+                    var form = document.querySelector('form');
+                    if (form.checkValidity()) {
+                        var loadingOverlay = document.getElementById('loading-overlay');
+                        var submitButton = document.querySelector('#myForm button[type="submit"]');
+                        loadingOverlay.style.display = 'flex';
+                        submitButton.disabled = true;
+                        var spinnerDuration = 5000;
+                        setTimeout(function() {
+                            loadingOverlay.style.display = 'none';
+                            submitButton.disabled = false;
+                        }, spinnerDuration);
+                    }
+                }
+                
+                const imageTagsArray = '{{ user_settings.image_tags|safe }}' !== '' ?
+                JSON.parse('{{ user_settings.image_tags|safe }}') : [];
+
+                let tagsArray = [];
+            </script>
+            <script>
+                tagsArray = '{{ user_settings.tags|safe }}' !== '' ?
+                JSON.parse('{{ user_settings.tags|safe }}') : [];
+            </script>
+        </div> <!-- container-fluid -->
+    </div> <!-- content -->
+    <script type="module" src="{% static 'dashboard/js/pages/brand-settings.init.js' %}"></script>
+{% endblock %}

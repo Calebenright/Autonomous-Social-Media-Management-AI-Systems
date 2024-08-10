@@ -1,0 +1,702 @@
+{% extends "service_base.html" %}
+
+{% block title %}Social Media{% endblock %}
+{% block name %}Social Media{% endblock %}
+
+{% block content %}
+    {% load static %}
+    <div class="content">
+        <!-- Start Content-->
+        <div class="container-fluid">
+            <div id="error-messages-container"></div>
+            {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                    <li class="{{ message.tags }}" data-message-id="{{ forloop.counter }}">
+                        {{ message }}
+                        <span class="closebtn" onclick="closeMessage(this);">&times;</span>
+                    </li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+            
+            <style>
+                .generated-image-small {
+                    max-width: 80%;
+                    height: auto;
+                }
+                .generated-post {
+                    flex-direction: column;
+                }
+                h4 {
+                    text-align: center;
+                }
+                
+            </style>
+
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="card">
+                        <div class="card-body generated-post">
+                            <img src="{% static 'service/media/refresh.webp' %}" alt="Loading" class="rounded" style="width: 50%;">
+                            <h4>New Posts Created In: </h4>
+                            <p id="countdown"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <style>
+                #countdown {
+                    font-size: 18px;
+                    font-weight: bold;
+                    margin-top: 5px;
+                }
+            </style>
+            <script>
+                function getNextMondayAt5pm() {
+                    const now = new Date();
+                    const dayOfWeek = now.getDay();
+                    const daysUntilMonday = (8 - dayOfWeek) % 7;
+                    const nextMonday = new Date(now);
+                    nextMonday.setDate(now.getDate() + daysUntilMonday);
+                    nextMonday.setHours(17, 0, 0, 0); // Set to 5 PM
+                    return nextMonday;
+                }
+
+                function updateCountdown() {
+                    const countdownElement = document.getElementById('countdown');
+                    const nextMonday = getNextMondayAt5pm();
+                    const now = new Date();
+                    const timeDifference = nextMonday - now;
+
+                    if (timeDifference <= 0) {
+                        countdownElement.innerHTML = "We are making your posts right now!";
+                        return;
+                    }
+
+                    const days = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
+                    const hours = Math.floor((timeDifference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const minutes = Math.floor((timeDifference % (1000 * 60 * 60)) / (1000 * 60));
+                    const seconds = Math.floor((timeDifference % (1000 * 60)) / 1000);
+
+                    countdownElement.innerHTML = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+
+                    setTimeout(updateCountdown, 1000);
+                }
+
+                updateCountdown();
+            </script>
+
+            <div class="row">
+                {% if elaine_settings.scheduled_caption_0 %}
+                <div class="col-lg-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="generated-post">
+                                <h4 class="header-title">Post #1</h4>
+                                {% if elaine_settings.scheduled_image_0 %}
+                                <br>
+                                <img id="loaded-image" src="{{ elaine_settings.scheduled_image_0 }}" alt="Loading" class="generated-image-small rounded">
+                                <br>
+                                <form method="post" action="{% url 'service:download' %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="form" value="smm-download">
+                                    <input type="hidden" name="imageNum" value="0">
+                                    <button type="submit" class="btn btn-soft-dark rounded waves-effect btn-xs">Download Image</button>
+                                </form>
+                                {% endif %}
+                                <br>
+                                <div class="mb-3">
+                                    <div class="text-box-wrapper">
+                                        <div id="prompt1" contenteditable="true" class="text-box">{{ elaine_settings.scheduled_caption_0 }}</div>
+                                    </div>
+                                </div>
+                                <form id="postForm1" method="post" action="{% url 'service:social_media' %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="form" value="postToSocials">
+                                    <input type="hidden" id="editedCaption1" name="edited_caption" value="">
+                                    <input type="hidden" name="url" value="{{ elaine_settings.scheduled_image_0 }}">
+                                    <button type="button" class="btn btn-success rounded waves-effect btn-xs" onclick="setFormValueAndShowSpinner('postForm1', 1)">Post to socials!</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if elaine_settings.scheduled_caption_1 %}
+                <div class="col-lg-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="generated-post">
+                                <h4 class="header-title">Post #2</h4>
+                                {% if elaine_settings.scheduled_image_1 %}
+                                <br>
+                                <img id="loaded-image" src="{{ elaine_settings.scheduled_image_1 }}" alt="Loading" class="generated-image-small rounded">
+                                <br>
+                                <form method="post" action="{% url 'service:download' %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="form" value="smm-download">
+                                    <input type="hidden" name="imageNum" value="1">
+                                    <button type="submit" class="btn btn-soft-dark rounded waves-effect btn-xs">Download Image</button>
+                                </form>
+                                {% endif %}
+                                <br>
+                                <div class="mb-3">
+                                    <div class="text-box-wrapper">
+                                        <div id="prompt2" contenteditable="true" class="text-box">{{ elaine_settings.scheduled_caption_1 }}</div>
+                                    </div>
+                                </div>
+                                <form id="postForm2" method="post" action="{% url 'service:social_media' %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="form" value="postToSocials">
+                                    <input type="hidden" id="editedCaption2" name="edited_caption" value="">
+                                    <input type="hidden" name="url" value="{{ elaine_settings.scheduled_image_1 }}">
+                                    <button type="button" class="btn btn-success rounded waves-effect btn-xs" onclick="setFormValueAndShowSpinner('postForm2', 2)">Post to socials!</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if elaine_settings.scheduled_caption_2 %}
+                <div class="col-lg-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="generated-post">
+                                <h4 class="header-title">Post #3</h4>
+                                {% if elaine_settings.scheduled_image_2 %}
+                                <br>
+                                <img id="loaded-image" src="{{ elaine_settings.scheduled_image_2 }}" alt="Loading" class="generated-image-small rounded">
+                                <br>
+                                <form method="post" action="{% url 'service:download' %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="form" value="smm-download">
+                                    <input type="hidden" name="imageNum" value="2">
+                                    <button type="submit" class="btn btn-soft-dark rounded waves-effect btn-xs">Download Image</button>
+                                </form>
+                                {% endif %}
+                                <br>
+                                <div class="mb-3">
+                                    <div class="text-box-wrapper">
+                                        <div id="prompt3" contenteditable="true" class="text-box">{{ elaine_settings.scheduled_caption_2 }}</div>
+                                    </div>
+                                </div>
+                                <form id="postForm3" method="post" action="{% url 'service:social_media' %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="form" value="postToSocials">
+                                    <input type="hidden" id="editedCaption3" name="edited_caption" value="">
+                                    <input type="hidden" name="url" value="{{ elaine_settings.scheduled_image_2 }}">
+                                    <button type="button" class="btn btn-success rounded waves-effect btn-xs" onclick="setFormValueAndShowSpinner('postForm3', 3)">Post to socials!</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if elaine_settings.scheduled_caption_3 %}
+                <div class="col-lg-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="generated-post">
+                                <h4 class="header-title">Post #4</h4>
+                                {% if elaine_settings.scheduled_image_3 %}
+                                <br>
+                                <img id="loaded-image" src="{{ elaine_settings.scheduled_image_3 }}" alt="Loading" class="generated-image-small rounded">
+                                <br>
+                                <form method="post" action="{% url 'service:download' %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="form" value="smm-download">
+                                    <input type="hidden" name="imageNum" value="3">
+                                    <button type="submit" class="btn btn-soft-dark rounded waves-effect btn-xs">Download Image</button>
+                                </form>
+                                {% endif %}
+                                <br>
+                                <div class="mb-3">
+                                    <div class="text-box-wrapper">
+                                        <div id="prompt4" contenteditable="true" class="text-box">{{ elaine_settings.scheduled_caption_3 }}</div>
+                                    </div>
+                                </div>
+                                <form id="postForm4" method="post" action="{% url 'service:social_media' %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="form" value="postToSocials">
+                                    <input type="hidden" id="editedCaption4" name="edited_caption" value="">
+                                    <input type="hidden" name="url" value="{{ elaine_settings.scheduled_image_3 }}">
+                                    <button type="button" class="btn btn-success rounded waves-effect btn-xs" onclick="setFormValueAndShowSpinner('postForm4', 4)">Post to socials!</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if elaine_settings.scheduled_caption_4 %}
+                <div class="col-lg-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="generated-post">
+                                <h4 class="header-title">Post #5</h4>
+                                {% if elaine_settings.scheduled_image_4 %}
+                                <br>
+                                <img id="loaded-image" src="{{ elaine_settings.scheduled_image_4 }}" alt="Loading" class="generated-image-small rounded">
+                                <br>
+                                <form method="post" action="{% url 'service:download' %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="form" value="smm-download">
+                                    <input type="hidden" name="imageNum" value="4">
+                                    <button type="submit" class="btn btn-soft-dark rounded waves-effect btn-xs">Download Image</button>
+                                </form>
+                                {% endif %}
+                                <br>
+                                <div class="mb-3">
+                                    <div class="text-box-wrapper">
+                                        <div id="prompt5" contenteditable="true" class="text-box">{{ elaine_settings.scheduled_caption_4 }}</div>
+                                    </div>
+                                </div>
+                                <form id="postForm5" method="post" action="{% url 'service:social_media' %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="form" value="postToSocials">
+                                    <input type="hidden" id="editedCaption5" name="edited_caption" value="">
+                                    <input type="hidden" name="url" value="{{ elaine_settings.scheduled_image_4 }}">
+                                    <button type="button" class="btn btn-success rounded waves-effect btn-xs" onclick="setFormValueAndShowSpinner('postForm5', 5)">Post to socials!</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                <div class="col-lg-6">
+                    <!-- ELAINE CHARACTER CARD -->
+                    <div class="card">
+                        <div class="card-body task-detail">
+                            <form method="post" action="{% url 'service:social_media' %}" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <input type="hidden" name="form" value="elaine-settings">
+
+                                <h4>Want to be notified next time we schedule you posts?</h4>
+
+                                <p>
+                                        We'll send you email updates any time we add posts to your content library. You can always turn this off at any time.
+                                </p>
+
+                                <div class="row task-dates mb-0 mt-2">
+                                    <div class="row task-dates mb-0 mt-2">
+                                        <div class="col-lg-4">
+                                            <div class="mb-0 mt-2 mb-3">
+                                                <label for="isElaineEmail" style="text-align: left; margin-right: 10px;">Turn On: </label>
+                                                <input type="checkbox" name="isElaineEmail" {% if elaine_settings.isElaineEmail %}checked{% endif %} data-plugin="switchery" data-color="#B1C74C">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="mb-3 mt-2">
+                                            <h5 class="font-600 m-b-5">What Email Should I Send Notifications To?</h5>
+                                            <div class="form-floating">
+                                                <input type="email" name="ElaineEmail" class="form-control" id="floatingInputGrid" placeholder="name@example.com" value="{% if not elaine_settings.ElaineEmail %}{{ user_settings.email }}{% else %}{{ elaine_settings.ElaineEmail }}{% endif %}">
+                                                <label for="floatingInputGrid">Email address</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="clearfix"></div>
+                                <div class="attached-files mt-0">
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <div class="text-end">
+                                                <button type="submit" class="btn btn-custom waves-effect waves-light me-1" onclick="showSpinner()">Save</button>
+                                                <button type="button" class="btn btn-light waves-effect">Cancel</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <!-- END ELAINE CHARACTER CARD -->
+                    {% if user_settings.service_ftue == '2' %}
+                    <div class="card">
+                        <div class="card-body generated-post">
+                            <h4>Welcome to your new social media management team!</h4>
+                            <p>We are actively refining your content strategy. Check your contact method for a response from our team.</p>
+                            <img src="{% static 'service/media/service_ftue_2.png' %}" alt="Loading" style="width: 100%;">
+                            <div class="progress mb-0" style="width: 100%; background-color: #e4e4e4;">
+                                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100" style="width: 35%; background-color: var(--ct-progress-bar-bg);"></div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% if image_tags_num < 15 %}
+                    <div class="card">
+                        <div class="card-body generated-post">
+                            <h4>Want better posts!</h4>
+                            <p>Add images to your content library to give us a better idea of what you like.</p>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% if not user_settings.isFacebook and not user_settings.isInstagram %}
+                    <div class="card">
+                        <div class="card-body generated-post">
+                            <h4>Want us to schedule directly to your socials?</h4>
+                            <p>Connect to your social media accounts in the settings tab for us to schedule directly to your feed.</p>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% if not user_settings.isSubscriber %}
+                    <div class="card">
+                        <div class="card-body generated-post">
+                            <h4>Want them to be automatically posted to your feed?</h4>
+                            <p>Upgrade to the unlimited plan and we will post as many as you'd like straight to your social medias every week.</p>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% if not user_settings.isFacebook and not user_settings.isInstagram or not user_settings.isPlan %}
+            <style>
+                
+                .completion-indicator {
+                    display: flex;
+                    justify-content: center;
+                    margin-top: 10px;
+                }
+
+                .descriptive-texts {
+                    display: flex;
+                    justify-content: space-between;
+                    width: 100%;
+                }
+                
+                .status-text {
+                    text-align: center;
+                    color: #333;
+                    margin: 10px 10px 10px 10px;
+                    font-weight: 600;
+                    flex: 1;
+                }
+
+                .progress-container {
+                    display: flex;
+                    justify-content: space-around; /* Evenly spaces the items within the container */
+                    width: 100%; /* Ensures the container stretches across the entire section */
+                }
+                
+                .progress-circle {
+                    width: 30px;
+                    height: 30px;
+                    border-radius: 50%;
+                    background-color: #ccc;
+                }
+                
+                .progress-circle:last-child {
+                    margin-right: 0;
+                }
+                
+                .progress-circle.green {
+                    background-color: #00ff94;
+                }
+                
+                .finish-setup-card {
+                    box-shadow: 0 0.25rem 0.5rem rgba(15, 17, 19, 0.2);
+                }
+
+                .finish-setup-image {
+                    width: 50%;
+                }
+
+                .card-link {
+                    transition: transform 0.3s ease-in-out; /* Smooth transition for hover effect */
+                }
+
+                .card-link:hover {
+                    transform: scale(1.05); /* Slightly enlarge the card on hover */
+                    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add a shadow effect */
+                }
+
+                .finish-setup-popup-overlay {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0, 0, 0, 0.5);
+                    display: none;
+                    z-index: 1010;
+                }
+
+                .finish-setup-popup {
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    width: 80%;
+                    max-width: 600px;
+                    background: #fff;
+                    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+                    display: none;
+                    z-index: 1020;
+                    border-radius: 8px;
+                    overflow: hidden;
+                }
+
+                .finish-setup-popup-content {
+                    padding: 20px;
+                }
+
+                .finish-setup-popup-close {
+                    position: absolute;
+                    top: 10px;
+                    right: 20px;
+                    font-size: 24px;
+                    cursor: pointer;
+                }
+
+                .choose-plan-image {
+                    width: 100%;
+                }
+
+                @media (max-width: 768px) {
+                    .status-text, .progress-container, .account-row, .descriptive-texts {
+                        width: 100%;
+                    }
+
+                    .finish-setup-image {
+                        width: 80%;
+                    }
+
+                    .choose-plan-image {
+                        width: 100%;
+                    }
+
+                    .finish-setup-popup {
+                        width: 90%;
+                        height: auto;
+                        max-width: none;
+                    }
+
+                    .finish-setup-popup-content {
+                        padding: 15px;
+                    }
+
+                    .finish-setup-popup-card {
+                        margin-bottom: 20px;
+                    }
+                }
+            </style>
+            <script>
+                function showSetupPopup(popupId) {
+                    document.getElementById('setupPopupOverlay').style.display = 'block';
+                    document.getElementById(popupId).style.display = 'block';
+                }
+
+                function hideSetupPopup() {
+                    document.getElementById('setupPopupOverlay').style.display = 'none';
+                    document.querySelectorAll('.finish-setup-popup').forEach(popup => {
+                        popup.style.display = 'none';
+                    });
+                }
+
+            </script>
+            <div class="row">
+                <div class="col-lg-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <h3 class="generated-post" style="margin:  0 0 30px 0;">Finish Setup</h3>
+                                <div class="row">
+                                    <div class="col-lg-4 library-section">
+                                        <form method="post" action="{% url 'service:social_media' %}">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="form" value="formLibrary">
+                                            <button type="submit" class="card card-link finish-setup-card">
+                                                <div class="card-body">
+                                                    <div class="generated-post">
+                                                        <h4 class="header-title">Add images to your content library</h4>
+                                                        <br>
+                                                        <img class="finish-setup-image" src="{% static 'service/media/addLibrary.webp' %}" alt="Loading">
+                                                        <br>
+                                                    </div>
+                                                </div>
+                                            </button>
+                                        </form>
+                                    </div>
+                                    <div class="col-lg-4 social-media-section">
+                                        <div class="card card-link finish-setup-card" onclick="showSetupPopup('connectAccountsPopup')">
+                                            <div class="card-body">
+                                                <div class="generated-post">
+                                                    <h4 class="header-title">Connect your Facebook and Instagram accounts</h4>
+                                                    <br>
+                                                    <img class="finish-setup-image" src="{% static 'service/media/connectAccounts.webp' %}" alt="Loading">
+                                                    <br>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4 plan-section">
+                                        <form method="post" action="{% url 'service:social_media' %}">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="form" value="formCheckout">
+                                            <button type="submit" class="card card-link finish-setup-card">
+                                                <div class="card-body">
+                                                    <div class="generated-post">
+                                                        <h4 class="header-title">Choose your plan</h4>
+                                                        <br>
+                                                        <img class="finish-setup-image" src="{% static 'service/media/choosePlan.webp' %}" alt="Loading">
+                                                        <br>
+                                                    </div>
+                                                </div>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                                <div class="descriptive-texts">
+                                    <p class="status-text">Add Images</p>
+                                    <p class="status-text">Connect Socials</p>
+                                    <p class="status-text">Choose Plan</p>
+                                </div>
+                                <div class="progress-container">
+                                    <div class="progress-circle {% if user_settings.isLibrary%}green{% endif %}"></div>
+                                    <div class="progress-circle {% if user_settings.isInstagram or user_settings.isFacebook %}green{% endif %}"></div>
+                                    <div class="progress-circle {% if user_settings.isPlan %}green{% endif %}"></div>
+                                </div>        
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="setupPopupOverlay" class="finish-setup-popup-overlay" onclick="hideSetupPopup()"></div>
+
+            <div id="connectAccountsPopup" class="finish-setup-popup">
+                <div class="finish-setup-popup-content">
+                    <span class="finish-setup-popup-close" onclick="hideSetupPopup()">&times;</span>
+                    <h2>Connect your social medias</h2>
+                    <p>This is how we safely and securley post to your social media accounts. We only have access to what you allow. For more information on our data privacy policies, please visit our <a href="{% url 'privacy_policy' %}">Privacy Policy</a> page.</p>
+                    <form id="facebook" method="post" action="{% url 'service:social_auth' %}" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <input type="hidden" name="form" value="formFacebook">
+                        <button class="social-button">
+                            <div class="d-flex align-items-center">
+                                <div class="avatar-sm me-3 flex-shrink-0">
+                                    <img src="{% static 'dashboard/images/icon/facebook_logo.png' %}" class="img-fluid rounded-circle" alt="Facebook">
+                                </div>
+                                <div class="flex-grow-1 overflow-hidden">
+                                    <h5 class="mt-0 mb-1"> Facebook</h5>
+                                    {% if user_settings.facebook_token %}
+                                    <small class="text-blue"><b>{{ user_settings.facebook_page_name }}</b></small><br>
+                                    <small class="text-blue"><b>Linked</b></small>
+                                    {% else %}
+                                    <small class="text-blue"><b>Not Linked</b></small>
+                                    {% endif %}
+                                </div>
+                                {% if user_settings.facebook_token %}
+                                <input type="hidden" name="provider" value="facebook">
+                                <input type="hidden" name="isCheck" value="Facebook">
+                                {% endif %}
+                            </div>
+                        </button>
+                        {% if user_settings.facebook_token %}
+                        <script>
+                            var facebookForm = document.getElementById('facebook');
+                            var unlinkUrl = "{% url 'service:unlink' %}";
+
+                            facebookForm.addEventListener('submit', function(event) {
+                                event.preventDefault();
+                                var userConfirmed = confirm("Are you sure you want to unlink?");
+                                if (userConfirmed) {
+                                    facebookForm.action = unlinkUrl;
+                                    facebookForm.submit();
+                                }
+                            });
+                        </script>
+                        {% endif %}
+                    </form>
+                    <br>
+                    <form id="instagram" method="post" action="{% url 'service:social_auth' %}" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <input type="hidden" name="form" value="formInstagram">
+                        <button class="social-button" onclick="showPopup(event)">
+                            <div class="d-flex align-items-center">
+                                <div class="avatar-sm me-3 flex-shrink-0">
+                                    <img src="{% static 'dashboard/images/icon/instagram_logo.png' %}" class="img-fluid rounded-circle" alt="Instagram">
+                                </div>
+                                <div class="flex-grow-1 overflow-hidden">
+                                    <h5 class="mt-0 mb-1"> Instagram</h5>
+                                    {% if user_settings.instagram_token %}
+                                    <small class="text-pink"><b>{{ user_settings.instagram_name }}</b></small><br>
+                                    <small class="text-pink"><b>Linked</b></small>
+                                    {% else %}
+                                    <small class="text-pink"><b>Not Linked</b></small>
+                                    {% endif %}
+                                </div>
+                                {% if user_settings.instagram_token %}
+                                <input type="hidden" name="provider" value="instagram">
+                                <input type="hidden" name="isCheck" value="Instagram">
+                                {% endif %}
+                            </div>
+                        </button>
+                        {% if user_settings.instagram_token %}
+                        <script>
+                            var instagramForm = document.getElementById('instagram');
+                            var unlinkUrl = "{% url 'service:unlink' %}";
+
+                            instagramForm.addEventListener('submit', function(event) {
+                                event.preventDefault();
+                                var userConfirmed = confirm("Are you sure you want to unlink?");
+                                if (userConfirmed) {
+                                    instagramForm.action = unlinkUrl;
+                                    instagramForm.submit();
+                                }
+                            });
+                        </script>
+                        {% else %}
+                        <script>
+                            function showPopup(event) {
+                                event.preventDefault(); 
+                                document.getElementById('popup').style.display = 'block';
+                            }
+
+                            function hidePopup() {
+                                document.getElementById('popup').style.display = 'none';
+                            }
+
+                            function submitInstagramForm() {
+                                document.getElementById('instagram').submit();
+                            }
+                        </script>
+                        {% endif %}
+                    </form>
+                </div>
+            </div>
+
+            <div id="popup">
+                <div class="popup-content">
+                    <span class="close-button" onclick="hidePopup()">&times;</span>
+                    <h3>To Connect to Instagram</h3>
+                    <p>An Instagram business or creator profile must be linked to a Facebook page in order to connect.</p>
+                    
+                    <h4>Have a Personal Instagram Profile?</h4>
+                    <ol>
+                        <li>Convert your Instagram profile into a business or creator profile.</li>
+                        <li>Link to a Facebook page.</li>
+                        <li>Come back and connect.</li>
+                    </ol>
+            
+                    <button onclick="submitInstagramForm()" class="popup-button">Yes, connect</button>
+                    <button onclick="hidePopup()" class="popup-button cancel">Cancel</button>
+                </div>
+            </div>
+            {% endif %}
+                
+            <script>
+                function setFormValueAndShowSpinner(formId, num) {
+                    var updatedCaption = document.getElementById('prompt' + num).innerText;
+                    document.getElementById('editedCaption' + num).value = updatedCaption;
+                    showSpinner();
+                    document.getElementById(formId).submit();
+                }
+            </script>
+        </div> <!-- container-fluid -->
+    </div> <!-- content -->
+{% endblock %}

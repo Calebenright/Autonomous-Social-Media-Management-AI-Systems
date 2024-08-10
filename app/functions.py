@@ -1,0 +1,1297 @@
+import uuid
+import random
+from datetime import datetime, timedelta
+from PIL import Image, ImageOps, ExifTags
+from io import BytesIO
+import requests
+import re
+import json
+import ast
+from google.cloud import storage
+from google.oauth2 import service_account
+from urllib.parse import urlparse
+from openai import OpenAI
+import threading
+from .graphic_designer import generate_image_from_params
+import base64
+from urllib.parse import urlparse, unquote
+from django.core.mail import EmailMessage
+from zoneinfo import ZoneInfo
+from collections import defaultdict
+from datetime import date, datetime, timedelta, timezone
+import webcolors
+from django.shortcuts import render, redirect
+from django.contrib import messages
+import pytz
+from .post_to_socials import *
+
+# FOR DEVELOPMENT
+from decouple import config
+pixabay_api_key = config('PIXABAY_API_KEY')
+UNSPLASH_API_KEY = config('UNSPLASH_API_KEY')
+STABILITY_API_KEY = config('STABILITY_API_KEY')
+
+def create_text_post(select, business_description, business_name):
+    client = OpenAI(api_key=config('OPENAI_API_KEY'))
+    prompts = [
+    f"I need copy for social media that is a meme, pop culture, joke, or humor that relates to the business named [BUSINESS NAME = {business_name}] and has a business description [BUSINESS DESCRIPTION = {business_description}].",
+    f"I need some educational copy with a social media cta for the business named [BUSINESS NAME = {business_name}] and has a business description [BUSINESS DESCRIPTION = {business_description}].",
+    f"Create copy thats relevant on this date {datetime.now().date()}, and is themed and is for the business named [BUSINESS NAME = {business_name}] and has a business description [BUSINESS DESCRIPTION = {business_description}].",
+    f"I need an engaging question, poll, quiz, fact, statistic, etc. to post on social media for the business named [BUSINESS NAME = {business_name}] and has a business description [BUSINESS DESCRIPTION = {business_description}].",
+    f"Generate copy for a detailed social media post for the business named [BUSINESS NAME = {business_name}] and has a business description [BUSINESS DESCRIPTION = {business_description}].",
+    f"Generate copy for a business-toned social media post for the business named [BUSINESS NAME = {business_name}] and has a business description [BUSINESS DESCRIPTION = {business_description}].",
+    f"Generate copy for a professional-toned social media post for the business named [BUSINESS NAME = {business_name}] and has a business description [BUSINESS DESCRIPTION = {business_description}].",
+    f"Generate copy for a fun-toned social media post for the business named [BUSINESS NAME = {business_name}] and has a business description [BUSINESS DESCRIPTION = {business_description}].",
+    f"Generate copy for a detailed social media post for the business named [BUSINESS NAME = {business_name}] and has a business description [BUSINESS DESCRIPTION = {business_description}]. The copy should not include the business name or description.",
+    f"Generate copy for a business-toned social media post for the business named [BUSINESS NAME = {business_name}] and has a business description [BUSINESS DESCRIPTION = {business_description}]. The copy should not include the business name or description.",
+    f"Generate copy for a professional-toned social media post for the business named [BUSINESS NAME = {business_name}] and has a business description [BUSINESS DESCRIPTION = {business_description}]. The copy should not include the business name or description.",
+    f"Generate copy for a fun-toned social media post for the business named [BUSINESS NAME = {business_name}] and has a business description [BUSINESS DESCRIPTION = {business_description}]. The copy should not include the business name or description.",
+    ]
+    prompt = random.choice(prompts)
+    options = [15, 25, 50, 75, 100]
+    weights = [5, 20, 45, 20, 10]
+    selected_number = random.choices(options, weights, k=1)[0]
+    response = client.chat.completions.create(
+            model="gpt-3.5-turbo-1106",
+            messages=[
+                {
+                "role": "system",
+                "content": f"It should be less than {selected_number} words."
+                },
+                {
+                "role": "user",
+                "content": prompt
+                }
+            ],
+            temperature=1,
+            max_tokens=300
+        )
+    original_string = response.choices[0].message.content.strip()
+    caption = original_string.strip('"')
+    return caption
+
+def create_background_image_description (key):
+    client = OpenAI(api_key=config('OPENAI_API_KEY'))
+    prompt = f"Choose one of these tags: [{key}]. Then use the tag to create a creative description that is based on it. Choose one. only have a single subject or element to highlight"
+    randTypes = ["Photo", "Photo", "Photo", "Stock Image", "Stock Image", "Stock Image", "3D Render", "Graphic", "Advertisement"]
+    randType = random.choice(randTypes)
+    response = client.chat.completions.create(
+            model="gpt-3.5-turbo-1106",
+            messages=[
+                {
+                "role": "system",
+                "content": f"Match this syntax: Type: [{randType}] - Style: [STYLE] - Scene: [SCENE] - Subject: [SUBJECT] - Description: [DESCRIPTION] - Elements: [ELEMENTS]"
+                },
+                {
+                "role": "user",
+                "content": prompt
+                }
+            ],
+            temperature=1,
+            max_tokens=200
+        )
+    original_string = response.choices[0].message.content.strip()
+    return original_string
+
+def create_stock_image_description (key):
+    client = OpenAI(api_key=config('OPENAI_API_KEY'))
+    prompt = f"Choose one of these tags: [{key}]. Then use the tag to create a description for a stock image or a realistic photo that is based on it. the image should have a clear subject or element. It should be simple and should not have anything that could be flagged an innapropraite or a violation."
+    response = client.chat.completions.create(
+            model="gpt-3.5-turbo-1106",
+            messages=[
+                {
+                "role": "system",
+                "content": "Match this syntax: Scene: [SCENE] - Description: [DESCRIPTION] - Elements: [ELEMENTS] Aperture: [APERTURE] Lens: [LENS] - Lighting: [LIGHTING]"
+                },
+                {
+                "role": "user",
+                "content": prompt
+                }
+            ],
+            temperature=1,
+            max_tokens=200
+        )
+    original_string = response.choices[0].message.content.strip()
+    return original_string
+
+def get_image(desc):
+    client = OpenAI(api_key=config('OPENAI_API_KEY'))
+
+    response = client.images.generate(
+        model="dall-e-3",
+        prompt=desc,
+        size="1024x1024",
+        quality="standard",
+        n=1,
+    )
+
+    image_url = response.data[0].url
+    return image_url
+
+
+def add_stock_tags(tags, stock_images, bucket_name, bucket_credentials, user_folder_path):
+    credentials = service_account.Credentials.from_service_account_file(bucket_credentials)
+    client = storage.Client(project=credentials.project_id, credentials=credentials)
+    bucket = client.bucket(bucket_name)
+    tags_list = ast.literal_eval(tags)
+    tags_list = random.sample(tags, 2)
+
+    if stock_images == None:
+        image_urls = []
+    else:
+       image_urls = stock_images
+
+    for key in tags_list[:2]:
+        base_url = 'https://api.unsplash.com/'
+        headers = {
+            'Authorization': f'Client-ID {UNSPLASH_API_KEY}',
+        }
+        params = {
+            'query': key,
+            'count': 2,
+        }
+        response = requests.get(f'{base_url}photos/random', headers=headers, params=params)
+        response.raise_for_status()
+        data = response.json()
+
+        for photo in data:
+            image_url = photo['urls']['regular']
+            image_response = requests.get(image_url)
+            image_data = image_response.content
+            img = Image.open(BytesIO(image_data))
+            image_io = BytesIO()
+            img.save(image_io, format='JPEG')
+            image_io.seek(0)
+            
+            filename = str(uuid.uuid4()) + ".jpg"
+            blob = bucket.blob(user_folder_path + filename)
+            blob.upload_from_file(image_io, content_type='image/jpeg')
+            blob.make_public()
+            image_urls.append(blob.public_url)
+
+    return image_urls
+
+def add_pixabay_tags(tags, stock_images, bucket_name, bucket_credentials, user_folder_path):
+    credentials = service_account.Credentials.from_service_account_file(bucket_credentials)
+    client = storage.Client(project=credentials.project_id, credentials=credentials)
+    bucket = client.bucket(bucket_name)
+    tags_list = ast.literal_eval(tags)
+
+    if stock_images == None:
+        image_urls = []
+    else:
+       image_urls = stock_images
+
+    photos = []
+    num_results = 100
+    selected_tag = random.choice(tags_list)
+
+    random_page = 1
+    endpoint = f"https://pixabay.com/api/?key={pixabay_api_key}&q={selected_tag}&per_page={num_results}&page={random_page}&image_type=photo"
+
+    try:
+        response = requests.get(endpoint)
+        if response.status_code == 200:
+            data = response.json()
+            print(data)
+            pixabay_urls = [image_info.get("largeImageURL") for image_info in data.get("hits", [])]
+            random.shuffle(pixabay_urls)
+            photos = pixabay_urls[:4]
+    except requests.exceptions.RequestException as e:
+        print(e)
+
+    for photo in photos:
+        image_response = requests.get(photo)
+        image_data = image_response.content
+        img = Image.open(BytesIO(image_data))
+        
+        if img.mode == 'RGBA':
+            continue
+        
+        image_io = BytesIO()
+        img.save(image_io, format='JPEG')
+        image_io.seek(0)
+        
+        filename = str(uuid.uuid4()) + ".jpg"
+        blob = bucket.blob(user_folder_path + filename)
+        blob.upload_from_file(image_io, content_type='image/jpeg')
+        blob.make_public()
+        image_urls.append(blob.public_url)
+
+    return image_urls
+
+def create_tags(business_description):
+    client = OpenAI(api_key=config('OPENAI_API_KEY'))
+    prompt = f"Produce an array of 7-10 tags that start general and get more specific and relate to the business description: {business_description}."
+    response = client.chat.completions.create(
+        model="gpt-4-1106-preview",
+        messages=[
+            {"role": "system", "content": 'Generate arrays of related items in the format ["item1", "item2", "item3"].'},
+            {"role": "user", "content": prompt}
+        ],
+        temperature=1,
+        max_tokens=200
+    )
+    original_string = response.choices[0].message.content.strip()
+    if "'" in original_string:
+        tags_list = [tag.strip().strip("'") for tag in original_string.strip("[]").split(",")]
+    else:
+        tags_list = [tag.strip().strip('"') for tag in original_string.strip("[]").split(",")]
+    tags_json = json.dumps(tags_list)
+    tags= str(tags_json)
+    return tags
+
+def generate_unique_filename(extension):
+    unique_filename = str(uuid.uuid4()) + extension
+    return unique_filename
+
+def generate_random_date(last_date, existing_dates):
+    days_to_add = random.randint(2, 5)
+    new_datetime = last_date + timedelta(days=days_to_add)
+    new_date = new_datetime.strftime('%Y-%m-%d')
+
+    return new_date
+
+def tint_image(img, color):
+    src = Image.open(img)  
+    src.load()
+    r, g, b, alpha = src.split()
+    gray = ImageOps.grayscale(src)
+    result = ImageOps.colorize(gray, '#000000', color)
+    result.putalpha(alpha)
+
+    return result
+
+def getPixabayImg(query):
+    num_results = 50
+    random_page = random.randint(1, 10)
+    endpoint = f"https://pixabay.com/api/?key={pixabay_api_key}&q={query}&per_page={num_results}&page={random_page}&image_type=photo"
+    try:
+        response = requests.get(endpoint)
+        if response.status_code == 200:
+            data = response.json()
+            image_urls = [image_info.get("largeImageURL") for image_info in data.get("hits", [])]
+            random_image_url = random.choice(image_urls)
+
+            return random_image_url
+
+    except Exception as e:
+        pass
+
+def generate_secondary_colors(color):
+    client = OpenAI(api_key=config('OPENAI_API_KEY'))
+    prompt = f"Generate 4 hex colors, I want 1 darker, 1 lighter, 1 analogous, and 1 complementary to the primary color: [PRIMARY COLOR = {color}]. Make sure none are too close to the primary color. Exclude the primary color."
+    response = client.chat.completions.create(
+            model="gpt-4-1106-preview",
+            messages=[
+                {
+                "role": "system",
+                "content": "you are not a person. respond with 4 hex colors."
+                },
+                {
+                "role": "user",
+                "content": prompt
+                }
+            ],
+            temperature=1,
+            max_tokens=300
+        )
+    original_string = response.choices[0].message.content.strip()
+    matches = re.findall(r'(?i)#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})', original_string)
+    colors = ['#' + match for match in matches]
+    if len(colors) > 4:
+        colors = colors[:4]
+    elif len(colors) < 4:
+        colors += ['#000000'] * (4 - len(colors))
+    colors_str = json.dumps(colors)
+
+    return colors_str
+
+def read_image(post_image_files):
+    image_data = post_image_files.read()
+    img = Image.open(BytesIO(image_data))
+    return img
+
+def convert_to_bytes(image, format):
+    image_io = BytesIO()
+    image.save(image_io, format=format)
+    image_io.seek(0)
+
+    return image_io
+
+def upload_and_crop_image(post_image_files, user_image_folder_path):
+    image_data = post_image_files.read()
+    img = Image.open(BytesIO(image_data))
+    img = correct_orientation(img)
+    if img.format != 'JPEG':
+        img = img.convert('RGB')
+    width, height = img.size
+    size = min(width, height)
+    left = (width - size) / 2
+    top = (height - size) / 2
+    right = (width + size) / 2
+    bottom = (height + size) / 2
+    cropped_img = img.crop((left, top, right, bottom))
+    cropped_img = cropped_img.resize((1024, 1024))
+    image_io = BytesIO()
+    cropped_img.save(image_io, format='JPEG')
+    image_io.seek(0)
+    credentials = service_account.Credentials.from_service_account_file(config("GS_CREDENTIALS"))
+    client = storage.Client(project=credentials.project_id, credentials=credentials)
+    bucket = client.bucket(config("GS_BUCKET_NAME"))
+    filename = str(uuid.uuid4()) + ".jpg"
+    blob = bucket.blob(user_image_folder_path + filename)
+    blob.upload_from_file(image_io, content_type='image/jpeg')
+    blob.make_public()
+    uploaded_image_url = blob.public_url
+    
+    return uploaded_image_url
+
+def crop_image(image):
+    image_data = image.read()
+    img = Image.open(BytesIO(image_data))
+    img = correct_orientation(img)
+    if img.format != 'JPEG':
+        img = img.convert('RGB')
+    width, height = img.size
+    size = min(width, height)
+    left = (width - size) / 2
+    top = (height - size) / 2
+    right = (width + size) / 2
+    bottom = (height + size) / 2
+    cropped_img = img.crop((left, top, right, bottom))
+    
+    return cropped_img
+
+def correct_orientation(img):
+    try:
+        for orientation in ExifTags.TAGS.keys():
+            if ExifTags.TAGS[orientation] == 'Orientation':
+                break
+        exif = dict(img._getexif().items())
+
+        if exif[orientation] == 3:
+            img = img.rotate(180, expand=True)
+        elif exif[orientation] == 6:
+            img = img.rotate(270, expand=True)
+        elif exif[orientation] == 8:
+            img = img.rotate(90, expand=True)
+    except (AttributeError, KeyError, IndexError):
+        # cases: image doesn't have getexif
+        pass
+    return img
+
+def download_and_save_image_as_seek(url):
+    image_url = requests.get(url)
+    image_data = image_url.content
+    img = Image.open(BytesIO(image_data))
+    image_io = BytesIO()
+    img.save(image_io, format='PNG')
+    image_io.seek(0)
+    return image_io
+
+def delete_from_google(public_url, bucket_credentials):
+    path_parts = public_url.replace("https://storage.googleapis.com/", "").split("/")
+    bucket_name = path_parts[0]
+    object_name = "/".join(path_parts[1:])
+    credentials = service_account.Credentials.from_service_account_file(bucket_credentials)
+    client = storage.Client(project=credentials.project_id, credentials=credentials)
+    bucket = client.bucket(bucket_name)
+    blob = bucket.blob(object_name)
+    blob.delete()
+
+def reupload_gcs_image(source_url, new_folder):
+    path_parts = source_url.replace("https://storage.googleapis.com/", "").split("/")
+    bucket_name = path_parts[0]
+    object_name = "/".join(path_parts[1:])
+    destination_blob_name = 'scheduled_image_library/' + str(uuid.uuid4()) + ".png"
+    credentials = service_account.Credentials.from_service_account_file(config("GS_CREDENTIALS"))
+    storage_client = storage.Client(project=credentials.project_id, credentials=credentials)
+    source_bucket = storage_client.bucket(config("GS_BUCKET_NAME"))
+    source_blob = source_bucket.blob(object_name)
+    destination_blob = source_bucket.blob(destination_blob_name)
+    source_bucket.copy_blob(source_blob, source_bucket, destination_blob_name)
+    destination_blob.make_public()
+    new_image_url = destination_blob.public_url
+    return new_image_url
+
+def create_caption (business_description, business_name):
+    client = OpenAI(api_key=config('OPENAI_API_KEY'))
+    prompts = [
+    f"Create a caption for a social media post for a (BUSINESS NAMED = {business_name}) and (BUSINESS DESCRIPTION = {business_description})",
+    f"Create a cta for a social media post for a (BUSINESS NAMED = {business_name}) and (BUSINESS DESCRIPTION = {business_description})",
+    f"Create a creative caption for a social media post for a (BUSINESS NAMED = {business_name}) and (BUSINESS DESCRIPTION = {business_description})",
+    f"Create a fun caption for a social media post for a (BUSINESS NAME = {business_name}) and (BUSINESS DESCRIPTION = {business_description})",
+    f"Create a business toned caption for a social media post for a (BUSINESS NAME = {business_name}) and (BUSINESS DESCRIPTION = {business_description})",
+    ]
+    prompt = random.choice(prompts)
+    response = client.chat.completions.create(
+            model="gpt-3.5-turbo-1106",
+            messages=[
+                {
+                "role": "system",
+                "content": "Keep it relatively short."
+                },
+                {
+                "role": "user",
+                "content": prompt
+                }
+            ],
+            temperature=1,
+            max_tokens=200
+        )
+    original_string = response.choices[0].message.content.strip()
+    caption = original_string.strip('"')
+    return caption
+
+def create_dalle_post (key):
+    client = OpenAI(api_key=config('OPENAI_API_KEY'))
+
+    ## GENERATE iMAGE
+    prompt = f"describe one image you would find on social media that relates to {key} and make it a prompt so that i can generate that image in my image generator."
+    response = client.images.generate(
+        model="dall-e-3",
+        prompt=prompt,
+        size="1024x1024",
+        quality="standard",
+        n=1,
+    )
+
+    image_url = response.data[0].url
+    image_response = requests.get(image_url)
+    image_data = BytesIO(image_response.content)
+
+    return image_data
+
+def create_stable_dif_post (key):
+    client = OpenAI(api_key=config('OPENAI_API_KEY'))
+
+    ## GENERATE iMAGE
+    prompt = f"I want you to create an image description based on these tags: {key}. The response should be less than 300 characters."
+
+    response = client.chat.completions.create(
+            model="gpt-3.5-turbo-1106",
+            messages=[
+                {
+                "role": "system",
+                "content": "you are not a person. respond with just the output."
+                },
+                {
+                "role": "user",
+                "content": prompt
+                }
+            ],
+            temperature=1,
+            max_tokens=200
+        )
+
+    img = response.choices[0].message.content.strip()
+
+    url = "https://api.stability.ai/v1/generation/stable-diffusion-xl-beta-v2-2-2/text-to-image"
+
+    body = {
+    "width": 512,
+    "height": 512,
+    "steps": 50,
+    "cfg_scale": 7,
+    "samples": 1,
+    "style_preset": "photographic",
+    "text_prompts": [
+        {
+        "text": img,
+        "weight": 1
+        }
+    ],}
+    headers = {
+    "Accept": "application/json",
+    "Content-Type": "application/json",
+    "Authorization": STABILITY_API_KEY,
+    }
+    response = requests.post(
+    url,
+    headers=headers,
+    json=body,
+    )
+    if response.status_code != 200:
+        raise Exception("Non-200 response: " + str(response.text))
+    data = response.json()
+    for i, image in enumerate(data["artifacts"]):
+        image_content = base64.b64decode(image["base64"])
+    image = Image.open(BytesIO(image_content))
+    resized_img = image.resize((1024, 1024))
+    image_io = BytesIO()
+    resized_img.save(image_io, format='JPEG')
+    image_io.seek(0)
+
+    return image_io
+    
+
+def create_stock_post (key):
+    ## CREATE IMAGE USING Unsplash
+    base_url = 'https://api.unsplash.com/'
+    headers = {
+        'Authorization': f'Client-ID {UNSPLASH_API_KEY}',
+    }
+    params = {
+        'query': key,
+        'count': 3,
+    }
+    response = requests.get(f'{base_url}photos/random', headers=headers, params=params)
+    response.raise_for_status()  
+    data = response.json()
+    for photo in data:
+        image_url = photo['urls']['regular']
+    image_response = requests.get(image_url)
+    image_data = image_response.content
+    img = Image.open(BytesIO(image_data))
+    width, height = img.size
+    size = min(width, height)
+    left = (width - size) / 2
+    top = (height - size) / 2
+    right = (width + size) / 2
+    bottom = (height + size) / 2
+    cropped_img = img.crop((left, top, right, bottom))
+    resized_img = cropped_img.resize((1024, 1024))
+    image_io = BytesIO()
+    resized_img.save(image_io, format='JPEG')
+    image_io.seek(0) 
+
+    return image_io
+
+def create_unsplash_post (key):
+    ## CREATE IMAGE USING Unsplash
+    base_url = 'https://api.unsplash.com/'
+    headers = {
+        'Authorization': f'Client-ID {UNSPLASH_API_KEY}',
+    }
+    params = {
+        'query': key,
+        'count': 1,
+    }
+    response = requests.get(f'{base_url}photos/random', headers=headers, params=params)
+    response.raise_for_status()  
+    data = response.json()
+    for photo in data:
+        image_url = photo['urls']['regular']
+    image_response = requests.get(image_url)
+    image_data = image_response.content
+    img = Image.open(BytesIO(image_data))
+    image_io = BytesIO()
+    img.save(image_io, format='JPEG')
+    image_io.seek(0) 
+
+    return image_io
+
+def create_call_to_action(business_description, business_name, primary_color, colors_as_array, img_url, random_int, logo_path, isLogo):
+    bg = generate_image_from_params(str(random_int), business_description, business_name, primary_color, colors_as_array, img_url, logo_path, 'graphic', isLogo)
+    image_io = BytesIO()
+    bg.save(image_io, format='PNG')
+    image_io.seek(0)
+
+    return image_io
+
+def create_ad_creative(business_description, business_name, primary_color, colors_as_array, img_url, random_int, logo_path, isLogo):
+    bg = generate_image_from_params(str(random_int), business_description, business_name, primary_color, colors_as_array, img_url, logo_path, 'ad', isLogo)
+    image_io = BytesIO()
+    bg.save(image_io, format='PNG')
+    image_io.seek(0)
+
+    return image_io
+
+def create_upload(image_name, logo_path, isLogo, isCrop=False, coverage=0.015, gap_percentage=0.03):
+    image_data = image_name.read()
+    img = Image.open(BytesIO(image_data))
+    img = correct_orientation(img)
+    if img.format != 'JPEG':
+        img = img.convert('RGB')
+
+    if isCrop:
+        width, height = img.size
+        size = min(width, height)
+        left = (width - size) / 2
+        top = (height - size) / 2
+        right = (width + size) / 2
+        bottom = (height + size) / 2
+        img = img.crop((left, top, right, bottom))
+        img = img.resize((1024, 1024))
+
+    if isLogo:
+        response = requests.get(logo_path)
+        logo = Image.open(BytesIO(response.content)).convert("RGBA")
+        img_area = img.width * img.height
+        logo_area = img_area * coverage
+        logo_side = int((logo_area ** 0.5))
+        logo_resized = logo.resize((logo_side, logo_side), Image.LANCZOS)
+        smaller_dimension = min(img.width, img.height)
+        gap = int(smaller_dimension * gap_percentage)
+        position = (img.width - logo_side - gap, img.height - logo_side - gap)
+        img.paste(logo_resized, position, logo_resized)
+
+    image_io = BytesIO()
+    img.save(image_io, format='JPEG')
+    image_io.seek(0) 
+
+    return image_io
+
+def create_placeholder(business_description, bucket_name, bucket_credentials, user_folder_path):
+    image_url = 'https://th.bing.com/th/id/OIG.CO2sHWK_IEYIwzXsC2hX'
+    image_size = 1024
+    image_response = requests.get(image_url)
+    image = Image.open(BytesIO(image_response.content))
+    image.resize((image_size, image_size))
+    image_io = BytesIO()
+    image.save(image_io, format='JPEG')
+    image_io.seek(0)
+    return image_io
+
+def create_ad_headline (business_description, business_name):
+    client = OpenAI(api_key=config('OPENAI_API_KEY'))
+    ad_headline_prompt = f"Write me a maximum 30 character persuasive PAS-based Facebook Ad Headline call to action based on the business named [BUSINESS NAME = {business_name}] and has a business description [BUSINESS DESCRIPTION = {business_description}]"
+    response = client.chat.completions.create(
+            model="gpt-3.5-turbo-1106",
+            messages=[
+                {
+                "role": "system",
+                "content": "you are not a person. respond with just the output."
+                },
+                {
+                "role": "user",
+                "content": ad_headline_prompt
+                }
+            ],
+            temperature=1,
+            max_tokens=200
+        )
+    ad_headline = response.choices[0].message.content.strip()
+    ad_headline_str = re.sub(r'"+', '', ad_headline)
+
+    return ad_headline_str
+
+def create_ad_copy (business_description, biz_name):
+    # Define the Business We Are Creating Media For
+    client = OpenAI(api_key=config('OPENAI_API_KEY'))
+    platform = "Social Media"
+    ad_copy_prompt = f"Write me a persuasive PAS-based {platform} Ad that promotes {business_description}. The name of my business is {biz_name}\
+    \
+    Start by calling out the main problem, outlining the market's pain points, and providing details on the impacts that the [Create a Main Problem or Pain Point based on {business_description}] has on their life or business. Write this first part in 1 to 2 sentences max.\
+    \
+    Next, present the Agitation by digging deeper into the consequences and the emotional discomfort the reader experiences due to the problem, emphasizing the urgency to find a solution. Write this next part in 1 to 2 sentences max.\
+    \
+    Then, present the Solution by showcasing [{business_description}] as the answer to their needs. Then highlight the benefits [1-3 benefits based on {business_description}] that make it stand out.\
+    \
+    Motivate the reader to take the [A desired action based on {business_description}] and create a sense of urgency.\
+    \
+    Ensure that the output is a ready-to-use {platform} Ad that can be published immediately.\
+    \
+    Remember, this {platform} Ad needs to be persuasive and compelling and entices the market to take action."
+    
+    response = client.chat.completions.create(
+        model="gpt-3.5-turbo-1106",
+        messages=[
+            {
+            "role": "system",
+            "content": "Respond with text that is less than than either 100, 75, or 50 words and is written at a Grade 4 readability level."
+            },
+            {
+            "role": "user",
+            "content": ad_copy_prompt
+            }
+        ],
+        temperature=1,
+        max_tokens=1000
+    )
+    original_string = response.choices[0].message.content.strip()
+    ad_copy = re.sub(r'"+', '', original_string)
+
+    return ad_copy
+
+def add_logo (img, logo_path, coverage=0.015, gap_percentage=0.03):
+    image_url = requests.get(img)
+    img = Image.open(BytesIO(image_url.content))
+    response = requests.get(logo_path)
+    logo = Image.open(BytesIO(response.content)).convert("RGBA")
+    img_area = img.width * img.height
+    logo_area = img_area * coverage
+    logo_side = int((logo_area ** 0.5))
+    logo_resized = logo.resize((logo_side, logo_side), Image.LANCZOS)
+    smaller_dimension = min(img.width, img.height)
+    gap = int(smaller_dimension * gap_percentage)
+    position = (img.width - logo_side - gap, img.height - logo_side - gap)
+    img.paste(logo_resized, position, logo_resized)
+
+    image_io = BytesIO()
+    img.save(image_io, format='PNG')
+    image_io.seek(0) 
+
+    return image_io
+
+def upload_jpg_to_google (image, bucket_name, bucket_credentials, user_folder_path):
+
+    # Initialize Google Cloud Storage client
+    credentials = service_account.Credentials.from_service_account_file(bucket_credentials)
+    client = storage.Client(project=credentials.project_id, credentials=credentials)
+    bucket = client.bucket(bucket_name)
+    
+    # Generate a unique filename for the image
+    filename = str(uuid.uuid4()) + ".jpg"
+    blob = bucket.blob(user_folder_path + filename)
+    
+    # Upload the image from the BytesIO buffer
+    blob.upload_from_file(image, content_type='image/jpeg')
+    blob.make_public()
+
+    return blob.public_url
+
+def upload_png_to_google (image, bucket_name, bucket_credentials, user_folder_path):
+    credentials = service_account.Credentials.from_service_account_file(bucket_credentials)
+    client = storage.Client(project=credentials.project_id, credentials=credentials)
+    bucket = client.bucket(bucket_name)
+    filename = str(uuid.uuid4()) + ".png"
+    blob = bucket.blob(user_folder_path + filename)
+    blob.upload_from_file(image, content_type='image/png')
+    blob.make_public()
+
+    return blob.public_url
+
+def upload_image_to_library (image, bucket_name, bucket_credentials, user_folder_path):
+    image_data = image.read()
+    img = Image.open(BytesIO(image_data))
+    image = correct_orientation(img)
+    if image.format != 'JPEG':
+        image = image.convert('RGB')
+
+    max_size = 1900
+
+    # Open the image using PIL if it's not already an Image object
+    if not isinstance(image, Image.Image):
+        image = Image.open(image)
+
+    # Resize the image if it's larger than the max size
+    if image.width > max_size or image.height > max_size:
+        if image.width > image.height:
+            new_height = int(max_size * (image.height / image.width))
+            new_size = (max_size, new_height)
+        else:
+            new_width = int(max_size * (image.width / image.height))
+            new_size = (new_width, max_size)
+        image = image.resize(new_size, Image.LANCZOS)
+
+    # Convert the image to JPEG format
+    image_bytes = BytesIO()
+    image.save(image_bytes, format='JPEG')
+    image_bytes.seek(0)
+
+    # Setup Google Cloud Storage client
+    credentials = service_account.Credentials.from_service_account_file(bucket_credentials)
+    client = storage.Client(project=credentials.project_id, credentials=credentials)
+    bucket = client.bucket(bucket_name)
+
+    # Upload the image to GCS
+    filename = str(uuid.uuid4()) + ".jpg"
+    blob = bucket.blob(user_folder_path + filename)
+    blob.upload_from_file(image_bytes, content_type='image/jpeg')
+    blob.make_public()
+
+    return blob.public_url
+
+def delete_library_images_from_gcs(removed_image_urls, bucket_name, bucket_credentials):
+    # Setup Google Cloud Storage client
+    credentials = service_account.Credentials.from_service_account_file(bucket_credentials)
+    client = storage.Client(credentials=credentials)
+    bucket = client.bucket(bucket_name)
+    
+    for image_url in removed_image_urls:
+        # Properly parse the URL and unquote to handle any encoded characters
+        parsed_url = urlparse(unquote(image_url.strip('"')))
+        path = parsed_url.path
+        print(path)
+        
+        if path.startswith(f'/{bucket_name}/'):
+            blob_name = path[len(f'/{bucket_name}/'):]
+        else:
+            # If the path doesn't start as expected, log and skip it
+            print(f"URL does not match expected pattern: {image_url}")
+            continue
+
+        try:
+            # Attempt to delete the blob
+            blob = bucket.blob(blob_name)
+            blob.delete()
+            print(f"Successfully deleted: {blob_name}")
+        except Exception as e:
+            print(f"Error deleting {blob_name}: {e}")
+
+def upload_video_to_google(video, bucket_name, bucket_credentials, user_folder_path, file_extension):
+    credentials = service_account.Credentials.from_service_account_file(bucket_credentials)
+    client = storage.Client(project=credentials.project_id, credentials=credentials)
+    bucket = client.bucket(bucket_name)
+    filename = str(uuid.uuid4()) + "." + file_extension
+    blob = bucket.blob(user_folder_path + filename)
+    content_type = 'video/' + file_extension
+    chunk_size = 1024 * 1024
+    blob.chunk_size = chunk_size
+    blob.upload_from_file(video, content_type=content_type)
+    blob.make_public()
+
+    return blob.public_url
+
+def send_task (key, uid, dimensions, number):
+    client = OpenAI(api_key=config('OPENAI_API_KEY'))
+
+    ## GENERATE iMAGE
+    prompt = f"I want you to create an image description based on these tags: {key}. The response should be less than 300 characters."
+
+    response = client.chat.completions.create(
+            model="gpt-3.5-turbo-1106",
+            messages=[
+                {
+                "role": "system",
+                "content": "you are not a person. respond with just the output."
+                },
+                {
+                "role": "user",
+                "content": prompt
+                }
+            ],
+            temperature=1,
+            max_tokens=200
+        )
+
+    img_description = response.choices[0].message.content.strip()
+    payload = {'uid': uid, 'prompt': prompt, 'dimensions': dimensions, 'number': number}
+    DALLE3_URL = config('DALLE3_URL')
+    def trigger_cloud_function_async():
+        def send_request():
+            requests.post(DALLE3_URL, json=payload)
+        thread = threading.Thread(target=send_request)
+        thread.start()
+
+    trigger_cloud_function_async()
+
+    return print('done')
+
+def convert_color_to_hex(color):
+    colors = {
+    "white": "#FFFFFF",
+    "black": "#000000",
+    "red": "#FF0000",
+    "green": "#008000",
+    "blue": "#0000FF",
+    "yellow": "#FFFF00",
+    "cyan": "#00FFFF",
+    "magenta": "#FF00FF",
+    "silver": "#C0C0C0",
+    "gray": "#808080",
+    "grey": "#808080",
+    "maroon": "#800000",
+    "olive": "#808000",
+    "purple": "#800080",
+    "teal": "#008080",
+    "navy": "#000080",
+    "fuchsia": "#FF00FF",
+    "aqua": "#00FFFF",
+    "lime": "#00FF00",
+    "orange": "#FFA500",
+    "brown": "#A52A2A",
+    "pink": "#FFC0CB",
+    "gold": "#FFD700",
+    "beige": "#F5F5DC",
+    "coral": "#FF7F50",
+    "ivory": "#FFFFF0",
+    "khaki": "#F0E68C",
+    "lavender": "#E6E6FA",
+    "turquoise": "#40E0D0",
+    }
+
+    if color.lower() in colors:
+        return colors[color.lower()]
+
+    if re.match(r'^#(?:[0-9a-fA-F]{3}){1,2}$', color):
+        return color
+
+    if color.startswith("rgb"):
+        rgb_values = color[4:-1].split(",")
+        if all(value.strip().isdigit() for value in rgb_values):
+            rgb_values = [int(value.strip()) for value in rgb_values]
+            # Convert RGB to hex
+            hex_color = "#{:02x}{:02x}{:02x}".format(*rgb_values)
+            return hex_color
+
+    return "#000000"
+
+def find_least_filled_day_with_largest_gap(existing_event_times):
+    # Analyze the next 7 days from now
+    start_date = datetime.now()
+    day_counts = {start_date.date() + timedelta(days=i): 0 for i in range(7)}
+    
+    # Convert existing event times to datetime objects and count events per day for the next 7 days
+    event_datetimes = [datetime.fromisoformat(time) for time in existing_event_times if time]
+    for event_datetime in event_datetimes:
+        event_date = event_datetime.date()
+        if event_date in day_counts:
+            day_counts[event_date] += 1
+
+    # Find the day(s) with the minimum number of events
+    min_events = min(day_counts.values())
+    least_filled_days = [date for date, count in day_counts.items() if count == min_events]
+
+    # If all days are equally filled or have events, find the day with the largest gap between events
+    if len(least_filled_days) == len(day_counts) or all(value > 0 for value in day_counts.values()):
+        events_by_day = {day: [] for day in day_counts}
+        for event_datetime in event_datetimes:
+            day = event_datetime.date()
+            if day in events_by_day:
+                events_by_day[day].append(event_datetime)
+
+        largest_gaps = {day: 0 for day in day_counts}
+        for day, events in events_by_day.items():
+            if len(events) > 1:
+                sorted_events = sorted(events)
+                for i in range(len(sorted_events) - 1):
+                    current_gap = (sorted_events[i+1] - sorted_events[i]).total_seconds()
+                    if current_gap > largest_gaps[day]:
+                        largest_gaps[day] = current_gap
+
+        # Choose the day with the largest gap, if there are gaps calculated
+        if any(largest_gaps.values()):
+            chosen_day = max(largest_gaps, key=largest_gaps.get)
+        else:
+            # If no gaps found (e.g., each day has only one event), randomly pick one of the least filled days
+            chosen_day = random.choice(least_filled_days)
+    else:
+        # Randomly pick one of the least filled days if not all days are equally filled
+        chosen_day = random.choice(least_filled_days)
+
+    return chosen_day
+
+def create_email (business_description, business_name, character=None, owner=None):
+    client = OpenAI(api_key=config('OPENAI_API_KEY'))
+    if character.lower() == 'elaine':
+        prompt = f"Your name is elaine and you are a social media manager for a company called {business_name}. You are sending the owner (referred to as Boss), a weekly update for some posts you created and scheduled and have attached to the email. Don't talk about the specifics of the posts or captions. Keep it under 50 words."
+    else:
+        prompt = f"Your name is {character} and you are a social media manager for a company called {business_name}. You are sending the owner (referred to as '{owner}' or 'Boss' if 'None'), a weekly update for some posts you created and scheduled and have attached to the email. Just say something like, 'Hey [name], Just sending the weekly social media update...etc.' Keep it under 40 words."
+    response = client.chat.completions.create(
+            model="gpt-3.5-turbo-1106",
+            messages=[
+                {
+                "role": "system",
+                "content": "Format it as an email. keep it relatively short."
+                },
+                {
+                "role": "user",
+                "content": prompt
+                }
+            ],
+            temperature=1,
+            max_tokens=200
+        )
+    original_string = response.choices[0].message.content.strip()
+    email = original_string.strip('"')
+    return email
+
+def create_new_subscriber_email (business_description, business_name, character, owner):
+    client = OpenAI(api_key=config('OPENAI_API_KEY'))
+
+    if character.lower() == 'elaine':
+        prompt = f"Your name is Elaine and you are a social media manager for a company called {business_name} with a description ({business_description}). You are sending the owner referred to as, Boss, of the business [{business_name}], an email about how excited you are to work with them because they just hired you and it's your first day. You will send them email updates about their social media every week on Monday."
+    else:
+        prompt = f"Your name is {character} and you are involved with {business_name}. Today marks your first day, and you're reaching out to the business owner, referred to as {owner}, to express your enthusiasm about starting. You'll be in charge of sending regular updates; in your role, this means communicating every so often."
+    
+    response = client.chat.completions.create(
+            model="gpt-3.5-turbo-1106",
+            messages=[
+                {
+                "role": "system",
+                "content": "Format it as an email. keep it relatively short. under 100 words."
+                },
+                {
+                "role": "user",
+                "content": prompt
+                }
+            ],
+            temperature=1,
+            max_tokens=200
+        )
+    original_string = response.choices[0].message.content.strip()
+    email = original_string.strip('"')
+    return email
+
+def send_new_subscriber_email (email, business_description, business_name, character, owner=None):
+    subject = f'{character} From Feadl.io'
+    message = create_new_subscriber_email(business_description, business_name, character, owner)
+    from_email = config("EMAIL_HOST_USER")
+    recipient_list = [email]
+    email_message = EmailMessage(subject, message, from_email, recipient_list)
+    email_message.content_subtype = "plain"
+    email_message.send()
+    return print('Email sent')
+
+def find_next_optimal_day_for_new_post(existing_event_dates):
+    today = datetime.now(timezone.utc).date()
+    if today.weekday() == 0:  # If today is Monday
+        start_of_this_week = today
+    else:
+        start_of_this_week = today + timedelta(days=(7 - today.weekday()))
+
+    weekly_posts = defaultdict(list)
+    last_date = today
+    
+    for event_date in existing_event_dates:
+        if isinstance(event_date, datetime):
+            event_date = event_date.date()
+        week_start = event_date - timedelta(days=event_date.weekday())
+        weekly_posts[week_start].append(event_date)
+        if event_date > last_date:
+            last_date = event_date
+
+    week_to_check = start_of_this_week
+    while True:
+        days_with_events = set(weekly_posts[week_to_check])
+        for day_offset in [1, 3, 5]:  # Tue, Thu, Sat
+            potential_day = week_to_check + timedelta(days=day_offset)
+            day_before = potential_day - timedelta(days=1)
+            day_after = potential_day + timedelta(days=1)
+            if potential_day not in days_with_events and \
+               day_before not in days_with_events and \
+               day_after not in days_with_events:
+                return potential_day
+
+        week_to_check += timedelta(weeks=1)
+        if week_to_check > last_date + timedelta(weeks=1):
+            break
+
+    return None
+
+def generate_random_date(last_date, existing_dates):
+    days_to_add = random.randint(1, 3)
+    new_datetime = last_date + timedelta(days=days_to_add)
+    return new_datetime.date()
+
+def convert_optimal_posting_time(optimal_time, user_timezone_str='America/Chicago'):
+    today = datetime.now().date()
+    if not user_timezone_str:
+        user_timezone_str = 'America/Chicago'
+    user_timezone = ZoneInfo(user_timezone_str)
+    UTC = ZoneInfo('UTC')
+    optimal_posting_time = datetime.strptime(optimal_time, '%I:%M %p').time()
+    user_localized_datetime = datetime.combine(today, optimal_posting_time, tzinfo=user_timezone)
+    central_datetime = user_localized_datetime.astimezone(UTC)
+    return central_datetime.strftime('%I:%M %p %Z')
+
+def get_best_posting_times(day, platform):
+    optimal_times = {
+        "instagram": {
+            "monday": ["11:00 AM", "5:00 PM"],
+            "tuesday": ["11:00 AM", "6:00 PM"],
+            "wednesday": ["11:00 AM", "4:00 PM"],
+            "thursday": ["11:00 AM", "5:00 PM"],
+            "friday": ["11:00 AM", "3:00 PM"],
+            "saturday": ["11:00 AM", "6:00 PM"],
+            "sunday": ["11:00 AM", "5:00 PM"]
+        },
+        "facebook": {
+            "monday": ["9:00 AM", "1:00 PM"],
+            "tuesday": ["9:00 AM", "2:00 PM"],
+            "wednesday": ["9:00 AM", "1:00 PM"],
+            "thursday": ["9:00 AM", "3:00 PM"],
+            "friday": ["9:00 AM", "2:00 PM"],
+            "saturday": ["9:00 AM", "1:00 PM"],
+            "sunday": ["9:00 AM", "1:00 PM"]
+        }
+    }
+
+    if platform in optimal_times and day.lower() in optimal_times[platform]:
+        optimal_time_str = random.choice(optimal_times[platform][day.lower()])
+        return optimal_time_str
+    else:
+        return "Invalid day or platform"
+
+def convert_analog_to_timestamp(time_str):
+    parts = time_str.split(" ")
+    time = parts[0]
+    period = parts[1]
+    hour, minute = map(int, time.split(":"))
+    if period == "PM" and hour < 12:
+        hour += 12
+    if period == "AM" and hour == 12:
+        hour = 0
+
+    return f"T{hour:02}:{minute:02}:00"
+
+def all_color_to_hex(color):
+    if isinstance(color, str) and color.startswith('#') and len(color) in {4, 7}:
+        return color
+    try:
+        if isinstance(color, tuple):
+            return webcolors.rgb_to_hex(color)
+        elif isinstance(color, str):
+            return webcolors.name_to_hex(color)
+    except ValueError:
+        return "#000000"
+    
+def post_to_social_feed(request, user_settings, user_settings_ref, redirect_to):
+    caption = request.POST.get('edited_caption', None)
+    image_url = request.POST.get('url', None)
+
+    if caption is None:
+        messages.error(request, 'Please enter a caption.')
+        return redirect(redirect_to)
+
+    facebook_checked = user_settings.get('isFacebook', False)
+    instagram_checked = user_settings.get('isInstagram', False)
+
+    print(facebook_checked, instagram_checked)
+    
+    socials = [platform for platform, checked in [
+        ('facebook', facebook_checked),
+        ('instagram', instagram_checked)
+    ] if checked]
+
+    if not socials:
+        messages.error(request, 'Please select at least one social media platform.')
+        return redirect(redirect_to)
+
+    linkedin_checked = False
+
+    num_sent = user_settings.get('num_sent', 0)
+
+    tz = pytz.UTC
+    current_time = datetime.now(tz)
+    default_reset_time = current_time - timedelta(days=1)
+
+    last_reset_time = user_settings.get('last_reset_time', default_reset_time)
+
+    if current_time - last_reset_time > timedelta(days=1):
+        firestore_data = {'num_sent': 0, 'last_reset_time': current_time}
+        user_settings_ref.set(firestore_data, merge=True)
+        
+    try:
+        isAllPosted = False
+        if image_url == '' or image_url is None or image_url == 'None':
+            if facebook_checked:
+                try:
+                    page_id = user_settings['facebook_page_id']
+                    facebook_page_token = user_settings['facebook_page_token']
+                    post_text_to_facebook_page_feed(caption, page_id, facebook_page_token)
+                    num_sent += 1
+                    firestore_data = {'num_sent': num_sent}
+                    user_settings_ref.set(firestore_data, merge=True)
+                    isAllPosted = True
+                except Exception as e:
+                    isAllPosted = False
+                    error_message = str(e)
+                    if 'Access token error' in error_message:
+                        print(f"Failed due to access token expiry: {error_message}")
+                        messages.warning(request, 'Your Facebook access token has expired. Please re-link your account.')
+                        firestore_data = {'isFacebook': False, 'facebook_token': None}
+                        user_settings_ref.set(firestore_data, merge=True)
+                    else:
+                        messages.error(request, 'There was an error with your post. Please try again.')
+                        print(f"Failed to post to Facebook: {error_message}")
+
+            if linkedin_checked:
+                try:
+                    page_id = user_settings['linkedin_id']
+                    access_token = user_settings['linkedin_token']
+                    page_type = user_settings['linkedin_type']
+                    post_text_to_linkedin(access_token, page_id, caption, page_type)
+                    num_sent += 1
+                    firestore_data = {'num_sent': num_sent}
+                    user_settings_ref.set(firestore_data, merge=True)
+                    isAllPosted = True
+                except Exception as e:
+                    isAllPosted = False
+                    error_message = str(e)
+                    if 'Access token error' in error_message:
+                        print(f"Failed due to access token expiry: {error_message}")
+                        messages.warning(request, 'Your Linkedin access token has expired. Please re-link your account.')
+                        firestore_data = {'isLinkedin': False, 'linkedin_token': None}
+                        user_settings_ref.set(firestore_data, merge=True)
+                    else:
+                        messages.error(request, 'There was an error with your post. Please try again.')
+                        print(f"Failed to post to Linkedin: {error_message}")
+        else:
+            if facebook_checked:
+                try:
+                    page_id = user_settings['facebook_page_id']
+                    facebook_page_token = user_settings['facebook_page_token']
+                    post_to_facebook_page_feed(caption, image_url, page_id, facebook_page_token)
+                    num_sent += 1
+                    firestore_data = {'num_sent': num_sent}
+                    user_settings_ref.set(firestore_data, merge=True)
+                    isAllPosted = True
+                except Exception as e:
+                    isAllPosted = False
+                    error_message = str(e)
+                    if 'Access token error' in error_message:
+                        print(f"Failed due to access token expiry: {error_message}")
+                        messages.warning(request, 'Your Facebook access token has expired. Please re-link your account.')
+                        firestore_data = {'isFacebook': False, 'facebook_token': None}
+                        user_settings_ref.set(firestore_data, merge=True)
+                    else:
+                        messages.error(request, 'There was an error with your post. Please try again.')
+                        print(f"Failed to post to Facebook: {error_message}")
+
+            if instagram_checked:
+                try:
+                    instagram_user_id = user_settings['instagram_user_id']
+                    access_token = user_settings['instagram_token']
+                    post_to_instagram(access_token, image_url, caption, instagram_user_id)
+                    num_sent += 1
+                    firestore_data = {'num_sent': num_sent}
+                    user_settings_ref.set(firestore_data, merge=True)
+                    isAllPosted = True
+                except Exception as e:
+                    isAllPosted = False
+                    error_message = str(e)
+                    if 'Access token error' in error_message:
+                        print(f"Failed due to access token expiry: {error_message}")
+                        messages.warning(request, 'Your Instagram access token has expired. Please re-link your account.')
+                        firestore_data = {'isInstagram': False, 'instagram_token': None}
+                        user_settings_ref.set(firestore_data, merge=True)
+                    else:
+                        messages.error(request, 'There was an error with your post. Please try again.')
+                        print(f"Failed to post to Instagram: {error_message}")
+
+            if linkedin_checked:
+                try:
+                    access_token = user_settings['linkedin_token']
+                    page_id = user_settings['linkedin_id']
+                    page_type = user_settings['linkedin_type']
+                    personal_id = user_settings.get('linkedin_personal_id', None)
+                    post_to_linkedin(caption, image_url, access_token, page_id, page_type)
+                    num_sent += 1
+                    firestore_data = {'num_sent': num_sent}
+                    user_settings_ref.set(firestore_data, merge=True)
+                    isAllPosted = True
+                except Exception as e:
+                    isAllPosted = False
+                    error_message = str(e)
+                    if 'Access token error' in error_message:
+                        print(f"Failed due to access token expiry: {error_message}")
+                        messages.warning(request, 'Your Linkedin access token has expired. Please re-link your account.')
+                        firestore_data = {'isLinkedin': False, 'linkedin_token': None}
+                        user_settings_ref.set(firestore_data, merge=True)
+                    else:
+                        messages.error(request, 'There was an error with your post. Please try again.')
+                        print(f"Failed to post to Linkedin: {error_message}")
+
+        if isAllPosted:
+            messages.success(request, 'Your post has been successfully uploaded to your Social Media!')
+        
+
+    except Exception as e:
+        messages.error(request, "An unexpected error occurred. Please try again.")
+
+    return redirect(redirect_to)
+
+def delete_gcs_folder(user_id, folder_name):
+    credentials = service_account.Credentials.from_service_account_file(config("GS_CREDENTIALS"))
+    client = storage.Client(project=credentials.project_id, credentials=credentials)
+    bucket = client.bucket(config("GS_BUCKET_NAME"))
+    prefix = f'user_folders/{user_id}/{folder_name}/'
+    
+    blobs = bucket.list_blobs(prefix=prefix)
+    for blob in blobs:
+        blob.delete()
+

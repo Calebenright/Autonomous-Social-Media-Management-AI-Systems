@@ -1,0 +1,266 @@
+{% extends "service_base.html" %}
+
+{% block title %}Video Editor{% endblock %}
+{% block name %}Video Editor{% endblock %}
+
+{% block content %}
+    {% load static %}
+    <div class="content">
+        <div class="container-fluid">
+
+            {% if not user_settings.isUnlimited %}
+            <style>
+                .lock-overlay {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background-color: rgba(0, 0, 0, 0.3);
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    z-index: 9997;
+                }
+
+                .lock-overlay-content {
+                    text-align: center; /* Center text inside */
+                    background-color: #ffffff00; /* White background for content */
+                }
+
+                .left-side-menu {
+                    z-index: 9999;
+                }
+                .navbar-custom {
+                    z-index: 9998;
+                }
+            </style>
+            <div class="lock-overlay">
+                <div class="lock-overlay-content">
+                    <img src="{% static 'service/media/lock.webp' %}" alt="Upgrade Plan" style="width: 500px;">
+                    <br>
+                    <a href="{% url 'service:checkout' %}" class="btn btn-gradient-stroke subscribe rounded-pill dropdown-toggle arrow-none waves-effect waves-light mb-3">Upgrade your plan</a>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="row">
+                {% if messages %}
+                <ul class="messages">
+                    {% for message in messages %}
+                        <li class="{{ message.tags }}" data-message-id="{{ forloop.counter }}">
+                            {{ message }}
+                            <span class="closebtn" onclick="closeMessage(this);">&times;</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+
+                <style>
+                    @media (max-width: 768px) {
+                        h4 {
+                            font-size: 1rem;
+                        }
+                        .sub-header {
+                            font-size: 0.8rem;
+                        }
+                    }
+                </style>
+                
+                <div class="col-lg-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="header-title">Proposal</h4>
+                            <p class="sub-header">
+                                Tell us what you would like for your video. Be as detailed as possible for best results. Our video editors will be right on it!
+                            </p>
+                            <form method="post" action="{% url 'service:video_editor' %}" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <input type="hidden" name="form" value="video-proposal">
+                                <input type="hidden" name="redirect_url" value="service:video_editor">
+                                <input type="hidden" id="folder_name" name="folder_name" value="video_proposal">
+                                <input type="hidden" name="subject" value="New Video Proposal!">
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <div class="mb-3">
+                                            <label for="files" class="form-label">Attach any necessary files</label>
+                                            <input type="file" id="files" name="files" data-plugins="dropify" data-height="100" accept=".png, .jpg, .svg, .mp4, .heic, .mov"/>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-lg-12">
+                                                <style>
+                                                    #progress-bar-container {
+                                                        width: 100%;
+                                                        background-color: #f3f3f3;
+                                                        border-radius: 25px;
+                                                        padding: 3px;
+                                                    }
+
+                                                    #upload-progress-bar {
+                                                        width: 0;
+                                                        height: 20px;
+                                                        background-color: #4caf50;
+                                                        border-radius: 20px;
+                                                        text-align: center;
+                                                        line-height: 20px;
+                                                        color: white;
+                                                        transition: width 0.4s;
+                                                    }
+                                                </style>
+                                                <div id="upload-overlay" class="mb-2">
+                                                    <div id="progress-bar-container">
+                                                        <div id="upload-progress-bar"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row" id="thumbnails-container">
+                                        </div>
+                                        {% if susan_settings.isLoading %}
+                                        <div class="row">
+                                            {% for thumbnail in thumbnails %}
+                                            <div class="col-lg-6 mt-2">
+                                                <div class="media-container" data-url="{{ thumbnail }}"></div>
+                                            </div>
+                                            {% endfor %}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="mb-3">
+                                            <label for="brief" class="form-label">Editor Brief</label>
+                                            <label for="brief" class="form-label">(Detailed description of the video edit you would like)</label>
+                                            <textarea class="form-control" name="brief" style="height: 300px;">{{ susan_settings.brief }}</textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% if susan_settings.message %}
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <ul class="messages">
+                                            <li class="warning">
+                                                {{ susan_settings.message }}
+                                                <span class="closebtn" onclick="closeMessage(this);">&times;</span>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                {% endif %}
+                                <div class="row">
+                                    <div class="col-lg-4">
+                                        {% if susan_settings.isLoading %}
+                                        <button type="button" class="btn btn-danger waves-effect waves-light" onclick="showPopup('cancelPopup')">Cancel Video Request</button>
+                                        {% else %}
+                                        <button id="submit-button" type="submit" class="btn btn-primary waves-effect waves-light" onclick="showSpinner()">Submit Editor Brief</button>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </form>
+                            <form id="clearForm" method="post" action="{% url 'service:video_editor' %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="form" value="video-clear">
+                            </form>
+                        </div> <!-- end card-body -->
+                    </div> <!-- end card -->
+                </div><!-- end col -->
+
+                <div class="col-lg-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="generated-post">
+                                {% if not susan_settings.isLoading %}
+                                    {% if susan_settings.video %}
+                                    <h4 class="header-title">Your Video</h4>
+                                    <br>
+                                    <video src="{{ susan_settings.video }}" class="rounded" style="width: 80%; box-shadow: 0px 2px 9px rgba(0, 0, 0, 0.4);" controls>
+                                        An error occured.
+                                    </video>
+                                    <br>
+                                    <a href="{{ susan_settings.video }}" download>
+                                        <button type="submit" class="btn btn-soft-dark rounded waves-effect btn-xs">Download Video</button>
+                                    </a>
+                                    <br>
+                                    <button type="button" class="btn btn-soft-success rounded waves-effect btn-xs" onclick="showPopup('notesPopup')">Want to provide notes?</button>
+                                    {% else %}
+                                    <p class="sub-header mt-2">
+                                        Submit a proposal and we will get right to editing your video.
+                                    </p>
+                                    {% endif %}
+                                {% else %}
+                                <h4>We are currently editing your video!</h4>
+                                <p class="sub-header">
+                                    You can find the progress of your video edit below.
+                                    <br>
+                                    When it is complete, you will be able to download it here or in the "Content Library" tab.
+                                </p>
+                                <img src="{% static 'service\media\video_editor_progress.webp' %}" alt="Generated Graphic" class="rounded" style="width: 100%;">
+                                <div class="progress" style="width: 100%; height: 5rem; background-color: #e4e4e4;">
+                                    <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="{{ progress }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ progress }}%; height: 5rem; background-color: var(--ct-progress-bar-bg);"></div>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div> <!-- end card-body -->
+                    </div> <!-- end card -->
+                </div><!-- end col -->
+                
+                <style>
+                    #notesPopup {
+                        display: none; /* Hidden by default */
+                        position: fixed; /* Stay in place */
+                        left: 0;
+                        top: 0;
+                        width: 100%; /* Full width */
+                        height: 100%; /* Full height */
+                        overflow: auto; /* Enable scroll if needed */
+                        background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+                        z-index: 9999; /* Sit on top */
+                    }
+
+                    #cancelPopup {
+                        display: none; /* Hidden by default */
+                        position: fixed; /* Stay in place */
+                        left: 0;
+                        top: 0;
+                        width: 100%; /* Full width */
+                        height: 100%; /* Full height */
+                        overflow: auto; /* Enable scroll if needed */
+                        background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+                        z-index: 9999; /* Sit on top */
+                    }
+                </style>
+                
+                <div id="notesPopup">
+                    <div class="popup-content">
+                        <span class="close-button" onclick="hidePopup('notesPopup')">&times;</span>
+                        <h3>Want to provide notes so we can refine your video?</h3>
+                        <p>We want to make sure we are set up for success. Please be as detailed as possible for your video edit so we can be more efficient. If you want us to be more detailed in our edit then we can support you with an upgraded plan.</p>
+                        
+                        <h4>What makes a good proposal?</h4>
+                        <ol>
+                            <li>Highly detailed description of the deliverable.</li>
+                            <li>Moodboard.</li>
+                            <li>Reference images or videos.</li>
+                        </ol>
+
+                        <button onclick="redirectToCheckout()" class="btn btn-success waves-effect waves-light">Upgrade my account</button>
+                        <button onclick="hidePopup('notesPopup')" class="btn btn-danger waves-effect waves-light">Cancel</button>
+                    </div>
+                </div>
+
+                <div id="cancelPopup">
+                    <div class="popup-content">
+                        <span class="close-button" onclick="hidePopup('cancelPopup')">&times;</span>
+                        <h3>Are you sure you want to cancel your request?</h3>
+                        <br>
+                        <button onclick="cancelRequest()" class="btn btn-success waves-effect waves-light">Yes, cancel my request.</button>
+                        <button onclick="hidePopup('cancelPopup')" class="btn btn-danger waves-effect waves-light">No, go back.</button>
+                    </div>
+                </div>
+            </div>
+        </div> <!-- container-fluid -->
+    </div> <!-- content -->
+    <script>
+    var sendForm = '{% url "service:generate_signed_url" %}';
+    var upgradeCheckout = "{% url 'service:advertising_checkout' %}";
+    </script>
+{% endblock %}

@@ -1,0 +1,98 @@
+{% extends "service_base.html" %}
+
+{% block title %}Social Media{% endblock %}
+{% block name %}Social Media{% endblock %}
+
+{% block content %}
+    {% load static %}
+    <div class="content">
+        <div class="container-fluid">
+            <div class="row">
+                {% if messages %}
+                <ul class="messages">
+                    {% for message in messages %}
+                        <li class="{{ message.tags }}" data-message-id="{{ forloop.counter }}">
+                            {{ message }}
+                            <span class="closebtn" onclick="closeMessage(this);">&times;</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="pricing-center">
+                                    <div class="col-pricing pricing-card card-content">
+                                        <p class="pricing-title">Startup Advertising</p>
+                                        <h2 class="pricing-header">
+                                            <span class="sale-price-lite">$120</span>
+                                            <span class="pricing-duration sans">/MO</span>
+                                        </h2>
+                                        {% if user_settings.isSubscriber %}
+                                        <a href="https://billing.stripe.com/p/login/9AQg2W9gog0r4006oo"  class="pricing-button pricing-button-secondary full-width space-top" role="button">Upgrade Plan</a>
+                                        {% else %}
+                                        <a href="https://buy.stripe.com/cN23e6cbnfeM89OeV2"  class="pricing-button pricing-button-secondary full-width space-top" role="button">Subscribe</a>
+                                        {% endif %}
+                                        <div class="vertical-line"></div>
+                                        <p class="paragraph space-top">Startup Advertising Plan</p>
+                                        <ul class="space-bottom">
+                                            <li>Everything From Marketing Plan.</li>
+                                            <li>80 Advertising Credits.</li>
+                                            <li>Social Media Management, Graphic Designer, and Video Editor.</li>
+                                            <li>Best for businesses looking to generate a small amount of customers.</li>
+                                            <li>And More!</li>
+                                        </ul>
+                                    </div>
+                                    <div class="col-pricing pricing-card card-content dark most-popular">
+                                        <div class="most-popular-tag">Most Popular</div>
+                                        <p class="pricing-title">Advanced Advertising</p>
+                                        <h2 class="pricing-header">
+                                            <span class="sale-price-lite dark">$500</span>
+                                            <span class="pricing-duration dark sans">/MO</span>
+                                        </h2>
+                                        {% if user_settings.isSubscriber %}
+                                        <a href="https://billing.stripe.com/p/login/9AQg2W9gog0r4006oo"  class="pricing-button pricing-button-secondary full-width space-top" role="button">Upgrade Plan</a>
+                                        {% else %}
+                                        <a href="https://buy.stripe.com/eVa5mefnz3w461G7sB"  class="pricing-button pricing-button-secondary full-width space-top" role="button">Subscribe</a>
+                                        {% endif %}
+                                        <div class="vertical-line"></div>
+                                        <p class="paragraph space-top">Advanced Advertising Plan</p>
+                                        <ul class="space-bottom">
+                                            <li>Everything From Marketing Plan.</li>
+                                            <li>510 Advertising Credits.</li>
+                                            <li>Social Media Management, Graphic Designer, and Video Editor.</li>
+                                            <li>Best for businesses looking to scale their customers.</li>
+                                            <li>Scale your business!</li>
+                                        </ul>
+                                    </div>
+                                    <div class="col-pricing pricing-card card-content dark">
+                                        <p class="pricing-title">Big Business Advertising</p>
+                                        <h2 class="pricing-header">
+                                            <span class="sale-price-lite dark">$1500</span>
+                                            <span class="pricing-duration dark sans">/MO</span>
+                                        </h2>
+                                        {% if user_settings.isSubscriber %}
+                                        <a href="https://billing.stripe.com/p/login/9AQg2W9gog0r4006oo"  class="pricing-button pricing-button-secondary full-width space-top" role="button">Upgrade Plan</a>
+                                        {% else %}
+                                        <a href="https://buy.stripe.com/dR6g0Sb7j9Uscq4cMW"  class="pricing-button pricing-button-secondary full-width space-top" role="button">Subscribe</a>
+                                        {% endif %}
+                                        <div class="vertical-line"></div>
+                                        <p class="paragraph space-top">Big Business Advertising Plan</p>
+                                        <ul class="space-bottom">
+                                            <li>Everything From Marketing Plan.</li>
+                                            <li>1700 Advertising Credits.</li>
+                                            <li>Social Media Management, Graphic Designer, and Video Editor.</li>
+                                            <li>Best for businesses looking to scale infinitely.</li>
+                                            <li>How multi-million dollar businesses are made!</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

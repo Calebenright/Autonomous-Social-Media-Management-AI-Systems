@@ -1,0 +1,591 @@
+{% extends "agency_base.html" %}
+
+{% block title %}Agency Tasks{% endblock %}
+{% block name %}Agency Tasks{% endblock %}
+
+{% block content %}
+    {% load static %}
+    <div class="content">
+        <div class="container-fluid">
+            <div class="row">
+                {% if messages %}
+                <ul class="messages">
+                    {% for message in messages %}
+                        <li class="{{ message.tags }}" data-message-id="{{ forloop.counter }}">
+                            {{ message }}
+                            <span class="closebtn" onclick="closeMessage(this);">&times;</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+                {% endif %}         
+                <div class="col-8">
+                    <div class="row">
+                        <div class="card">
+                            <div class="card-body">
+                                <div id="calendar"></div>
+                            </div> <!-- end card body-->
+                        </div> <!-- end card -->
+                    </div>
+                    
+                    <div id="external-events"></div>
+
+                    <!-- Add New Event MODAL -->
+                    <div class="modal fade" id="event-modal" tabindex="-1">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header py-3 px-4 border-bottom-0 d-block">
+                                    <button type="button" class="btn-close float-end" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    <h5 class="modal-title" id="modal-title">Post</h5>
+                                </div>
+                                <div class="modal-body px-4 pb-4 pt-0">
+                                    <form class="needs-validation" name="event-form" id="form-event" novalidate>
+                                        <div class="row">
+                                            <div class="col-12">
+                                                <div class="mb-3">
+                                                    <label class="form-label">Image</label>
+                                                    <img src="" style="max-width: 100%; display: block; height: auto; border-radius: 10px;" id="event-image">
+                                                    <br>
+                                                </div>
+                                            </div>
+                                            <div class="col-12">
+                                                <div class="mb-3">
+                                                    <label class="form-label">Pages</label>
+                                                    <div style="display: inline-block;">
+                                                        <img src="{% static 'dashboard\images\icon\reset_icon.png' %}" style="max-width: 13%; border-radius: 10px; margin: 10px;" id="social_reset">
+                                                        <img src="{% static 'dashboard\images\icon\facebook_logo.png' %}" style="max-width: 13%; border-radius: 10px; margin: 10px;" id="facebook">
+                                                        <img src="{% static 'dashboard\images\icon\instagram_logo.png' %}" style="max-width: 13%; border-radius: 10px; margin: 10px;" id="instagram">
+                                                        <img src="{% static 'dashboard\images\icon\linkedin_logo.png' %}" style="max-width: 13%; border-radius: 10px; margin: 10px;" id="linkedin">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-12">
+                                                <div class="mb-3">
+                                                    <label class="form-label">Post Caption</label>
+                                                    <input type="hidden" id="edited-caption"/>
+                                                    <div class="text-box-wrapper">
+                                                        <div id="event-caption" contenteditable="true" class="form-control-constrain"></div>
+                                                    </div>
+                                                    <div class="invalid-feedback">Please provide a valid caption</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="mb-3">
+                                                <label class="form-label">Time</label>
+                                                <input type="time" id="time" class="form-control">
+                                            </div>
+                                        </div>
+                                        <div class="row mt-2">
+                                            <div class="col-md-6 col-4">
+                                                <button type="button" class="btn btn-danger" id="btn-delete-event">Delete</button>
+                                            </div>
+                                            <div class="col-md-6 col-8 text-end">
+                                                <button type="button" class="btn btn-light me-1" data-bs-dismiss="modal">Close</button>
+                                                <button type="submit" class="btn btn-success" id="btn-save-event">Save</button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <ul class="nav nav-pills navtab-bg nav-justified">
+                                <li class="nav-item">
+                                    <a href="#SMM" data-bs-toggle="tab" aria-expanded="false" class="nav-link active">
+                                        SMM
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="#Graphic" data-bs-toggle="tab" aria-expanded="false" class="nav-link">
+                                        Graphic
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="#Video" data-bs-toggle="tab" aria-expanded="true" class="nav-link">
+                                        Video
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="#Ad" data-bs-toggle="tab" aria-expanded="false" class="nav-link">
+                                        Ad
+                                    </a>
+                                </li>
+                            </ul>
+                            <div class="tab-content">
+                                <div class="tab-pane show active" id="SMM">
+                                    <div class="card">
+                                        <div class="card-body task-detail">
+                                            <div class="d-flex mb-3">
+                                                <img class="flex-shrink-0 me-3 rounded-circle avatar-md" alt="64x64" src="{% static 'dashboard/images/icon/elaineChatIcon2.png' %}">
+                                                <div class="flex-grow-1">
+                                                    <h4 class="media-heading mt-0">Elaine - Social Media Manager</h4>
+                                                    <span class="badge btn-custom">Marketing</span>
+                                                </div>
+                                            </div>
+        
+                                            <form id="tagForm" method="post" action="{% url 'agency:elaine' %}" enctype="multipart/form-data">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="form" value="elaine-settings">
+
+                                                <div class="mb-0 mt-2 mb-3">
+                                                    <label for="isElaineOn" style="text-align: left; margin-right: 10px;">Turn On: </label>
+                                                    <input type="checkbox" name="isElaineOn" {% if elaine_settings.isElaineOn %}checked{% endif %} data-plugin="switchery" data-color="#B1C74C">
+                                                </div>
+
+                                                <h4>I create and schedule posts to your social media every Monday.</h4>
+
+                                                <p class="text-muted">
+                                                        You can ask me to generate you posts, captions, graphics, content ideas, and more. I have a lot of features that can help you with your social media.
+                                                </p>
+            
+                                                <p class="text-muted">
+                                                    Below are some settings that will help me create the best posts possible for you each week. You can change these settings at any time. Make sure to save your changes. 
+                                                </p>
+
+                                                <div class="row task-dates mb-0 mt-2">
+                                                    <div class="col-lg-6">
+                                                        {% if user_settings.isAgency %}
+                                                        <div class="mb-3 mt-2">
+                                                            <h5 class="font-600 m-b-5">What's your first name?</h5>
+                                                            <input type="text" name="ElaineName" class="form-control" id="floatingInputGrid" value="{{ user_settings.firstName }}" disabled>
+                                                        </div>
+                                                        {% endif %}
+                                                        <div class="mb-0 mt-2">
+                                                            <h5 class="font-600 m-b-5">What Timezone Are You Located?</h5>
+                                                            <select name="ElaineTimezone" id="selectize-select2">
+                                                                <option value="America/New_York" {% if elaine_settings.ElaineTimezone == 'America/New_York' %}selected{% endif %}>Eastern Standard Time (EST)</option>
+                                                                <option value="America/Chicago" {% if elaine_settings.ElaineTimezone == 'America/Chicago' %}selected{% endif %}>Central Standard Time (CST)</option>
+                                                                <option value="America/Denver" {% if elaine_settings.ElaineTimezone == 'America/Denver' %}selected{% endif %}>Mountain Standard Time (MST)</option>
+                                                                <option value="America/Los_Angeles" {% if elaine_settings.ElaineTimezone == 'America/Los_Angeles' %}selected{% endif %}>Pacific Standard Time (PST)</option>
+                                                                <option value="America/Anchorage" {% if elaine_settings.ElaineTimezone == 'America/Anchorage' %}selected{% endif %}>Alaska Standard Time (AKST)</option>
+                                                                <option value="Pacific/Honolulu" {% if elaine_settings.ElaineTimezone == 'Pacific/Honolulu' %}selected{% endif %}>Hawaii-Aleutian Standard Time (HST)</option>
+                                                                <option value="UTC" {% if elaine_settings.ElaineTimezone == 'UTC' %}selected{% endif %}>Coordinated Universal Time (UTC)</option>
+                                                                <option value="Etc/GMT" {% if elaine_settings.ElaineTimezone == 'Etc/GMT' %}selected{% endif %}>Greenwich Mean Time (GMT)</option>
+                                                            </select>     
+                                                        </div>
+                                                        <div class="mb-3 mt-2">
+                                                            <h5 class="font-600 m-b-5">What Email Should I Send Updates To?</h5>
+                                                            <div class="form-floating">
+                                                                <input type="email" name="ElaineEmail" class="form-control" id="floatingInputGrid" placeholder="name@example.com" value="{% if not elaine_settings.ElaineEmail %}{{ user_settings.email }}{% else %}{{ elaine_settings.ElaineEmail }}{% endif %}">
+                                                                <label for="floatingInputGrid">Email address</label>
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        <div class="mb-0 mt-2">
+                                                            <h5 class="font-600 m-b-5">How Many Posts Per Week?</h5>
+                                                            <select name="posts_per_week" id="selectize-select">
+                                                                <option value="1" {% if elaine_settings.posts_per_week == 1 %}selected{% endif %}>1</option>
+                                                                <option value="2" {% if elaine_settings.posts_per_week == 2 %}selected{% endif %}>2</option>
+                                                                <option value="3" {% if elaine_settings.posts_per_week == 3 %}selected{% endif %}>3</option>
+                                                                <option value="4" {% if elaine_settings.posts_per_week == 4 %}selected{% endif %}>4</option>
+                                                                <option value="5" {% if elaine_settings.posts_per_week == 5 %}selected{% endif %}>5</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="col-lg-6">
+                                                        <div class="mb-0 mt-2">
+                                                            <h5 class="font-600 m-b-5">What Social Medias Do You Want Me To Post To?</h5>
+                                                            <select id="selectize-tags" name="ElaineSocialMedias[]" multiple>
+                                                                <option value="Facebook" {% if "Facebook" in elaine_settings.ElaineSocialMedias %}selected{% endif %}>Facebook</option>
+                                                                <option value="Instagram" {% if "Instagram" in elaine_settings.ElaineSocialMedias %}selected{% endif %}>Instagram</option>
+                                                            </select>
+                                                        </div>
+
+                                                        <div class="mb-0 mt-2">
+                                                            <h5 class="font-600 m-b-5">What Kind Of Posts Do You Want Me To Choose From?</h5>
+                                                            <select name="ElainePostType[]" id="selectize-tags2" multiple>
+                                                                <option value="Text Post" {% if "Text Post" in elaine_settings.ElainePostType %}selected{% endif %}>Text Post</option>
+                                                                <option value="Stock Photo Post" {% if "Stock Photo Post" in elaine_settings.ElainePostType %}selected{% endif %}>Stock Photo Post</option>
+                                                                <option value="Social Media Graphic Post" {% if "Social Media Graphic Post" in elaine_settings.ElainePostType %}selected{% endif %}>Social Media Graphic Post</option>
+                                                            </select>
+                                                        </div>
+
+                                                        <div class="row task-dates mb-0 mt-2">
+                                                            <div class="col-lg-6">
+                                                                <div class="mb-3" >
+                                                                    <h5 class="font-600 m-b-5">Turn On Email Updates?</h5>
+                                                                    <input type="checkbox" name="isElaineEmail" {% if elaine_settings.isElaineEmail %}checked{% endif %} data-plugin="switchery" data-color="#B1C74C">
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="mb-0 mt-2">
+                                                            <h5 class="font-600 m-b-5">Post Weights</h5>
+                                                            <p style="margin-bottom: 0px;">Adjust the weights for each type of post.</p>
+                                                            <div id="colorDisplay" class="slider-container">
+                                                                <input type="range" id="firstHandle" name="textWeight" class="multi-range" value="{{ elaine_settings.text_weight }}" data-text-weight="{{ elaine_settings.text_weight|default_if_none:30 }}" style="transform: translateY(10px);">
+                                                                <input type="range" id="secondHandle" name="stockWeight" class="multi-range" value="{{ elaine_settings.combined_weight  }}" data-stock-weight="{{ elaine_settings.combined_weight|default_if_none:60 }}" style="transform: translateY(3px);">
+                                                            </div>
+                                                            <div id="weights">
+                                                                <p style="margin-bottom: 0rem;">Text Post: <span id="textWeight">{{ elaine_settings.text_weight }}</span>%</p>
+                                                                <p style="margin-bottom: 0rem;">Stock Post: <span id="stockWeight">{{ elaine_settings.stock_weight }}</span>%</p>
+                                                                <p style="margin-bottom: 0rem;">Graphic Post: <span id="graphicWeight">{{ elaine_settings.graphic_weight }}</span>%</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="clearfix"></div>
+                                                <div class="attached-files mt-3">
+                                                    <div class="row">
+                                                        <div class="col-sm-12">
+                                                            <div class="text-end">
+                                                                <button type="submit" class="btn btn-custom waves-effect waves-light me-1" onclick="showSpinner()">Save</button>
+                                                                <button type="button" class="btn btn-light waves-effect">Cancel</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="tab-pane" id="Graphic">
+                                    {% if george_settings.isLoading %}
+                                    <div class="rounded mb-2" style="width: 100%; height: 20px; background-color: red; display: inline-block;"></div>
+                                    <h4 class="card-title mb-1">Graphic Proposal</h4>
+                                    <p class="sub-header">Client Requested a Graphic</p>
+                                    {% else %}
+                                    <div class="rounded mb-2" style="width: 100%; height: 20px; background-color: green; display: inline-block;"></div>
+                                    <h4 class="card-title mb-1">Graphic Proposal</h4>
+                                    <p class="sub-header mb-3">Graphic request has been fulfilled</p>
+                                    {% endif %}
+                                    <div class="row mb-1">
+                                    {% if graphic_files %}
+                                        {% for file_detail in graphic_files %}
+                                            {% if file_detail.is_image %}
+                                                <div class="col-4">
+                                                    <a href="{{ file_detail.file }}" download>
+                                                        <img src="{{ file_detail.file }}" style="max-width: 100%; display: block; height: auto; border-radius: 10px;">
+                                                    </a>
+                                                </div>
+                                            {% elif file_detail.is_video %}
+                                                <div class="col-4">
+                                                    <a href="{{ file_detail.file }}" download>
+                                                        <video controls style="max-width: 100%; display: block; height: auto; border-radius: 10px;">
+                                                            <source src="{{ file_detail.file }}" type="video/mp4">
+                                                            Your browser does not support the video tag.
+                                                        </video>
+                                                    </a>
+                                                </div>
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% else %}
+                                        <p>No files were uploaded</p>
+                                    {% endif %}
+                                    </div>
+                                    <textarea class="form-control mb-2" style="height: 100px;" readonly>{{ george_settings.brief }}</textarea>
+                                    <p class="sub-header">Upload the Graphic</p>
+                                    {% if george_settings.graphic %}
+                                    <img src="{{ george_settings.graphic }}" style="max-width: 100%; max-height: 300px; display: block; height: auto; border-radius: 10px;">
+                                    {% endif %}
+                                    <form method="POST" action="{% url 'agency:upload_graphic' %}" enctype="multipart/form-data">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="form" value="graphic_upload">
+                                        <input type="file" name="graphic" accept="image/*" required>
+                                        <button type="submit" class="btn btn-success">Upload</button>
+                                    </form>
+                                    <br>
+                                    <p class="sub-header mb-2">Send a message</p>
+                                    <form id="graphicForm" method="POST" action="{% url 'agency:upload_graphic' %}" enctype="multipart/form-data">
+                                        {% csrf_token %}
+                                        <input id="form_name" type="hidden" name="form" value="graphic_message">
+                                        <input type="text" class="form-control mb-1" name="message" value="{{ george_settings.message }}" required>
+                                        <button type="submit" class="btn btn-success">Post</button>
+                                        <button type="buttons" class="btn btn-danger" onclick="clearAndSubmitForm()">Clear</button>
+                                        <button type="buttons" class="btn btn-warning" onclick="clearGraphicMessage()">Clear Message</button>
+                                    </form>
+                                    <script>
+                                        function clearAndSubmitForm() {
+                                            document.getElementById('form_name').value = 'graphic_clear';
+                                            document.getElementById('graphicForm').submit();
+                                        }
+                                        function clearGraphicMessage() {
+                                            document.getElementById('form_name').value = 'graphic_message_clear';
+                                            document.getElementById('graphicForm').submit();
+                                        }
+                                    </script>
+                                </div>
+                                <div class="tab-pane" id="Video">
+                                    {% if susan_settings.isLoading %}
+                                    <div class="rounded mb-2" style="width: 100%; height: 20px; background-color: red; display: inline-block;"></div>
+                                    <h4 class="card-title mb-1">Video Proposal</h4>
+                                    <p class="sub-header">Client Requested a video</p>
+                                    {% else %}
+                                    <div class="rounded mb-2" style="width: 100%; height: 20px; background-color: green; display: inline-block;"></div>
+                                    <h4 class="card-title mb-1">Video Proposal</h4>
+                                    <p class="sub-header mb-3">Video request has been fulfilled</p>
+                                    {% endif %}
+                                    <div class="row mb-1">
+                                    {% if video_files %}
+                                        {% for file_detail in video_files %}
+                                            {% if file_detail.is_image %}
+                                                <div class="col-4">
+                                                    <a href="{{ file_detail.file }}" download>
+                                                        <img src="{{ file_detail.file }}" style="max-width: 100%; display: block; height: auto; border-radius: 10px;">
+                                                    </a>
+                                                </div>
+                                            {% elif file_detail.is_video %}
+                                                <div class="col-4">
+                                                    <a href="{{ file_detail.file }}" download>
+                                                        <video controls style="max-width: 100%; display: block; height: auto; border-radius: 10px;">
+                                                            <source src="{{ file_detail.file }}" type="video/mp4">
+                                                            Your browser does not support the video tag.
+                                                        </video>
+                                                    </a>
+                                                </div>
+                                                <br>
+                                    {% endif %}
+                                        {% endfor %}
+                                    {% else %}
+                                        <p>No files were uploaded</p>
+                                    {% endif %}
+                                    </div>
+                                    <textarea class="form-control mb-2" style="height: 100px;" readonly>{{ susan_settings.brief }}</textarea>
+                                    <p class="sub-header">Upload the Video</p>
+                                    {% if susan_settings.video %}
+                                    <video controls style="max-width: 100%; max-height: 300px; display: block; height: auto; border-radius: 10px;">
+                                        <source src="{{ susan_settings.video }}" type="video/mp4">
+                                        Your browser does not support the video tag.
+                                    </video>
+                                    <br>
+                                    {% endif %}
+                                    <form id="uploadForm" method="POST" action="{% url 'agency:upload_video' %}" enctype="multipart/form-data">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="form" value="video_upload">
+                                        <input type="hidden" name="url">
+                                        <input type="file" id="videoFile" accept="video/*" required>
+                                        <button type="button" class="btn btn-success" onclick="generateSignedUrl()">Upload</button>
+                                    </form>
+                                    <style>
+                                        #progress-bar-container {
+                                            width: 100%;
+                                            background-color: #f3f3f3;
+                                            border-radius: 25px;
+                                            padding: 3px;
+                                        }
+
+                                        #upload-progress-bar {
+                                            width: 0;
+                                            height: 20px;
+                                            background-color: #4caf50;
+                                            border-radius: 20px;
+                                            text-align: center;
+                                            line-height: 20px;
+                                            color: white;
+                                            transition: width 0.4s;
+                                        }
+                                    </style>
+                                    <br>
+                                    <div id="upload-overlay" class="mb-2">
+                                        <div id="progress-bar-container">
+                                            <div id="upload-progress-bar"></div>
+                                        </div>
+                                    </div>
+                                    <script>
+                                    function generateSignedUrl() {
+                                        var videoFile = document.getElementById('videoFile').files[0];
+                                        var folderName = 'video_library';
+
+                                        var formData = new FormData();
+                                        formData.append('folder_name', folderName);
+                                        formData.append('file_name', videoFile.name);
+                                    
+                                        var xhr = new XMLHttpRequest();
+                                        xhr.open('POST', "{% url 'service:generate_signed_url' %}", true);
+                                        xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}');
+                                    
+                                        xhr.onreadystatechange = function() {
+                                            if (xhr.readyState === 4 && xhr.status === 200) {
+                                                var response = JSON.parse(xhr.responseText);
+                                                var signedUrl = response.url;
+                                                var fileName = response.file_name;
+                                                
+                                                uploadVideo(signedUrl, videoFile);
+                                            }
+                                        };
+                                    
+                                        xhr.send(formData);
+                                    }
+                                    
+                                    function uploadVideo(signedUrl, videoFile) {
+                                        var xhr = new XMLHttpRequest();
+                                        xhr.open('PUT', signedUrl, true);
+                                        xhr.setRequestHeader('Content-Type', 'application/octet-stream');
+                                    
+                                        xhr.upload.onprogress = function(e) {
+                                            if (e.lengthComputable) {
+                                                var percentComplete = (e.loaded / e.total) * 100;
+                                                document.getElementById('upload-progress-bar').style.width = percentComplete + '%';
+                                                document.getElementById('upload-progress-bar').innerText = percentComplete.toFixed(2) + '%';
+                                            }
+                                        };
+
+                                        xhr.onreadystatechange = function() {
+                                            if (xhr.readyState === 4) {
+                                                if (xhr.status === 200) {
+                                                    document.getElementById('uploadForm').querySelector('input[name="url"]').value = signedUrl;
+                                                    document.getElementById('uploadForm').submit();
+                                                } else {
+                                                    // Error handling
+                                                    alert('Error uploading video: ' + xhr.statusText);
+                                                }
+                                            }
+                                        };
+
+                                        xhr.send(videoFile);
+                                    }
+                                    </script>
+                                    <br>
+                                    <p class="sub-header mb-2">Send a message</p>
+                                    <form id="videoForm" method="POST" action="{% url 'agency:upload_video' %}" enctype="multipart/form-data">
+                                        {% csrf_token %}
+                                        <input id="video_form_name" type="hidden" name="form" value="video_message">
+                                        <input type="text" class="form-control mb-1" name="message" value="{{ susan_settings.message }}" required>
+                                        <button type="submit" class="btn btn-success">Post</button>
+                                        <button type="buttons" class="btn btn-warning" onclick="clearAndSubmitVideoForm()">Clear</button>
+                                        <button type="buttons" class="btn btn-danger" onclick="clearVideoMessage()">Clear</button>
+                                    </form>
+                                    <script>
+                                        function clearAndSubmitVideoForm() {
+                                            document.getElementById('video_form_name').value = 'video_clear';
+                                            document.getElementById('videoForm').submit();
+                                        }
+                                        function clearVideoMessage() {
+                                            document.getElementById('video_form_name').value = 'video_message_clear';
+                                            document.getElementById('videoForm').submit();
+                                        }
+                                    </script>
+                                </div>
+                                <div class="tab-pane" id="Ad">
+                                    {% if david_settings.isLoading %}
+                                    <div class="rounded mb-2" style="width: 100%; height: 20px; background-color: red; display: inline-block;"></div>
+                                    <h4 class="card-title mb-1">Video Proposal</h4>
+                                    <p class="sub-header">Client Requested a video</p>
+                                    {% else %}
+                                    <div class="rounded mb-2" style="width: 100%; height: 20px; background-color: green; display: inline-block;"></div>
+                                    <h4 class="card-title mb-1">Video Proposal</h4>
+                                    <p class="sub-header mb-3">Video request has been fulfilled</p>
+                                    {% endif %}
+                                    <div class="row mb-2">
+                                    {% if ad_files %}
+                                        {% for file_detail in ad_files %}
+                                            {% if file_detail.is_image %}
+                                                <div class="col-4">
+                                                    <a href="{{ file_detail.file }}" download>
+                                                        <img src="{{ file_detail.file }}" style="max-width: 100%; display: block; height: auto; border-radius: 10px;">
+                                                    </a>
+                                                </div>
+                                            {% elif file_detail.is_video %}
+                                                <div class="col-4">
+                                                    <a href="{{ file_detail.file }}" download>
+                                                        <video controls style="max-width: 100%; display: block; height: auto; border-radius: 10px;">
+                                                            <source src="{{ file_detail.file }}" type="video/mp4">
+                                                            Your browser does not support the video tag.
+                                                        </video>
+                                                    </a>
+                                                </div>
+                                                <br>
+                                    {% endif %}
+                                        {% endfor %}
+                                    {% else %}
+                                        <p>No files were uploaded</p>
+                                    {% endif %}
+                                    </div>
+                                    <p class="sub-header mb-2">Ad Copy</p>
+                                    <textarea class="form-control mb-2" style="height: 100px;" readonly>{{ david_settings.ad_copy }}</textarea>
+                                    <p class="sub-header mb-2">Destination</p>
+                                    <input class="form-control mb-2" value="{{ david_settings.toggleOption }}" readonly>
+                                    <input class="form-control mb-2" value="{{ david_settings.toggleOptionAsset }}" readonly>
+                                    <p class="sub-header mb-2">Analytics</p>
+                                    <form method="POST" action="{% url 'agency:upload_ad' %}" enctype="multipart/form-data">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="form" value="ad_analytics">
+                                        <div class="row">
+                                            <div class="col-3">
+                                                <label class="form-label">Impressions</label>
+                                                <input type="number" class="form-control mb-1" name="impressions" value="{{ david_settings.impressions }}" required>
+                                            </div>
+                                            <div class="col-3">
+                                                <label class="form-label">Clicks</label>
+                                                <input type="number" class="form-control mb-1" name="clicks" value="{{ david_settings.clicks }}" required>
+                                            </div>
+                                            <div class="col-3">
+                                                <label class="form-label">Credits Spent</label>
+                                                <input type="number" class="form-control mb-1" name="money_spent" value="{{ david_settings.money_spent }}" required>
+                                            </div>
+                                            <div class="col-3">
+                                                <label class="form-label">CTR</label>
+                                                <input type="number" class="form-control mb-1" name="ctr" value="{{ david_settings.ctr }}" required>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-12">
+                                                <label class="form-label">Ad Credits</label>
+                                                <input type="number" class="form-control mb-1" name="ad_credits" value="{{ david_settings.ad_credits }}" required>
+                                            </div>
+                                        </div>
+                                        <button type="submit" class="btn btn-success mb-2">Update Analytics</button>
+                                    </form>
+                                    <p class="sub-header mb-2">Send a message</p>
+                                    <form id="adForm" method="POST" action="{% url 'agency:upload_ad' %}" enctype="multipart/form-data">
+                                        {% csrf_token %}
+                                        <input id="ad_form_name" type="hidden" name="form" value="ad_message">
+                                        <input type="text" class="form-control mb-1" name="message" value="{{ david_settings.message }}" required>
+                                        <button type="submit" class="btn btn-success">Post</button>
+                                        <button type="buttons" class="btn btn-primary" onclick="approveAdForm()">Approve</button>
+                                        <button type="buttons" class="btn btn-warning" onclick="clearAdMessage()">Clear Message</button>
+                                        <button type="buttons" class="btn btn-dark" onclick="pauseAdForm()">Pause</button>
+                                        <button type="buttons" class="btn btn-danger" onclick="clearAndSubmitAdForm()">Clear</button>
+                                        <button type="buttons" class="btn btn-lite" onclick="switchLink()">Link</button>
+                                    </form>
+                                    <script>
+                                        function clearAndSubmitAdForm() {
+                                            document.getElementById('ad_form_name').value = 'ad_clear';
+                                            document.getElementById('adForm').submit();
+                                        }
+                                        
+                                        function approveAdForm() {
+                                            document.getElementById('ad_form_name').value = 'ad_approved';
+                                            document.getElementById('adForm').submit();
+                                        }
+
+                                        function pauseAdForm() {
+                                            document.getElementById('ad_form_name').value = 'ad_paused';
+                                            document.getElementById('adForm').submit();
+                                        }
+
+                                        function switchLink() {
+                                            document.getElementById('ad_form_name').value = 'switchLink';
+                                            document.getElementById('adForm').submit();
+                                        }
+                                        
+                                        function clearAdMessage() {
+                                            document.getElementById('ad_form_name').value = 'ad_message_clear';
+                                            document.getElementById('adForm').submit();
+                                        }
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="{% static 'dashboard/libs/moment/min/moment.min.js' %}"></script>
+    <script src="{% static 'dashboard/libs/fullcalendar/main.min.js' %}"></script>
+    <script type="module" src="{% static 'dashboard/js/pages/calendar.init.js' %}"></script>
+    <script type="module" src="{% static 'dashboard/js/pages/dashboard.init.js' %}"></script>
+    <script>
+    var userSettings = JSON.parse('{{ user_settings_json|escapejs }}');
+    var elaineAvatar = "{% static 'dashboard/images/icon/elaineChatIcon2.png' %}"
+    </script>
+{% endblock %}

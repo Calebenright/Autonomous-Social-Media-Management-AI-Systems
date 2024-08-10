@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feadl.io Admin Panel</title>
+    {% load static %}
+    <meta content="A automonomous social media managing app and ad agency" name="description" />
+    <meta content="CJ Enright" name="author" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <link rel="shortcut icon" href="{% static 'dashboard/images/favicon.ico' %}">
+    <link rel="stylesheet" href="{% static 'admin/css/styles.css' %}">
+</head>
+<body>
+    <h1>CRM Panel</h1>
+    
+    <div class="top">
+        <form method="get" action="">
+            <input type="text" name="email" placeholder="Search by email" style="margin-right: 10px;">
+            <input type="number" name="priority" placeholder="Filter by Priority" style="margin-right: 10px;">
+            <button type="submit" style="margin-right: 10px;">Filter</button>
+            <a href="/admin/crm/" class="clear-filters-button">Clear Filters</a>
+            <a href="{% url 'service:settings' %}" class="dashboard-button">Back To Dashboard</a>
+            <a href="{% url 'admin:links' %}" class="dashboard-button">Admin Links</a>
+        </form>
+    </div>   
+    
+    {% if firestore_data %}
+        {% if user_data %}
+            <div class="user-data-container">
+                <div class="user-section">
+                    <h3>Lead Form</h3>
+                    <div class="box">
+                        <ul class="box-list">
+                            <li>
+                                <span class="data-key">Funnel:</span>
+                                <span class="data-value">{{ user_data.funnel }}</span>
+                            </li>
+                            <li>
+                                <span class="data-key">Email:</span>
+                                <span class="data-value">{{ user_data.email }}</span>
+                            </li>
+                            <li>
+                                <span class="data-key">Business Name:</span>
+                                <span class="data-value">{{ user_data.business_name }}</span>
+                            </li>
+                            <li>
+                                <span class="data-key">Business Description:</span>
+                                <span class="data-value">{{ user_data.business_description }}</span>
+                            </li>
+                            <li>
+                                <span class="data-key">Color:</span>
+                                <span class="data-value">{{ user_data.color }}</span>
+                            </li>
+                            <li>
+                                <span class="data-key">Selected Plan:</span>
+                                <span class="data-value">{{ user_data.selectedPlan }}</span>
+                            </li>
+                            <li>
+                                <span class="data-key">Selected Image:</span>
+                                <span class="data-value">{{ user_data.selectedImage }}</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="user-section">
+                    <h3>Send Email</h3>
+                    <div class="box">
+                        <form method="POST" action="{% url 'admin:send_crm_email' %}">
+                            {% csrf_token %}
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <input type="text" id="email" name="email" value="{{ user_data.email }}" style="width: 500px;" required>
+                                    <label for="email"> - To Email</label>
+                                </div>
+                                <div class="form-group">
+                                    <input type="text" id="subject" name="subject" value="{{ suggested_subject }}" style="width: 500px;" required>
+                                    <label for="subject"> - Subject</label>
+                                </div>
+                                <div class="form-group">
+                                    <textarea id="message" name="message" rows="20" style="padding: 10px; margin: 10px 0; border: 1px solid #ddd; width: 500px; margin-right: 10px;" required>{{ suggested_message }}</textarea>
+                                    <label for="message"> - Message</label>
+                                </div>
+                                <button type="submit" role="button">Submit</button>
+                                <div class="dashboard-button" role="button" id="first-email">First Email</div>
+                                <div class="dashboard-button" role="button" id="calendly-response">Calendly Response</div>
+                                <div class="dashboard-button" role="button" id="youtube-link-response">Youtube Link Response</div>
+                                <div class="dashboard-button" role="button" id="getting-started-response">Getting Started Response</div>
+                                <div class="dashboard-button" role="button" id="follow-up-response">Follow-up Response</div>
+                                <div class="dashboard-button" role="button" id="cold-email">Cold Email</div>
+                                <div class="dashboard-button" role="button" id="cold-follow-up">Cold Follow-up</div>
+                            </div>
+                        </form>
+                        <script>
+                            document.getElementById('first-email').addEventListener('click', function() {
+                                document.getElementById('subject').value = 'Your social media posts are waiting for you...';
+                                document.getElementById('message').value = `Hey {{ user_data.email }},
+
+We've carefully crafted some social media posts for you. You can view them on your Feadl.io dashboard. This is where you will find the posts we create for your business every week. That way you never have to worry about running your business's social media.
+
+Let me know what you think of them and if you have any questions feel free to reach out :)
+
+Best,
+CJ
+
+CJ | Marketing Agent @ Feadl.io
+Give me a call: 407.516.6380
+Sign back in: https://feadl.io/login/`;
+});
+                        
+                            document.getElementById('calendly-response').addEventListener('click', function() {
+                                document.getElementById('subject').value = 'Free Social Media Management';
+                                document.getElementById('message').value = `Great! I'm passing along my calendar so all you need to do is find any day and time that works for you. I'm excited to chat and learn more about how I can help your business scale.
+
+Calendly Link: https://calendly.com/caleb-e105/feadlio
+
+Best,
+CJ
+
+CJ | Marketing Agent @ Feadl.io
+Give me a call: 407.516.6380
+Experience our platform: https://feadl.io/beta_signup/`;
+});
+                        
+                            document.getElementById('youtube-link-response').addEventListener('click', function() {
+                                document.getElementById('subject').value = 'Free Social Media Management';
+                                document.getElementById('message').value = `Great! Safety and convenience is our number one priority at feadl.io. We work alongside meta to allow our clients secure Social Media management. We will NEVER have full access to your account. Our only ability will be to upload posts to your pages.
+                                
+To better improve your social media content I'll need to know a little more about your business. I'm sending a link to share more about what you are looking for in a social media manager and this will also be a secure place to add your account via Meta. If you have any hesitations please let me know and I'd be happy to answer any questions :)
+
+Form Link: https://feadl.io/smm_form/
+
+Best,
+CJ
+
+CJ | Marketing Agent @ Feadl.io
+Give me a call: 407.516.6380
+Experience our platform: https://feadl.io/beta_signup/`;
+});
+
+                                document.getElementById('getting-started-response').addEventListener('click', function() {
+                                document.getElementById('subject').value = 'Free Social Media Management';
+                                document.getElementById('message').value = `Hey {{ user_data.email }},
+                                
+I'm excited to get you setup with feadl.io. To get started, follow this link to view the getting started guide. Watch the video and fill out the form to allow us to get your social media up and running!
+
+Getting Started Guide
+https://feadl.io/getting_started/
+
+Sincerely,
+CJ
+
+CJ | Marketing Agent @ Feadl.io
+Give me a call: 407.516.6380
+Experience our platform: https://feadl.io/beta_signup/`;
+});
+
+                                document.getElementById('follow-up-response').addEventListener('click', function() {
+                                document.getElementById('subject').value = 'Free Social Media Management';
+                                document.getElementById('message').value = `It's time to get our social media management up and running! To get started, follow this link to view the getting started guide. Watch the video and fill out the form to allow us to get start running your socila media for FREE!
+
+Getting Started Guide
+https://feadl.io/getting_started/
+
+Sincerely,
+CJ
+
+CJ | Marketing Agent @ Feadl.io
+Give me a call: 407.516.6380
+Experience our platform: https://feadl.io/beta_signup/`;
+});
+
+                                document.getElementById('cold-email').addEventListener('click', function() {
+                                document.getElementById('subject').value = 'Free Social Media Management';
+                                document.getElementById('message').value = `Hey {{ user_data.email }}, 
+                                
+Are you interested in Free marketing? We are a new marketing company in the DFW area that helps businesses like yours generate revenue by reaching people online. And we are offering to do it for FREE! We are offering Free SMM to a select few businesses to help us get started. If you are interested in this opportunity, please let me know and we can get started right away!
+
+Please feel free to reach out to me with any questions or concerns you may have.
+
+Sincerely,
+CJ
+
+CJ | Marketing Agent @ Feadl.io
+Give me a call: 407.516.6380
+Experience our platform: https://feadl.io/beta_signup/`;
+});
+
+                                document.getElementById('cold-follow-up').addEventListener('click', function() {
+                                document.getElementById('subject').value = 'Free Social Media Management';
+                                document.getElementById('message').value = `Hi {{ user_data.email }}, 
+                                
+I wanted to follow up on this limited time offer. We are a new marketing company in the DFW area that helps businesses like yours generate revenue by reaching people online. And we are offering to do it for FREE! We are offering a Free SMM to a select few businesses to help us get started. If you are interested in this opportunity, please let me know and we can get started right away!
+
+Please feel free to reach out to me with any questions or concerns you may have.
+
+Sincerely,
+CJ
+
+CJ | Marketing Agent @ Feadl.io
+Give me a call: 407.516.6380
+Experience our platform: https://feadl.io/beta_signup/`;
+});
+                        </script>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <table>
+                <tr>
+                    <th>Email</th>
+                    <!-- <th>User</th> -->
+                    <th>Priority</th> 
+                    <!-- Click priority to sort by priority -->
+                </tr>
+                <!-- <tr class="total-row">
+                    <th>Total</th>
+                    <td>{{ total }}</td>
+                    <td>-</td>
+                </tr>         -->
+                {% for user in page_obj  %}
+                <tr>
+                    <td>{{ user.email }}</td>
+                    <!-- <td>
+                        <input type="checkbox" id="subscriber_{{ user.id }}" {% if user.isSubscriber %}checked{% endif %} onclick="updateSubscriber('{{ user.id }}', this.checked)">
+                        <label for="subscriber_{{ user.id }}"></label>
+                    </td> -->
+                    <td>
+                        <select onchange="updatePriority('{{ user.email }}', this.value)">
+                            <option value="0" {% if user.leadPriority == 0 %}selected{% endif %}>0</option>
+                            <option value="1" {% if user.leadPriority == 1 %}selected{% endif %}>1</option>
+                            <option value="2" {% if user.leadPriority == 2 %}selected{% endif %}>2</option>
+                            <option value="3" {% if user.leadPriority == 3 %}selected{% endif %}>3</option>
+                            <option value="4" {% if user.leadPriority == 4 %}selected{% endif %}>4</option>
+                            <option value="5" {% if user.leadPriority == 5 %}selected{% endif %}>5</option>
+                            <option value="6" {% if user.leadPriority == 6 %}selected{% endif %}>6</option>
+                            <option value="7" {% if user.leadPriority == 7 %}selected{% endif %}>7</option>
+                        </select>
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+        {% endif %}
+    {% else %}
+        <p>No data found</p>
+    {% endif %}
+    <script>
+        function updateSubscriber(userId, isChecked) {
+            fetch('/admin/update_subscriber/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({ user_id: userId, is_subscriber: isChecked })
+            })
+            .then(response => {
+                if (response.ok) {
+                    console.log(`User ${userId} is now ${isChecked ? 'subscribed' : 'unsubscribed'}`);
+                } else {
+                    console.error('Failed to update subscriber status');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        function updatePriority(userId, priority) {
+            fetch('/admin/update_priority/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({ user_id: userId, leadPriority: priority })
+            })
+            .then(response => {
+                if (response.ok) {
+                    console.log(`User ${userId} priority is now ${priority}`);
+                } else {
+                    console.error('Failed to update priority');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        function deleteUser(userId) {
+            fetch('/admin/delete_user/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({ user_id: userId })
+            })
+            .then(response => {
+                if (response.ok) {
+                    console.log(`Deleted user ${userId}`);
+                } else {
+                    console.error('Failed to delete user');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    </script>
+    <div class="pagination">
+        {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}">Previous</a>
+        {% endif %}
+    
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}">Next</a>
+        {% endif %}
+    </div>
+    
+</body>
+</html>

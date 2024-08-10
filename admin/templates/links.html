@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feadl.io Admin Links</title>
+    {% load static %}
+    <meta content="A automonomous social media managing app and ad agency" name="description" />
+    <meta content="CJ Enright" name="author" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <link rel="shortcut icon" href="{% static 'dashboard/images/favicon.ico' %}">
+    <link rel="stylesheet" href="{% static 'admin/css/styles.css' %}">
+</head>
+<body class="link-body">
+    <div class="header">
+        <h1>Admin Links</h1>
+    </div>
+    <div class="links">
+        <a class="link" href="{% url 'admin:database' %}">SaaS Database</a>
+        <a class="link" href="{% url 'admin:crm' %}">CRM</a>
+    </div>
+</body>
+</html>

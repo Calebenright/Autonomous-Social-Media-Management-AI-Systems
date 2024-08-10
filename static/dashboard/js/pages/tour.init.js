@@ -20,7 +20,7 @@ $(document).ready(function () {
             },
             {
                 target: "fc-dom-1",
-                content: "Here is a where you can keep track of everything we have scheduled to your social media.",
+                content: "Here is where you can keep track of everything we have scheduled to your social media.",
                 placement: "top",
                 arrowOffset: "center",
                 xOffset: -100,
@@ -29,7 +29,7 @@ $(document).ready(function () {
         ],
         showPrevButton: true,
         onEnd: function() {
-            console.log("Tour ended! Running my function...");
+            console.log("Tour ended!");
             tourDone();
         }
     });

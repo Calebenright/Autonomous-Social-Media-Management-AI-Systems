@@ -26347,7 +26347,7 @@ ul.messages li {
     color: #1c3399;
  }
 
- .most-popular {
+.most-popular {
     border: 4px solid #e8ae00; /* Gold border */
     position: relative;
 }
@@ -26388,13 +26388,13 @@ ul.messages li {
 
 .sale-tag {
     position: absolute;
-    top: 20px;
-    right: 308px;
+    top: -50px;
+    right: 20px;
     background: linear-gradient(140deg, #575bde 25%, #393ed8 100%);
     color: #FFFFFF;
     font-weight: bold;
     padding: 20px; /* Adjust padding to fit the star shape */
-    font-size: 1.2em; /* Adjust font size for visibility */
+    font-size: .8em; /* Adjust font size for visibility */
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); /* Shadow for depth */
     transform: rotate(0deg) scale(1.0); /* Initial scale and rotation */
     transition: transform 0.3s ease-in-out; /* Smooth transition for hover effect */

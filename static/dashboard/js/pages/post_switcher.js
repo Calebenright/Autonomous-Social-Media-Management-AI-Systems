@@ -110,8 +110,8 @@ function setFormValueAndShowSpinner(formType, formId) {
     var updatedCaption = document.getElementById('prompt').innerText;
     document.getElementById('editedCaption').value = updatedCaption;
     document.getElementById('formAction').value = formType;
-    showSpinner();
     document.getElementById(formId).submit();
+    showSpinner();
 }
 
 function setElaineValueAndShowSpinner(formType, formId) {
@@ -119,8 +119,8 @@ function setElaineValueAndShowSpinner(formType, formId) {
     document.getElementById('editedCaption').value = updatedCaption;
     document.getElementById('formAction').value = formType;
     document.getElementById('elaineNum').value = document.getElementById('selectize-select').value;
-    showSpinner();
     document.getElementById(formId).submit();
+    showSpinner();
 }
 
 function toggleSocialMedia(media) {

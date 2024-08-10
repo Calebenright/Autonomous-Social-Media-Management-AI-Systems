@@ -1,0 +1,229 @@
+{% extends "service_base.html" %}
+
+{% block title %}FTUE{% endblock %}
+{% block name %}Social Media{% endblock %}
+
+{% block content %}
+    {% load static %}
+    <div class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div id="error-messages-container"></div>
+                {% if messages %}
+                <ul class="messages">
+                    {% for message in messages %}
+                        <li class="{{ message.tags }}" data-message-id="{{ forloop.counter }}">
+                            {{ message }}
+                            <span class="closebtn" onclick="closeMessage(this);">&times;</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+                <div class="col-lg-12">
+                    <div class="card">
+                        <div class="card-body generated-post">
+                            <h4>We are your new social media management team!</h4>
+                        </div>
+                    </div>
+                </div>
+
+                
+                <div class="row">
+                    <style>
+                        .generated-image-small {
+                            max-width: 80%;
+                            height: auto;
+                        }
+                        .generated-post {
+                            flex-direction: column;
+                        }
+                        
+                    </style>
+                    <div class="col-lg-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="generated-post">
+                                    <h4 class="header-title">Scheduled Post</h4>
+                                    <br>
+                                    <img id="loaded-image" src="{% static 'service/media/ftue-post.png' %}" alt="Loading" class="generated-image-small rounded">
+                                    <br>
+                                    <div class="mb-3">
+                                        <div class="text-box-wrapper">
+                                            <div id="prompt" contenteditable="true" class="text-box">Transform your living space with the elegance and sophistication of our exclusive luxury home goods. Discover the art of fine living. ✨🏡 #LuxuryLiving #HomeDecor #EleganceRedefined</div>
+                                        </div>
+                                    </div>
+                                    <form method="post" action="#" id="post-to-socials-button">
+                                        <button type="button" class="btn btn-success rounded waves-effect btn-xs">Post to socials!</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ftue-modal" id="ftueOverlay">
+                    <img class="animatedCharacter" loading="lazy" src="#" alt="Animated Character" id="animatedCharacter">
+                    <div class="card" id="ftueFormContainer" style="display: none;">
+                        <div class="card-body">
+                            <form method="post" action="{% url 'service:ftue' %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="form" value="formFtue1">
+                                <h4>How should we notify you when we are done with your posts?</h4>
+                                <div id="phoneNotification" class="notification-option" style="display: block;">
+                                    <img src="{% static 'service/media/text_ftue.png' %}" alt="Phone GIF">
+                                    <input type="text" name="phone" placeholder="Phone Number">
+                                </div>
+                                <div id="fbMessageNotification" class="notification-option" style="display: none;">
+                                    <img src="{% static 'service/media/fb_message.png' %}" alt="FB Message GIF">
+                                    <input type="text" name="fbMessage" placeholder="Facebook Profile Name">
+                                </div>
+                                <div id="emailNotification" class="notification-option" style="display: none;">
+                                    <img src="{% static 'service/media/email_ftue.png' %}" alt="Email GIF">
+                                    <input type="email" name="email" placeholder="Email" value="{{ user_settings.email }}">
+                                </div>
+                                <div class="notification-methods">
+                                    <label class="notification-button">
+                                        <i class="mdi mdi-message-text"></i>
+                                        <input type="radio" name="notificationMethod" value="phone" onchange="toggleNotification('phone')" checked> Text Message
+                                    </label>
+                                    <label class="notification-button">
+                                        <i class="mdi mdi-facebook-messenger"></i>
+                                        <input type="radio" name="notificationMethod" value="fbMessage" onchange="toggleNotification('fbMessage')"> Facebook Messenger
+                                    </label>
+                                    <label class="notification-button">
+                                        <i class="mdi mdi-email"></i>
+                                        <input type="radio" name="notificationMethod" value="email" onchange="toggleNotification('email')"> Email
+                                    </label>
+                                </div>
+                                <button type="submit" class="btn btn-success waves-effect waves-light" onclick="showSpinner()">Continue</button>
+                            </form>
+                            <style>
+                                .notification-methods {
+                                    display: flex;
+                                    justify-content: space-between;
+                                    margin-bottom: 20px;
+                                    /* align-items: center; */
+                                }
+
+                                /* Hide the original radio buttons */
+                                .notification-button input[type="radio"] {
+                                    display: none;
+                                }
+
+                                /* Style for the labels to look like buttons */
+                                .notification-button {
+                                    padding: 3px 7px;
+                                    background-color: #f0f0f0;
+                                    color: rgb(63, 63, 63);
+                                    border: 1px solid #f0f0f0;
+                                    border-radius: 2px;
+                                    cursor: pointer;
+                                    text-align: center;
+                                    flex: 1;
+                                    margin: 0 5px;
+                                    text-decoration: none;
+                                    user-select: none;
+                                    transition: background-color 0.3s, border-color 0.3s;
+                                }
+
+                                /* Change background and border color on hover */
+                                .notification-button:hover {
+                                    background-color: #969696;
+                                    border-color: #969696;
+                                }
+
+                                /* Change background and border color when checked */
+                                .notification-button input[type="radio"]:checked + label {
+                                    background-color: #969696;
+                                    border-color: #969696;
+                                }
+
+                                /* Style for the notification options */
+                                .notification-option {
+                                    display: none;
+                                    margin-bottom: 20px;
+                                }
+
+                                /* Style for the GIF images */
+                                .notification-option img {
+                                    display: block;
+                                    margin-bottom: 10px;
+                                    max-width: 100%;
+                                    height: auto;
+                                }
+
+                                /* Style for the input fields */
+                                .notification-option input[type="text"],
+                                .notification-option input[type="email"] {
+                                    width: 100%;
+                                    padding: 10px;
+                                    border: 1px solid #ccc;
+                                    border-radius: 5px;
+                                }
+
+                                /* Style for the submit button */
+                                .notification-option button {
+                                    padding: 10px 20px;
+                                    background-color: #28a745;
+                                    color: white;
+                                    border: none;
+                                    border-radius: 5px;
+                                    cursor: pointer;
+                                }
+
+                                /* Style for the submit button on hover */
+                                .notification-option button:hover {
+                                    background-color: #218838;
+                                }
+
+                                #ftueFormContainer {
+                                    width: 25%;
+                                }
+
+                                @media (max-width: 768px) {
+                                    #ftueFormContainer {
+                                        width: 80%;
+                                    }
+                                }
+
+                            </style>
+                            <script>
+                                function toggleNotification(method) {
+                                    var options = document.getElementsByClassName("notification-option");
+                                    for (var i = 0; i < options.length; i++) {
+                                        if (options[i].id === method + "Notification") {
+                                            options[i].style.display = "block";
+                                        } else {
+                                            options[i].style.display = "none";
+                                        }
+                                    }
+                                }
+                            </script>                   
+                        </div>
+                    </div>
+                </div>
+                <style>
+                    .hide {
+                        display: none;
+                    }
+                </style>
+
+                <!-- FTUE Script -->
+                <script>
+                    const animationGifPaths = [
+                        "{% static 'service/media/ServiceFtue1.webp' %}",
+                        "{% static 'service/media/ServiceFtue2.webp' %}",
+                        "{% static 'service/media/ServiceFtue3.webp' %}",
+                        "{% static 'service/media/ServiceFtue4.webp' %}",
+                        "{% static 'service/media/ServiceFtue5.webp' %}",
+                        "{% static 'service/media/ServiceFtue6.webp' %}",
+                    ];
+                </script>
+            </div>
+        </div> <!-- container-fluid -->
+    </div> <!-- content -->
+
+    <script src="{% static 'dashboard/libs/hopscotch/js/hopscotch.min.js' %}"></script>
+    <script src="{% static 'dashboard/js/pages/tour.init.js' %}"></script>
+    <script src="{% static 'service/js/ftue.js' %}"></script>
+    {% endblock %}

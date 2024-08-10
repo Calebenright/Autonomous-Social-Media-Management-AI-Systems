@@ -1,0 +1,506 @@
+{% extends "service_base.html" %}
+
+{% block title %}Advertising Specialist{% endblock %}
+{% block name %}Advertising Specialist{% endblock %}
+
+{% block content %}
+    {% load static %}
+    <div class="content">
+        <div class="container-fluid">
+            
+            {% if not user_settings.isSubscriber %}
+            <style>
+                .lock-overlay {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background-color: rgba(0, 0, 0, 0.3);
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    z-index: 9997;
+                }
+
+                .lock-overlay-content {
+                    text-align: center; /* Center text inside */
+                    background-color: #ffffff00; /* White background for content */
+                }
+
+                .left-side-menu {
+                    z-index: 9999;
+                }
+                .navbar-custom {
+                    z-index: 9998;
+                }
+            </style>
+            <div class="lock-overlay">
+                <div class="lock-overlay-content">
+                    <img src="{% static 'service/media/lock.webp' %}" alt="Upgrade Plan" style="width: 500px;">
+                    <br>
+                    <a href="{% url 'service:checkout' %}" class="btn btn-gradient-stroke subscribe rounded-pill dropdown-toggle arrow-none waves-effect waves-light mb-3">Upgrade your plan</a>
+                </div>
+            </div>
+            {% endif %}
+            <div class="row">
+                {% if messages %}
+                <ul class="messages">
+                    {% for message in messages %}
+                        <li class="{{ message.tags }}" data-message-id="{{ forloop.counter }}">
+                            {{ message }}
+                            <span class="closebtn" onclick="closeMessage(this);">&times;</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+                <div class="col-lg-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="header-title">Run A Social Media Ad</h4>
+                            <p class="sub-header">
+                                Let's run some ads to get new customers! Fill out the form below to get started. We will fine tune the ads for you and get them up and running.
+                            </p>
+                            <form method="post" action="{% url 'service:advertising_specialist' %}" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <input type="hidden" name="form" value="ad-proposal">
+                                <input type="hidden" name="redirect_url" value="service:advertising_specialist">
+                                <input type="hidden" id="folder_name" name="folder_name" value="ad_proposal">
+                                <input type="hidden" name="subject" value="New Ad Proposal!">
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <div class="row" id="thumbnails-container">
+                                            <label for="copy" class="form-label generated-post">Ad Images/Videos</label>
+                                        </div>
+                                        <div class="row">
+                                            {% for thumbnail in thumbnails %}
+                                            <div class="col-lg-6 mt-2">
+                                                <div class="media-container" data-url="{{ thumbnail.url }}"></div>
+                                            </div>
+                                            {% endfor %}
+                                        </div>
+                                        
+                                        {% if not david_settings.isLoading and thumbnails %}
+                                        <div class="mb-2 mt-2 generated-post">
+                                            <button type="button" class="btn btn-danger waves-effect waves-light" onclick="cancelRequest()">Remove Files</button>
+                                        </div>
+                                        {% endif %}
+                                        <div class="mb-3 generated-post">
+                                            <input type="file" id="files" name="files" data-plugins="dropify" data-height="100" accept=".png, .jpg, .svg, .mp4, .heic, .mov"/>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-lg-12">
+                                                <style>
+                                                    #progress-bar-container {
+                                                        width: 100%;
+                                                        background-color: #f3f3f3;
+                                                        border-radius: 25px;
+                                                        padding: 3px;
+                                                    }
+
+                                                    #upload-progress-bar {
+                                                        width: 0;
+                                                        height: 20px;
+                                                        background-color: #4caf50;
+                                                        border-radius: 20px;
+                                                        text-align: center;
+                                                        line-height: 20px;
+                                                        color: white;
+                                                        transition: width 0.4s;
+                                                    }
+                                                </style>
+                                                <div id="upload-overlay" class="mb-2">
+                                                    <div id="progress-bar-container">
+                                                        <div id="upload-progress-bar"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3 generated-post">
+                                            <label for="copy" class="form-label">Ad Copy</label>
+                                            <textarea class="form-control" name="ad_copy" style="height: 100px; overflow: auto;" scrollable>{{ david_settings.ad_copy }}</textarea>
+                                        </div>
+                                        <div class="mb-3 generated-post">
+                                            <label for="copy" class="form-label mb-2">Destination</label>
+                                            <style>
+                                                .notification-methods {
+                                                    display: flex;
+                                                    justify-content: space-between;
+                                                    margin-bottom: 20px;
+                                                }
+
+                                                .notification-button input[type="radio"] {
+                                                    display: none;
+                                                }
+
+                                                .notification-button {
+                                                    padding: 3px 7px;
+                                                    background-color: #f0f0f0;
+                                                    color: rgb(63, 63, 63);
+                                                    border: 1px solid #f0f0f0;
+                                                    border-radius: 2px;
+                                                    cursor: pointer;
+                                                    text-align: center;
+                                                    flex: 1;
+                                                    margin: 0 5px;
+                                                    text-decoration: none;
+                                                    user-select: none;
+                                                    transition: background-color 0.3s, border-color 0.3s;
+                                                }
+
+                                                .notification-button:hover {
+                                                    background-color: #969696;
+                                                    border-color: #969696;
+                                                }
+
+                                                .notification-button input[type="radio"]:checked + label {
+                                                    background-color: #969696;
+                                                    border-color: #969696;
+                                                }
+
+                                                .notification-option {
+                                                    display: none;
+                                                    margin-bottom: 20px;
+                                                }
+
+                                                .notification-option img {
+                                                    display: block;
+                                                    margin-bottom: 10px;
+                                                    max-width: 100%;
+                                                    height: auto;
+                                                }
+
+                                                .notification-option input[type="text"],
+                                                .notification-option input[type="email"] {
+                                                    width: 100%;
+                                                    padding: 10px;
+                                                    border: 1px solid #ccc;
+                                                    border-radius: 5px;
+                                                }
+
+                                                .notification-option button {
+                                                    padding: 10px 20px;
+                                                    background-color: #28a745;
+                                                    color: white;
+                                                    border: none;
+                                                    border-radius: 5px;
+                                                    cursor: pointer;
+                                                }
+
+                                                .notification-option button:hover {
+                                                    background-color: #218838;
+                                                }
+
+                                            </style>
+                                            <script>
+                                                function toggleOptions(method) {
+                                                    var options = document.getElementsByClassName("notification-option");
+                                                    for (var i = 0; i < options.length; i++) {
+                                                        if (options[i].id === method + "Option") {
+                                                            options[i].style.display = "block";
+                                                        } else {
+                                                            options[i].style.display = "none";
+                                                        }
+                                                    }
+                                                }
+                                            </script>
+                                            <div class="notification-methods" style="width: 100%;">
+                                                <label class="notification-button">
+                                                    <i class="mdi mdi-message-text"></i>
+                                                    <input type="radio" name="toggleOption" value="website" onchange="toggleOptions('website')" checked> Website
+                                                </label>
+                                                <label class="notification-button">
+                                                    <i class="mdi mdi-facebook-messenger"></i>
+                                                    <input type="radio" name="toggleOption" value="fbMessage" onchange="toggleOptions('fbMessage')"> Facebook Messenger
+                                                </label>
+                                            </div>
+                                            <div id="websiteOption" class="notification-option" style="display: block; width: 100%;">
+                                                <input type="text" name="website" placeholder="Website Link">
+                                            </div>
+                                            <div id="fbMessageOption" class="notification-option" style="display: none; width: 100%;">
+                                                <input type="text" name="fbMessage" placeholder="Facebook Page Name">
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="example-range" class="form-label generated-post">Monthly Ad Spend</label>
+                                            <input class="form-range" id="ad_cost" type="range" name="ad_cost" min="100" max="2000">
+                                            <br>
+                                            <span id="min-value">$100</span>
+                                            <span id="max-value">$2,000</span>
+                                        </div>
+                                        <br>
+                                        <div class="output-container mb-3">
+                                            <div class="output-box">
+                                                <div class="adSpendTitle">Estimated Total Spend:</div>
+                                                <div class="adSpendNumber" id="slider-value">--</div>
+                                            </div>
+                                            <div class="output-box">
+                                                <div class="adSpendTitle">Estimated Impressions:</div>
+                                                <div class="adSpendNumber" id="estimated-impressions">--</div>
+                                            </div>
+                                            <div class="output-box">
+                                                <div class="adSpendTitle">Estimated Leads:</div>
+                                                <div class="adSpendNumber" id="estimated-leads">--</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% if david_settings.message %}
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <ul class="messages">
+                                            <li class="warning">
+                                                {{ david_settings.message }}
+                                                <span class="closebtn" onclick="closeMessage(this);">&times;</span>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                {% endif %}
+                                <div class="row">
+                                    <div class="col-lg-12 generated-post">
+                                        {% if user_settings.isAds %}
+                                            {% if david_settings.isLoading %}
+                                            <button type="button" class="btn btn-danger waves-effect waves-light" onclick="cancelRequest()">Cancel Ad Request</button>
+                                            {% else %}
+                                            <button id="submit-button" type="submit" class="btn btn-gold rounded-pill w-md waves-effect waves-light" onclick="showSpinner()">Run Social Media Ad</button>
+                                            {% endif %}
+                                        {% else %}
+                                        <a href="{% url 'service:advertising_checkout' %}" class="btn btn-gold rounded-pill w-md waves-effect waves-light">Run Social Media Ad</a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </form>
+                            <form id="clearForm" method="post" action="{% url 'service:advertising_specialist' %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="form" value="ad-clear">
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-8">
+                    <div class="card">
+                        <div class="card-body">
+                            <ul class="nav nav-pills navtab-bg nav-justified">
+                                <li class="nav-item">
+                                    <a href="#home-b1" data-bs-toggle="tab" aria-expanded="false" class="nav-link  active">
+                                        In Progress
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="#profile-b1" data-bs-toggle="tab" aria-expanded="true" class="nav-link">
+                                        Analytics
+                                    </a>
+                                </li>
+                            </ul>
+                            <div class="tab-content">
+                                <div class="tab-pane show active" id="home-b1">
+                                    <div class="row">
+                                        <div class="col-lg-12">
+                                            <div class="card" style="background-color: #f7f7f7; box-shadow:  0 .5rem .6rem rgba(56, 65, 74, 0.2);">
+                                                <div class="card-body">
+                                                    <div class="generated-post">
+                                                        <h4 class="header-title" style="text-align: center;">Your Ads</h4>
+                                                        <br>
+                                                        {% if thumbnails %}
+                                                            {% if david_settings.isRunning %}
+                                                            <div id="carouselExampleIndicators" class="carousel slide" data-bs-ride="carousel">
+                                                                <ol class="carousel-indicators">
+                                                                    {% for thumbnail in thumbnails %}
+                                                                        <li data-bs-target="#carouselExampleIndicators" data-bs-slide-to="{{ forloop.counter0 }}" class="{% if forloop.first %}active{% endif %}"></li>
+                                                                    {% endfor %}
+                                                                </ol>
+                                                                <div class="carousel-inner" role="listbox">
+                                                                    {% for thumbnail in thumbnails %}
+                                                                        <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                                                                            {% if thumbnail.type == 'image' %}
+                                                                                <img class="d-block img-fluid" src="{{ thumbnail.url }}" alt="Ad" style="border-radius: 10px;">
+                                                                            {% elif thumbnail.type == 'video' %}
+                                                                                <video class="d-block img-fluid" style="border-radius: 10px;" controls>
+                                                                                    <source src="{{ thumbnail.url }}" type="video/mp4">
+                                                                                    Your browser does not support the video tag.
+                                                                                </video>
+                                                                            {% endif %}
+                                                                        </div>
+                                                                    {% endfor %}
+                                                                </div>
+                                                                <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-bs-slide="prev" >
+                                                                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                                                    <span class="visually-hidden">Previous</span>
+                                                                </a>
+                                                                <a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-bs-slide="next">
+                                                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                                                    <span class="visually-hidden">Next</span>
+                                                                </a>
+                                                            </div>
+                                                            <br>
+                                                            <label for="simpleinput" class="form-label">Ad Copy</label>
+                                                            <div class="mb-3">
+                                                                <div class="text-box-wrapper" style=" max-height: 155px; overflow-y: auto;">
+                                                                    <div id="prompt" contenteditable="false" class="text-box">{{ david_settings.ad_copy }}</div>
+                                                                </div>
+                                                            </div>
+                                                            {% else %}
+                                                            <p>Ads are being reviewed</p>
+                                                            {% endif %}
+                                                        {% else %}
+                                                        <p>No ads are currently running</p>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="tab-pane" id="profile-b1">
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <div class="card" style="background-color: #f7f7f7; box-shadow:  0 .5rem .6rem rgba(56, 65, 74, 0.2);">
+                                                <div class="card-body">
+                                                    <h4 class="header-title mt-0 mb-3">{{ analytics.impressions.title }}</h4> 
+                                                    <div class="widget-box-2">
+                                                        <div class="widget-detail-2 text-end">
+                                                            <span class="badge bg-success rounded-pill float-start mt-3">{{ analytics.impressions.percentage }}% <i class="mdi mdi-trending-up"></i> </span>
+                                                            <h2 class="fw-normal mb-1">{{ analytics.impressions.value }}</h2>
+                                                            <p class="text-muted mb-3">{{ analytics.impressions.description }}</p>
+                                                        </div>
+                                                        <div class="progress progress-bar-alt-success progress-sm">
+                                                            <div class="progress-bar bg-success" role="progressbar" aria-valuenow="{{ analytics.impressions.percentage }}"
+                                                                aria-valuemin="0" aria-valuemax="100" style="width: {{ analytics.impressions.percentage }}%;">
+                                                                <span class="visually-hidden">{{ analytics.impressions.percentage }}% Complete</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="card" style="background-color: #f7f7f7; box-shadow:  0 .5rem .6rem rgba(56, 65, 74, 0.2);">
+                                                <div class="card-body">
+                                                    <h4 class="header-title mt-0 mb-3">{{ analytics.clicks.title }}</h4>
+                                                    <div class="widget-box-2 text-end">
+                                                        <div class="widget-detail-2">
+                                                            <span class="badge bg-warning rounded-pill float-start mt-3">{{ analytics.clicks.percentage }}% <i class="mdi mdi-trending-up"></i> </span>
+                                                            <h2 class="fw-normal mb-1">{{ analytics.clicks.value }}</h2>
+                                                            <p class="text-muted mb-3">{{ analytics.clicks.description }}</p>
+                                                        </div>
+                                                        <div class="progress progress-bar-alt-warning progress-sm">
+                                                            <div class="progress-bar bg-warning" role="progressbar"
+                                                                aria-valuenow="{{ analytics.clicks.percentage }}" aria-valuemin="0" aria-valuemax="100"
+                                                                style="width: {{ analytics.clicks.percentage }}%;">
+                                                                <span class="visually-hidden">{{ analytics.clicks.percentage }}% Complete</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="card" style="background-color: #f7f7f7; box-shadow:  0 .5rem .6rem rgba(56, 65, 74, 0.2);">
+                                                <div class="card-body">
+                                                    <h6 class="header-title mt-0 mb-3">{{ analytics.money_spent.title }}</h6>
+                                                    <div class="widget-box-2">
+                                                        <div class="widget-detail-2 text-end">
+                                                            <span class="badge bg-pink rounded-pill float-start mt-3">{{ analytics.money_spent.percentage }}% <i
+                                                                    class="mdi mdi-trending-up"></i> </span>
+                                                            <h2 class="fw-normal mb-1">{{ analytics.money_spent.value }}</h2>
+                                                            <p class="text-muted mb-3">{{ analytics.money_spent.description }}</p>
+                                                        </div>
+                                                        <div class="progress progress-bar-alt-pink progress-sm">
+                                                            <div class="progress-bar bg-pink" role="progressbar" aria-valuenow="{{ analytics.money_spent.percentage }}"
+                                                                aria-valuemin="0" aria-valuemax="100" style="width: {{ analytics.money_spent.percentage }}%;">
+                                                                <span class="visually-hidden">{{ analytics.money_spent.percentage }}% Complete</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="card" style="background-color: #f7f7f7; box-shadow:  0 .5rem .6rem rgba(56, 65, 74, 0.2);">
+                                                <div class="card-body">
+                                                    <h6 class="header-title mt-0 mb-3">{{ analytics.ctr.title }}</h6>
+                                                    <div class="widget-box-2">
+                                                        <div class="widget-detail-2 text-end">
+                                                            <span class="badge bg-pink rounded-pill float-start mt-3">{{ analytics.ctr.percentage }}% <i
+                                                                    class="mdi mdi-trending-up"></i> </span>
+                                                            <h2 class="fw-normal mb-1">{{ analytics.ctr.value }}</h2>
+                                                            <p class="text-muted mb-3">{{ analytics.ctr.description }}</p>
+                                                        </div>
+                                                        <div class="progress progress-bar-alt-pink progress-sm">
+                                                            <div class="progress-bar bg-pink" role="progressbar" aria-valuenow="{{ analytics.ctr.percentage }}"
+                                                                aria-valuemin="0" aria-valuemax="100" style="width: {{ analytics.ctr.percentage }}%;">
+                                                                <span class="visually-hidden">{{ analytics.ctr.percentage }}% Complete</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <h4 class="header-title mt-3" style="text-align: center;">Data may not be realtime</h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% if david_settings.isRunning %}
+                    <div class="card">
+                        <div class="card-body">
+                            <img src="{% static 'service\media\scam.webp' %}" alt="Generated Graphic" class="rounded" style="width: 100%;">
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% if david_settings.needsLink %}
+                    <div class="card">
+                        <div class="card-body generated-post">
+                            <h4 class="header-title mt-2 mb-2" style="text-align: center;">⚠️Connect your Meta business account to feadlio advertising.⚠️</h4>
+                            <iframe class="rounded" style="width: 100%; height: 500px; box-shadow: 0px 2px 9px rgba(0, 0, 0, 0.4);" src="https://www.youtube.com/embed/VPZzEHmPKrY?si=RilBm0xPKeyajuDZ" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                            <label for="BusinessID" class="form-label generated-post mt-3 mb-1">Partner Business ID</label>
+                            <input type="text" name="BusinessID" value="139449763263693" readonly>
+                            <a href="{% url 'contact' %}" class="generated-post">
+                                <h4 class="header-title mt-3 mb-1" style="text-align: center;">Having trouble connecting?</h4>
+                                <p class="text-muted mt-0 mb-0">Schedule a meeting.</p>
+                            </a>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .button-ad-save {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        /* Style for auto-resize textarea */
+        .auto-resize-textarea {
+            width: 100%;
+            resize: none; /* Disable manual resizing */
+            overflow: hidden; /* Hide scrollbars */
+            font-family: inherit; /* Inherit font family */
+            padding: 5px; /* Add padding for better visual appearance */
+            text-align : left;
+        }
+    </style>
+
+    <script src="{% static 'dashboard/js/pages/ad_manager.init.js' %}"></script>
+
+    <script>
+    var sendForm = "{% url 'service:generate_signed_url' %}";
+    var makePublic = "{% url 'service:make_file_public' %}";
+    var upgradeCheckout = "{% url 'service:checkout' %}";
+    </script>
+{% endblock %}

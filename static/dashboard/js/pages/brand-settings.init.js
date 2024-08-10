@@ -90,7 +90,14 @@ function showSpinner() {
 
 const tagInput = document.getElementById('tagInput');
 const tagBubbles = document.getElementById('tagBubbles');
-const tags = tagsArray;
+let tags;
+
+if (Array.isArray(tagsArray)) {
+    tags = tagsArray;
+} else {
+    tags = [];
+}
+
 
 tagInput.addEventListener('keydown', function (event) {
     if (event.key === 'Enter' || event.key === ',') {

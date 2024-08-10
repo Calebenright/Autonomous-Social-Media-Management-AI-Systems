@@ -54,7 +54,7 @@ var csrfToken = getCookie('csrftoken');
 
 function addGraphics(imageUrl) {
     $.ajax({
-        url: '/add_graphics/', 
+        url: jsonDump2.add_graphics, 
         type: 'post',
         headers: {
             'X-CSRFToken': csrfToken 
@@ -64,7 +64,7 @@ function addGraphics(imageUrl) {
             'image_url': imageUrl
         },
         success: function (data) {
-            console.log('addGraphics ran')
+            console.log('add graphics ran')
         },
         error: function(error) {
             loadedImage.src = 'https://storage.googleapis.com/starter_web_app_bucket/assets/error.png';
@@ -130,14 +130,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-
 document.addEventListener('DOMContentLoaded', () => {
     getDoc(statusDocRef).then((doc) => {
         if (doc.exists()) {
             const progress = doc.data().progress;
             if (progress === 95) {
                 const nextImage = doc.data().next_image_url;
-                console.log('Running addGraphics with:', nextImage);
+                console.log('Running add graphics with:', nextImage);
                 addGraphics(nextImage);
             }
         } else {
@@ -202,7 +201,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const adDescription = document.querySelector('input[name="ad-description"]');
             if (adDescription) {
-                adDescription.value = jsonDump.businessDescription;
+                adDescription.value = jsonDump2.businessDescription;
             }
         });
     });

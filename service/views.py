@@ -1,37 +1,46 @@
 from django.shortcuts import render, redirect
-from django.core.cache import cache
 from django.contrib import messages
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse, FileResponse
 import io
 from firebase_admin import firestore
 from firebase_admin.auth import EmailAlreadyExistsError
 from decouple import config
-from django.conf import settings
-from django.urls import reverse
 from django.contrib import messages
 from django.views.decorators.csrf import csrf_exempt
 import requests
-import google.oauth2.id_token
-import google.auth.transport.requests
 import secrets
-from dashboard.post_to_socials import *
-from app1.login import *
+from app.post_to_socials import *
+from website.login import *
 from google.cloud import storage, firestore
 import random
-import string
 from django.core.mail import EmailMessage
-from datetime import date, datetime, timedelta, timezone
-from dashboard.functions import *
-from dashboard.get_images import *
+from datetime import datetime, timedelta, timezone
+from app.functions import *
+from app.get_images import *
 import json
+import imghdr
+from django.utils import timezone
+from google.oauth2 import service_account
+from google.auth.transport import requests
+from urllib.parse import urlparse
+from app.post_to_socials import *
+from django.http import JsonResponse
+from app.functions import *
+from firebase_admin import firestore, auth
+import ast
+from app.tasks import enqueue_task, create_queue
+from app.upload_article import *
+import uuid
+import pytz
+from django.contrib import messages
 
-db = firestore.Client(project='feed-ai-c379d')
+db = firestore.Client(project=config('FIRESTORE_ID'))
 bucket_credentials = config('GS_CREDENTIALS')
 bucket_name = config('GS_BUCKET_NAME')
 credentials = service_account.Credentials.from_service_account_file(bucket_credentials)
 client = storage.Client(project=credentials.project_id, credentials=credentials)
 
-def service_dashboard(request):
+def social_media(request):
     try:
         # ----- Get the Firestore document reference for the user settings ----- #
         user_id = request.session.get('user_id')
@@ -61,11 +70,11 @@ def service_dashboard(request):
         form_name = request.POST.get('form')
         if form_name == 'postToSocials':
             if user_settings.get('isSubscriber'):
-                post_to_social_feed(request, user_settings, user_settings_ref, 'service_dashboard')
-                return redirect('service_dashboard')
+                post_to_social_feed(request, user_settings, user_settings_ref, 'social_media')
+                return redirect('service:social_media')
             else:
                 messages.error(request, 'Please upgrade to the Unlimited plan to post directly to your social medias.')
-                return redirect('service_dashboard')
+                return redirect('service:social_media')
         elif form_name == 'formCheckout':
             firestore_data = {
                 'isPlan': True,
@@ -73,14 +82,14 @@ def service_dashboard(request):
             user_settings_ref.set(firestore_data, merge=True)
 
             if user_settings.get('isSubscriber'):
-                return redirect('service_business_checkout')
-            return redirect('service_checkout')
+                return redirect('service:checkout')
+            return redirect('service:checkout')
         elif form_name == 'formLibrary':
             firestore_data = {
                 'isLibrary': True,
             }
             user_settings_ref.set(firestore_data, merge=True)
-            return redirect('service_library')
+            return redirect('service:library')
         elif form_name == 'elaine-settings':
             isElaineEmail = request.POST.get('isElaineEmail') == "on"
             
@@ -92,16 +101,19 @@ def service_dashboard(request):
             elaine_doc_ref.set(elaine_data, merge=True)
 
             messages.success(request, 'Settings have been successfully updated!')
-            return redirect('service_dashboard')
+            return redirect('service:social_media')
         
     try:
         if user_settings.get('service_ftue', '0') == '1':
-            return redirect('service_dashboard_ftue')
+            return redirect('service:ftue')
+        
+        if user_settings.get('service_ftue', '0') == '3':
+            return redirect('service:choose_images')
         
         if not user_settings.get('isSubscriber', False):
-            return redirect('service_checkout')
+            return redirect('service:checkout')
     except:
-        return redirect('my_feadlio')
+        return redirect('service:getting_started')
     
     image_tags_num = len(json.loads(user_settings.get('image_tags', '[]')))
     
@@ -111,28 +123,19 @@ def service_dashboard(request):
         'elaine_settings': elaine_settings,
         'user_id' : user_id,
     }
-    return render(request, "service_dashboard.html", context)
+    return render(request, "social_media.html", context)
 
-def service_dashboard_ftue(request):
+def ftue(request):
     try:
         # ----- Get the Firestore document reference for the user settings ----- #
         user_id = request.session.get('user_id')
         if not user_id:
             return redirect('login')
         user_settings_ref = db.collection('users').document(user_id)
-        global_variables_ref = db.collection('variables').document('global_variables')
-        try:
-            user_settings_doc = user_settings_ref.get()
-            user_settings = user_settings_doc.to_dict()
-            global_variables_doc = global_variables_ref.get()
-            global_variables = global_variables_doc.to_dict()
-            elaine_doc_ref = db.collection(u'users').document(user_id).collection(u'agents').document(u'elaine')
-            elaine_settings = (elaine_doc_ref.get().to_dict() or []) if elaine_doc_ref.get().exists else []
-
-        except firestore.NotFound:
-            messages.error(request, 'Please try logging in again.')
-            return redirect('login')
-        # ---------------------------------------------------------------------- #
+        user_settings_doc = user_settings_ref.get()
+        user_settings = user_settings_doc.to_dict()
+        elaine_doc_ref = db.collection(u'users').document(user_id).collection(u'agents').document(u'elaine')
+        elaine_settings = (elaine_doc_ref.get().to_dict() or []) if elaine_doc_ref.get().exists else []
         pass
     
     except:
@@ -141,45 +144,26 @@ def service_dashboard_ftue(request):
 
     if request.method == 'POST':
         form_name = request.POST.get('form')
-        email = user_settings.get('email')
-        lead_ref = db.collection('service').document(email)
-        lead_doc = lead_ref.get()
-        if form_name == 'formFtue1':
-            notificationMethod = request.POST.get('notificationMethod')
-            phone = request.POST.get('phone')
-            email = request.POST.get('email')
-            fbMessage = request.POST.get('fbMessage')
-            if notificationMethod == 'email':
-                user_settings_ref.set({'service_ftue': '2', 'notify_email': email, 'notification_method': notificationMethod}, merge=True)
-                lead_ref.set({'notify_email': email, 'notification_method': notificationMethod, 'leadPriority': 3, 'user_id': user_id}, merge=True)
-            elif notificationMethod == 'phone':
-                user_settings_ref.set({'service_ftue': '2', 'notify_phone': phone, 'notification_method': notificationMethod}, merge=True)
-                lead_ref.set({'notify_phone': phone, 'notification_method': notificationMethod, 'leadPriority': 3, 'user_id': user_id}, merge=True)
-            elif notificationMethod == 'fbMessage':
-                user_settings_ref.set({'service_ftue': '2', 'notify_name': fbMessage, 'notification_method': notificationMethod, 'leadPriority': 3}, merge=True)
-                lead_ref.set({'notify_name': fbMessage, 'notification_method': notificationMethod, 'leadPriority': 3, 'user_id': user_id}, merge=True)
-            email_template("New user has submitted FTUE", f"User {email} has submitted their FTUE form.\nBusiness Name: {lead_doc.get('business_name')}\nBusiness Description: {lead_doc.get('business_description')}\nNotification Method: {notificationMethod}\nNotify: {fbMessage},{phone},{email}\nSelected Plan: {lead_doc.get('selectedPlan')}")
-            
-            repeat = 2
-            for num in range(repeat):
-                get_stock(user_id, num)
-
-            messages.success(request, 'We are creating your posts now! We will notify you when they are ready.')
-            return redirect('service_dashboard')
-        elif form_name == 'formFtue2':
-            user_settings_ref.set({'service_ftue': '2', 'leadPriority': 3}, merge=True)
+        if form_name == 'formFtue2':
+            email = user_settings.get('email')
+            business_name = user_settings.get('business_name')
+            business_description = user_settings.get('business_description')
+            get_library_content(user_id)
+            lead_ref = db.collection('service').document(email)
             lead_ref.set({'leadPriority': 3, 'user_id': user_id}, merge=True)
-            email_template("New user has submitted FTUE", f"User {email} has submitted their FTUE form.\nBusiness Name: {lead_doc.get('business_name')}\nBusiness Description: {lead_doc.get('business_description')}")
-    
-            messages.success(request, 'We are creating your posts now! Please select a plan to continue.')
-            return redirect('service_dashboard_ftue')
+            user_settings_ref.set({'service_ftue': '3', 'ftue': True}, merge=True)
+            email_template("New user has submitted FTUE", f"User {email} has submitted their FTUE form.\nBusiness Name: {business_name}\nBusiness Description: {business_description}")
+            messages.success(request, 'We are creating your posts now! Please select your favorite images to continue.')
+            return redirect('service:ftue')
         
     if user_settings.get('service_ftue', '0') == '1':
-        render_template = "service_dashboard_ftue_2.html"
+        render_template = "ftue_2.html"
     elif user_settings.get('service_ftue', '0') == '2':
-        return redirect('service_checkout')
+        return redirect('service:checkout')
+    elif user_settings.get('service_ftue', '0') == '3':
+        return redirect('service:choose_images')
     else:
-        return redirect('service_dashboard')
+        return redirect('service:social_media')
 
     user_settings_strings = {
         key: value.isoformat() if isinstance(value, datetime) else value
@@ -194,30 +178,101 @@ def service_dashboard_ftue(request):
     }
     return render(request, render_template, context)
 
-def service_brand_settings(request):
+def choose_images(request):
     try:
         # ----- Get the Firestore document reference for the user settings ----- #
         user_id = request.session.get('user_id')
+        if not user_id:
+            return redirect('login')
         user_settings_ref = db.collection('users').document(user_id)
-        global_variables_ref = db.collection('variables').document('global_variables')
+        elaine_ref = db.collection('users').document(user_id).collection('agents').document('elaine')
         user_settings_doc = user_settings_ref.get()
         user_settings = user_settings_doc.to_dict()
-        global_variables_doc = global_variables_ref.get()
-        global_variables = global_variables_doc.to_dict()
+        # ---------------------------------------------------------------------- #
         pass
     
     except:
         return redirect('login') 
-    # ---------------------------------------------------------------------- #s
+    # ---------------------------------------------------------------------- #
+
+    if request.method == 'POST':
+        selected_images = json.loads(request.POST.get('selectedImages', '[]'))
+        payload = {
+            "uid": user_id,
+            "selected_images": selected_images
+        }
+        create_queue(user_id)
+        enqueue_task(payload, user_id,  config("GS_CHOOSE_IMAGES"))
+        user_settings_data = {'service_ftue': '0', 'isFtue': False, 'isAgency': True, 'agency_id': config("AGENCY_MASTER_ID"), }
+        user_settings_ref.set(user_settings_data, merge=True)
+        elaine_data = {'isElaineEmail': True, 'isElaineOn': True}
+        elaine_ref.set(elaine_data, merge=True)
+        return redirect('service:social_media')
+    
+    context = {
+        'user_settings': user_settings,
+        'user_id' : user_id
+    }
+
+    return render(request, 'choose_images.html', context)
+
+
+def settings(request):
+    try:
+        # ----- Get the Firestore document reference for the user settings ----- #
+        user_id = request.session.get('user_id')
+        if not user_id:
+            return redirect('login')
+        user_settings_ref = db.collection('users').document(user_id)
+        global_variables_ref = db.collection('variables').document('global_variables')
+        elaine_ref = db.collection(u'users').document(user_id).collection(u'agents').document(u'elaine')
+        user_settings_doc = user_settings_ref.get()
+        user_settings = user_settings_doc.to_dict()
+        global_variables_doc = global_variables_ref.get()
+        global_variables = global_variables_doc.to_dict()
+        elaine_doc = elaine_ref.get()
+        elaine_settings = elaine_doc.to_dict()
+        # ---------------------------------------------------------------------- #
+        pass
+    
+    except:
+        return redirect('login')
+    # ---------------------------------------------------------------------- #
+
+    try:
+        generated_images = user_settings['images_generated']
+        total_allowed_images = global_variables['total_allowed_images']
+        progress_ratio = generated_images / total_allowed_images
+        progress_percentage = int(progress_ratio * 100)
+        cooldown = min(100, max(0, progress_percentage))
+
+    except (TypeError, KeyError):
+        cooldown = None
 
     if request.method == 'POST':
         form_name = request.POST.get('form')
         if form_name == 'brand-settings':
 
+            # ------------------ TAGS ---------------#
+            if request.POST.get('tags'):
+                if request.POST.get('business_description') == user_settings.get('business_description'):
+                    input_string = request.POST.get('tags')
+                    output_list = [item.strip() for item in input_string.split(',')]
+                    output_string = json.dumps(output_list)
+                    tags = output_string
+                else:
+                    tags = create_tags(request.POST.get('business_description'))
+            else:
+                if request.POST.get('business_description'):
+                    tags = create_tags(request.POST.get('business_description'))
+                else:
+                    tags = ''
+
             firestore_data = {
                 'business_name': request.POST.get('business_name', '').strip(),
-                'brand_color': all_color_to_hex(request.POST.get('brand_color')),
-
+                'business_description': request.POST.get('business_description', '').strip(),
+                'website': request.POST.get('website', '').strip(),
+                'tags': tags
             }
 
         elif form_name == 'user-settings':
@@ -227,6 +282,10 @@ def service_brand_settings(request):
             website = request.POST.get('website')
             address1 = request.POST.get('address1')
 
+            ElaineTimezone = request.POST.get('ElaineTimezone')
+            elaine_data = {'ElaineTimezone': ElaineTimezone}
+            elaine_ref.set(elaine_data, merge=True)
+
             firestore_data = {
                 'firstName': firstName,
                 'lastName': lastName,
@@ -234,12 +293,123 @@ def service_brand_settings(request):
                 'website': website,
                 'address1': address1
             }
+        elif form_name == 'branding':
+            # ------------------ LOGO ---------------#
+            try:
+                logo = request.FILES.get('logo')
+                if logo:
+                    try:
+                        delete_from_google(user_settings['logo'],  config("GS_CREDENTIALS"))
+                    except:
+                        pass
+                    credentials = service_account.Credentials.from_service_account_file( config("GS_CREDENTIALS"))
+                    storage_client = storage.Client(project=credentials.project_id, credentials=credentials)
+                    bucket = storage_client.bucket( config("GS_BUCKET_NAME"))
+                    logo_folder_path = f'user_folders/{user_id}/logo/'
+                    filename = str(uuid.uuid4()) + ".png"
+                    blob = bucket.blob(logo_folder_path + filename)
+                    blob.upload_from_file(logo)
+                    blob.make_public()
+                    logo_url = blob.public_url
+                else:
+                    try:
+                        logo_url = user_settings['logo']
+                    except (TypeError, KeyError):
+                        logo_url = None
+
+                firestore_data = {
+                    'logo': logo_url
+                }
+                user_settings_ref.set(firestore_data, merge=True)
+            except:
+                pass
+            
+            # ------------------ COLORS ---------------#
+
+            try:
+                def get_color(array, index):
+                    try:
+                        return array[index]
+                    except IndexError:
+                        return '#000000'
+                
+                colors = user_settings.get("secondary_colors", "['#000000', '#000000', '#000000', '#000000']")
+                color_array = ast.literal_eval(colors)
+                color2 = get_color(color_array, 0)
+                color3 = get_color(color_array, 1)
+                color4 = get_color(color_array, 2)
+                color5 = get_color(color_array, 3)
+
+                if request.POST.get('brand_color') != user_settings['brand_color']:
+                    colors = generate_secondary_colors(request.POST.get('brand_color'))
+                    color_array = ast.literal_eval(colors)
+                
+                if request.POST.get('color2') != color2:
+                    color_array[0] = convert_color_to_hex(request.POST.get('color2', '#000000'))
+                if request.POST.get('color3') != color3:
+                    color_array[1] = convert_color_to_hex(request.POST.get('color3', '#000000'))
+                if request.POST.get('color4') != color4:
+                    color_array[2] = convert_color_to_hex(request.POST.get('color4', '#000000'))
+                if request.POST.get('color5') != color5:
+                    color_array[3] = convert_color_to_hex(request.POST.get('color5', '#000000'))
+                
+                colors = str(color_array)
+                # ------------------ ------------ ---------------#
+                
+                firestore_data = {
+                    'brand_color': all_color_to_hex(request.POST.get('brand_color')),
+                    'secondary_colors': colors
+                }
+                user_settings_ref.set(firestore_data, merge=True)
+
+            except:
+                pass
+
+            try:
+                pfp = request.FILES.get('pfp')
+                if pfp:
+                    try:
+                        delete_from_google(user_settings['pfp'],  config("GS_CREDENTIALS"))
+                    except:
+                        pass
+                    credentials = service_account.Credentials.from_service_account_file( config("GS_CREDENTIALS"))
+                    storage_client = storage.Client(project=credentials.project_id, credentials=credentials)
+                    bucket = storage_client.bucket( config("GS_BUCKET_NAME"))
+                    pfp_folder_path = f'user_folders/{user_id}/pfp/'
+                    pfp_content = pfp.read()
+                    image_type = imghdr.what(None, h=pfp_content)
+                    if image_type == 'jpeg':
+                        extension = '.jpg'
+                    elif image_type == 'png':
+                        extension = '.png'
+                    else:
+                        raise ValueError("Unsupported image type")
+
+                    blob_name = pfp_folder_path + 'pfp' + extension
+                    blob = bucket.blob(blob_name)
+                    pfp.seek(0)
+                    blob.upload_from_file(pfp, content_type=f'image/{image_type}')
+                    blob.make_public()
+                    pfp_url = blob.public_url
+                else:
+                    try:
+                        pfp_url = user_settings['pfp']
+                    except (TypeError, KeyError):
+                        pfp_url = ''
+                
+                firestore_data = {
+                    'user_name': request.POST.get('user_name'),
+                    'pfp': pfp_url,
+                }
+
+                user_settings_ref.set(firestore_data, merge=True)
+            except:
+                pass
 
         user_settings_ref.set(firestore_data, merge=True)
 
         messages.success(request, 'Settings Have Been Updated.')
-        return redirect('service_brand_settings')
-    
+        return redirect('service:settings')
     if user_settings is None:
         user_settings_strings = {}
     else:
@@ -250,11 +420,611 @@ def service_brand_settings(request):
     context = {
         'user_settings_json': json.dumps(user_settings_strings),
         'user_settings': user_settings,
+        'elaine_settings': elaine_settings,
+        'global_variables': global_variables,
         'user_id' : user_id,
+        'cooldown': cooldown
     }
-    return render(request, "service_brand_settings.html", context)
+    return render(request, 'settings.html', context)
 
-def service_calendar(request):
+def content_creator(request):
+    try:
+        # ----- Get the Firestore document reference for the user settings ----- #
+        user_id = request.session.get('user_id')
+        if not user_id:
+            return redirect('login')
+        user_settings_ref = db.collection('users').document(user_id)
+        global_variables_ref = db.collection('variables').document('global_variables')
+        elaine_doc_ref = db.collection(u'users').document(user_id).collection(u'agents').document(u'elaine')
+        try:
+            user_settings_doc = user_settings_ref.get()
+            user_settings = user_settings_doc.to_dict()
+            global_variables_doc = global_variables_ref.get()
+            global_variables = global_variables_doc.to_dict()
+            elaine_doc = elaine_doc_ref.get()
+            elaine_settings = elaine_doc.to_dict()
+        except firestore.NotFound:
+            return redirect('login')
+        # ---------------------------------------------------------------------- #
+        pass
+    
+    except:
+        return redirect('login') 
+    # ---------------------------------------------------------------------- #
+
+    image_folder_path = f'user_folders/{user_id}/image_posts'
+    video_folder_path = f'user_folders/{user_id}/video_library/'
+
+    try:
+        biz = user_settings['business_description']
+        biz_name = user_settings['business_name']
+        color = user_settings['brand_color']
+    except (TypeError, KeyError):
+        return redirect('login')
+    try:
+        logo_path = user_settings['logo']
+    except (TypeError, KeyError):
+        logo_path = None
+    if request.session.get('tags') != ['']:
+        tags = request.session.get('tags')
+    else:
+        try:
+            tags = ast.literal_eval(user_settings['tags'])
+        except (TypeError, KeyError):
+            tags = ''
+
+    selected_option = request.session.get('selected_option', 'up')
+    isLogo = request.session.get('isLogo', False)
+    isSubscriber = user_settings.get('isSubscriber')
+    isAdmin = user_settings.get('admin', False)
+    isUnlimited = user_settings.get('isUnlimited', False)
+
+    if request.method == 'POST':
+        form_name = request.POST.get('form')
+        if user_id:
+            # -------------- CAPTIONS --------------- #
+            if form_name == 'formCaption1':
+                if selected_option == "text":
+                    post = create_text_post('facebook', biz, biz_name)
+                elif selected_option == "ad":
+                    post = create_ad_copy(biz, biz_name)
+                else:
+                    post = create_caption(biz, biz_name)
+                firestore_data = {'next_caption': post}
+                url = user_settings['next_image_url']
+                user_settings_ref.set(firestore_data, merge=True)
+                return redirect('service:content_creator')
+            # -------------- DOWNLOAD --------------- #
+            if form_name == 'formDownload':
+                url = user_settings['next_image_url']
+                parsed_url = urlparse(url)
+                if parsed_url.netloc == 'storage.googleapis.com':
+                    parts = parsed_url.path.strip('/').split('/')
+                    bucket_name = parts[0]
+                    object_name = '/'.join(parts[1:])
+                else:
+                    messages.error(request, 'Invalid Google Cloud Storage URL')
+                    return redirect('service:content_creator')
+                
+                storage_client = storage.Client()
+                bucket_name = bucket_name
+                blob_name = object_name
+                bucket = storage_client.bucket(bucket_name)
+                blob = bucket.blob(blob_name)
+                blob.download_to_filename("downloaded_image.jpg")
+                user_settings_ref.set(firestore_data, merge=True)
+                user_settings_doc = user_settings_ref.get()
+                user_settings = user_settings_doc.to_dict()
+
+                return redirect('service:content_creator')
+            # -------------- SERVICE DOWNLOAD --------------- #
+            if form_name == 'formServiceDownload':
+                url = user_settings['next_image_url']
+                parsed_url = urlparse(url)
+                if parsed_url.netloc == 'storage.googleapis.com':
+                    parts = parsed_url.path.strip('/').split('/')
+                    bucket_name = parts[0]
+                    object_name = '/'.join(parts[1:])
+                else:
+                    messages.error(request, 'Invalid Google Cloud Storage URL')
+                    return redirect('service:social_media')
+                
+                storage_client = storage.Client()
+                bucket_name = bucket_name
+                blob_name = object_name
+                bucket = storage_client.bucket(bucket_name)
+                blob = bucket.blob(blob_name)
+                blob.download_to_filename("downloaded_image.jpg")
+
+                return redirect('service:social_media')
+            # -------------- SCHEDULE --------------- #
+            elif form_name == 'formPostSchedule':
+                elaine_doc_ref = db.collection(u'users').document(user_id).collection(u'agents').document(u'elaine')
+                elaine_doc = elaine_doc_ref.get()
+                elaine_settings = elaine_doc.to_dict()
+                
+                existing_events = user_settings_ref.collection('events').order_by('start').stream()
+                existing_event_times = []
+                for event in existing_events:
+                    event_data = event.to_dict()
+                    if 'start' in event_data:
+                        existing_event_times.append(event_data['start'])
+                        
+                post = request.POST.get('edited_caption', '')
+
+                if user_settings['lastType'] == 'text':
+                    url = None
+                    post_type = 'text'
+                else:
+                    post_type = "image"
+                    url = reupload_gcs_image(request.POST.get('url'), f"user_folders/{user_id}/scheduled_image_library/")
+
+                event_id = uuid.uuid4()
+                eid = str(event_id)
+                eventDocRef = user_settings_ref.collection('events').document(eid)
+
+                facebook_checked = request.POST.get('facebook_visible', 'false') == 'true'
+                instagram_checked = request.POST.get('instagram_visible', 'false') == 'true'
+
+                socials = [platform for platform, checked in [
+                    ('facebook', facebook_checked),
+                    ('instagram', instagram_checked)
+                ] if checked]
+
+                if not socials:
+                    messages.error(request, 'Please select at least one social media platform.')
+                    return redirect('service:content_creator')
+
+                next_optimal_day = find_next_optimal_day_for_new_post(existing_event_times)
+                next_optimal_day_name = next_optimal_day.strftime('%A').lower()
+                analog_time = get_best_posting_times(next_optimal_day_name, random.choice(socials))
+                optimal_analog_time = convert_optimal_posting_time(analog_time, elaine_settings.get('ElaineTimezone'))
+                optimal_timestamp = convert_analog_to_timestamp(optimal_analog_time)
+                parsed_time = datetime.strptime(optimal_timestamp[1:], "%H:%M:%S").time()
+                start_time = datetime.combine(next_optimal_day, parsed_time)
+
+                event_data = {
+                    'eid': eid,
+                    'start': start_time,
+                    'image_url': url,
+                    'caption': post,
+                    'className': 'bg-warning',
+                    'socials': socials,
+                    'type' : post_type,
+                    'status': 'pending'
+                }
+                eventDocRef.set(event_data, merge=True)
+                firestore_data = {'next_caption': post}
+                user_settings_ref.set(firestore_data, merge=True)
+                user_settings_doc = user_settings_ref.get()
+                user_settings = user_settings_doc.to_dict()
+                messages.success(request, 'Post has been successfully uploaded to the schedule!')
+                return redirect('service:content_creator')
+            # -------------- POST --------------- #
+            elif form_name == 'formPostLibrary':
+                library_folder_path = f'user_folders/{user_id}/image_posts/'
+                image_url = request.POST.get('url', None)
+                if image_url:
+                    image_url = image_url.replace("'", '"')
+                    url = reupload_gcs_image(image_url, library_folder_path)
+                    image_tags = json.loads(user_settings.get('image_tags', '[]'))
+                    image_tags.append(url)
+                    image_tags_string = json.dumps(image_tags)
+                    firestore_data = {
+                        'image_tags': image_tags_string,
+                    }
+                    user_settings_ref.set(firestore_data, merge=True)
+                    messages.success(request, 'Image has been added to your library!')
+                    return redirect('service:content_creator')
+            # -------------- POST --------------- #
+            elif form_name == 'formPostFeed':
+                caption = request.POST.get('edited_caption', '')
+                image_url = request.POST.get('url', '')
+                lastType = user_settings['lastType']
+
+                facebook_checked = request.POST.get('facebook_visible', 'false') == 'true'
+                instagram_checked = request.POST.get('instagram_visible', 'false') == 'true'
+
+                socials = [platform for platform, checked in [
+                    ('facebook', facebook_checked),
+                    ('instagram', instagram_checked)
+                ] if checked]
+
+                if not socials:
+                    messages.error(request, 'Please select at least one social media platform.')
+                    return redirect('service:content_creator')
+
+                linkedin_checked = False
+
+                num_sent = user_settings.get('num_sent', 0)
+                max_sent = global_variables.get('max_sent', 5)
+
+                tz = pytz.UTC
+                current_time = datetime.now(tz)
+                default_reset_time = current_time - timedelta(days=1)
+
+                last_reset_time = user_settings.get('last_reset_time', default_reset_time)
+
+                if current_time - last_reset_time > timedelta(days=1):
+                    firestore_data = {'num_sent': 0, 'last_reset_time': current_time}
+                    user_settings_ref.set(firestore_data, merge=True)
+                    
+                if num_sent < max_sent or isAdmin:                 
+                    try:
+                        isAllPosted = False
+                        if lastType == 'text' or image_url == '':
+                            if facebook_checked:
+                                try:
+                                    page_id = user_settings['facebook_page_id']
+                                    facebook_page_token = user_settings['facebook_page_token']
+                                    post_text_to_facebook_page_feed(caption, page_id, facebook_page_token)
+                                    num_sent += 1
+                                    firestore_data = {'num_sent': num_sent}
+                                    user_settings_ref.set(firestore_data, merge=True)
+                                    isAllPosted = True
+                                except Exception as e:
+                                    isAllPosted = False
+                                    error_message = str(e)
+                                    if 'Access token error' in error_message:
+                                        print(f"Failed due to access token expiry: {error_message}")
+                                        messages.warning(request, 'Your Facebook access token has expired. Please re-link your account.')
+                                        firestore_data = {'isFacebook': False, 'facebook_token': None}
+                                        user_settings_ref.set(firestore_data, merge=True)
+                                    else:
+                                        messages.error(request, 'There was an error with your post. Please try again.')
+                                        print(f"Failed to post to Facebook: {error_message}")
+
+                            if linkedin_checked:
+                                try:
+                                    page_id = user_settings['linkedin_id']
+                                    access_token = user_settings['linkedin_token']
+                                    page_type = user_settings['linkedin_type']
+                                    post_text_to_linkedin(access_token, page_id, caption, page_type)
+                                    num_sent += 1
+                                    firestore_data = {'num_sent': num_sent}
+                                    user_settings_ref.set(firestore_data, merge=True)
+                                    isAllPosted = True
+                                except Exception as e:
+                                    isAllPosted = False
+                                    error_message = str(e)
+                                    if 'Access token error' in error_message:
+                                        print(f"Failed due to access token expiry: {error_message}")
+                                        messages.warning(request, 'Your Linkedin access token has expired. Please re-link your account.')
+                                        firestore_data = {'isLinkedin': False, 'linkedin_token': None}
+                                        user_settings_ref.set(firestore_data, merge=True)
+                                    else:
+                                        messages.error(request, 'There was an error with your post. Please try again.')
+                                        print(f"Failed to post to Linkedin: {error_message}")
+
+                        elif lastType == 'video':
+                            if facebook_checked:
+                                try:
+                                    page_id = user_settings['facebook_page_id']
+                                    facebook_page_token = user_settings['facebook_page_token']
+                                    post_video_to_facebook_page_feed(caption, image_url, page_id, facebook_page_token)
+                                    num_sent += 1
+                                    firestore_data = {'num_sent': num_sent}
+                                    user_settings_ref.set(firestore_data, merge=True)
+                                    isAllPosted = True
+                                except Exception as e:
+                                    isAllPosted = False
+                                    error_message = str(e)
+                                    if 'Access token error' in error_message:
+                                        print(f"Failed due to access token expiry: {error_message}")
+                                        messages.warning(request, 'Your Facebook access token has expired. Please re-link your account.')
+                                        firestore_data = {'isFacebook': False, 'facebook_token': None}
+                                        user_settings_ref.set(firestore_data, merge=True)
+                                    else:
+                                        messages.error(request, 'There was an error with your post. Please try again.')
+                                        print(f"Failed to post to Facebook: {error_message}")
+
+                            if instagram_checked:
+                                try:
+                                    instagram_user_id = user_settings['instagram_user_id']
+                                    access_token = user_settings['instagram_token']
+                                    post_video_to_instagram(access_token, image_url, caption, instagram_user_id)
+                                    num_sent += 1
+                                    firestore_data = {'num_sent': num_sent}
+                                    user_settings_ref.set(firestore_data, merge=True)
+                                    isAllPosted = True
+                                except Exception as e:
+                                    isAllPosted = False
+                                    error_message = str(e)
+                                    if 'Access token error' in error_message:
+                                        print(f"Failed due to access token expiry: {error_message}")
+                                        messages.warning(request, 'Your Instagram access token has expired. Please re-link your account.')
+                                        firestore_data = {'isInstagram': False, 'instagram_token': None}
+                                        user_settings_ref.set(firestore_data, merge=True)
+                                    else:
+                                        messages.error(request, 'There was an error with your post. Please try again.')
+                                        print(f"Failed to post to Instagram: {error_message}")
+                        else:
+                            if facebook_checked:
+                                try:
+                                    page_id = user_settings['facebook_page_id']
+                                    facebook_page_token = user_settings['facebook_page_token']
+                                    post_to_facebook_page_feed(caption, image_url, page_id, facebook_page_token)
+                                    num_sent += 1
+                                    firestore_data = {'num_sent': num_sent}
+                                    user_settings_ref.set(firestore_data, merge=True)
+                                    isAllPosted = True
+                                except Exception as e:
+                                    isAllPosted = False
+                                    error_message = str(e)
+                                    if 'Access token error' in error_message:
+                                        print(f"Failed due to access token expiry: {error_message}")
+                                        messages.warning(request, 'Your Facebook access token has expired. Please re-link your account.')
+                                        firestore_data = {'isFacebook': False, 'facebook_token': None}
+                                        user_settings_ref.set(firestore_data, merge=True)
+                                    else:
+                                        messages.error(request, 'There was an error with your post. Please try again.')
+                                        print(f"Failed to post to Facebook: {error_message}")
+
+                            if instagram_checked:
+                                try:
+                                    instagram_user_id = user_settings['instagram_user_id']
+                                    access_token = user_settings['instagram_token']
+                                    post_to_instagram(access_token, image_url, caption, instagram_user_id)
+                                    num_sent += 1
+                                    firestore_data = {'num_sent': num_sent}
+                                    user_settings_ref.set(firestore_data, merge=True)
+                                    isAllPosted = True
+                                except Exception as e:
+                                    isAllPosted = False
+                                    error_message = str(e)
+                                    if 'Access token error' in error_message:
+                                        print(f"Failed due to access token expiry: {error_message}")
+                                        messages.warning(request, 'Your Instagram access token has expired. Please re-link your account.')
+                                        firestore_data = {'isInstagram': False, 'instagram_token': None}
+                                        user_settings_ref.set(firestore_data, merge=True)
+                                    else:
+                                        messages.error(request, 'There was an error with your post. Please try again.')
+                                        print(f"Failed to post to Instagram: {error_message}")
+
+                            if linkedin_checked:
+                                try:
+                                    access_token = user_settings['linkedin_token']
+                                    page_id = user_settings['linkedin_id']
+                                    page_type = user_settings['linkedin_type']
+                                    personal_id = user_settings.get('linkedin_personal_id', None)
+                                    post_to_linkedin(caption, image_url, access_token, page_id, page_type)
+                                    num_sent += 1
+                                    firestore_data = {'num_sent': num_sent}
+                                    user_settings_ref.set(firestore_data, merge=True)
+                                    isAllPosted = True
+                                except Exception as e:
+                                    isAllPosted = False
+                                    error_message = str(e)
+                                    if 'Access token error' in error_message:
+                                        print(f"Failed due to access token expiry: {error_message}")
+                                        messages.warning(request, 'Your Linkedin access token has expired. Please re-link your account.')
+                                        firestore_data = {'isLinkedin': False, 'linkedin_token': None}
+                                        user_settings_ref.set(firestore_data, merge=True)
+                                    else:
+                                        messages.error(request, 'There was an error with your post. Please try again.')
+                                        print(f"Failed to post to Linkedin: {error_message}")
+
+                        if isAllPosted:
+                            messages.success(request, 'Your post has been successfully uploaded to your Social Media!')
+                        
+
+                    except Exception as e:
+                        messages.error(request, "An unexpected error occurred. Please try again.")
+                
+                else:
+                    messages.error(request, 'You have reached the maximum number of posts for your subscription. Please upgrade to continue.')  
+
+                return redirect('service:content_creator')
+            # -------------- GENERATE --------------- #
+
+            else:
+        # ------------------- Get Selected Post Type --------------------------- #
+                selected_option = request.POST.get('selected_post_type')
+                request.session['selected_option'] = selected_option
+        # ---------------------------------------------------------------------- #
+
+                monthly_allowed_images = global_variables.get('monthly_allowed_images', 100)
+                monthly_images_generated = user_settings.get('monthly_images_generated', 0)
+                total_allowed_images = global_variables.get('total_allowed_images', 20)
+                images_generated = user_settings.get('images_generated', 0)
+                cooldown_expiry = user_settings.get('cooldown_expiry', datetime.now() + timedelta(days=global_variables.get('cooldown_duration', 1)))
+                add_credits = 0
+
+                tz = pytz.UTC
+                current_time = datetime.now(tz)
+
+                if current_time.astimezone(tz) > cooldown_expiry.astimezone(tz):
+                    images_generated = 0
+                    cooldown_duration = timedelta(days=global_variables['cooldown_duration'])
+                    cooldown_expiry = datetime.now() + cooldown_duration
+                    user_settings_ref.update({
+                        'cooldown_expiry': cooldown_expiry,
+                        'images_generated': images_generated
+                    })
+
+                if monthly_images_generated < monthly_allowed_images or isAdmin or isUnlimited:
+
+                    if images_generated >= total_allowed_images and not isAdmin and not isUnlimited:
+                        messages.error(request, 'You have reached the maximum number of daily images for your subscription. Please upgrade to continue or come back tomorrow.')
+                        return redirect('service:content_creator')
+                    
+                    if selected_option == 'up':
+                        progress = 100
+                        image = request.FILES.get('file')
+                        file_extension = image.name.split('.')[-1].lower()
+                        isLogo = request.POST.get('isLogo', False)
+
+                        if file_extension not in ['jpg', 'jpeg', 'png']:
+                            messages.error(request, 'ONLY ACCEPTED FILE FORMATS: .jpg, .jpeg, .png')
+                            return redirect('service:content_creator')
+
+                        try: 
+                            if file_extension in ['mp4', 'avi', 'mov']:
+                                messages.error(request, 'ONLY ACCEPTED FILE FORMATS: .jpg, .jpeg, .png')
+                                return redirect('service:content_creator')
+                                # url = upload_video_to_google(image, config("GS_BUCKET_NAME"),  config("GS_CREDENTIALS"), video_folder_path, file_extension)
+                                # selected_option = 'video'
+                            else:
+                                img = create_upload(image, logo_path, isLogo)
+                                url = upload_jpg_to_google(img, config("GS_BUCKET_NAME"),  config("GS_CREDENTIALS"), image_folder_path)
+                        except:
+                            messages.error(request, 'No image was uploaded or there was an error. Please try again.')
+                            return redirect('service:content_creator')
+                        
+                    elif selected_option == 'text':
+                        progress = 100
+                        select = request.POST.get('text-platform')
+                        add_credits += 0.5
+
+                        try:
+                            post = create_text_post(select, biz, biz_name)
+                            url = None
+                        except:
+                            messages.error(request, 'Image failed to generate. If the problem persists, please contact us at https://feadl.io/contact/')
+                            return redirect('service:content_creator')
+
+                    elif selected_option == 'photo':
+                        progress = 0
+                        img_url = request.POST.get('selected_img_url', 'None')
+                        if img_url == 'None':
+                            if isSubscriber:
+                                add_credits += 1
+                                entered_tags = request.POST.get('tags')
+                                tags = entered_tags.split(',')
+                                request.session['tags'] = tags
+                                key = tags
+                                prompt_string = create_stock_image_description(key)
+                                url = ''
+                                try:
+                                    payload = {
+                                        "prompt": prompt_string, 
+                                        "uid": user_id, 
+                                        "dimensions": "1024x1024", 
+                                        "number": 1
+                                    }
+                                    create_queue(user_id)
+                                    enqueue_task(payload, user_id,  config("GS_DALLE3"))
+                                except:
+                                    messages.error(request, 'Image failed to generate. If the problem persists, please contact us at https://feadl.io/contact/')
+                                    return redirect('service:content_creator')
+                            else:
+                                messages.error(request, 'Please upgrade to utilize our AI Stock Image Library.')
+                                return redirect('service:content_creator')
+                            
+                        else:
+                            add_credits += 0.5
+                            progress = 95
+                            url = img_url
+                        
+                    elif selected_option == 'graphic':
+                        key = request.POST.get('ai-description')
+                        request.session['key'] = key
+                        img_url = request.POST.get('selected_img_url', 'None')
+                        if img_url == 'None':
+                            if isSubscriber:
+                                add_credits += 1
+                                prompt_string = create_background_image_description(key)
+                                payload = {
+                                    "prompt": prompt_string, 
+                                    "uid": user_id, 
+                                    "dimensions": "1024x1024", 
+                                    "number": 1
+                                }
+                                create_queue(user_id)
+                                enqueue_task(payload, user_id,  config("GS_DALLE3"))
+                                url = ''
+                                progress = 0
+                            else:
+                                messages.error(request, 'Please upgrade to utilize our AI Stock Image Library.')
+                                return redirect('service:content_creator')
+                        else:
+                            add_credits += 0.8
+                            try:
+                                progress = 95
+                                url = img_url
+                            except:
+                                messages.error(request, 'Image failed to generate. If the problem persists, please contact us at https://feadl.io/contact/')
+                                return redirect('service:content_creator')
+
+                    elif selected_option == 'ad':
+                        if isSubscriber:
+                            key = request.POST.get('ad-description')
+                            request.session['key'] = key
+                            img_url = request.POST.get('selected_img_url', 'None')
+                            if img_url == 'None':
+                                add_credits += 1.2
+                                prompt_string = create_background_image_description(key)
+                                payload = {
+                                    "prompt": prompt_string, 
+                                    "uid": user_id, 
+                                    "dimensions": "1024x1024", 
+                                    "number": 1
+                                }
+                                create_queue(user_id)
+                                enqueue_task(payload, user_id,  config("GS_DALLE3"))
+                                progress = 0
+                                url = ''
+                            else:
+                                add_credits += 0.9
+                                try:
+                                    progress = 95
+                                    url = img_url
+                                except:
+                                    messages.error(request, 'Image failed to generate. If the problem persists, please contact us at https://feadl.io/contact/')
+                                    return redirect('service:content_creator')
+                        else:
+                            messages.error(request, 'Please upgrade to utilize this feature.')
+                            return redirect('service:content_creator')
+            
+                    try:
+                        last_image_url = user_settings['next_image_url']
+                        last_caption = user_settings['next_caption']
+                    except (TypeError, KeyError):
+                        last_image_url = None
+                        last_caption = None
+
+                    if selected_option != "text":
+                        if selected_option == "ad":
+                            post = create_ad_copy(key, biz_name)
+                        else:
+                            post = create_caption(biz, biz_name)
+                else:
+                    messages.error(request, 'You have reached the maximum number of monthly images for your subscription. Please upgrade to continue or wait until the beginning of the next month.')
+                    return redirect('service:content_creator')
+
+                try:
+                    if "image_library" not in user_settings['last_image_url']:
+                        delete_from_google(user_settings['last_image_url'],  config("GS_CREDENTIALS"))
+                except:
+                    pass
+
+                images_generated += add_credits
+                monthly_images_generated += add_credits
+                
+                firestore_data = {
+                    'last_image_url': last_image_url,
+                    'last_caption': last_caption,
+                    'next_image_url': url,
+                    'next_caption': post,
+                    'lastType' : selected_option,
+                    'cooldown_expiry': cooldown_expiry,
+                    'images_generated': images_generated,
+                    'progress': progress
+                }
+
+            user_settings_ref.set(firestore_data, merge=True)
+            user_settings_doc = user_settings_ref.get()
+            user_settings = user_settings_doc.to_dict()
+            messages.success(request, 'Your graphic is being created!')
+            return redirect('service:content_creator')
+        else:
+            messages.error(request, 'We are here to help your business. Our generators are in high demand and accrue a cost. Please upgrade to utilize our amazing app!')
+            return redirect('service:content_creator')
+        
+    context = {'user_id': user_id, 'user_settings': user_settings, 'elaine_settings': elaine_settings, 'global_variables': global_variables, 'selected_option': selected_option, 'isLogo': isLogo, 'tags': json.dumps(user_settings.get('image_tags'))}
+    return render(request, 'content_creator.html', context)
+
+def calendar(request):
     try:
         # ----- Get the Firestore document reference for the user settings ----- #
         user_id = request.session.get('user_id')
@@ -278,9 +1048,9 @@ def service_calendar(request):
         'user_settings': user_settings,
         'user_id': user_id
     }
-    return render(request, "service_calendar.html", context)
+    return render(request, "calendar.html", context)
 
-def service_checkout(request):
+def checkout(request):
     try:
         # ----- Get the Firestore document reference for the user settings ----- #
         user_id = request.session.get('user_id')
@@ -305,9 +1075,10 @@ def service_checkout(request):
         'user_id': user_id
     }
 
-    return render(request, "service_checkout.html", context)
+    return render(request, "checkout.html", context)
 
-def service_business_checkout(request):
+
+def advertising_checkout(request):
     try:
         # ----- Get the Firestore document reference for the user settings ----- #
         user_id = request.session.get('user_id')
@@ -332,35 +1103,7 @@ def service_business_checkout(request):
         'user_id': user_id
     }
 
-    return render(request, "service_business_checkout.html", context)
-
-
-def service_ad_checkout(request):
-    try:
-        # ----- Get the Firestore document reference for the user settings ----- #
-        user_id = request.session.get('user_id')
-        if not user_id:
-            return redirect('login')
-        user_settings_ref = db.collection('users').document(user_id)
-        try:
-            user_settings_doc = user_settings_ref.get()
-            user_settings = user_settings_doc.to_dict()
-        except firestore.NotFound:
-            messages.error(request, 'Please try logging in again.')
-            return redirect('login')
-        # ---------------------------------------------------------------------- #
-        pass
-    
-    except:
-        return redirect('login') 
-    # ---------------------------------------------------------------------- #
-
-    context = {
-        'user_settings': user_settings,
-        'user_id': user_id
-    }
-
-    return render(request, "service_ad_checkout.html", context)
+    return render(request, "advertising_checkout.html", context)
 
 def email_template(subject, message):
     from_email = config("EMAIL_HOST_USER")
@@ -403,7 +1146,7 @@ def process_email(request, redirect_success, redirect_fail, template, bname, bde
         except Exception as e:
             print(f"An error occurred: {e}")
 
-def service_download(request):
+def download(request):
     # ----- Get the Firestore document reference for the user settings ----- #
     try:
         user_id = request.session.get('user_id')
@@ -416,24 +1159,22 @@ def service_download(request):
         george_settings_doc = george_settings_ref.get()
         george_settings = george_settings_doc.to_dict() if george_settings_doc.exists else {}
         
-    
     except:
         return redirect('login') 
     # ---------------------------------------------------------------------- #
     if request.method == 'POST':
         form_name = request.POST.get('form')
         if form_name == 'smm-download':
-            imageNumber = request.POST.get('imageNum')
-            url = elaine_settings.get(f'scheduled_image_{imageNumber}', '')
+            image_number = request.POST.get('imageNum')
+            url = elaine_settings.get(f'scheduled_image_{image_number}', '')
             parsed_url = urlparse(url)
-            print(parsed_url.netloc)
             if parsed_url.netloc == 'storage.googleapis.com':
                 parts = parsed_url.path.strip('/').split('/')
                 bucket_name = parts[0]
                 object_name = '/'.join(parts[1:])
             else:
                 messages.error(request, 'There was an error downloading the image. Please try again.')
-                return redirect('service_dashboard')
+                return redirect('service:social_media')
             
             storage_client = storage.Client()
             bucket_name = bucket_name
@@ -466,74 +1207,149 @@ def service_download(request):
                     as_attachment=True,
                     filename=file_name
                 )
+            return response
+        else:
+            url = user_settings['next_image_url']
+            parsed_url = urlparse(url)
+            print(parsed_url.netloc)
+            if parsed_url.netloc == 'storage.googleapis.com':
+                parts = parsed_url.path.strip('/').split('/')
+                bucket_name = parts[0]
+                object_name = '/'.join(parts[1:])
             else:
-                messages.error(request, 'There was an error downloading the image. Please try again.')
+                raise ValueError('Invalid Google Cloud Storage URL')
             
-    return response
+            storage_client = storage.Client()
+            bucket_name = bucket_name
+            blob_name = object_name
+            bucket = storage_client.bucket(bucket_name)
+            blob = bucket.blob(blob_name)
+            file_content = blob.download_as_bytes()
+            file_name = 'feadlio.png'
+            response = FileResponse(
+                io.BytesIO(file_content),
+                as_attachment=True,
+                filename=file_name
+            )
+            return response
+    raise ValueError('Not selected')
 
-def my_feadlio(request):
+def getting_started(request):
     email = request.session.get('email', None)
-    lead_ref = db.collection('service').document(email)
-    lead = lead_ref.get().to_dict()
 
     if not email:
-        return redirect('beta_signup')
+        return redirect('signup')
 
     if request.method == 'POST':
-        selectedImage = request.POST.get('selectedImage')
-        if selectedImage == 'image1':
-            selectedImage = 'Graphics'
+        selected_image = request.POST.get('selectedImage')
+        if selected_image == 'image1':
+            selected_image = 'Graphics'
         else:
-            selectedImage = 'Simple'
-        selectedPlan = request.POST.get('selectedPlan', 'None')
-        # if selectedPlan == 'plan1':
-        #     selectedPlan = 'Basic'
-        # else:
-        #     selectedPlan = 'Unlimited'
-        bname = request.POST.get('business-name')
-        bdesc = request.POST.get('business-description')
+            selected_image = 'Simple'
+        business_name = request.POST.get('business-name')
+        business_description = request.POST.get('business-description')
         color = request.POST.get('brand-color')
 
         try:
-            password = email.split('@')[0] + config("AGENCY_PASSWORD_ADDON")
-
-            try:
-                user = auth.create_user(email=email, password=password)
-            except EmailAlreadyExistsError:
-                user = auth.get_user_by_email(email)
-
-            doc_ref = db.collection('users').document(user.uid)
-            firestore_data = {'isSubscriber': False, 'email': email, 'selectedPlan': selectedPlan, 'selectedImage': selectedImage, 'business_name': bname, 'business_description': bdesc, 'brand_color': color, 'agency_id': config("AGENCY_MASTER_ID"), 'isAgency': True, 'service_ftue': '1'}
-            doc_ref.set(firestore_data, merge=True)
-
-            request.session['user_id'] = user.uid
-
-            lead_ref.update({
-                'selectedImage': selectedImage,
-                'selectedPlan': selectedPlan,
-                'business_name': bname,
-                'business_description': bdesc,
+            
+            lead_ref = db.collection('service').document(email)
+            lead_ref.set({
+                'selected_image': selected_image,
+                'business_name': business_name,
+                'business_description': business_description,
                 'color': color,
-                'leadPriority': 2,
-                'user_id': user.uid
+                'leadPriority': 2
             })
 
         except Exception as e:
             messages.error(request, ("An error occurred: {}".format(e)))
-            return redirect('my_feadlio')
+            return redirect('service:getting_started')
         
-        return redirect('my_feadlio_success')
+        return redirect('service:getting_started_success')
     
-    context = {'lead': lead}
-    return render(request, "my_feadlio.html", context)
+    context = {'email': email}
+    return render(request, "getting_started.html", context)
 
-def my_feadlio_success(request):
+def getting_started_success(request):
+    email = request.session.get('email')
     if request.method == 'POST':
-        return redirect('service_dashboard_ftue')
+        new_email = request.POST.get('email')
+        confirm_email = request.POST.get('confirm_email')
+        password = request.POST.get('password')
+        if new_email != confirm_email:
+            messages.error(request, "Please make sure your emails match.")
+            return redirect('service:getting_started_success')
+        try:
+            user = auth.create_user(email=new_email, password=password)
+        except EmailAlreadyExistsError:
+            messages.error(request, "User already exists. Please login.")
+            return redirect('login')
+        
+        request.session['user_id'] = user.uid
+        
+        lead_ref = db.collection('service').document(email)
+        lead = lead_ref.get().to_dict()
+        business_description = lead.get('business_description')
+        business_name = lead.get('business_name')
+        brand_color = all_color_to_hex(lead.get('color'))
+        colors = generate_secondary_colors(brand_color)
+        tags = create_tags(business_description)
 
-    return render(request, "my_feadlio_success.html")
+        user_ref = db.collection('users').document(user.uid)
 
-def service_graphic_designer(request):
+        firestore_data = {
+            'tags': tags,
+            'business_description': business_description,
+            'business_name': business_name,
+            'brand_color': brand_color,
+            'secondary_colors' : colors,
+            'isFtue': True,
+            'isSubscriber': False,
+            'isAutomated': False,
+            'isUnlimited': False,
+            'isLogo': False,
+            'images_generated': 0,
+            'isBusiness': False,
+            'monthly_images_generated': 0,
+            'progress': 100,
+            'admin': False,
+            'email': new_email,
+            'num_sent': 0,
+            'last_reset_time': datetime.now(),
+            'trial': 0,
+            'service_ftue': '1',
+            'leadPriority': 3
+        }
+        
+        user_ref.set(firestore_data, merge=True)
+
+        lead_ref.update({
+            'user_id': user.uid
+        })
+
+        elaine_doc_ref = db.collection('users').document(user.uid).collection('agents').document('elaine')
+
+        elaine_data = {
+            'isElaineEmail': True,
+            'isElaineOn' : False,
+            'posts_per_week': 2,
+            'text_weight': 35,
+            'stock_weight': 65,
+            'graphic_weight': 0,
+            'combined_weight': 100,
+            'ElaineSocialMedias': [],
+            'ElainePostType': ["Text Post","Stock Photo Post"],
+            'ElaineImageLog': [],
+            'ElaineTimezone': 'America/Chicago',
+        }
+
+        elaine_doc_ref.set(elaine_data, merge=True)
+        return redirect('service:ftue')
+
+    context = {'email': email}
+    return render(request, "getting_started_success.html", context)
+
+def graphic_designer(request):
     user_id = request.session.get('user_id')
     if not user_id:
         return redirect('login')
@@ -553,7 +1369,7 @@ def service_graphic_designer(request):
     if request.method == 'POST':
         form = request.POST.get('form')
         if form == 'graphic-proposal':
-            service_submit_brief(request)
+            submit_brief(request)
             brief = request.POST.get('brief')
             george_data = {
                 'isLoading': True,
@@ -572,7 +1388,7 @@ def service_graphic_designer(request):
             messages.success(request, 'Graphic request has been cleared.')
         
         george_settings_ref.set(george_data, merge=True)
-        return redirect('service_graphic_designer')
+        return redirect('service:graphic_designer')
     
     date = george_settings.get('date', None)
     current_progress = george_settings.get('progress', 5)
@@ -591,8 +1407,6 @@ def service_graphic_designer(request):
 
     progress = min(progress + current_progress, 95)
 
-    credentials = service_account.Credentials.from_service_account_file(config("GS_CREDENTIALS"))
-    client = storage.Client(project=credentials.project_id, credentials=credentials)
     bucket = client.bucket(config("GS_BUCKET_NAME"))
     prefix = f'user_folders/{user_id}/graphic_proposal/'
     thumbnails = list(bucket.list_blobs(prefix=prefix))
@@ -610,9 +1424,9 @@ def service_graphic_designer(request):
         'thumbnails': thumbnail_urls,
     }
 
-    return render(request, "service_graphic_designer.html", context)
+    return render(request, "graphic_designer.html", context)
 
-def service_video_editor(request):
+def video_editor(request):
     user_id = request.session.get('user_id')
     if not user_id:
         return redirect('login')
@@ -632,7 +1446,7 @@ def service_video_editor(request):
     if request.method == 'POST':
         form = request.POST.get('form')
         if form == 'video-proposal':
-            service_submit_brief(request)
+            submit_brief(request)
             brief = request.POST.get('brief')
             susan_data = {
                 'isLoading': True,
@@ -651,7 +1465,7 @@ def service_video_editor(request):
             messages.success(request, 'Video request has been cleared.')
         
         susan_settings_ref.set(susan_data, merge=True)
-        return redirect('service_video_editor')
+        return redirect('service:video_editor')
     
     date = susan_settings.get('date', None)
     current_progress = susan_settings.get('progress', 5)
@@ -670,8 +1484,6 @@ def service_video_editor(request):
 
     progress = min(progress + current_progress, 95)
 
-    credentials = service_account.Credentials.from_service_account_file(config("GS_CREDENTIALS"))
-    client = storage.Client(project=credentials.project_id, credentials=credentials)
     bucket = client.bucket(config("GS_BUCKET_NAME"))
     prefix = f'user_folders/{user_id}/video_proposal/'
     thumbnails = list(bucket.list_blobs(prefix=prefix))
@@ -688,19 +1500,15 @@ def service_video_editor(request):
         'thumbnails': thumbnail_urls,
     }
 
-    return render(request, "service_video_editor.html", context)
+    return render(request, "video_editor.html", context)
 
 @csrf_exempt
-def service_generate_signed_url(request):
+def generate_signed_url(request):
     user_id = request.session.get('user_id')
     if not user_id:
         return redirect('login')
     
     if request.method == 'POST':
-        bucket_credentials = config('GS_CREDENTIALS')
-        bucket_name = config('GS_BUCKET_NAME')
-        credentials = service_account.Credentials.from_service_account_file(bucket_credentials)
-        client = storage.Client(project=credentials.project_id, credentials=credentials)
         bucket = client.bucket(bucket_name)
         folder_name = request.POST.get('folder_name')
         file_name = request.POST.get('file_name')
@@ -722,15 +1530,11 @@ def service_generate_signed_url(request):
         return JsonResponse({'error': 'Invalid request method'}, status=405)
     
 @csrf_exempt
-def service_submit_brief(request):
+def submit_brief(request):
     user_id = request.session.get('user_id')
     if not user_id:
         return redirect('login')
     
-    bucket_credentials = config('GS_CREDENTIALS')
-    bucket_name = config('GS_BUCKET_NAME')
-    credentials = service_account.Credentials.from_service_account_file(bucket_credentials)
-    client = storage.Client(project=credentials.project_id, credentials=credentials)
     bucket = client.bucket(bucket_name)
     folder_name = request.POST.get('folder_name')
     folder_path = f'user_folders/{user_id}/{folder_name}/'
@@ -752,7 +1556,7 @@ def service_submit_brief(request):
     return redirect(redirect_url)
 
 @csrf_exempt
-def service_make_file_public(request):
+def make_file_public(request):
     user_id = request.session.get('user_id')
     if not user_id:
         return redirect('login')
@@ -765,10 +1569,6 @@ def service_make_file_public(request):
         except json.JSONDecodeError as e:
             return JsonResponse({'error': 'Invalid JSON format'}, status=400)
         
-        bucket_credentials = config('GS_CREDENTIALS')
-        bucket_name = config('GS_BUCKET_NAME')
-        credentials = service_account.Credentials.from_service_account_file(bucket_credentials)
-        client = storage.Client(project=credentials.project_id, credentials=credentials)
         bucket = client.bucket(bucket_name)
         folder_path = f'user_folders/{user_id}/{folder_name}/'
         filename = folder_path + file_name
@@ -782,7 +1582,7 @@ def service_make_file_public(request):
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=405)
 
-def service_advertising_specialist(request):
+def advertising_specialist(request):
     user_id = request.session.get('user_id')
     if not user_id:
         return redirect('login')
@@ -802,7 +1602,7 @@ def service_advertising_specialist(request):
     if request.method == 'POST':
         form = request.POST.get('form')
         if form == 'ad-proposal':
-            service_submit_brief(request)
+            submit_brief(request)
             copy = request.POST.get('ad_copy')
             toggleOption = request.POST.get('toggleOption')
             website = request.POST.get('website')
@@ -829,7 +1629,7 @@ def service_advertising_specialist(request):
             messages.success(request, 'Graphic request has been cleared.')
         
         david_settings_ref.set(david_data, merge=True)
-        return redirect('service_advertising_specialist')
+        return redirect('service:advertising_specialist')
     
     bucket = client.bucket(config("GS_BUCKET_NAME"))
     prefix = f'user_folders/{user_id}/ad_proposal/'
@@ -881,10 +1681,9 @@ def service_advertising_specialist(request):
         'analytics': analytics,
     }
 
-    return render(request, "service_advertising_specialist.html", context)
+    return render(request, "advertising_specialist.html", context)
 
-
-def service_library(request):
+def library(request):
     try:
         user_id = request.session.get('user_id')
         if not user_id:
@@ -924,7 +1723,7 @@ def service_library(request):
                 image_tags_string = json.dumps(image_tags).replace("'", '"')
                 user_settings_ref.set({'image_tags': image_tags_string}, merge=True)
                 messages.success(request, 'Settings Updated.')
-                return redirect('service_library')
+                return redirect('service:library')
             if form_name == 'video-tags':
                 file_name = request.POST.get('file-name', None)
                 if file_name:
@@ -946,7 +1745,7 @@ def service_library(request):
                 video_tags_string = json.dumps(video_tags).replace("'", '"')
                 user_settings_ref.set({'video_tags': video_tags_string}, merge=True)
                 messages.success(request, 'Settings Updated.')
-                return redirect('service_library')
+                return redirect('service:library')
         except Exception as e:
             messages.error(request, f"Failed to update settings: {str(e)}")
 
@@ -959,9 +1758,26 @@ def service_library(request):
         'user_settings': user_settings,
         'user_id': user_id
     }
-    return render(request, 'service_library.html', context)
+    return render(request, 'library.html', context)
 
-def service_auth(request):
+# ...................................................................................
+# ...SSSSSSS......OOOOOOO.......CCCCCCC...CIIII....AAAAA.....LLLL........SSSSSSS.....
+# ..SSSSSSSSS....OOOOOOOOOO....CCCCCCCCC..CIIII....AAAAA.....LLLL.......SSSSSSSSS....
+# ..SSSSSSSSSS..OOOOOOOOOOOO..CCCCCCCCCCC.CIIII...AAAAAA.....LLLL.......SSSSSSSSSS...
+# .SSSSS..SSSS..OOOOO..OOOOO..CCCC...CCCCCCIIII...AAAAAAA....LLLL......LSSSS..SSSS...
+# .SSSSS.......SOOOO....OOOOOOCCC.....CCC.CIIII..AAAAAAAA....LLLL......LSSSS.........
+# ..SSSSSSS....SOOO......OOOOOCCC.........CIIII..AAAAAAAA....LLLL.......SSSSSSS......
+# ...SSSSSSSSS.SOOO......OOOOOCCC.........CIIII..AAAA.AAAA...LLLL........SSSSSSSSS...
+# .....SSSSSSS.SOOO......OOOOOCCC.........CIIII.AAAAAAAAAA...LLLL..........SSSSSSS...
+# ........SSSSSSOOOO....OOOOOOCCC.....CCC.CIIII.AAAAAAAAAAA..LLLL.............SSSSS..
+# .SSSS....SSSS.OOOOO..OOOOO..CCCC...CCCCCCIIII.AAAAAAAAAAA..LLLL......LSSS....SSSS..
+# .SSSSSSSSSSSS.OOOOOOOOOOOO..CCCCCCCCCCC.CIIIIIAAA....AAAA..LLLLLLLLLLLSSSSSSSSSSS..
+# ..SSSSSSSSSS...OOOOOOOOOO....CCCCCCCCCC.CIIIIIAAA.....AAAA.LLLLLLLLLL.SSSSSSSSSS...
+# ...SSSSSSSS......OOOOOO.......CCCCCCC...CIIIIIAAA.....AAAA.LLLLLLLLLL..SSSSSSSS....
+# ...................................................................................
+
+
+def social_auth(request):
     if request.method == 'POST':
         
         if 'user_id' in request.session:
@@ -1042,220 +1858,15 @@ def service_auth(request):
             auth_url = f'{AUTHORIZATION_URL}?response_type=code&client_id={CLIENT_ID}&redirect_uri={REDIRECT_URI}&scope={"+".join(SCOPES)}&state={STATE}'
         else:
             messages.error(request, 'There was an error connecting your account. Please try again. (e1)')
-            return redirect('service_brand_settings')
+            return redirect('service:settings')
     else:
         messages.error(request, 'There was an error connecting your account. Please try again. (e2)')
-        return redirect('service_brand_settings')
+        return redirect('service:settings')
     
     return redirect(auth_url)
 
-def service_callback(request):
-    state = request.GET.get('state')
-    provider = request.session.get('provider')
 
-# ----- Get the Firestore document reference for the user settings ----- #
-    if 'user_id' in request.session:
-        user_id = request.session.get('user_id')
-        user_settings_ref = db.collection('users').document(user_id)
-        user_settings_doc = user_settings_ref.get()
-        user_settings = user_settings_doc.to_dict()
-    else:
-        messages.error(request, 'Please sign in.')
-        return redirect('login')
-# ---------------------------------------------------------------------- #
-
-    if provider == 'linkedin':
-        isCheck = 'Linkedin'
-        code = request.GET.get('code')
-        access_token_url = 'https://www.linkedin.com/oauth/v2/accessToken'
-        params = {
-            'grant_type': 'authorization_code',
-            'code': code,
-            'redirect_uri':  config("SERVICE_REDIRECT_URI"),
-            'client_id': config("LINKEDIN_CLIENT_ID_BUSINESS"),
-            'client_secret': config("LINKEDIN_CLIENT_SECRET_BUSINESS"),
-        }
-        response = requests.post(access_token_url, data=params)
-        data = response.json()
-        access_token = data.get('access_token')
-        account_type = request.session.get('account_type', 'personal')
-
-        def get_user_managed_organizations(access_token):
-            url = "https://api.linkedin.com/v2/organizationAcls?q=roleAssignee&role=ADMINISTRATOR&projection=(elements*(*,roleAssignee~(localizedFirstName, localizedLastName), organization~(localizedName)))"
-            headers = {
-                "Authorization": f"Bearer {access_token}",
-            }
-            response = requests.get(url, headers=headers)
-            if response.status_code == 200:
-                return response.json()
-            else:
-                return None
-        
-        profile_response = requests.get('https://api.linkedin.com/v2/me', headers={'Authorization': f'Bearer {access_token}'})
-        profile_data = profile_response.json()
-        profile_data_id = profile_data.get('id')
-        personal_name = profile_data.get('localizedFirstName', '')
-        if account_type == 'personal':
-            firestore_data = {
-                f'{provider}_type': 'personal',
-                f'{provider}_id': profile_data_id,
-                f'{provider}_token': access_token,
-                f'{provider}_name': personal_name,
-                f'is{isCheck}': True
-            }
-            user_settings_ref.set(firestore_data, merge=True)
-        else:
-            organizations_list = get_user_managed_organizations(access_token)
-            organizations_data = organizations_list.get('elements', [])
-            transformed_organizations = [
-                {
-                    'id': org['organization'].split(':')[-1],
-                    'name': org.get('organization~', {}).get('localizedName', 'Unknown Organization Name'),
-                    'type': 'page'
-                }
-                for org in organizations_data
-            ]
-
-            if len(transformed_organizations) == 1:
-                organization_details = organizations_data[0].get('organization~', {})
-                organization_details_id = organization_details.get('id')
-                username = organization_details.get('localizedName', '')
-                firestore_data = {
-                    f'{provider}_type': 'business',
-                    f'{provider}_personal_id': profile_data_id,
-                    f'{provider}_personal_name': personal_name,
-                    f'{provider}_id': organization_details_id,
-                    f'{provider}_token': access_token,
-                    f'{provider}_name': username,
-                    f'is{isCheck}': True
-                }
-
-                user_settings_ref.set(firestore_data, merge=True)
-            else:
-                firestore_data = {
-                    f'{provider}_personal_id': profile_data_id,
-                    f'{provider}_personal_name': personal_name,
-                    f'{provider}_type': 'business',
-                    f'{provider}_token': access_token,
-                }
-
-                user_settings_ref.set(firestore_data, merge=True)
-                return render(request, 'service_page_selection_popup.html', {'pages': transformed_organizations, 'provider': provider,})
-        pass
-    elif provider == 'facebook':
-        isCheck = 'Facebook'
-        code = request.GET.get('code')
-        access_token_url = 'https://graph.facebook.com/v17.0/oauth/access_token'
-        params = {
-            'client_id':  config("FACEBOOK_APP_ID"),
-            'client_secret': config("FACEBOOK_APP_SECRET"),
-            'redirect_uri':  config("SERVICE_REDIRECT_URI"),
-            'code': code
-        }
-        response = requests.get(access_token_url, params=params, verify=False)
-        data = response.json()
-        short_lived_access_token = data.get('access_token')
-        access_token = exchange_short_lived_token_for_long_lived(short_lived_access_token,  config("FACEBOOK_APP_ID"), config("FACEBOOK_APP_SECRET"))
-        facebook_pages_and_groups, has_multiple = get_facebook_pages_and_groups(access_token)
-        if has_multiple:
-            firestore_data = {
-                f'{provider}_token': access_token,
-            }
-            user_settings_ref.set(firestore_data, merge=True)
-            return render(request, 'service_page_selection_popup.html', {'pages': facebook_pages_and_groups, 'provider': provider,})
-        else:
-            isFacebook = True
-            facebook_page_id = facebook_pages_and_groups[0]['id'] if facebook_pages_and_groups else None
-            facebook_page_token = facebook_pages_and_groups[0]['access_token'] if facebook_pages_and_groups else None
-            facebook_page_type = facebook_pages_and_groups[0]['type'] if facebook_pages_and_groups else None
-            facebook_page_name = facebook_pages_and_groups[0]['name'] if facebook_pages_and_groups else None
-            if not all([facebook_page_id, facebook_page_token, facebook_page_type, facebook_page_name]):
-                isFacebook = False
-                access_token = None
-                messages.error(request, 'Please make sure the facebook account is linked to the selected page.')
-            firestore_data = {
-                f'{provider}_token': access_token,
-                f'{provider}_page_id': facebook_page_id,
-                f'{provider}_page_name': facebook_page_name,
-                f'{provider}_page_token': facebook_page_token,
-                f'{provider}_page_type': facebook_page_type,
-                'isFacebook': isFacebook,
-            }
-            user_settings_ref.set(firestore_data, merge=True)
-            pass
-    elif provider == 'instagram':
-        try:
-            isCheck = 'Instagram'
-            code = request.GET.get('code')
-            access_token_url = 'https://graph.facebook.com/v17.0/oauth/access_token'
-            params = {
-                'client_id':  config("FACEBOOK_APP_ID"),
-                'client_secret': config("FACEBOOK_APP_SECRET"),
-                'redirect_uri':  config("SERVICE_REDIRECT_URI"),
-                'code': code
-            }
-            response = requests.get(access_token_url, params=params, verify=False)
-            data = response.json()
-            short_lived_access_token = data.get('access_token')
-            access_token = exchange_short_lived_token_for_long_lived(short_lived_access_token,  config("FACEBOOK_APP_ID"), config("FACEBOOK_APP_SECRET"))
-            facebook_page_ids, has_multiple = get_facebook_pages_and_groups(access_token)
-            got_instagram_id = None
-            got_facebook_page_id = None
-            username = None
-            firestore_data = {}
-            try:
-                for facebook_page_id in facebook_page_ids:
-                    instagram_id = get_instagram_user_id(facebook_page_id['id'], access_token)
-                    if instagram_id:
-                        got_instagram_id = instagram_id
-                        got_facebook_page_id = facebook_page_id['id']
-                        break
-
-                if not got_instagram_id == None:
-                    username = get_instagram_username(got_instagram_id, access_token)
-                    firestore_data = {
-                        f'{provider}_token': access_token,
-                        f'{provider}_user_id': got_instagram_id,
-                        f'{provider}_facebook_page_id': got_facebook_page_id,
-                        f'{provider}_name': username,
-                        f'is{isCheck}': True
-                    }
-                    user_settings_ref.set(firestore_data, merge=True)
-                else:
-                    messages.error(request, 'Please make sure the instagram account is linked to the selected facebook account.')
-                    return redirect('service_brand_settings')
-            except Exception as e:
-                messages.error(request, 'Please make sure the instagram account is linked to the selected facebook account.')
-                return redirect('service_brand_settings')
-        except Exception as e:
-            messages.error(request, e)
-            return redirect('service_brand_settings')
-        
-    elif provider == 'google_business':
-        isCheck = 'Google'
-        code = request.GET.get('code')
-        access_token_url = 'https://oauth2.googleapis.com/token'
-        params = {
-            'client_id':  config("GOOGLE_APP_ID"),
-            'client_secret': config("GOOGLE_APP_SECRET"),
-            'redirect_uri':  config("SERVICE_REDIRECT_URI"),
-            'code': code,
-            'grant_type': 'authorization_code'
-        }
-        response = requests.post(access_token_url, data=params)
-        data = response.json()
-        access_token = data['access_token']
-        firestore_data = {
-            f'{provider}_token': access_token,
-            f'is{isCheck}': True,
-        }
-
-        user_settings_ref.set(firestore_data, merge=True)
-        pass
-
-    return redirect('service_brand_settings')
-    
-def service_process_page_selection(request):
+def process_page_selection(request):
 # ----- Get the Firestore document reference for the user settings ----- #
     if 'user_id' in request.session:
         user_id = request.session.get('user_id')
@@ -1275,7 +1886,7 @@ def service_process_page_selection(request):
 
     if not selected_page_id:
         messages.error(request, 'Please make sure the Instagram account is linked to the selected Facebook account.')
-        return redirect('service_brand_settings')
+        return redirect('service:settings')
     else:
         if provider == 'facebook':
             firestore_data = {
@@ -1287,7 +1898,7 @@ def service_process_page_selection(request):
             }       
             user_settings_ref.set(firestore_data, merge=True)
             messages.success(request, f"You've successfully connected your {provider} account!")
-            return redirect('service_brand_settings')
+            return redirect('service:settings')
         elif provider == 'linkedin':
             firestore_data = {
                 f'{provider}_id': selected_page_id,
@@ -1296,13 +1907,13 @@ def service_process_page_selection(request):
             }       
             user_settings_ref.set(firestore_data, merge=True)
             messages.success(request, f"You've successfully connected your {provider} account!")
-            return redirect('service_brand_settings')
+            return redirect('service:settings')
         else: 
             messages.error(request, 'There was an error connecting your account. Please try again. (e3)')
-            return redirect('service_brand_settings')
+            return redirect('service:settings')
 
     
-def service_unlink(request):
+def unlink(request):
 # ----- Get the Firestore document reference for the user settings ----- #
     if 'user_id' in request.session:
         user_id = request.session.get('user_id')
@@ -1345,5 +1956,5 @@ def service_unlink(request):
             'isLinkedin': False,
         }    
         user_settings_ref.set(firestore_data, merge=True)
-    return redirect('service_brand_settings')
+    return redirect('service:settings')
     

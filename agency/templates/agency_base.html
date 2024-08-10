@@ -1,0 +1,209 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta name="robots" content="noindex">
+    <meta charset="utf-8" />
+    <title>{% block title %}Base{% endblock %} | Feadl.io</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta content="An automonomous social media managing app and ad agency" name="description" />
+    <meta content="CJ Enright" name="author" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+    <!-- App favicon -->
+    <link rel="shortcut icon" href="{% static 'dashboard/images/favicon.ico' %}">
+
+    <!-- icons -->
+    <link href="{% static 'dashboard/css/icons.min.css' %}" rel="stylesheet" type="text/css" />
+    
+    <!-- Plugins css -->
+    <link href="{% static 'dashboard/libs/mohithg-switchery/switchery.min.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'dashboard/css/spectrum.min.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'dashboard/libs/bootstrap-tagsinput/bootstrap-tagsinput.css' %}" rel="stylesheet" />
+    <link href="{% static 'dashboard/libs/multiselect/css/multi-select.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'dashboard/libs/select2/css/select2.min.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'dashboard/libs/selectize/css/selectize.bootstrap3.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'dashboard/libs/dropify/css/dropify.min.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'dashboard/libs/fullcalendar/main.min.css' %}" rel="stylesheet" type="text/css" />
+
+    <!-- App css -->
+    <link href="{% static 'dashboard/css/image-style.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'dashboard/css/app.min.css' %}" rel="stylesheet" type="text/css" id="app-style" />
+
+    
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-K42FBSFS');</script>
+    <!-- End Google Tag Manager -->
+    
+</head>
+
+<!-- body start -->
+
+<body class="loading" data-layout-color="light" data-layout-mode="default" data-layout-size="fluid"
+    data-topbar-color="light" data-leftbar-position="fixed" data-leftbar-color="light" data-leftbar-size='default'
+    data-sidebar-user='true'>
+
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-K42FBSFS"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+
+    <!-- Begin page -->
+    <div id="wrapper">
+            
+        <script>
+            const user_id = '{{ user_id }}';
+            const downloadUrl = "{% url 'service:download' %}";
+        </script>
+
+        <!-- Topbar Start -->
+        <div class="navbar-custom">
+            <!-- LOGO -->
+            <div class="logo-box">
+                <a href="#" class="logo logo-light text-center">
+                    <span class="logo-sm">
+                        <img src="{% static 'dashboard/images/brand/logo-sm.png' %}" alt="" height="22">
+                    </span>
+                    <span class="logo-lg">
+                        <img src="{% static 'dashboard/images/brand/logo-light.png' %}" alt="" height="16">
+                    </span>
+                </a>
+                <a href="#" class="logo logo-dark text-center">
+                    <span class="logo-sm">
+                        <img src="{% static 'dashboard/images/brand/logo-sm.png' %}" alt="" height="22">
+                    </span>
+                    <span class="logo-lg">
+                        <img src="{% static 'dashboard/images/brand/logo-dark.png' %}" alt="" height="16">
+                    </span>
+                </a>
+            </div>
+
+            <ul class="list-unstyled topnav-menu topnav-menu-left mb-0">
+                
+                <li>
+                    <h4 class="page-title-main">{% block name %}Base{% endblock %}</h4>
+                </li>
+
+            </ul>
+
+            <div class="clearfix"></div>
+
+        </div>
+        <!-- end Topbar -->
+
+        <!-- ========== Left Sidebar Start ========== -->
+        <div class="left-side-menu">
+
+            <div class="h-100" data-simplebar>
+
+                <!--- Sidemenu -->
+                <div id="sidebar-menu">
+
+                    <ul id="side-menu">
+
+                        <li class="menu-title">Agency</li>
+
+                        <li>
+                            <a href="{% url 'agency:clients' %}">
+                                <i class="mdi mdi-view-dashboard-outline"></i>
+                                <span> Clients </span>
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="{% url 'service:social_media' %}">
+                                <i class="fe-user"></i>
+                                <span> Service </span>
+                            </a>
+                        </li>
+
+                    </ul>
+
+                </div>
+                <!-- End Sidebar -->
+
+                <div class="clearfix"></div>
+
+            </div>
+            <!-- Sidebar -left -->
+
+        </div>
+        <!-- Left Sidebar End -->
+
+        <!-- ============================================================== -->
+        <!-- Start Page Content here -->
+        <!-- ============================================================== -->
+
+        <div class="content-page">
+            {% block content %}
+            <!-- This block will be overridden in child templates -->
+            {% endblock %}
+        </div>
+
+        <div id="loading-overlay">
+            <div class="spinner-grow text-info" role="status"></div>
+        </div>
+        
+        <!-- Footer Start -->
+        <footer class="footer">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-6">
+                        <script>document.write(new Date().getFullYear())</script> &copy; Copyright
+                        <a href="https://www.theenrightgroup.org" target="_blank"> Enright Group</a>
+                    </div>
+                </div>
+            </div>
+        </footer>
+        <!-- end Footer -->
+
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- End Page content -->
+    <!-- ============================================================== -->
+
+    </div>
+    <!-- END wrapper -->
+
+    <!-- Vendor -->
+    <script src="{% static 'dashboard/libs/jquery/jquery.min.js' %}"></script>
+    <script src="{% static 'dashboard/libs/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'dashboard/libs/simplebar/simplebar.min.js' %}"></script>
+    <script src="{% static 'dashboard/libs/node-waves/waves.min.js' %}"></script>
+    <script src="{% static 'dashboard/libs/waypoints/lib/jquery.waypoints.min.js' %}"></script>
+    <script src="{% static 'dashboard/libs/jquery.counterup/jquery.counterup.min.js' %}"></script>
+    <script src="{% static 'dashboard/libs/feather-icons/feather.min.js' %}"></script>
+    <script src="{% static 'dashboard/libs/morris.js06/morris.min.js' %}"></script>
+    <script src="{% static 'dashboard/libs/spectrum-colorpicker2/spectrum.min.js' %}"></script>
+    <script src="{% static 'dashboard/libs/mohithg-switchery/switchery.min.js' %}"></script>
+    <script src="{% static 'dashboard/libs/selectize/js/standalone/selectize.min.js' %}"></script>
+    <script src="{% static 'dashboard/libs/multiselect/js/jquery.multi-select.js' %}"></script>
+    <script src="{% static 'dashboard/libs/jquery-knob/jquery.knob.min.js' %}"></script>
+    <script src="{% static 'dashboard/libs/select2/js/select2.min.js' %}"></script>
+    <script src="{% static 'dashboard/libs/flatpickr/flatpickr.min.js' %}"></script>
+    <script src="{% static 'dashboard/libs/tippy.js/tippy.all.min.js' %}"></script>
+    <script src="{% static 'dashboard/libs/select2/js/select2.min.js' %}"></script>
+    <script src="{% static 'dashboard/libs/dropify/js/dropify.min.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://js.stripe.com/v3/"></script>
+    
+    <!-- Init js-->
+    <script src="{% static 'dashboard/js/pages/form-advanced.init.js' %}"></script>
+    <script src="{% static 'dashboard/js/pages/form-pickers.init.js' %}"></script>
+
+    <!-- App js-->
+    <script src="{% static 'dashboard/js/app.min.js' %}"></script>
+
+    <script>
+    var jsonDump = {
+        userId: '{{ user_id }}',
+    };
+    </script>
+</body>
+</html>

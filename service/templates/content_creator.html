@@ -1,0 +1,276 @@
+{% extends "service_base.html" %}
+
+{% block title %}Content Creator{% endblock %}
+{% block name %}Content Creator{% endblock %}
+
+{% block content %}
+    {% load static %}
+    <div class="content">
+        <div class="container-fluid">
+
+            {% if not user_settings.isSubscriber %}
+            <style>
+                .lock-overlay {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background-color: rgba(0, 0, 0, 0.3);
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    z-index: 9997;
+                }
+
+                .lock-overlay-content {
+                    text-align: center; /* Center text inside */
+                    background-color: #ffffff00; /* White background for content */
+                }
+
+                .left-side-menu {
+                    z-index: 9999;
+                }
+                .navbar-custom {
+                    z-index: 9998;
+                }
+            </style>
+            <div class="lock-overlay">
+                <div class="lock-overlay-content">
+                    <img src="{% static 'service/media/lock.webp' %}" alt="Upgrade Plan" style="width: 500px;">
+                    <br>
+                    <a href="{% url 'service:checkout' %}" class="btn btn-gradient-stroke subscribe rounded-pill dropdown-toggle arrow-none waves-effect waves-light mb-3">Upgrade your plan</a>
+                </div>
+            </div>
+            {% endif %}
+            <div class="row">
+                <div id="error-messages-container"></div>
+                {% if messages %}
+                <ul class="messages">
+                    {% for message in messages %}
+                        <li class="{{ message.tags }}" data-message-id="{{ forloop.counter }}">
+                            {{ message }}
+                            <span class="closebtn" onclick="closeMessage(this);">&times;</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+                {% endif %}      
+                <div class="col-lg-6">
+                    <form enctype="multipart/form-data" id="tagForm" method="post" action="{% url 'service:content_creator' %}">
+                        {% csrf_token %}
+                        <div class="card">
+                            <div class="card-body">
+                                <input type="hidden" name="form" value="formDetails">
+
+                                <div id="post-type-selection">
+                                    <h4 class="header-title">Post type</h4>
+                                    <p></p>
+                                    <div class="post-type-thumbnails">
+                                        {% if user_id != global_variables.DEVELOPER_ID %}
+                                        <div class="thumbnail-container " onclick="initThumbnailSelection('text')">
+                                            <img class="post-type-thumbnail {% if selected_option == 'text' %}selected{% endif %}" data-value="text" src="https://storage.googleapis.com/starter_web_app_bucket/assets/text.png" alt="Text Blurb">
+                                            <p class="poppins">Text Post</p>
+                                        </div>
+                                        {% endif %}
+                                        {% if user_id != global_variables.DEVELOPER_ID %}
+                                        <div class="thumbnail-container" onclick='initThumbnailSelection("photo", {{ tags | safe}})'>
+                                            <img class="post-type-thumbnail {% if selected_option == 'photo' %}selected{% endif %}" data-value="photo" src="https://storage.googleapis.com/starter_web_app_bucket/assets/stock.png" alt="Stock Photo">
+                                            <p class="poppins">Stock Photo Post</p>
+                                        </div>
+                                        <div class="thumbnail-container" onclick='initThumbnailSelection("graphic", {{ tags | safe}})'>
+                                            <img class="post-type-thumbnail {% if selected_option == 'graphic' %}selected{% endif %}" data-value="graphic" src="https://storage.googleapis.com/starter_web_app_bucket/assets/graphic.png" alt="Graphic Post">
+                                            <p class="poppins">Social Media Graphic Post</p>
+                                        </div>
+                                        {% endif %}
+                                        {% if user_settings.isSubscriber %}
+                                            <div class="thumbnail-container" onclick='initThumbnailSelection("ad", {{ tags | safe }})'>
+                                                <img class="post-type-thumbnail {% if selected_option == 'ad' %}selected{% endif %}" data-value="ad" src="https://storage.googleapis.com/starter_web_app_bucket/assets/ad.png" alt="Ad Post">
+                                                <p class="poppins">Ad Post</p>
+                                            </div>
+                                        {% else %}
+                                            <div class="thumbnail-container">
+                                                <img class="non-subscriber-thumbnail" src="https://storage.googleapis.com/starter_web_app_bucket/assets/ad.png" alt="Ad Post">
+                                                <p class="poppins">Ad Post <span class="crown-icon" aria-hidden="true">👑</span></p>
+                                            </div>
+                                        {% endif %}
+                                        <div class="thumbnail-container" onclick="initThumbnailSelection('up')">
+                                            <img class="post-type-thumbnail  {% if selected_option != 'ad' and selected_option != 'photo' and selected_option != 'text' and selected_option != 'graphic' %}selected{% endif %}" data-value="up" src="https://storage.googleapis.com/starter_web_app_bucket/assets/up.png" alt="Upload File">
+                                            <p class="poppins">Upload File</p>
+                                        </div>
+                                    
+                                    </div>
+                                    
+                                    <input type="hidden" name="selected_post_type" id="selected_post_type">
+                                </div>                                     
+                            </div>
+                        </div> 
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="content-card">
+                                    <div id="photo-none">
+                                        <br>
+                                        <h4 class="header-title">Tags:</h4>
+                                        <p></p> 
+                                        <div class="tag-input-container">
+                                            <input type="hidden" name="tags" value="">
+                                            <input type="text" id="tagInput" class="form-control" placeholder="Enter tags separated by a comma...">
+                                            <div class="tag-bubbles" id="tagBubbles"></div>
+                                        </div>
+                                        <br>
+                                    </div>
+                                    <div id="keyword-none">
+                                        <h4 class="header-title">AI Image Description:</h4>
+                                        <p></p>
+                                        <div class="mb-3">
+                                            <input type="text" name="ai-description" class="form-control" placeholder="Enter AI Image Description...">
+                                        </div>
+                                    </div>
+                                    <div id="ad-desc-none">
+                                        <h4 class="header-title">Ad Description:</h4>
+                                        <p></p>
+                                        <div class="mb-3">
+                                            <input type="text" name="ad-description" class="form-control" placeholder="Enter AD Description...">
+                                        </div>
+                                    </div>
+                                    <div id="thumbnail-none">
+                                        <h4 class="header-title">Select Image:</h4>
+                                        <div class="thumbnails">
+                                            {% if user_id != global_variables.DEVELOPER_ID %}
+                                            <div class="thumbnail none-thumbnail" onclick="selectNone()">
+                                                <span class="ai-text">AI</span>
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                        <div id="pagination-controls" class="pagination-controls"></div>
+                                        <br>
+                                        <input type="hidden" name="selected_img_url" id="selected_img_url" value="None">
+                                    </div>
+                                    <div id="file-none">
+                                        {% if user_settings.logo %}
+                                        <h4 class="header-title">Add Elements</h4>
+                                        <p></p>
+                                        <div class="form-check mb-2 form-check-success">
+                                            <input class="form-check-input" type="checkbox" name="isLogo" value="true" id="logo" >
+                                            <label class="form-check-label" for="logo">Logo</label>
+                                        </div>
+                                        {% endif %}
+                                        <br>
+                                        <h4 class="header-title">File Upload</h4>
+                                        <p class="sub-header">
+                                            Upload an image and we will turn it into a post!
+                                        </p>
+                                        <input type="file" name="file" data-plugins="dropify" data-height="300" accept=".jpg, .png, .jpeg" />
+                                    </div>
+                                </div>
+                                
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-body">
+                                <div style="display: flex; justify-content: center; padding-top: 15px;">
+                                    <button type="submit" id="generatePostButton" class="btn btn-purple rounded-pill w-md waves-effect waves-light mb-3" onclick="showSpinner()">
+                                        <i class="mdi mdi-plus"></i> Generate Post</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                {% if user_settings.lastType %}
+                <div class="col-lg-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="generated-post">
+                                <h4 class="header-title">Generated Post</h4>
+                                {% if user_settings.lastType != 'text' %}
+                                <br>
+                                <img id="loaded-image" src="{% static 'dashboard\gifs\load-start.gif' %}" alt="Generated Image" class="generated-image-small rounded">
+                                <video id="loaded-video" controls style="display: none;" class="generated-image-small rounded">
+                                    <source id="video-source" src="" type="video/mp4">
+                                    Your browser does not support the video tag.
+                                </video>
+                                <br>
+                                <form method="post" action="{% url 'service:download' %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-soft-dark rounded waves-effect btn-xs">Download Image</button>
+                                </form>
+                                {% endif %}
+                                <br>
+                                <div class="mb-3">
+                                    <div class="text-box-wrapper">
+                                        <div id="prompt" contenteditable="true" class="text-box">{{ user_settings.next_caption }}</div>
+                                    </div>
+                                </div>
+                                <form method="post" action="{% url 'service:content_creator' %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="form" value="formCaption1">
+                                    <button type="submit" class="btn btn-soft-secondary rounded waves-effect btn-xs" onclick="showSpinner()">Re-Generate Copy</button>
+                                    <br>
+                                    <br>
+                                </form>
+                                <!-- Form -->
+                                <form id="sendPost" method="post" action="{% url 'service:content_creator' %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="form" id="formAction" value="">
+                                    {% if user_settings.lastType != 'image' %}
+                                    <input type="hidden" name="url" id="dynamicUrl" value="">
+                                    {% endif %}
+                                    <input type="hidden" name="caption" value="{{ user_settings.next_caption }}">
+                                    <input type="hidden" id="editedCaption" name="edited_caption" value="">
+                                    {% if user_settings.isFacebook %}
+                                    <input type="hidden" id="facebook_visible" name="facebook_visible" value="true">
+                                    {% endif %}
+                                    {% if user_settings.isInstagram %}
+                                    <input type="hidden" id="instagram_visible" name="instagram_visible" value="true">
+                                    {% endif %}
+                                    <div class="mb-3">
+                                        <div style="display: inline-block;">
+                                            <img src="{% static 'dashboard\images\icon\reset_icon.png' %}" class="social-icons" id="social_reset" onclick="resetSocialMedia()">
+                                            {% if user_settings.isFacebook %}
+                                            <img src="{% static 'dashboard\images\icon\facebook_logo.png' %}" class="social-icons" id="facebook" onclick="toggleSocialMedia('facebook')">
+                                            {% endif %}
+                                            {% if user_settings.isInstagram %}
+                                            <img src="{% static 'dashboard\images\icon\instagram_logo.png' %}" class="social-icons" id="instagram" onclick="toggleSocialMedia('instagram')">
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </form>
+
+                                <!-- Buttons -->
+                                <button type="button" class="btn btn-gold rounded-pill w-md waves-effect waves-light mb-3" onclick="setFormValueAndShowSpinner('formPostFeed', 'sendPost')">
+                                    <i class="mdi mdi-grid"></i> Post to Feed!
+                                </button>
+
+                                <div style="display: inline-block; align-items: center; text-align: center;">
+                                    <button type="button" class="btn btn-success w-md waves-effect waves-light mb-3" onclick="setFormValueAndShowSpinner('formPostSchedule', 'sendPost')">
+                                        <i class="mdi mdi-calendar"></i> Add To Schedule!
+                                    </button>
+
+                                    {% if user_settings.lastType != 'text' %}
+                                    <button type="button" class="btn btn-purple w-md waves-effect waves-light mb-3" onclick="setFormValueAndShowSpinner('formPostLibrary', 'sendPost')">
+                                        <i class="mdi mdi-bookshelf"></i> Add Image To Library!
+                                    </button>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div> <!-- end card-body -->
+                    </div> <!-- end card -->
+                </div> <!-- end col -->
+                {% endif %}
+            </div><!-- end col -->
+        </div>
+    </div>
+    <script type="module" src="{% static 'dashboard/js/pages/post_creator.js' %}"></script>
+    <script src="{% static 'dashboard/js/pages/post_switcher.js' %}"></script>
+    <script>
+        const tagsArray = '{{ user_settings.tags|safe }}' !== '' ?
+                    JSON.parse('{{ user_settings.tags|safe }}') : [];
+        const gifStart = "{% static 'dashboard/gifs/load-start.gif' %}"
+        const gifDone = "{% static 'dashboard/gifs/load-done.gif' %}"
+        var jsonDump2 = {
+            selectedOption: '{{ selected_option }}',
+            businessDescription: '{{ user_settings.business_description }}',
+            add_graphics: "{% url 'add_graphics' %}"
+        };
+    </script>
+{% endblock %}

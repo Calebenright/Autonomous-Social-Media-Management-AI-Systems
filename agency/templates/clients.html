@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feadl.io Agency Panel</title>
+    {% load static %}
+    <meta content="A automonomous social media managing app and ad agency" name="description" />
+    <meta content="CJ Enright" name="author" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <link rel="shortcut icon" href="{% static 'dashboard/images/favicon.ico' %}">
+    <link rel="stylesheet" href="{% static 'admin/css/styles.css' %}">
+</head>
+<body>
+    {% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+            <li class="{{ message.tags }}" data-message-id="{{ forloop.counter }}">
+                {{ message }}
+                <span class="closebtn" onclick="closeMessage(this);">&times;</span>
+            </li>
+        {% endfor %}
+    </ul>
+    <script>
+        function closeMessage(element) {
+            element.parentElement.style.display = 'none'; // Hide the message
+            const messageId = element.parentElement.getAttribute('data-message-id');
+            
+            // Store the closed message ID in local storage
+            const closedMessages = JSON.parse(localStorage.getItem('closed_messages')) || [];
+            closedMessages.push(messageId);
+            localStorage.setItem('closed_messages', JSON.stringify(closedMessages));
+        }
+    </script>
+    {% endif %}    
+
+    <h1>Agency Panel</h1>
+    
+    <div class="top">
+        <form method="get" action="">
+            <button type="submit" style="margin-right: 10px;">Filter</button>
+            <select name="sort" placeholder="Filter by Type" style="margin-right: 10px;">
+                <option value="Paid">Paid</option>
+                <option value="Free">Free</option>
+                <option value="Lead">New</option>
+                <option value="Archive">Archive</option>
+            </select>
+        </form>
+        <form method="POST" action="{% url 'agency:add_account' agency_id %}">
+            {% csrf_token %}
+            <button type="submit" style="margin-right: 10px;">Add Account</button>
+        </form>
+    </div>   
+    
+    {% if firestore_data %}
+        <table>
+            <tr>
+                <th>Business Name</th>
+                <th>Auto Posting</th>
+                <th>Upgraded Account</th>
+                <th>Needs Graphic Edit</th>
+                <th>Needs Video Edit</th>
+                <th>Needs Ad Review</th>
+                <th>Switch Into Service</th>
+                <th>View Tasks</th>
+                <th>Archive Account</th>
+                <th>Delete Account</th>
+            </tr>
+            {% for user in page_obj  %}
+            <tr>
+                <td>
+                    <a href="{% url 'agency:service_switch' user.document_id %}">{{ user.business_name }}</a>
+                </td>
+                <td>{% if user.isAutomated %}✅{% endif %}</td>
+                <td>{% if user.isUnlimited %}✅{% endif %}</td>
+                <td>{% if user.george_settings and user.george_settings.isLoading %}⚠️{% endif %}</td>
+                <td>{% if user.susan_settings and user.susan_settings.isLoading %}⚠️{% endif %}</td>
+                <td>{% if user.david_settings and user.david_settings.isLoading %}⚠️{% endif %}</td>
+                <td><a href="{% url 'agency:service_switch' user.document_id %}">🔀</a></td>
+                <td><a href="{% url 'agency:tasks' user.document_id %}">📁</a></td>
+                <td><a href="{% url 'agency:archive' user.document_id %}">🗃️</a></td>
+                <td><a href="{% url 'agency:delete' user.document_id %}">❌</a></td>
+            </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <p>No data found</p>
+    {% endif %}
+
+    <div class="pagination">
+        {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}">Previous</a>
+        {% endif %}
+    
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}">Next</a>
+        {% endif %}
+    </div>
+    
+</body>
+</html>
