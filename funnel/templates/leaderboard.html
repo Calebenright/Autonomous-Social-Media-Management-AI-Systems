@@ -1,0 +1,118 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Leaderboard</title>
+    <meta name="description" content="Stream Leaderboard">
+    <meta name="keywords" content="Stream Leaderboard">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="canonical" href="https://www.feadl.io/">
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'website/media/favicon-32.ico' %}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'website/media/favicon-16.ico' %}">
+    <link rel="manifest" href="{% static 'website/media/seo/site.webmanifest' %}">
+    <link rel="shortcut icon" href="{% static 'website/media/favicon.ico' %}">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="msapplication-config" content="{% static 'website/media/browserconfig.xml' %}">
+    <meta name="theme-color" content="#ffffff">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Stream Leaderboard">
+    <meta property="og:description" content="Streaming Now">
+    <meta property="og:image" content="{% static 'website/media/seo/og-image.png' %}">
+    <meta property="og:image:alt" content="Stream Leaderboard">
+    <meta property="og:url" content="https://www.feadl.io/">
+    <meta property="og:site_name" content="Feadlio">
+    <meta property="og:locale" content="en_US">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Stream Leaderboard">
+    <meta name="twitter:description" content="Streaming Now.">
+    <meta name="twitter:image" content="{% static 'website/media/seo/twitter-image.png' %}">
+    <meta name="twitter:image:alt" content="Stream Leaderboard">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <title>Leaderboard</title>
+</head>
+<body class="bg-gray-800 text-white">
+    <div class="container mx-auto p-6 max-w-xl">
+        {% if messages %}
+        <ul class="space-y-4 my-6">
+            {% for message in messages %}
+            <li class="px-4 py-3 rounded-md shadow-md flex justify-between items-center 
+                        {% if message.tags == 'error' %}
+                        bg-red-100 text-red-700 border border-red-300
+                        {% elif message.tags == 'success' %}
+                        bg-green-100 text-green-700 border border-green-300
+                        {% elif message.tags == 'info' %}
+                        bg-blue-100 text-blue-700 border border-blue-300
+                        {% elif message.tags == 'warning' %}
+                        bg-yellow-100 text-yellow-700 border border-yellow-300
+                        {% endif %}" 
+                data-message-id="{{ forloop.counter }}">
+                <span>{{ message }}</span>
+                <button 
+                class="text-lg font-semibold text-gray-700 hover:text-gray-900 focus:outline-none"
+                onclick="closeMessage(this);">
+                &times;
+                </button>
+            </li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        <script>
+            function closeMessage(element) {
+                element.parentElement.remove(); // Removes the message item
+            }
+        </script>
+
+<div class="container mx-auto p-2">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-xl font-bold">CJ's Stream Leaderboard</h1>
+        <div class="p-4">
+            <!-- Button Row for Daily and Monthly -->
+            <div class="flex space-x-2 mb-2 justify-center">
+                <a href="{% url 'leaderboard' %}?type=daily" 
+                   class="py-1 px-2 text-sm font-medium bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 rounded-md transition-all duration-300 ease-in-out shadow-lg hover:shadow-2xl transform hover:scale-105">
+                    Daily
+                </a>
+                <a href="{% url 'leaderboard' %}?type=monthly" 
+                   class="py-1 px-2 text-sm font-medium bg-gradient-to-r from-green-500 to-green-700 hover:from-green-600 hover:to-green-800 rounded-md transition-all duration-300 ease-in-out shadow-lg hover:shadow-2xl transform hover:scale-105">
+                    Monthly
+                </a>
+            </div>
+        
+            <!-- Back to Link-in-Bio Button -->
+            <div class="text-center">
+                <a href="{% url 'link-in-bio' %}" 
+                   class="py-1 px-2 text-sm font-medium bg-gradient-to-r from-purple-500 to-purple-700 hover:from-purple-600 hover:to-purple-800 rounded-md transition-all duration-300 ease-in-out shadow-lg hover:shadow-2xl transform hover:scale-105">
+                    Back to Links
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div id="leaderboard" class="space-y-4">
+        {% if leaderboard_items %}
+            {% for item in leaderboard_items %}
+                <div class="bg-gray-700 p-4 rounded shadow-md flex items-center">
+                    <div class="flex-grow">
+                        <span class="font-semibold">{{ item.name }}</span>
+                    </div>
+                    <div class="text-lg text-white-400">
+                        {{ item.score }}
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p class="text-center text-gray-400">No leaderboard data available.</p>
+        {% endif %}
+    </div>
+</div>
+</body>
+</html>

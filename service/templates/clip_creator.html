@@ -1,0 +1,323 @@
+{% extends "service_base.html" %}
+
+{% block title %}Clips Creator{% endblock %}
+{% block name %}Clips Creator{% endblock %}
+
+{% block content %}
+    {% load static %}
+    <div class="content">
+        <div class="container-fluid">
+
+            {% if not user_settings.isUnlimited %}
+            <style>
+                .lock-overlay {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background-color: rgba(0, 0, 0, 0.3);
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    z-index: 9997;
+                }
+
+                .lock-overlay-content {
+                    text-align: center; /* Center text inside */
+                    background-color: #ffffff00; /* White background for content */
+                }
+
+                .left-side-menu {
+                    z-index: 9999;
+                }
+                .navbar-custom {
+                    z-index: 9998;
+                }
+            </style>
+            <div class="lock-overlay">
+                <div class="lock-overlay-content">
+                    <img src="{% static 'service/media/lock.webp' %}" alt="Upgrade Plan" style="width: 500px;">
+                    <br>
+                    <a href="{% url 'service:checkout' %}" class="btn btn-gradient-stroke subscribe rounded-pill dropdown-toggle arrow-none waves-effect waves-light mb-3">Upgrade your plan</a>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="row">
+                {% if messages %}
+                <ul class="messages">
+                    {% for message in messages %}
+                        <li class="{{ message.tags }}" data-message-id="{{ forloop.counter }}">
+                            {{ message }}
+                            <span class="closebtn" onclick="closeMessage(this);">&times;</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+
+                <style>
+                    @media (max-width: 768px) {
+                        h4 {
+                            font-size: 1rem;
+                        }
+                        .sub-header {
+                            font-size: 0.8rem;
+                        }
+                    }
+                </style>
+                
+                <div class="col-lg-12" id="form-container">
+                    <div class="card">
+                        <div class="card-body">
+                            <form method="post" action="{% url 'service:clips_creator' %}" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <input type="hidden" name="form" value="clips">
+                                <input type="hidden" name="redirect_url" value="service:clips_creator">
+                                <input type="hidden" id="folder_name" name="folder_name" value="clips/uploaded">
+                                <input type="hidden" id="file_name" name="file_name" value="">
+                                <div class="mb-3">
+                                    <input type="file" id="files" data-plugins="dropify" data-height="400" accept=".mp4, .heic, .mov"/>
+                                </div>
+                                <style>
+                                    #progress-bar-container {
+                                        width: 100%;
+                                        background-color: #f3f3f3;
+                                        border-radius: 25px;
+                                        padding: 3px;
+                                    }
+
+                                    #upload-progress-bar {
+                                        width: 0;
+                                        height: 20px;
+                                        background-color: #4caf50;
+                                        border-radius: 20px;
+                                        text-align: center;
+                                        line-height: 20px;
+                                        color: white;
+                                        transition: width 0.4s;
+                                    }
+                                </style>
+                                <div id="upload-overlay" class="mb-2">
+                                    <div id="progress-bar-container">
+                                        <div id="upload-progress-bar"></div>
+                                    </div>
+                                </div>
+                                <button style="width: 100%;" type="submit" id="submit-button" class="btn btn-purple rounded-pill w-md waves-effect waves-light mb-3" onclick="showSpinner()">Create Clips</button>
+                            </form>
+                            
+                        </div> <!-- end card-body -->
+                    </div> <!-- end card -->
+                </div><!-- end col -->
+                <div class="col-lg-12" id="progress-container" style="display: none;">
+                    <div class="card">
+                        <div class="card-body">
+                            <h4>Your video is being cut into Clips!</h4>
+                            <p class="sub-header">
+                                You can find the progress of your video edit below.
+                                <br>
+                                Clips usually take around 30 minutes to process. When they are done you can find them below.
+                            </p>
+
+                            {% if is_time_less %}
+                            <form id="clearForm" method="post" action="{% url 'service:clips_creator' %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="form" value="clear">
+                                <button type="submit" class="btn btn-danger waves-effect waves-light">Cancel</button>
+                            </form>
+                            {% endif %}
+
+                            <img src="{% static 'service\media\video_editor_progress.webp' %}" alt="Generated Graphic" class="rounded" style="width: 100%;">
+                            <div class="progress" style="width: 100%; height: 5rem; background-color: #e4e4e4;">
+                                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="{{ user_settings.clip_percent }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ user_settings.clip_percent }}%; height: 5rem; background-color: var(--ct-progress-bar-bg);"></div>
+                            </div>
+                        </div> <!-- end card-body -->
+                    </div> <!-- end card -->
+                </div><!-- end col -->
+
+
+                <div class="col-lg-12" id="folders-container">
+                    <div class="card">
+                        <div class="card-body">
+                            <style>
+                                .folder {
+                                    cursor: pointer;
+                                    margin-bottom: 10px;
+                                    padding: 10px;
+                                    background-color: #f0f0f0;
+                                    border: 1px solid #ccc;
+                                    display: inline-block;
+                                    border-radius: 5px;
+                                    width: 150px;
+                                    height: 150px;
+                                    text-align: center;
+                                    font-size: 16px;
+                                    line-height: 50px;
+                                }
+
+                                .folder .folder-icon {
+                                    margin-top: 10px;
+                                    font-size: 70px; /* Size of the folder icon */
+                                    display: block;
+                                    color: #7c7c7c; /* Folder color */
+                                }
+
+                                .folder:hover {
+                                    background-color: #e0e0e0;
+                                }
+
+                                .clip-list {
+                                    margin-top: 20px;
+                                    display: flex;
+                                    flex-wrap: wrap;
+                                }
+
+                                .clip-item {
+                                    width: 200px; /* Adjust as needed for the video size */
+                                    height: auto; /* Typical aspect ratio for vertical videos (9:16) */
+                                    object-fit: cover; /* Ensures the video fills the container */
+                                    
+                                    border-radius: 15px; /* Rounded corners */
+                                    margin: 10px 10px; /* Adds vertical space between each video */
+
+                                    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.3); /* Drop shadow */
+                                    background-color: #f8f8f8; /* Background color behind the video */
+                                }
+
+                                .add-to-schedule-btn {
+                                    display: block;
+                                    margin: 10px auto; /* Center the button horizontally */
+                                }
+                            </style>
+                            <div id="folders">
+                                {% for clip in clips %}
+                                    <div class="folder" onclick="showFolder('{{ clip.id }}', {{ clip.urls|safe }})">
+                                        <i class="fe-folder folder-icon"></i>{{ clip.id|slice:":10" }}{% if clip.id|length > 10 %}...{% endif %}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            
+                            <div id="clip-urls" class="clip-list">
+                                <button class="btn btn-primary waves-effect waves-light" onclick="goBackToFolders()">Back to Folders</button>
+                                <!-- Clip URLs will be displayed here dynamically -->
+                            </div>
+
+                            <form id="schedule-form" method="post" action="{% url 'service:clips_creator' %}" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <input type="hidden" name="form" value="formPostSchedule">
+                                <input type="hidden" name="redirect_url" value="service:clips_creator">
+                                <input type="hidden" id="clipUrl" name="clipUrl" value="">
+                            </form>
+
+                            <style>
+                                #clip-urls {
+                                    display: block;
+                                    flex-wrap: wrap;
+                                    justify-content: space-around; /* Space clips evenly */
+                                    gap: 20px; /* Add space between items */
+                                }
+
+                                .clip-item {
+                                    width: 200px; /* Adjust as needed for the video size */
+                                    height: auto; /* Typical aspect ratio for vertical videos (9:16) */
+                                    object-fit: cover; /* Ensures the video fills the container */
+                                    
+                                    border-radius: 15px; /* Rounded corners */
+                                    margin: 10px 10px; /* Adds vertical space between each video */
+
+                                    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.3); /* Drop shadow */
+                                    background-color: #f8f8f8; /* Background color behind the video */
+                                }
+                            </style>
+
+                            <script>
+                                document.addEventListener('DOMContentLoaded', function() {
+                                    // Limit folders to 30 and hide if no folders
+                                    const folders = document.querySelectorAll('.folder');
+                                    const foldersContainer = document.getElementById('folders-container');
+                                    goBackToFolders();
+                                    if (folders.length > 30) {
+                                        folders.forEach((folder, index) => {
+                                            if (index >= 30) {
+                                                folder.style.display = 'none';
+                                            }
+                                        });
+                                    }
+                
+                                    if (folders.length === 0) {
+                                        foldersContainer.style.display = 'none';
+                                    }
+                                });
+                
+                                function showFolder(folderId, urls) {
+                                    // Hide the folder list and show the clip list
+                                    document.getElementById('folders').style.display = 'none';
+                                    const urlsContainer = document.getElementById('clip-urls');
+                                    urlsContainer.style.display = 'block';
+                                    
+                                    // Clear previous clips and add back button
+                                    urlsContainer.innerHTML = `
+                                        <button class="btn btn-primary waves-effect waves-light" onclick="goBackToFolders()">Back to Folders</button>
+                                        <div class="clip-list"></div>
+                                    `;
+                
+                                    const clipList = urlsContainer.querySelector('.clip-list');
+                                    clipList.innerHTML = ''; // Clear previous clips
+                
+                                    // Loop through URLs and display videos
+                                    urls.forEach(url => {
+                                        const containerDiv = document.createElement('div');
+                                        containerDiv.className = 'clip-item-container';
+                                        
+                                        // Create video element with 'clip-item' class
+                                        const video = document.createElement('video');
+                                        video.src = url;
+                                        video.controls = true;
+                                        video.width = 200; // Set width of video
+                                        video.className = 'clip-item'; // Apply the 'clip-item' class only to the video element
+                                        containerDiv.appendChild(video);
+                
+                                        // Create "Add to Schedule" button
+                                        const addButton = document.createElement('button');
+                                        addButton.innerText = 'Add to Schedule';
+                                        addButton.className = 'btn btn-success add-to-schedule-btn'; // Bootstrap success button style
+                
+                                        // Attach event listener to handle form submission
+                                        addButton.onclick = () => postToSchedule(url);
+                
+                                        // Append button to the container div
+                                        containerDiv.appendChild(addButton);
+                
+                                        // Append container div to the clip list container
+                                        clipList.appendChild(containerDiv);
+                                    });
+                                }
+                
+                                function postToSchedule(clipUrl) {
+                                    document.getElementById('clipUrl').value = clipUrl;
+                                    document.getElementById('schedule-form').submit();
+                                }
+                
+                                function goBackToFolders() {
+                                    document.getElementById('clip-urls').style.display = 'none';
+                                    document.getElementById('folders').style.display = 'block';
+                                }
+                            </script>
+                        </div> <!-- end card-body -->
+                    </div> <!-- end card -->
+                </div><!-- end col -->
+            </div>
+        </div> <!-- container-fluid -->
+    </div> <!-- content -->
+    <script>
+    var sendForm = '{% url "service:generate_signed_url" %}';
+    var upgradeCheckout = "{% url 'service:advertising_checkout' %}";
+    var makePublic = "{% url 'service:make_file_public' %}";
+    </script>
+    <script type="module" src="{% static 'dashboard/js/pages/clips_creator.js' %}"></script>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'service/js/clips_form.js' %}"></script>
+{% endblock %}

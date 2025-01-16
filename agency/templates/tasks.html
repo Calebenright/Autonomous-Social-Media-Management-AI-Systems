@@ -296,7 +296,7 @@
                                     <form id="graphicForm" method="POST" action="{% url 'agency:upload_graphic' %}" enctype="multipart/form-data">
                                         {% csrf_token %}
                                         <input id="form_name" type="hidden" name="form" value="graphic_message">
-                                        <input type="text" class="form-control mb-1" name="message" value="{{ george_settings.message }}" required>
+                                        <input type="text" class="form-control mb-1" name="message" value="{{ george_settings.message }}" >
                                         <button type="submit" class="btn btn-success">Post</button>
                                         <button type="buttons" class="btn btn-danger" onclick="clearAndSubmitForm()">Clear</button>
                                         <button type="buttons" class="btn btn-warning" onclick="clearGraphicMessage()">Clear Message</button>

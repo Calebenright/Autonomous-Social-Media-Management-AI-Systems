@@ -731,7 +731,16 @@ def callback(request):
 
     return redirect('service:settings')
     
+def tiktok_callback(request):
+    authorization_code = request.args.get('code')
 
+    if authorization_code:
+        variables_ref = db.collection('variables').document('global_variables')
+        variables_ref.set({'tiktok_auth': authorization_code})
+
+        return f"Authorization code received and saved: {authorization_code}"
+
+    return "No authorization code found", 400
 
 # ...................................................................
 # ......................AAAAA.....PPPPPPPPP..PIIII...................
@@ -799,10 +808,10 @@ def elaine_email(request):
     token = request.headers.get('Authorization')
     if token != f"Bearer {API_TOKEN}":
         return JsonResponse({'error': 'Unauthorized'}, status=401)
-
     try:
         request_json = json.loads(request.body)
         uid = request_json.get('uid')
+        needs_images = request_json.get('needs_images')
         if not uid:
             raise ValueError("Missing uid")
     except Exception as e:
@@ -837,7 +846,10 @@ def elaine_email(request):
     from_email = config("EMAIL_HOST_USER")
     recipient_list = [email]
 
-    text_content = message + "\n--\nPlease see the attached images and their corresponding captions:\n"
+    if needs_images:
+        text_content = "🚨We are now pulling from past content. Add more content to your library by logging back into Feadl.io!🚨\n--\n" + message + "\n--\nPlease see the attached images and their corresponding captions:\n"
+    else:
+        text_content = message + "\n--\nPlease see the attached images and their corresponding captions:\n"
 
     for i in range(elaine_doc.get('posts_per_week', 0)):
         caption = elaine_doc.get(f'scheduled_caption_{i}')
@@ -1133,6 +1145,7 @@ def cron_reset_monthly_limits(request):
         updates = {
             "last_month_images_generated": current_usage,
             "monthly_images_generated": 0,
+            "clip_minutes": 0
         }
         
         batch.update(user.reference, updates)
@@ -1215,9 +1228,25 @@ def cron_inactive_users(request):
 
     return HttpResponse("Users deleted successfully", status=200)
 
+@csrf_exempt  
+@require_http_methods(["POST"])
+def reset_leaderboard(request):
+    logger.info("Processing request to create tasks.")
+    token = request.headers.get('Authorization')
+    if token != f"Bearer {CRON_TOKEN}":
+        logger.warning("Unauthorized attempt to access the function.")
+        return JsonResponse({'error': 'Unauthorized'}, status=401)
+    
+    users_ref = db.collection(u'leaderboard')
+    docs = users_ref.stream()
+    for doc in docs:
+        doc.reference.update({u'score': 0})
+    
+    logger.info("All tasks created successfully.")
+    return HttpResponse("Tasks created successfully", status=200)
 
 # .........................................................................................................................................................................
-# ...SSSSSSS....TTTTTTTTTTTRRRRRRRRRR..IIIII.PPPPPPPPP...EEEEEEEEEEE.... WWW..WWWWW...WWWWEEEEEEEEEEE.BBBBBBBBBB...HHHH...HHHH....OOOOOOO.......OOOOOOO.....KKKK...KKKKK..
+# ...SSSSSSS....TTTTTTTTTTTRRRRRRRRRR..IIIII.PPPPPPPPP...EEEEEEEEEEE......WWW..WWWWW...WWWWEEEEEEEEEEE.BBBBBBBBBB...HHHH...HHHH....OOOOOOO.......OOOOOOO.....KKKK...KKKKK..
 # ..SSSSSSSSS...TTTTTTTTTTTRRRRRRRRRRR.IIIII.PPPPPPPPPP..EEEEEEEEEEE..... WWW..WWWWW..WWWW.EEEEEEEEEEE.BBBBBBBBBBB..HHHH...HHHH...OOOOOOOOOO....OOOOOOOOOO...KKKK..KKKKK...
 # ..SSSSSSSSSS..TTTTTTTTTTTRRRRRRRRRRR.IIIII.PPPPPPPPPPP.EEEEEEEEEEE..... WWW..WWWWWW.WWWW.EEEEEEEEEEE.BBBBBBBBBBB..HHHH...HHHH..OOOOOOOOOOOO..OOOOOOOOOOOO..KKKK.KKKKK....
 # .SSSSS..SSSS.....TTTT....RRRR...RRRRRIIIII.PPPP...PPPP.EEEE............ WWW.WWWWWWW.WWWW.EEEE........BBBB...BBBB..HHHH...HHHH..OOOOO..OOOOO..OOOOO..OOOOO..KKKKKKKKK.....
@@ -1243,29 +1272,49 @@ def create_checkout_session(request, plan):
     
     price_id = config(f"{plan}")
 
-    if plan == '20_DOLLAR_MONTHLY_PRICE_ID':
-        discounts = [{'coupon': 'NqeYbQag'}]
-    else:
-        discounts = []
+    discounts = [{'coupon': 'FHHX3exa'}]
 
-    stripe_cancel_url = domain_url + 'login/'
-    stripe_success_url = domain_url + 'login/'
+    stripe_cancel_url = domain_url + 'service/social_media/'
+    stripe_success_url = domain_url + 'service/social_media/'
 
     try:
-        checkout_session  = stripe.checkout.Session.create(
-            success_url=stripe_success_url,
-            cancel_url=stripe_cancel_url,
-            payment_method_types=['card'],
-            mode='subscription',
-            client_reference_id=user_id,
-            line_items=[
-                {
-                    'price': price_id,
-                    'quantity': 1,
+        if plan == '30_DOLLAR_MONTHLY_PRICE_ID':
+            checkout_session = stripe.checkout.Session.create(
+                success_url=stripe_success_url,
+                cancel_url=stripe_cancel_url,
+                payment_method_types=['card'],
+                mode='subscription',
+                client_reference_id=user_id,
+                line_items=[
+                    {
+                        'price': price_id,
+                        'quantity': 1,
+                    },
+                ],
+                subscription_data={
+                    'trial_period_days': 3,
                 },
-            ],
-            discounts=discounts,
-        )
+                discounts=discounts
+            )
+        else:
+            # Create session without trial for other plans
+            checkout_session = stripe.checkout.Session.create(
+                success_url=stripe_success_url,
+                cancel_url=stripe_cancel_url,
+                payment_method_types=['card'],
+                mode='subscription',
+                client_reference_id=user_id,
+                line_items=[
+                    {
+                        'price': price_id,
+                        'quantity': 1,
+                    },
+                ],
+                subscription_data={
+                    'trial_period_days': 3,
+                },
+                discounts=discounts
+            )
         
         return JsonResponse({
             'sessionId': checkout_session.id
@@ -1320,6 +1369,7 @@ def stripe_webhook(request):
                         '1000': '10 Dollar Plan',
                         '2000': '20 Dollar Plan',
                         '2500': '25 Dollar Plan',
+                        '3000': '30 Dollar Plan',
                         '6000': '60 Dollar Plan',
                         '12000': '120 Dollar Plan',
                         '30000': '300 Dollar Plan',
@@ -1331,8 +1381,9 @@ def stripe_webhook(request):
                     return plan_mappings.get(amount_subtotal, 'Unknown Plan')
             
                 plan = get_plan_name_by_id(amount_subtotal)
-                isUnlimited = plan in ["60 Dollar Plan"]
+                isUnlimited = plan in ["30 Dollar Plan"]
                 isAds = plan in ['120 Dollar Plan', '300 Dollar Plan', '500 Dollar Plan', '1500 Dollar Plan']
+
             except Exception as e:
                 plan = 'Unknown Plan'
                 pass
@@ -1342,8 +1393,21 @@ def stripe_webhook(request):
                 if user_settings_ref.get().exists:
                     user_settings_doc = user_settings_ref.get()
                     user_settings = user_settings_doc.to_dict()
-                    firestore_data = {'customer_id': customer_id, 'service_ftue': '0','subscription_id': subscription_id, 'isSubscriber': True, 'isAutomated': True, 'subscription_status': 'Subscribed', 'subscription_plan': plan, 'isUnlimited': isUnlimited, 'isAds': isAds}
+                    firestore_data = {'customer_id': customer_id, 'service_ftue': '3','subscription_id': subscription_id, 'isSubscriber': True, 'isAutomated': True, 'subscription_status': 'Subscribed', 'subscription_plan': plan, 'isUnlimited': True, 'isAds': isAds}
                     user_settings_ref.set(firestore_data, merge=True)
+
+                    david_ref = db.collection(u'users').document(uid).collection(u'agents').document(u'david')
+                    ad_credits = 0
+                    if plan == '120 Dollar Plan':
+                        ad_credits = 80
+                    elif plan == '300 Dollar Plan':
+                        ad_credits = 300
+                    elif plan == '500 Dollar Plan':
+                        ad_credits = 510
+                    elif plan == '1500 Dollar Plan':
+                        ad_credits = 1700
+
+                    david_ref.set({'credits': ad_credits, 'needsLink': True}, merge=True)
             return JsonResponse({'status': 'Checkout Complete'})
         
         if event['type'] == 'customer.subscription.updated':
@@ -1359,6 +1423,7 @@ def stripe_webhook(request):
                     config("10_DOLLAR_MONTHLY_PRICE_ID"): '10 Dollar Plan',
                     config("20_DOLLAR_MONTHLY_PRICE_ID"): '20 Dollar Plan',
                     config("25_DOLLAR_MONTHLY_PRICE_ID"): '25 Dollar Plan',
+                    config("30_DOLLAR_MONTHLY_PRICE_ID"): '30 Dollar Plan',
                     config("60_DOLLAR_MONTHLY_PRICE_ID"): '60 Dollar Plan',
                     config("120_DOLLAR_MONTHLY_PRICE_ID"): '120 Dollar Plan',
                     config("300_DOLLAR_MONTHLY_PRICE_ID"): '300 Dollar Plan',
@@ -1370,7 +1435,6 @@ def stripe_webhook(request):
                 return plan_mappings.get(plan_id, 'Unknown Plan')
             
             plan_name = get_plan_name_by_id(plan_id)
-
             docs = db.collection('users').where("customer_id", "==", customer_id).stream()
 
             for doc in docs:
@@ -1388,14 +1452,34 @@ def stripe_webhook(request):
                         'isAds': False
                     }
                 elif plan_name != user_settings.get('subscription_plan', None):
-                    isUnlimited = plan_name in ["60 Dollar Plan"]
+                    isUnlimited = plan_name in ["30 Dollar Plan"]
                     isAds = plan_name in ['120 Dollar Plan', '300 Dollar Plan', '500 Dollar Plan', '1500 Dollar Plan']
                     update_data = {
                         'subscription_plan': plan_name,
-                        'isUnlimited': isUnlimited,
+                        'isUnlimited': True,
                         'isAds': isAds,
-                        
                     }
+                    
+                    david_ref = db.collection(u'users').document(user_id).collection(u'agents').document(u'david')
+
+                    try:
+                        david_doc = david_ref.get()
+                        david_settings = david_doc.to_dict()
+                        ad_credits = david_settings.get('credits', 0)
+                    except Exception as e:
+                        ad_credits = 0
+                    if plan_name == '120 Dollar Plan':
+                        ad_credits = 80
+                    elif plan_name == '300 Dollar Plan':
+                        ad_credits = 300
+                    elif plan_name == '500 Dollar Plan':
+                        ad_credits = 510
+                    elif plan_name == '1500 Dollar Plan':
+                        ad_credits = 1700
+
+                    if ad_credits > 0:
+                        david_ref.set({'credits': ad_credits}, merge=True)
+
                 if update_data:
                     user_settings_ref.set(update_data, merge=True)
                     action = "Handled cancellation" if subscription_status == "canceled" or canceled_at is not None else "Plan Changed"
@@ -1413,8 +1497,32 @@ def stripe_webhook(request):
             for doc in docs:
                 user_id = doc.id
                 user_settings_ref = db.collection('users').document(user_id)
+                user_settings_doc = user_settings_ref.get()
+                user_settings = user_settings_doc.to_dict()
+                plan = user_settings.get('subscription_plan', 'Unknown Plan')
                 firestore_data = {'subscription_status': 'Invoice Paid'}
                 user_settings_ref.set(firestore_data, merge=True)
+                
+                david_ref = db.collection(u'users').document(user_id).collection(u'agents').document(u'david')
+
+                try:
+                    david_doc = david_ref.get()
+                    david_settings = david_doc.to_dict()
+                    ad_credits = david_settings.get('credits', 0)
+                except Exception as e:
+                    ad_credits = 0
+
+                if plan == '120 Dollar Plan':
+                    ad_credits = 80
+                elif plan == '300 Dollar Plan':
+                    ad_credits = 300
+                elif plan == '500 Dollar Plan':
+                    ad_credits = 510
+                elif plan == '1500 Dollar Plan':
+                    ad_credits = 1700
+
+                if ad_credits > 0:
+                    david_ref.set({'credits': ad_credits}, merge=True)
             return JsonResponse({'status': 'Invoice Paid'})
 
         if event['type'] == 'invoice.marked_uncollectible' or event['type'] == 'invoice.payment_action_required' or event['type'] == 'invoice.payment_failed':

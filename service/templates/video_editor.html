@@ -262,5 +262,10 @@
     <script>
     var sendForm = '{% url "service:generate_signed_url" %}';
     var upgradeCheckout = "{% url 'service:advertising_checkout' %}";
+    var makePublic = "{% url 'service:make_file_public' %}";
     </script>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'service/js/form.js' %}"></script>
 {% endblock %}

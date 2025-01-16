@@ -32,4 +32,4 @@ def delete_user_by_email_and_id(email, user_id):
         print(f"An error occurred: {e}")
 
 # Example usage
-delete_user_by_email_and_id('team@feadl.io', 'I6oxCKifzINttcGvFLhx667ML8a2')
+delete_user_by_email_and_id('enrighttube@gmail.com', 'xBtzXlbtMDfs1QO4iob8o6y2LGi2')

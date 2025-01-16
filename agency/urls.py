@@ -12,6 +12,7 @@ urlpatterns = [
     path("tasks/<str:document_id>/", views.tasks, name="tasks"),
     path("service_switch/<str:document_id>/", views.service_switch, name="service_switch"),
     path("delete/<str:document_id>/", views.delete, name="delete"),
+    path("subscribe/<str:document_id>/", views.subscribe, name="subscribe"),
     path("archive/<str:document_id>/", views.archive, name="archive"),
     path('add_account/<str:agency_id>/', views.add_account, name='add_account'),
 ]

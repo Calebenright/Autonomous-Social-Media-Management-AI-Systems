@@ -113,10 +113,11 @@ await getDocs(eventsCollectionRef)
         this.$modalTitle.text("Edit Post");
         this.$eventCaption = l("#event-caption");
         this.$eventImg = l("#event-image");
+        this.$eventVideo = l("#event-video");
         this.$time = l("#time");
         this.$selectedEvent = e.event;
         const caption = e.event.extendedProps.caption || "";
-        const img = e.event.extendedProps.image_url || "https://storage.googleapis.com/starter_web_app_bucket/assets/ScheduleTextPostCalendarImagePlaceholder.png";
+        const imgOrVideo  = e.event.extendedProps.image_url || "https://storage.googleapis.com/starter_web_app_bucket/assets/ScheduleTextPostCalendarImagePlaceholder.png";
         const originalTimestamp  = e.event.start
         const originalDate = moment(originalTimestamp);
         const originalTimeFormatted = originalDate.format('HH:mm');
@@ -137,7 +138,15 @@ await getDocs(eventsCollectionRef)
             }
         }
         this.$eventCaption.text(caption);
-        this.$eventImg.attr("src", img);
+        if (imgOrVideo.endsWith(".mp4") || imgOrVideo.endsWith(".avi") || imgOrVideo.endsWith(".mov")) {
+            this.$eventImg.hide();
+            this.$eventVideo.show();
+            this.$eventVideo.attr("src", imgOrVideo);
+        } else {
+            this.$eventImg.show();
+            this.$eventVideo.hide();
+            this.$eventImg.attr("src", imgOrVideo);
+        }
         this.$modal.show();
     };
     
@@ -200,10 +209,16 @@ await getDocs(eventsCollectionRef)
                 // image event
                 let imgEventWrap = document.createElement('div');
                 if (arg.event.extendedProps.image_url) {
-                    let imgEvent = '<img src="' + arg.event.extendedProps.image_url + '" style="max-width: 95%; height: auto; border-radius: 5px;">';
+                    let mediaEvent;
+                    if (arg.event.extendedProps.image_url.endsWith(".mp4") || arg.event.extendedProps.image_url.endsWith(".avi") || arg.event.extendedProps.image_url.endsWith(".mov")) {
+                        mediaEvent = '<video src="' + arg.event.extendedProps.image_url + '" style="max-width: 95%; height: auto; border-radius: 5px;" controls>Your browser does not support the video tag.</video>';
+                    } else {
+                        mediaEvent = '<img src="' + arg.event.extendedProps.image_url + '" style="max-width: 95%; height: auto; border-radius: 5px;">';
+                    }
+
                     imgEventWrap.classList = "fc-event-img";
                     imgEventWrap.style.padding = "5%";
-                    imgEventWrap.innerHTML = imgEvent;
+                    imgEventWrap.innerHTML = mediaEvent;
                 } else {
                     let imgEvent = '<img src="' + 'https://storage.googleapis.com/starter_web_app_bucket/assets/ScheduleTextPostCalendarImagePlaceholder.png' + '" style="max-width: 95%; height: auto; border-radius: 5px;">';
                     imgEventWrap.classList = "fc-event-img";

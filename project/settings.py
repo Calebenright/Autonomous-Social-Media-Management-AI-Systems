@@ -16,7 +16,7 @@ AUTHENTICATION_BACKENDS = [
 
 SECRET_KEY = config('DJANGO_KEY')
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '.appspot.com', 'feadl.io', 'www.feadl.io']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '.appspot.com', 'feadl.io', 'www.feadl.io', 'app.snackski.com', 'www.app.snackski.com']
 
 MESSAGE_TAGS = {
     messages.DEBUG: 'secondary',
@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     "funnel",
     "service",
     "website",
+    "store",
 ]
 
 MIDDLEWARE = [

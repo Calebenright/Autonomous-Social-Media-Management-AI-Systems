@@ -25,6 +25,7 @@ from app.tasks import enqueue_time_task, create_queue
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 from app.functions import correct_orientation
+import datetime
 
 db = firestore.Client(project=config('FIRESTORE_ID'))
 
@@ -96,6 +97,146 @@ def beta_signup(request):
 
 def social_media_guy_success(request):
     return render(request, 'social_media_guy_success.html')
+
+def daily_leaderboard(request):
+    current_time = datetime.datetime.now()
+    start_time = datetime.datetime(current_time.year, current_time.month, current_time.day)
+    
+    # Query Firestore to get the leaderboard entries
+    leaderboard_ref = db.collection('leaderboard')
+    leaderboard_query = leaderboard_ref.where('timestamp', '>=', start_time).order_by('score', direction=firestore.Query.DESCENDING).limit(50)
+    leaderboard_data = leaderboard_query.stream()
+
+    leaderboard_items = []
+    for doc in leaderboard_data:
+        data = doc.to_dict()
+        leaderboard_items.append({
+            'name': data.get('name'),
+            'score': data.get('score'),
+            'timestamp': data.get('timestamp').strftime('%Y-%m-%d %H:%M:%S')  # Format timestamp
+        })
+    
+    context = {
+        'leaderboard_type': 'daily',
+        'leaderboard_items': leaderboard_items,
+    }
+
+    return render(request, 'daily_leaderboard.html', context)
+
+def monthly_leaderboard(request):
+    current_time = datetime.datetime.now()
+    start_time = datetime.datetime(current_time.year, current_time.month, 1)
+    
+    # Query Firestore to get the leaderboard entries
+    leaderboard_ref = db.collection('leaderboard')
+    leaderboard_query = leaderboard_ref.where('timestamp', '>=', start_time).order_by('score', direction=firestore.Query.DESCENDING).limit(50)
+    leaderboard_data = leaderboard_query.stream()
+
+    leaderboard_items = []
+    for doc in leaderboard_data:
+        data = doc.to_dict()
+        leaderboard_items.append({
+            'name': data.get('name'),
+            'score': data.get('score'),
+            'timestamp': data.get('timestamp').strftime('%Y-%m-%d %H:%M:%S')  # Format timestamp
+        })
+    
+    context = {
+        'leaderboard_type': 'monthly',
+        'leaderboard_items': leaderboard_items,
+    }
+
+    return render(request, 'monthly_leaderboard.html', context)
+
+def leaderboard(request):
+    leaderboard_type = request.GET.get('type', 'daily')  # Get the type from the query parameter (default: daily)
+
+    # Get the current date to determine the start of the day or the month
+    current_time = datetime.datetime.now()
+    if leaderboard_type == 'daily':
+        # Get start of the current day (midnight)
+        start_time = datetime.datetime(current_time.year, current_time.month, current_time.day)
+    elif leaderboard_type == 'monthly':
+        # Get start of the current month (1st day of the month)
+        start_time = datetime.datetime(current_time.year, current_time.month, 1)
+    else:
+        # If invalid type, default to daily
+        start_time = datetime.datetime(current_time.year, current_time.month, current_time.day)
+    
+    # Query Firestore to get the leaderboard entries
+    leaderboard_ref = db.collection('leaderboard')
+    leaderboard_query = leaderboard_ref.where('timestamp', '>=', start_time).order_by('score', direction=firestore.Query.DESCENDING).limit(50)
+    leaderboard_data = leaderboard_query.stream()
+
+    leaderboard_items = []
+    for doc in leaderboard_data:
+        data = doc.to_dict()
+        leaderboard_items.append({
+            'name': data.get('name'),
+            'score': data.get('score'),
+            'timestamp': data.get('timestamp').strftime('%Y-%m-%d %H:%M:%S')  # Format timestamp
+        })
+    
+    context = {
+        'leaderboard_type': leaderboard_type,
+        'leaderboard_items': leaderboard_items,
+    }
+
+    return render(request, 'leaderboard.html', context)
+
+def link_in_bio(request):
+    if request.method == "POST":
+        name = request.POST.get("name")
+        score = request.POST.get("score")
+        timestamp = datetime.datetime.now()
+
+        if not name or not score:
+            messages.error(request, 'Name and Score Required.')
+            return redirect('link_in_bio')
+
+        try:
+            doc_ref = db.collection("leaderboard").document(name)
+            doc = doc_ref.get()
+
+            if doc.exists:
+                # Get existing data
+                existing_data = doc.to_dict()
+                last_submission_time = existing_data.get("timestamp")
+
+                # Check if the last submission was within the past hour
+                if last_submission_time:
+                    last_submission_time = last_submission_time.replace(tzinfo=None)  # Convert to naive datetime
+                    time_diff = timestamp - last_submission_time
+                    if time_diff.total_seconds() < 600:
+                        messages.error(request, 'Please wait 10 minutes to submit again.')
+                        return redirect('link-in-bio')
+
+                # Update the score and timestamp
+                new_score = existing_data.get("score", 0) + int(score)
+                doc_ref.update({
+                    "score": new_score,
+                    "timestamp": timestamp
+                })
+            else:
+                # If the document doesn't exist, set a new score and timestamp
+                doc_ref.set({
+                    "name": name,
+                    "score": int(score),
+                    "timestamp": timestamp
+                })
+            messages.success(request, 'Your score is pending approval.')
+            return redirect('link-in-bio')
+        except Exception as e:
+            messages.error(request, 'Error submitting score.')
+            return redirect('link-in-bio')
+    return render(request, 'link_in_bio.html')
+
+def free_trial(request):
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        request.session['email'] = email
+        return redirect("service:getting_started")
+    return render(request, 'simple_email.html')
 
 def price_5(request):
     return render(request, 'price_5.html')

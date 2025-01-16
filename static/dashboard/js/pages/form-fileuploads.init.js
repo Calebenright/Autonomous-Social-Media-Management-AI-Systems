@@ -1,1 +1,1 @@
-"use strict";0<$('[data-plugins="dropify"]').length&&$('[data-plugins="dropify"]').dropify({messages:{default:"File Upload",replace:"Replace File",remove:"Remove",error:"Ooops, something wrong appended."},error:{fileSize:"The file size is too big (1M max)."}});
+"use strict";0<$('[data-plugins="dropify"]').length&&$('[data-plugins="dropify"]').dropify({messages:{default:"File Upload",replace:"Replace File",remove:"Remove",error:"Ooops, something wrong appended."},error:{fileSize:"The file size is too big (7MB max)."}});

@@ -7,8 +7,7 @@
     {% load static %}
     <div class="content">
         <div class="container-fluid">
-            
-            {% if not user_settings.isSubscriber %}
+            {% if not user_settings.isUnlimited %}
             <style>
                 .lock-overlay {
                     position: fixed;
@@ -41,6 +40,39 @@
                     <br>
                     <a href="{% url 'service:checkout' %}" class="btn btn-gradient-stroke subscribe rounded-pill dropdown-toggle arrow-none waves-effect waves-light mb-3">Upgrade your plan</a>
                 </div>
+            </div>
+            {% endif %}
+            {% if david_settings.credits > 0 %}
+            <style>
+                .credits-container {
+                    position: fixed;
+                    top: 15px;
+                    right: 10px;
+                    background-color: #fff;
+                    border-radius: 5px;
+                    padding: 7px 10px;
+                    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+                    font-size: 12px;
+                    text-align: center;
+                    z-index: 1100;
+                    display: flex;
+                    align-items: center;
+                }
+                .credits-amount {
+                    font-size: 16px;
+                    color: #28a745;
+                    font-weight: bold;
+                    margin: 2px;
+                }
+                .credits-label {
+                    font-size: 14px;
+                    color: #6c757d;
+                    margin-right: 10px;
+                }
+            </style>
+            <div class="credits-container">
+                <div class="credits-label">Ad Credits: </div>
+                <div class="credits-amount">{{ david_settings.credits }}</div>
             </div>
             {% endif %}
             <div class="row">
@@ -503,4 +535,8 @@
     var makePublic = "{% url 'service:make_file_public' %}";
     var upgradeCheckout = "{% url 'service:checkout' %}";
     </script>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'service/js/form.js' %}"></script>
 {% endblock %}

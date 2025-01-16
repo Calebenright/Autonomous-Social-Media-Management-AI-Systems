@@ -14,7 +14,7 @@ credentials = service_account.Credentials.from_service_account_file('credentials
 db = firestore.Client(project='feed-ai-c379d')
 
 def feadlio_automatic_manager_task_creator():
-    users_ref = db.collection(u'users').document(u'CwJacPGQ5Bg9SD0NHeRl9bWP3yw1')
+    users_ref = db.collection(u'users').document(u'sfZWwXPjTvXBGuVfXJkDDVjYzS33')
     doc = users_ref.get()
 
     user = doc.to_dict()
@@ -27,4 +27,4 @@ def feadlio_automatic_manager_task_creator():
 
 feadlio_automatic_manager_task_creator()
 
-# pecknatasha14@gmail.com
+# enrighttube@gmail.com

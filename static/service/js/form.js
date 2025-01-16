@@ -9,7 +9,7 @@ if ($('[data-plugins="dropify"]').length > 0) {
             error: "Ooops, something wrong happened."
         },
         error: {
-            fileSize: "The file size is too big (1M max)."
+            fileSize: "The file size is too big (300mb max)."
         }
     });
 }
@@ -64,10 +64,11 @@ if (folder_value) {
 const thumbnailsContainer = document.getElementById('thumbnails-container');
 const uploadOverlay = document.getElementById('upload-overlay');
 const progressBar = document.getElementById('upload-progress-bar');
-
+const submitButton = document.getElementById('submit-button');
 
 if (input) {
     input.addEventListener('change', function () {
+        submitButton.disabled = true;
         const files = input.files;
         if (files.length > 0) {
             const file = files[0];
@@ -101,6 +102,11 @@ if (input) {
             formData.append('file_name', file.name);
             formData.append('folder_name', folder_name);
             formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+            
+            const fileName = document.getElementById('file_name');
+            if (fileName) {
+                fileName.value = file.name;
+            }
 
             fetch(sendForm, {
                 method: 'POST',
@@ -134,11 +140,16 @@ if (input) {
                                 body: JSON.stringify({ folder_name, file_name: fileName })
                             })
                             .then(response => response.json())
+                            .then(data => {
+                                submitButton.disabled = false;
+                            })
                             .catch(error => {
                                 console.error('Error making file public:', error);
+                                submitButton.disabled = false;
                                 alert('Failed to make the file public');
                             });
                         } else {
+                            submitButton.disabled = false;
                             alert('File upload failed.');
                         }
                     });

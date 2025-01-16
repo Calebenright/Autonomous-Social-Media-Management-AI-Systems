@@ -8,7 +8,7 @@
     <div class="content">
         <div class="container-fluid">
 
-            {% if not user_settings.isSubscriber %}
+            {% if not user_settings.isUnlimited %}
             <style>
                 .lock-overlay {
                     position: fixed;
@@ -260,17 +260,21 @@
             </div><!-- end col -->
         </div>
     </div>
-    <script type="module" src="{% static 'dashboard/js/pages/post_creator.js' %}"></script>
-    <script src="{% static 'dashboard/js/pages/post_switcher.js' %}"></script>
     <script>
-        const tagsArray = '{{ user_settings.tags|safe }}' !== '' ?
-                    JSON.parse('{{ user_settings.tags|safe }}') : [];
+        const tagsArray = `{{ user_settings.tags|safe }}` !== '' ?
+                    JSON.parse(`{{ user_settings.tags|safe }}`) : [];
         const gifStart = "{% static 'dashboard/gifs/load-start.gif' %}"
         const gifDone = "{% static 'dashboard/gifs/load-done.gif' %}"
         var jsonDump2 = {
-            selectedOption: '{{ selected_option }}',
-            businessDescription: '{{ user_settings.business_description }}',
+            selectedOption: `{{ selected_option }}`,
+            businessDescription: `{{ user_settings.business_description }}`,
             add_graphics: "{% url 'add_graphics' %}"
         };
     </script>
+    <script type="module" src="{% static 'dashboard/js/pages/post_creator.js' %}"></script>
+    <script src="{% static 'dashboard/js/pages/post_switcher.js' %}"></script>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'service/js/form.js' %}"></script>
 {% endblock %}

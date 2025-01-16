@@ -203,6 +203,7 @@ function uploadPhoto(signedUrl, photoFile) {
         if (xhr.readyState === 4) {
             if (xhr.status === 200) {
                 document.getElementById('image-url').value = photoFile.name;
+                showSpinner();
                 sendPhotoTagForm();
             } else {
                 alert('Error uploading photo: ' + xhr.statusText);
@@ -394,6 +395,7 @@ function uploadVideo(signedUrl, videoFile) {
 function sendVideoTagForm() {
     updateHiddenvideoInput();
     document.getElementById('videoTagForm').submit();
+    showSpinner();
 }
 
 function updateHiddenvideoInput() {

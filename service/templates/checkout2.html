@@ -1,0 +1,138 @@
+{% extends "service_base.html" %}
+
+{% block title %}Checkout{% endblock %}
+{% block name %}Checkout{% endblock %}
+
+{% block content %}
+    {% load static %}
+    <div class="content">
+        <div class="container-fluid">
+            <div class="row">
+                {% if messages %}
+                <ul class="messages">
+                    {% for message in messages %}
+                        <li class="{{ message.tags }}" data-message-id="{{ forloop.counter }}">
+                            {{ message }}
+                            <span class="closebtn" onclick="closeMessage(this);">&times;</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+                <div class="col-lg-12">
+                    <div class="card">
+                        <div class="card-body generated-post">
+                            <h4>Please choose a plan to continue!</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-12">
+                    <div class="card">
+                            <div class="row">
+                                <div class="discount-banner">
+                                    <div class="banner-content">
+                                        <p><span class="discount-code">Free</span> for a limited time!!!</p>
+                                        <p>Hurry! Offer ends in <span id="countdown"></span></p>
+                                    </div>
+                                </div>
+                                <script>
+                                    function initializeCountdown() {
+                                        // Get the current date and time
+                                        var now = new Date().getTime();
+
+                                        // Set the countdown duration (5 minutes)
+                                        var countDownDate = now + (5 * 60 * 1000); // 5 minutes in milliseconds
+
+                                        // Save the countdown end date in localStorage
+                                        localStorage.setItem('countDownEndDate', countDownDate);
+
+                                        // Update the countdown every 1 second
+                                        var x = setInterval(function() {
+                                            // Retrieve the end date from localStorage
+                                            var savedCountDownDate = localStorage.getItem('countDownEndDate');
+                                            var now = new Date().getTime();
+                                            var distance = savedCountDownDate - now;
+
+                                            // Time calculations for days, hours, minutes, and seconds
+                                            var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                                            var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                                            // Display the result in the element with id="countdown"
+                                            document.getElementById("countdown").innerHTML = minutes + "m " + seconds + "s ";
+
+                                            // If the countdown is finished, write some text
+                                            if (distance < 0) {
+                                                clearInterval(x);
+                                                document.getElementById("countdown").innerHTML = "EXPIRED";
+                                            }
+                                        }, 1000);
+                                    }
+
+                                    initializeCountdown();
+                                </script>
+                            </div>
+                    </div>
+                </div>
+                <div class="col-lg-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="pricing-center">
+                                    <!-- <div class="col-pricing pricing-card card-content">
+                                        <p class="pricing-title">Social Media Team</p>
+                                        <h2 class="pricing-header">
+                                            <span class="sale-price-lite" id="standard-original-price">$10</span>
+                                            <span class="pricing-duration sans">/MO</span>
+                                        </h2>
+                                        <a href="#" id="checkout-1" class="pricing-button pricing-button-secondary full-width space-top" role="button">Free Trial</a>
+                                        <div class="vertical-line"></div>
+                                        <p class="paragraph space-top">Social Media Management Plan</p>
+                                        <ul class="space-bottom">
+                                            <li>Social Media Automation.</li>
+                                            <li>8 posts a month.</li>
+                                            <li>Custom posts.</li>
+                                            <li>Email updates.</li>
+                                        </ul>
+                                    </div> -->
+                                    <div class="col-pricing pricing-card card-content most-popular">
+                                        <div class="most-popular-tag">Most Popular</div>
+                                            <p class="pricing-title">Marketing Team</p>
+                                            <h2 class="pricing-header">
+                                                <span class="original-price-wrapper">
+                                                    <span class="pricing-price original-price" id="standard-original-price">$30</span>
+                                                </span>
+                                                <span class="sale-price">Free</span>
+                                                <span class="pricing-duration sans">First 10 Days</span>
+                                            </h2>
+                                            <a href="#" id="checkout-2" class="pricing-button pricing-button-primary full-width space-top" role="button">Subscribe</a>
+                                            <div class="vertical-line"></div>
+                                            <p class="paragraph space-top">Proffesional Marketing Team Plan</p>
+                                            <ul class="space-bottom">
+                                                <li>Social Media Automation.</li>
+                                                <li>Graphic Designer.</li>
+                                                <li>Video Editor.</li>
+                                                <li>Everything you need to market, promote, and earn money online.</li>
+                                                <li>Your personalized marketing team.</li>
+                                                <li>Lots of value for a low price!</li>
+                                            </ul>
+                                        <div class="sale-tag">FREE</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <script>
+                const tagsArray = '{{ user_settings.tags|safe }}' !== '' ?
+                JSON.parse('{{ user_settings.tags|safe }}') : [];
+                
+                const imageTagsArray = '{{ user_settings.image_tags|safe }}' !== '' ?
+                JSON.parse('{{ user_settings.image_tags|safe }}') : [];
+
+                ENVIRONMENT = '{{ ENVIRONMENT }}';
+            </script>
+        </div> <!-- container-fluid -->
+    </div> <!-- content -->
+    <script src="{% static 'service/js/checkout.js' %}"></script>
+{% endblock %}
+    

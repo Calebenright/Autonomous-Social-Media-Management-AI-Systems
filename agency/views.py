@@ -467,6 +467,28 @@ def archive(request, document_id):
 
     return redirect('agency:clients')
 
+def subscribe(request, document_id):
+    try:
+        user_doc_ref = db.collection('users').document(document_id)
+        user_doc = user_doc_ref.get()
+
+        if not user_doc.exists:
+            messages.error(request, 'User not found.')
+            return redirect('agency:clients')
+        
+        user_data = user_doc.to_dict()
+        
+        data = {
+            'isSubscriber': not user_data.get('isSubscriber', False),
+        }
+        user_doc_ref.update(data)
+        messages.success(request, f"isSubscriber is {not user_data.get('isSubscriber', False)}.")
+
+    except Exception as e:
+        messages.error(request, f'An error occurred: {str(e)}')
+
+    return redirect('agency:clients')
+
 def add_account(request, agency_id):
     if request.method == 'POST':
         agency_master_query = db.collection('users').where('agency_id', '==', agency_id).where('agency_master', '==', True).stream()

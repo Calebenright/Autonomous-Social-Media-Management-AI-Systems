@@ -1,0 +1,100 @@
+{% extends "store_base.html" %}
+
+{% block title %}
+Products
+{% endblock %}
+
+{% block class %}class="product-page shop"{% endblock %}
+
+{% block content %}
+    {% load static %}
+                <div class="section">
+                    <div class="products-in-category-tabs-wrapper container">
+                      <div class="products-content">
+                        <div class="woocommerce product-listing columns-4">
+                          <div class="desc-review-content tab-content clearfix">
+                            <div id="1a" class="tab-pane active">
+                              <div class="product-item-wrap has-post-thumbnail">
+                                <div class="product-item-inner">
+                                  <div class="product-thumb">
+                                    <div class="product-flash-wrap"><span class="on-sale product-flash">80%</span><span class="on-sale product-flash">Sale</span></div>
+                                    <div class="product-thumb-primary"><img width="300" height="400" src="{% static 'store\images\demo\3Box2.png' %}" alt="42" title="42" class="attachment-shop_catalog size-shop_catalog wp-post-image"></div>
+                                    <div class="product-thumb-secondary"><img width="300" height="400" src="{% static 'store\images\demo\3Box2.png' %}" alt="47" class="attachment-shop_catalog size-shop_catalog"></div><a href="{% url 'store:item1' %}" class="product-link">
+                                      <div class="product-hover-sign">
+                                        <hr>
+                                        <hr>
+                                      </div></a>
+                                    <div class="product-actions">
+                                      <div class="yith-wcwl-add-to-wishlist add-to-wishlist-384">
+                                        <div class="yith-wcwl-add-button show"><a href="#" class="add_to_wishlist"><i class="fa fa-heart-o"></i>    Add to Wishlist</a></div>
+                                      </div>
+                                      <div class="woocommerce product compare-button"><a href="#" class="compare button">Compare</a></div>
+                                      <div class="add-to-cart-wrap"><a rel="nofollow" href="#" class="product_type_external button product_type_external"><i class="fa fa-info"></i> Buy Now</a></div><a href="#" class="product-quick-view"><i class="fa fa-search"></i>Quick view</a>
+                                    </div>
+                                  </div>
+                                  <div class="product-info">
+                                    <div class="rate"><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i></div><span class="price">
+                                      <del><span class="woocommerce-Price-amount amount"><span class="woocommerce-Price-currencySymbol">$</span>499.00</span></del><ins><span class="woocommerce-Price-amount amount"><span class="woocommerce-Price-currencySymbol">$</span>99.00</span></ins></span><a href="{% url 'store:item1' %}" target="_blank">
+                                      <h3>Feadl.io Automated Social Media Bundle (3-in-1)</h3></a>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="product-item-wrap has-post-thumbnail">
+                              <div class="product-item-inner">
+                                <div class="product-thumb">
+                                  <div class="product-flash-wrap"></div>
+                                  <div class="product-thumb-primary"><img width="300" height="400" src="{% static 'store\images\thumbnails\S934da8a824b54f539df7a0ef05bd9cf4D.png' %}" alt="41" title="41" class="attachment-shop_catalog size-shop_catalog wp-post-image"></div>
+                                  <div class="product-thumb-secondary"><img width="300" height="400" src="{% static 'store\images\thumbnails\S934da8a824b54f539df7a0ef05bd9cf4D.png' %}" alt="38" class="attachment-shop_catalog size-shop_catalog"></div><a href="{% url 'store:item2' %}" class="product-link">
+                                    <div class="product-hover-sign">
+                                      <hr>
+                                      <hr>
+                                    </div></a>
+                                  <div class="product-actions">
+                                    <div class="yith-wcwl-add-to-wishlist add-to-wishlist-386">
+                                      <div class="yith-wcwl-wishlistexistsbrowse show"><span class="feedback">The product is already in the wishlist!</span><a href="#">Browse Wishlist</a></div>
+                                    </div>
+                                    <div class="woocommerce product compare-button"><a href="#" data-product_id="386" rel="nofollow" class="compare button">Compare</a></div>
+                                    <div class="add-to-cart-wrap"><a href="#" class="add_to_cart_button"><i class="fa fa-cart-plus"></i> Add to cart</a></div><a href="#" class="product-quick-view"><i class="fa fa-search"></i>Quick view</a>
+                                  </div>
+                                </div>
+                                <div class="product-info">
+                                  <div class="rate"><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star-o"></i></div><span class="price"><span class="woocommerce-Price-amount amount"><span class="woocommerce-Price-currencySymbol">$</span>198.00</span></span><a href="{% url 'store:item2' %}" target="_blank">
+                                    <h3>Feadl.io 8TB SSD File Storage</h3></a>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="product-item-wrap has-post-thumbnail">
+                              <div class="product-item-inner">
+                                <div class="product-thumb">
+                                  <div class="product-flash-wrap"></div>
+                                  <div class="product-thumb-primary"><img width="300" height="400" src="{% static 'store\images\thumbnails\S934da8a824b54f539df7a0ef05bd9cf4D.png' %}" alt="41" title="41" class="attachment-shop_catalog size-shop_catalog wp-post-image"></div>
+                                  <div class="product-thumb-secondary"><img width="300" height="400" src="{% static 'store\images\thumbnails\S934da8a824b54f539df7a0ef05bd9cf4D.png' %}" alt="38" class="attachment-shop_catalog size-shop_catalog"></div><a href="{% url 'store:item2' %}" class="product-link">
+                                    <div class="product-hover-sign">
+                                      <hr>
+                                      <hr>
+                                    </div></a>
+                                  <div class="product-actions">
+                                    <div class="yith-wcwl-add-to-wishlist add-to-wishlist-386">
+                                      <div class="yith-wcwl-wishlistexistsbrowse show"><span class="feedback">The product is already in the wishlist!</span><a href="#">Browse Wishlist</a></div>
+                                    </div>
+                                    <div class="woocommerce product compare-button"><a href="#" data-product_id="386" rel="nofollow" class="compare button">Compare</a></div>
+                                    <div class="add-to-cart-wrap"><a href="#" class="add_to_cart_button"><i class="fa fa-cart-plus"></i> Add to cart</a></div><a href="#" class="product-quick-view"><i class="fa fa-search"></i>Quick view</a>
+                                  </div>
+                                </div>
+                                <div class="product-info">
+                                  <div class="rate"><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i></div><span class="price"><span class="woocommerce-Price-amount amount"><span class="woocommerce-Price-currencySymbol">$</span>198.00</span></span><a href="{% url 'store:item2' %}" target="_blank">
+                                    <h3>Feadl.io Interactive Piano - Learn quick with timed light up keys and filled with your favorite pop songs!</h3></a>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <!-- <a href="#" class="load-more-shop">Load more</a> -->
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+{% endblock %}
+
+{% block scripts %}
+{% endblock %}

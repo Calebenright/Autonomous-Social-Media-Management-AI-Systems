@@ -1,0 +1,843 @@
+.taghover_tag {
+  visibility: visible;
+  opacity: 1;
+  transform: translateY(-3px);
+  transition: all 0.5s ease 0s;
+}
+.tag_taghover {
+  visibility: hidden;
+  opacity: 0;
+  transform: translateY(150px);
+  transition: all 0.5s ease 0s;
+}
+@media (min-width: 1201px) {
+  .container {
+    width: 1200px;
+  }
+}
+@media (min-width: 992px) and (max-width: 1200px) {
+  .container {
+    width: 970px;
+  }
+}
+@media (min-width: 768px) and (max-width: 991px) {
+  .container {
+    width: 750px;
+  }
+}
+/*------------------------------------------------------------------------
+ACCORDION SHORTCODE
+TAB SHORTCODE
+COUNTER SHORTCODE
+PROGRESS BAR SHORTCODE
+PIE CHART
+BUTTON SHORTCODE
+SLIDER
+------------------------------------------------------------------------ */
+/**/
+/**/
+/**/
+/* --------------------------------------------------------------------- */
+/* ACCORDION SHORTCODE
+/* --------------------------------------------------------------------- */
+[class*="yolo-accordion-style-"]:before,
+[class*="yolo-accordion-style-"]:after {
+  content: " ";
+  clear: both;
+  display: table;
+}
+.yolo-accordion-style-1 .panel-group .panel {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  margin-bottom: 2px;
+}
+.yolo-accordion-style-1 .panel-group .panel:last-child {
+  margin-bottom: 0 !important;
+}
+.yolo-accordion-style-1 .panel-group .panel-heading {
+  padding: 0;
+}
+.yolo-accordion-style-1 .panel-group .panel-title {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+.yolo-accordion-style-1 .panel-group .panel-title a {
+  display: table;
+  table-layout: fixed;
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 20px;
+  font-weight: bold;
+  text-decoration: none;
+  padding: 10px 15px;
+}
+.yolo-accordion-style-1 .panel-group .panel-title a .text,
+.yolo-accordion-style-1 .panel-group .panel-title a .icon {
+  display: table-cell;
+  vertical-align: middle;
+  padding: 10px 0;
+}
+.yolo-accordion-style-1 .panel-group .panel-title a .text {
+  padding-left: 15px;
+}
+.yolo-accordion-style-1 .panel-group .panel-title a .icon {
+  width: 50px;
+  text-align: right;
+  padding-right: 15px;
+}
+.yolo-accordion-style-1 .panel-group .panel-title a .icon-default {
+  display: block;
+}
+.yolo-accordion-style-1 .panel-group .panel-title a .icon-active {
+  display: none;
+}
+.yolo-accordion-style-1 .panel-group .panel-title a,
+.yolo-accordion-style-1 .panel-group .panel-title a:hover {
+  color: #fff;
+  background: #ffdc73;
+}
+.yolo-accordion-style-1 .panel-group .panel-title a.collapsed {
+  color: #808080;
+  background: #f5f5f5;
+}
+.yolo-accordion-style-1 .panel-group .panel-title a.collapsed .icon-default {
+  display: none;
+}
+.yolo-accordion-style-1 .panel-group .panel-title a.collapsed .icon-active {
+  display: block;
+}
+.yolo-accordion-style-1 .panel-group .panel-heading:hover .panel-title a,
+.yolo-accordion-style-1 .panel-group .panel-heading.active .panel-title a {
+  color: #fff;
+  background: #ffdc73;
+}
+.yolo-accordion-style-1 .panel-group .panel-body {
+  background: #fff;
+  border: 1px solid #f5f5f5;
+}
+.yolo-accordion-style-2 .panel-group {
+  padding: 0;
+  margin: 0;
+}
+.yolo-accordion-style-2 .panel {
+  background: #fff;
+  border: 2px solid #f2f2f2;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 0;
+  margin: 0;
+}
+.yolo-accordion-style-2 .panel:not(:last-child) {
+  border-bottom: 0 none;
+}
+.yolo-accordion-style-2 .panel + .panel {
+  margin: 0;
+}
+.yolo-accordion-style-2 .panel-heading {
+  background: none transparent;
+  border: 0 none;
+  border-radius: 0;
+  padding: 0;
+  margin: 0;
+}
+.yolo-accordion-style-2 .panel-heading a {
+  display: block;
+  position: relative;
+  background: #fff;
+  padding: 20px 20px;
+}
+@media screen and (max-width: 767px) {
+  .yolo-accordion-style-2 .panel-heading a {
+    padding: 12px;
+  }
+}
+.yolo-accordion-style-2 .panel-heading a:hover,
+.yolo-accordion-style-2 .panel-heading a:active {
+  background: #f7f7f7;
+}
+.yolo-accordion-style-2 .panel-heading .collapse-title {
+  font-family: 'Ubuntu', sans-serif;
+  font-weight: bold;
+  font-size: 14px;
+  color: #222;
+  text-transform: uppercase;
+  padding: 0 0 0 25px;
+}
+.yolo-accordion-style-2 .panel-heading .collapse-title img {
+  margin-left: 30px;
+}
+.yolo-accordion-style-2 .panel-heading .icon-circle,
+.yolo-accordion-style-2 .panel-heading .icon-minus-plus {
+  position: absolute;
+  top: 50%;
+  bottom: auto;
+  transform: translate(0, -50%);
+  color: #a5a1a0;
+}
+.yolo-accordion-style-2 .panel-heading .icon-circle {
+  display: block;
+  left: 20px;
+  right: auto;
+  width: 16px;
+  height: 16px;
+  font-size: 14px;
+  color: #a5a1a0;
+  background: #fff;
+  border: 1px solid #cbcbcb;
+  border-radius: 50%;
+}
+@media screen and (max-width: 767px) {
+  .yolo-accordion-style-2 .panel-heading .icon-circle {
+    left: 12px;
+  }
+}
+.yolo-accordion-style-2 .panel-heading .icon-circle:after {
+  display: block;
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  right: auto;
+  bottom: auto;
+  transform: translate(-50%, -50%);
+  width: 8px;
+  height: 8px;
+  background: #ffdc73;
+  border-radius: 50%;
+}
+.yolo-accordion-style-2 .panel-heading .icon-minus-plus {
+  right: 20px;
+  left: auto;
+}
+.yolo-accordion-style-2 .panel-heading .icon-minus-plus:before {
+  content: "\f068";
+}
+.yolo-accordion-style-2 .panel-heading .collapsed .icon-circle:after {
+  display: none;
+}
+.yolo-accordion-style-2 .panel-heading .collapsed .icon-minus-plus:before {
+  content: "\f067";
+}
+.yolo-accordion-style-2 .panel-body {
+  border-top: 2px solid #f2f2f2 !important;
+  padding: 15px 15px 15px 45px;
+}
+@media screen and (max-width: 767px) {
+  .yolo-accordion-style-2 .panel-body {
+    padding: 12px;
+  }
+}
+.yolo-accordion-style-3 .panel-group {
+  padding: 0;
+  margin: 0;
+}
+.yolo-accordion-style-3 .panel {
+  background: #fff;
+  border: 0 none;
+  border-bottom: 1px solid #f2f2f2;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 0;
+  margin: 0;
+}
+.yolo-accordion-style-3 .panel + .panel {
+  margin: 0;
+}
+.yolo-accordion-style-3 .panel-heading {
+  background: none transparent;
+  border: 0 none;
+  border-radius: 0;
+  padding: 0;
+  margin: 0;
+}
+.yolo-accordion-style-3 .panel-heading a {
+  display: block;
+  position: relative;
+  font-family: 'Ubuntu', sans-serif;
+  font-weight: bold;
+  font-size: 14px;
+  color: #222;
+  background: #fff;
+  text-transform: uppercase;
+  padding: 28px 0;
+}
+@media screen and (max-width: 991px) {
+  .yolo-accordion-style-3 .panel-heading a {
+    padding: 15px 12px;
+  }
+}
+@media screen and (min-width: 992px) {
+  .yolo-accordion-style-3 .panel-heading a:hover {
+    color: #ffdc73;
+  }
+}
+.yolo-accordion-style-3 .panel-heading a:active {
+  background: #f7f7f7;
+}
+.yolo-accordion-style-3 .panel-body {
+  border-top: 2px solid #ffdc73 !important;
+  padding: 25px 15px 25px 50px;
+}
+@media screen and (max-width: 991px) {
+  .yolo-accordion-style-3 .panel-body {
+    padding: 25px 15px;
+  }
+}
+/* --------------------------------------------------------------------- */
+/* TAB SHORTCODE
+/* --------------------------------------------------------------------- */
+[class*="yolo-tab-style-"]:before,
+[class*="yolo-tab-style-"]:after {
+  content: " ";
+  clear: both;
+  display: table;
+}
+.yolo-tab-style-1 {
+  width: 100%;
+}
+.yolo-tab-style-1 .nav-tabs {
+  border-bottom: 0;
+}
+.yolo-tab-style-1 .nav-tabs > li {
+  float: left;
+  width: 25% !important;
+  margin-bottom: -1px;
+}
+@media screen and (max-width: 767px) {
+  .yolo-tab-style-1 .nav-tabs > li {
+    float: none;
+    width: 100% !important;
+    margin-bottom: 2px;
+  }
+}
+.yolo-tab-style-1 .nav-tabs > li > a {
+  margin-right: 0px;
+  font-size: 20px;
+  padding: 10px 0px;
+  color: #808080;
+  background-color: #e5e5e5;
+  text-align: center;
+  border: 1px solid transparent;
+  border-radius: 0;
+}
+.yolo-tab-style-1 .nav-tabs > li > a:hover {
+  border-color: transparent;
+  color: #fff;
+  background: #ffdc73;
+}
+.yolo-tab-style-1 .nav-tabs > li.active > a,
+.yolo-tab-style-1 .nav-tabs > li.active > a:hover,
+.yolo-tab-style-1 .nav-tabs > li.active > a:focus {
+  color: #808080;
+  border: 1px solid #ddd;
+  border-top-color: #ddd;
+  background-color: #fff;
+  border-bottom-color: transparent;
+  cursor: default;
+}
+.yolo-tab-style-1 .tab-content > .tab-pane {
+  border: 1px solid #e5e5e5;
+  padding: 40px 30px;
+  font-size: 16px;
+}
+.yolo-tab-style-2 {
+  width: 100%;
+}
+.yolo-tab-style-2 .nav-tabs {
+  float: left;
+  width: 22.5%;
+  border-bottom: 0;
+}
+@media screen and (max-width: 767px) {
+  .yolo-tab-style-2 .nav-tabs {
+    float: none;
+    width: 100%;
+  }
+}
+.yolo-tab-style-2 .nav-tabs > li {
+  width: 25% !important;
+  float: none;
+  border: none;
+  min-width: 100%;
+  margin-bottom: 0;
+}
+.yolo-tab-style-2 .nav-tabs > li > a {
+  margin-right: 0px;
+  font-size: 20px;
+  padding: 10px 0px;
+  color: #808080;
+  background-color: #e5e5e5;
+  text-align: center;
+  border: 1px solid transparent;
+  border-radius: 0;
+}
+.yolo-tab-style-2 .nav-tabs > li > a:hover {
+  border-color: transparent;
+  color: #fff;
+  background: #ffdc73;
+}
+.yolo-tab-style-2 .nav-tabs > li.active > a,
+.yolo-tab-style-2 .nav-tabs > li.active > a:hover,
+.yolo-tab-style-2 .nav-tabs > li.active > a:focus {
+  color: #808080;
+  border: 1px solid #ddd;
+  border-top-color: #ddd;
+  background-color: #fff;
+  border-bottom-color: transparent;
+  cursor: default;
+}
+.yolo-tab-style-2 .tab-content > .tab-pane {
+  border: 1px solid #e5e5e5;
+  padding: 40px 30px;
+  font-size: 16px;
+}
+.yolo-tab-style-2 .nav-tabs > li:hover {
+  color: rgba(0, 0, 0, 0);
+}
+.yolo-tab-style-2 .nav-tabs > li > a {
+  border-width: 1px 0 1px 1px;
+  margin-right: -1px;
+  margin-bottom: 2px;
+  padding: 10px 0;
+  border: 1px solid #ddd;
+  border-right-color: transparent;
+  text-align: left;
+  font-size: 20px;
+  padding-left: 30px;
+  background-color: #e5e5e5;
+}
+.yolo-tab-style-2 .nav-tabs > li > a:hover {
+  background: #ffdc73;
+  border: 1px solid #ddd;
+  border-right-color: transparent;
+}
+.yolo-tab-style-2 .nav-tabs > li.active > a,
+.yolo-tab-style-2 .nav-tabs > li.active > a:hover,
+.yolo-tab-style-2 .nav-tabs > li.active > a:focus {
+  background: #ffdc73;
+  color: #fff;
+  border: 1px solid #ddd;
+  border-top-color: #ddd;
+  border-right-color: transparent;
+  cursor: default;
+  border-width: 1px 0 1px 1px;
+}
+.yolo-tab-style-2 .tab-content {
+  min-height: 212px;
+  float: right;
+  width: 77.5%;
+}
+@media screen and (max-width: 767px) {
+  .yolo-tab-style-2 .tab-content {
+    float: none;
+    width: 100%;
+  }
+}
+.yolo-tab-style-2 .tab-content .tab-pane.active {
+  padding: 26px 30px;
+}
+.yolo-tab-style-3 {
+  border-top: 1px solid #f2f2f2;
+}
+.yolo-tab-style-3 .tab-list {
+  border-bottom: 2px solid #f6f6f6;
+  padding: 0 30px;
+}
+@media screen and (max-width: 1199px) {
+  .yolo-tab-style-3 .tab-list {
+    padding: 0 15px;
+  }
+}
+@media screen and (max-width: 767px) {
+  .yolo-tab-style-3 .tab-list {
+    padding: 0 12px;
+  }
+}
+.yolo-tab-style-3 .tab-list > li {
+  outline: 0;
+  margin-right: 20px;
+  margin-bottom: -2px;
+}
+@media screen and (max-width: 1199px) {
+  .yolo-tab-style-3 .tab-list > li {
+    margin-right: 10px;
+  }
+}
+.yolo-tab-style-3 .tab-list > li:last-child {
+  margin-right: 0 !important;
+}
+.yolo-tab-style-3 .tab-list > li > a {
+  font-family: 'Ubuntu', sans-serif;
+  font-weight: bold;
+  font-size: 16px;
+  color: #b2b2b2;
+  background: none transparent;
+  text-transform: uppercase;
+  border: 0 none;
+  border-bottom: 2px solid transparent;
+  outline: 0;
+  padding: 20px 0;
+}
+@media screen and (max-width: 767px) {
+  .yolo-tab-style-3 .tab-list > li > a {
+    font-size: 14px;
+    padding: 10px 0;
+  }
+}
+.yolo-tab-style-3 .tab-list > li.active > a,
+.yolo-tab-style-3 .tab-list > li > a:hover,
+.yolo-tab-style-3 .tab-list > li > a:active {
+  color: #222;
+  border: 0 none;
+  border-bottom: 2px solid transparent;
+}
+.yolo-tab-style-3 .tab-list > li.active > a {
+  border-bottom: 2px solid #ffdc73;
+}
+.yolo-tab-style-3 .tab-content .tab-pane {
+  color: #595959;
+  padding: 30px;
+}
+@media screen and (max-width: 1199px) {
+  .yolo-tab-style-3 .tab-content .tab-pane {
+    padding: 15px;
+  }
+}
+@media screen and (max-width: 767px) {
+  .yolo-tab-style-3 .tab-content .tab-pane {
+    padding: 12px;
+  }
+}
+/* --------------------------------------------------------------------- */
+/* COUNTER SHORTCODE
+/* --------------------------------------------------------------------- */
+.yolo-counter-style-1 {
+  text-align: center;
+}
+.yolo-counter-style-1 .content-number {
+  font-family: 'Ubuntu', sans-serif;
+  font-size: 72px;
+  font-weight: bold;
+}
+.yolo-counter-style-1 .content-title {
+  font-size: 24px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+/* --------------------------------------------------------------------- */
+/* PROGRESS BAR SHORTCODE
+/* --------------------------------------------------------------------- */
+@keyframes animationProgressBar {
+  0% {
+    width: 0;
+  }
+  100% {
+    width: 100%;
+  }
+}
+.yolo-progress-bar .progress {
+  position: relative;
+  overflow: visible;
+  background-image: none;
+  border-radius: 4px;
+  margin-bottom: 0;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+}
+.yolo-progress-bar .progress .progress-bar-wrap {
+  height: 100%;
+  position: relative;
+}
+.yolo-progress-bar .progress .progress-bar-wrap .progress-bar {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  -o-border-radius: 4px;
+  border-radius: 4px;
+}
+.yolo-progress-bar .progress .progress-bar-wrap .progress-bar.go {
+  animation: animationProgressBar 1.5s ease-out;
+}
+.yolo-progress-bar.lean-bars {
+  padding-top: 20px;
+}
+.yolo-progress-bar.lean-bars .progress {
+  height: 5px;
+}
+.yolo-progress-bar.lean-bars .progress .progress_title,
+.yolo-progress-bar.lean-bars .progress .progress_label {
+  position: absolute;
+  top: -25px;
+  color: #302e38;
+  font-size: 16px;
+  font-weight: 300;
+}
+.yolo-progress-bar.lean-bars .progress .progress_title {
+  left: 0;
+}
+.yolo-progress-bar.lean-bars .progress .progress_label {
+  right: 0;
+}
+.yolo-progress-bar.thick-bars .progress {
+  height: 30px;
+}
+.yolo-progress-bar.thick-bars .progress .progress_title {
+  float: left;
+  padding: 5px 0 0 15px;
+}
+.yolo-progress-bar.thick-bars .progress .progress_label {
+  float: right;
+  padding: 5px 15px 0 0;
+}
+.yolo-progress-bar.thick-bars .progress .progress-bar {
+  font-size: 16px;
+}
+.progress-bar-primary {
+  background-color: #ffdc73;
+}
+/* --------------------------------------------------------------------- */
+/* PIE CHART
+/* --------------------------------------------------------------------- */
+.yolo-progress-circle {
+  width: 200px;
+  position: relative;
+  text-align: center;
+  transform-style: preserve-3d;
+}
+.yolo-progress-circle svg {
+  margin: 0 auto;
+}
+.yolo-progress-circle-content,
+.yolo-progress-circle-number,
+.yolo-progress-circle-label,
+.yolo-progress-circle-icon {
+  width: 100%;
+  position: absolute;
+  top: 50%;
+  left: 0;
+  bottom: auto;
+  right: auto;
+  transform: translate(0, -50%);
+  z-index: 10;
+}
+.yolo-progress-circle-number {
+  font-size: 42px;
+}
+.yolo-progress-circle-label {
+  margin-top: 32px;
+  font-size: 12px;
+}
+.yolo-progress-circle-svg {
+  display: inline-block;
+  position: relative;
+  width: 100%;
+  padding-bottom: 100%;
+  vertical-align: middle;
+  overflow: hidden;
+}
+.yolo-progress-circle-svg svg {
+  display: inline-block;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+.yolo-progress-circle-style-1 {
+  width: 100%;
+  max-width: 216px;
+}
+.yolo-progress-circle-style-1 .yolo-progress-circle {
+  width: 100%;
+  overflow: visible;
+}
+.yolo-progress-circle-style-1 .yolo-progress-circle-number {
+  font-size: 28px;
+}
+.yolo-progress-circle-style-1 .yolo-progress-circle .circle-overflow {
+  display: block;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  bottom: auto;
+  right: auto;
+  transform: translate(-50%, -50%);
+  width: 104%;
+  height: 104%;
+  background: #f0e797;
+  border-radius: 50%;
+}
+.yolo-progress-circle-style-2 {
+  width: 100%;
+  max-width: 178px;
+  padding-bottom: 55px;
+}
+.yolo-progress-circle-style-2 .yolo-progress-circle {
+  width: 100%;
+}
+.yolo-progress-circle-style-2 .yolo-progress-circle-number {
+  font-size: 18px;
+  color: #fff;
+}
+.yolo-progress-circle-style-2 .circle-inner {
+  display: block;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  bottom: auto;
+  right: auto;
+  transform: translate(-50%, -50%);
+  width: 71%;
+  height: 71%;
+  background: none transparent;
+  border: 2px solid #009bfc;
+  border-radius: 50%;
+  transition: all 0.4s ease;
+}
+.yolo-progress-circle-style-2 .yolo-progress-circle-label {
+  position: absolute;
+  bottom: -58px;
+  left: 0;
+  top: auto;
+  right: auto;
+  transform: translate(0, 0);
+  width: 100%;
+  text-align: center;
+  margin: 0;
+}
+.yolo-progress-circle-style-2 .yolo-progress-circle-label,
+.yolo-progress-circle-style-2 .yolo-progress-circle-label a {
+  font-size: 18px;
+  font-weight: bold;
+  color: #fff;
+  text-transform: uppercase;
+  transition: all 0.4s ease;
+}
+/* --------------------------------------------------------------------- */
+/* SLIDER
+/* --------------------------------------------------------------------- */
+.yolo-caroufredsel {
+  position: relative;
+}
+.yolo-caroufredsel .caroufredsel_wrapper {
+  height: auto!important;
+}
+.yolo-caroufredsel .yolo-slider-wrapper {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  height: auto!important;
+  position: relative!important;
+}
+.yolo-caroufredsel .yolo-slider-wrapper:before,
+.yolo-caroufredsel .yolo-slider-wrapper:after {
+  content: " ";
+  clear: both;
+  display: table;
+}
+.yolo-caroufredsel .yolo-slider-item {
+  position: relative;
+  float: left;
+}
+.yolo-caroufredsel .yolo-slider-img {
+  width: 100%;
+}
+.yolo-caroufredsel .yolo-slider-control-btn {
+  position: absolute;
+  top: 50%;
+  bottom: auto;
+  transform: translate(0, -50%);
+  z-index: 1000;
+}
+.yolo-caroufredsel .yolo-slider-control-btn.prev {
+  left: 10px;
+  right: auto;
+}
+.yolo-caroufredsel .yolo-slider-control-btn.next {
+  right: 10px;
+  left: auto;
+}
+.yolo-caroufredsel .yolo-slider-indicators {
+  position: absolute;
+}
+.yolo-caroufredsel .yolo-slider-indicators:before,
+.yolo-caroufredsel .yolo-slider-indicators:after {
+  content: " ";
+  clear: both;
+  display: table;
+}
+.yolo-caroufredsel .yolo-slider-indicators,
+.yolo-caroufredsel .yolo-slider-indicators.center-bottom {
+  bottom: 20px;
+  left: 50%;
+  top: auto !important;
+  right: auto;
+  transform: translate(-50%, 0);
+}
+.yolo-caroufredsel .yolo-slider-indicators.center-top {
+  top: 20px !important;
+  left: 50%;
+  bottom: auto;
+  right: auto;
+  transform: translate(-50%, 0);
+}
+.yolo-caroufredsel .yolo-slider-indicators.left-center {
+  top: 50% !important;
+  left: 20px;
+  bottom: auto;
+  right: auto;
+  transform: translate(0, -50%);
+}
+.yolo-caroufredsel .yolo-slider-indicators.right-center {
+  top: 50% !important;
+  right: 20px;
+  bottom: auto;
+  left: auto;
+  transform: translate(0, -50%);
+}
+.yolo-caroufredsel .yolo-slider-indicators.left-top {
+  top: 20px !important;
+  left: 20px;
+  bottom: auto;
+  right: auto;
+  transform: translate(0, 0);
+}
+.yolo-caroufredsel .yolo-slider-indicators.left-bottom {
+  bottom: 20px;
+  left: 20px;
+  right: auto;
+  top: auto !important;
+  transform: translate(0, 0);
+}
+.yolo-caroufredsel .yolo-slider-indicators.right-top {
+  top: 20px !important;
+  right: 20px;
+  bottom: auto;
+  left: auto;
+  transform: translate(0, 0);
+}
+.yolo-caroufredsel .yolo-slider-indicators.right-bottom {
+  bottom: 20px;
+  right: 20px;
+  top: auto !important;
+  left: auto;
+  transform: translate(0, 0);
+}
+.yolo-caroufredsel .yolo-slider-timer {
+  position: absolute;
+  right: auto;
+  left: auto;
+  height: 3px;
+  background: #EFEDED;
+}
+.yolo-caroufredsel .yolo-slider-timer,
+.yolo-caroufredsel .yolo-slider-timer.top {
+  top: 0;
+  bottom: auto;
+}
+.yolo-caroufredsel .yolo-slider-timer.bottom {
+  bottom: 0;
+  top: auto;
+}

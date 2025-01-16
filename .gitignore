@@ -14,6 +14,7 @@ secrets_manager.py
 Staging Functions
 cors-config.json
 downloads
+business_data.csv
 
 # Ignore other files or directories
 node_modules/

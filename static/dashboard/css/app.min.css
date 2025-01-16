@@ -14782,12 +14782,12 @@ body[data-layout-color=dark] .user-pro-dropdown {
 }
 
 .navbar-custom {
-    background-color: var(--ct-body-bg);
+    /* background-color: var(--ct-body-bg); */
     padding: 0 calc(1.5rem / 2) 0 0;
     position: fixed;
     left: 0;
     right: 0;
-    height: 70px;
+    /* height: 70px; */
     z-index: 1001
 }
 
@@ -15548,7 +15548,7 @@ body[data-layout-mode=horizontal][data-layout-color=light][data-topbar-color=dar
 .topnav {
     background: var(--ct-bg-topbar-light);
     box-shadow: var(--ct-box-shadow);
-    margin-top: 70px;
+    /* margin-top: 70px; */
     padding: 0 calc(1.5rem / 2);
     position: fixed;
     left: 0;
@@ -15655,9 +15655,9 @@ body[data-layout-mode=horizontal][data-layout-color=light][data-topbar-color=dar
         display: none
     }
 
-    body[data-layout-mode=horizontal] .content-page {
+    /* body[data-layout-mode=horizontal] .content-page {
         padding: 55px 15px 65px 15px
-    }
+    } */
 }
 
 .arrow-down {

@@ -146,7 +146,7 @@ def get_library_content(user_id):
     try:
         user_settings_ref = db.collection('users').document(user_id)
         user_settings = user_settings_ref.get().to_dict() or {}
-        ftue_images = user_settings.get('ftue_images', [])
+        ftue_images = []
 
         business_description = user_settings.get('business_description', 'Social Media')
         key = create_search_term(business_description)

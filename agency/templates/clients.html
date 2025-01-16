@@ -55,6 +55,7 @@
     {% if firestore_data %}
         <table>
             <tr>
+                <th>UID</th>
                 <th>Business Name</th>
                 <th>Auto Posting</th>
                 <th>Upgraded Account</th>
@@ -63,11 +64,13 @@
                 <th>Needs Ad Review</th>
                 <th>Switch Into Service</th>
                 <th>View Tasks</th>
+                <th>Toggle Subscriber</th>
                 <th>Archive Account</th>
                 <th>Delete Account</th>
             </tr>
             {% for user in page_obj  %}
             <tr>
+                <td style="font-size: 9px;">{{ user.document_id }}</td>
                 <td>
                     <a href="{% url 'agency:service_switch' user.document_id %}">{{ user.business_name }}</a>
                 </td>
@@ -78,6 +81,7 @@
                 <td>{% if user.david_settings and user.david_settings.isLoading %}⚠️{% endif %}</td>
                 <td><a href="{% url 'agency:service_switch' user.document_id %}">🔀</a></td>
                 <td><a href="{% url 'agency:tasks' user.document_id %}">📁</a></td>
+                <td><a href="{% url 'agency:subscribe' user.document_id %}">♻️</a></td>
                 <td><a href="{% url 'agency:archive' user.document_id %}">🗃️</a></td>
                 <td><a href="{% url 'agency:delete' user.document_id %}">❌</a></td>
             </tr>

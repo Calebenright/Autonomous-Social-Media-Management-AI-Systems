@@ -1,0 +1,154 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta name="robots" content="noindex">
+    <meta charset="utf-8" />
+    <title>{% block title %}Base{% endblock %} | Feadl.io</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta content="An automonomous social media managing app and ad agency" name="description" />
+    <meta content="CJ Enright" name="author" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+    <!-- App favicon -->
+    <link rel="shortcut icon" href="{% static 'dashboard/images/favicon.ico' %}">
+
+    <!-- Google Tag Manager -->
+    <script>(function (w, d, s, l, i) {
+            w[l] = w[l] || []; w[l].push({
+                'gtm.start':
+                    new Date().getTime(), event: 'gtm.js'
+            }); var f = d.getElementsByTagName(s)[0],
+                j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : ''; j.async = true; j.src =
+                    'https://www.googletagmanager.com/gtm.js?id=' + i + dl; f.parentNode.insertBefore(j, f);
+        })(window, document, 'script', 'dataLayer', 'GTM-K42FBSFS');</script>
+    <!-- End Google Tag Manager -->
+
+    <!-- Vendor CSS-->
+    <link rel="stylesheet" type="text/css" href="{% static 'store/libs/bootstrap/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'store/libs/font-awesome/css/font-awesome.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'store/libs/animate/animated.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'store/libs/owl.carousel.min/owl.carousel.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'store/libs/jquery.mmenu.all/jquery.mmenu.all.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'store/libs/pe-icon-7-stroke/css/pe-icon-7-stroke.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'store/libs/direction/css/noJS.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'store/libs/prettyphoto-master/css/prettyPhoto.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'store/libs/slick-sider/slick.min.css' %}">
+
+    <!-- Template CSS-->
+    <link rel="stylesheet" type="text/css" href="{% static 'store/css/main.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'store/css/home.css' %}">
+
+</head>
+
+<!-- body start -->
+
+<body {% block class %}class="product-page single-product"{% endblock %}>
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-K42FBSFS" height="0" width="0"
+            style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+
+    <div class="sn-site">
+        <header class="header sn-header-style-1">
+            <a href="#primary-menu"><i class="fa fa-bars" style="margin-bottom: 5px;"></i></a>
+            <div class="container">
+                <div class="header-bottom">
+
+                    <div class="main-nav-wrapper header-left">
+                        <div class="header-logo pull-left"><a href="{% url 'store:products' %}" title="YOLO"><svg version="1.1"
+                                    id="Layer_1" xmlns="http://www.w3.org/2000/svg"
+                                    xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 250 250"
+                                    style="enable-background:new 0 0 250 250; width: 25px; height: 25px; vertical-align: middle"
+                                    xml:space="preserve" fill="#FFFFFF">
+                                    <g>
+                                        <g>
+                                            <path d="M113.2,143.6v90.7c0,3.8-3.1,6.9-6.9,6.9H15.6c-3.8,0-6.9-3.1-6.9-6.9v-90.7c0-3.8,3.1-6.9,6.9-6.9h90.7
+                            C110.1,136.7,113.2,139.9,113.2,143.6z" />
+                                        </g>
+                                        <g>
+                                            <path d="M241.2,15.6v90.7c0,3.8-3.1,6.9-6.9,6.9H15.6c-3.8,0-6.9-3.1-6.9-6.9V15.6c0-3.8,3.1-6.9,6.9-6.9h218.7
+                            C238.2,8.7,241.2,11.8,241.2,15.6z" />
+                                        </g>
+                                        <g>
+                                            <path d="M177.2,207.6v26.7c0,3.8-3.1,6.9-6.9,6.9h-26.7c-3.8,0-6.9-3.1-6.9-6.9v-26.7c0-3.8,3.1-6.9,6.9-6.9h26.7
+                            C174.1,200.7,177.2,203.9,177.2,207.6z" />
+                                        </g>
+                                        <g>
+                                            <path d="M241.2,207.6v26.7c0,3.8-3.1,6.9-6.9,6.9h-26.6c-3.8,0-6.9-3.1-6.9-6.9v-26.7c0-3.8,3.1-6.9,6.9-6.9h26.7
+                            C238.2,200.7,241.2,203.9,241.2,207.6z" />
+                                        </g>
+                                        <g>
+                                            <path d="M241.2,143.6v26.7c0,3.8-3.1,6.9-6.9,6.9h-90.7c-3.8,0-6.9-3.1-6.9-6.9v-26.7c0-3.8,3.1-6.9,6.9-6.9h90.7
+                            C238.1,136.7,241.2,139.9,241.2,143.6z" />
+                                        </g>
+                                    </g>
+                                </svg>
+                            </a></div>
+                        <!-- .header-logo-->
+
+                        <nav id="primary-menu" class="main-nav">
+                            <ul class="nav">
+                                <li class="active menu-item menu-home"><a href="{% url 'store:products' %}">Feadl.io</a>
+                                  </li>
+                            </ul>
+                            <div class="header-customize-item canvas-menu-toggle-wrapper">
+                            </div>
+                        </nav>
+                        <!-- .header-main-nav-->
+                    </div>
+
+                    <div class="main-nav-wrapper header-right">
+                        <div class="header-right-box">
+                            <div class="header-customize header-customize-right">
+                                <div class="shopping-cart-wrapper header-customize-item no-price style-default">
+                                    <div class="widget_shopping_cart_content">
+                                        <div class="widget_shopping_cart_icon"><i
+                                                class="wicon fa fa-cart-plus"></i><span class="total">0</span></div>
+                                        <div class="sub-total-text"><span class="woocommerce-Price-amount amount"><span
+                                                    class="woocommerce-Price-currencySymbol">$</span>0.00</span></div>
+                                        <div class="cart_list_wrapper">
+                                            <div class="scroll-wrapper cart_list product_list_widget scrollbar-inner">
+                                                <ul
+                                                    class="cart_list product_list_widget scrollbar-inner scroll-content">
+                                                    <li class="empty">
+                                                        <h4>An empty cart</h4>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                            <!-- end product list-->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- ============================================================== -->
+        <!-- Start Page Content here -->
+        <!-- ============================================================== -->
+
+        {% block content %}
+        <!-- This block will be overridden in child templates -->
+        {% endblock %}
+
+        <div id="loading-overlay">
+            <div class="spinner-grow text-info" role="status"></div>
+        </div>
+
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- End Page content -->
+    <!-- ============================================================== -->
+
+    {% block scripts %}
+    <!-- This block will be overridden in child templates -->
+    {% endblock %}
+</body>
+
+</html>

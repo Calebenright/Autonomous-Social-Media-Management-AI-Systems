@@ -21,6 +21,7 @@ urlpatterns = [
     path('admin/', include('admin.urls')),
     path('service/', include('service.urls')),
     path('agency/', include('agency.urls')),
+    path('store/', include('store.urls')),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 handler500 = error500

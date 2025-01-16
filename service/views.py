@@ -2,7 +2,6 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse, FileResponse
 import io
-from firebase_admin import firestore
 from firebase_admin.auth import EmailAlreadyExistsError
 from decouple import config
 from django.contrib import messages
@@ -14,7 +13,6 @@ from website.login import *
 from google.cloud import storage, firestore
 import random
 from django.core.mail import EmailMessage
-from datetime import datetime, timedelta, timezone
 from app.functions import *
 from app.get_images import *
 import json
@@ -33,6 +31,8 @@ from app.upload_article import *
 import uuid
 import pytz
 from django.contrib import messages
+import threading
+from datetime import datetime, timedelta, timezone
 
 db = firestore.Client(project=config('FIRESTORE_ID'))
 bucket_credentials = config('GS_CREDENTIALS')
@@ -96,6 +96,7 @@ def social_media(request):
             elaine_data = {
                 'isElaineEmail': isElaineEmail,
                 'ElaineEmail': request.POST.get('ElaineEmail'),
+                'posts_per_week': int(request.POST.get('posts_per_week', 0)),
             }
 
             elaine_doc_ref.set(elaine_data, merge=True)
@@ -148,12 +149,11 @@ def ftue(request):
             email = user_settings.get('email')
             business_name = user_settings.get('business_name')
             business_description = user_settings.get('business_description')
-            get_library_content(user_id)
             lead_ref = db.collection('service').document(email)
             lead_ref.set({'leadPriority': 3, 'user_id': user_id}, merge=True)
-            user_settings_ref.set({'service_ftue': '3', 'ftue': True}, merge=True)
+            user_settings_ref.set({'service_ftue': '2', 'ftue': True}, merge=True)
             email_template("New user has submitted FTUE", f"User {email} has submitted their FTUE form.\nBusiness Name: {business_name}\nBusiness Description: {business_description}")
-            messages.success(request, 'We are creating your posts now! Please select your favorite images to continue.')
+            messages.success(request, 'We are creating your posts now! Please select a plan to continue.')
             return redirect('service:ftue')
         
     if user_settings.get('service_ftue', '0') == '1':
@@ -217,6 +217,32 @@ def choose_images(request):
     return render(request, 'choose_images.html', context)
 
 
+def needs_images(request):
+    try:
+        # ----- Get the Firestore document reference for the user settings ----- #
+        user_id = request.session.get('user_id')
+        if not user_id:
+            return redirect('login')
+        user_settings_ref = db.collection('users').document(user_id)
+        elaine_ref = db.collection('users').document(user_id).collection('agents').document('elaine')
+        user_settings_doc = user_settings_ref.get()
+        user_settings = user_settings_doc.to_dict()
+        # ---------------------------------------------------------------------- #
+        pass
+    
+    except:
+        return redirect('login') 
+    # ---------------------------------------------------------------------- #
+
+    if request.method == 'POST':
+        try:
+            get_library_content(user_id)
+        except Exception as e:
+            print(f"Failed to update settings: {str(e)}")
+        user_settings_ref.set({'service_ftue': '3', 'needs_images': False}, merge=True)
+    
+    return redirect('service:social_media')
+    
 def settings(request):
     try:
         # ----- Get the Firestore document reference for the user settings ----- #
@@ -1164,6 +1190,7 @@ def download(request):
     # ---------------------------------------------------------------------- #
     if request.method == 'POST':
         form_name = request.POST.get('form')
+        print(form_name)
         if form_name == 'smm-download':
             image_number = request.POST.get('imageNum')
             url = elaine_settings.get(f'scheduled_image_{image_number}', '')
@@ -1175,7 +1202,7 @@ def download(request):
             else:
                 messages.error(request, 'There was an error downloading the image. Please try again.')
                 return redirect('service:social_media')
-            
+            print(image_number)
             storage_client = storage.Client()
             bucket_name = bucket_name
             blob_name = object_name
@@ -1188,6 +1215,7 @@ def download(request):
                 as_attachment=True,
                 filename=file_name
             )
+            return response
         elif form_name == 'graphic-download':
             url = george_settings.get(f'graphic')
             parsed_url = urlparse(url)
@@ -1241,15 +1269,18 @@ def getting_started(request):
         return redirect('signup')
 
     if request.method == 'POST':
-        selected_image = request.POST.get('selectedImage')
+        selected_image = request.POST.get('selectedImage', 'Simple')
         if selected_image == 'image1':
             selected_image = 'Graphics'
         else:
             selected_image = 'Simple'
-        business_name = request.POST.get('business-name')
-        business_description = request.POST.get('business-description')
-        color = request.POST.get('brand-color')
-
+        business_name = request.POST.get('business-name', 'Muscle Up')
+        business_description = request.POST.get('business-description', "Muscle Up is a premier body building nutrition course designed to sculpt your physique and elevate your fitness journey. Our program combines cutting-edge training techniques with personalized coaching to help you achieve peak muscle growth, strength, and endurance. We focus on supplements, workout equipment, and excersises.")
+        color = request.POST.get('brand-color', '#fcba03')
+        if business_description == "":
+            business_description = "Muscle Up is a premier body building nutrition course designed to sculpt your physique and elevate your fitness journey. Our program combines cutting-edge training techniques with personalized coaching to help you achieve peak muscle growth, strength, and endurance. We focus on supplements, workout equipment, and excersises."
+        if business_name == "":
+            business_name = 'Muscle Up'
         try:
             
             lead_ref = db.collection('service').document(email)
@@ -1303,6 +1334,9 @@ def getting_started_success(request):
             'business_name': business_name,
             'brand_color': brand_color,
             'secondary_colors' : colors,
+            'agency_id': 'ef6a81bf-6388-4cef-b522-e8fd9c667b0c',
+            'isAds': False,
+            'isAgency': True,
             'isFtue': True,
             'isSubscriber': False,
             'isAutomated': False,
@@ -1318,7 +1352,8 @@ def getting_started_success(request):
             'last_reset_time': datetime.now(),
             'trial': 0,
             'service_ftue': '1',
-            'leadPriority': 3
+            'leadPriority': 3,
+            'signup_date': datetime.now(),
         }
         
         user_ref.set(firestore_data, merge=True)
@@ -1332,11 +1367,11 @@ def getting_started_success(request):
         elaine_data = {
             'isElaineEmail': True,
             'isElaineOn' : False,
-            'posts_per_week': 2,
+            'posts_per_week': 1,
             'text_weight': 35,
-            'stock_weight': 65,
-            'graphic_weight': 0,
-            'combined_weight': 100,
+            'stock_weight': 50,
+            'graphic_weight': 15,
+            'combined_weight': 85,
             'ElaineSocialMedias': [],
             'ElainePostType': ["Text Post","Stock Photo Post"],
             'ElaineImageLog': [],
@@ -1344,6 +1379,12 @@ def getting_started_success(request):
         }
 
         elaine_doc_ref.set(elaine_data, merge=True)
+        
+        try:
+            get_library_content(user.uid)
+        except Exception as e:
+            print(f"Failed to update settings: {str(e)}")
+
         return redirect('service:ftue')
 
     context = {'email': email}
@@ -1502,6 +1543,175 @@ def video_editor(request):
 
     return render(request, "video_editor.html", context)
 
+
+def clips_creator(request):
+    user_id = request.session.get('user_id')
+    if not user_id:
+        return redirect('login')
+
+    try:
+        user_settings_ref = db.collection('users').document(user_id)
+        user_settings_doc = user_settings_ref.get()
+        user_settings = user_settings_doc.to_dict()
+        clips_ref = db.collection('users').document(user_id).collection('clips')
+        clips_query = clips_ref.stream()
+
+        clips_data = []
+        for doc in clips_query:
+            clip_dict = doc.to_dict()
+            clips_data.append({
+                'id': doc.id,
+                'created_at': clip_dict.get('created_at'),
+                'urls': clip_dict.get('clips', [])
+            })
+        clips_data = [clip for clip in clips_data if clip['created_at'] is not None]
+        clips_data.sort(key=lambda x: x['created_at'], reverse=True)
+
+        print(clips_data)
+
+    except firestore.NotFound:
+        messages.error(request, 'Please try logging in again.')
+        return redirect('login')
+    except Exception:
+        return redirect('login')
+    
+    if request.method == 'POST':
+        form = request.POST.get('form')
+        if form == 'clips':
+            if user_settings.get('clip_minutes', 0) > 200:
+                messages.error(request, 'You have reached the maximum amount of minutes for the month.')
+                return redirect('service:clips_creator')
+
+            file_name = request.POST.get('file_name')
+            file_name_without_extension, _ = os.path.splitext(file_name)
+            print("Filename: ", file_name_without_extension)
+            if not file_name_without_extension:
+                messages.error(request, 'Please re-upload the file.')
+                return redirect('service:clips_creator')
+            get_clips(request)
+            url = 'https://feadlio-api-611051344563.us-central1.run.app/url-to-clips'
+            payload = {
+                "url": f"https://storage.googleapis.com/starter_web_app_bucket/user_folders/{user_id}/clips/uploaded/{file_name_without_extension}.mp4",
+                "uid": user_id,
+                "name": file_name_without_extension
+            }
+            user_settings_ref.set({'clip_percent': 1, 'last_clip': datetime.now(timezone.utc)}, merge=True)
+            user_settings_doc = user_settings_ref.get()
+            user_settings = user_settings_doc.to_dict()
+            threading.Thread(target=send_post_request, args=(url, payload)).start()
+            messages.success(request, 'Clips are being created!')
+        
+        elif form == 'clear':
+            user_settings_ref.set({'clip_percent': 100}, merge=True)
+            messages.success(request, 'Process Cancelled')
+        elif form == 'formPostSchedule':
+            video_url = request.POST.get('clipUrl')
+            access_token = user_settings.get("instagram_token")
+            instagram_user_id = user_settings.get("instagram_user_id")
+            caption = create_caption(user_settings.get("business_description"), user_settings.get("business_name"))
+            
+            print("CLIP URL: ", video_url)
+            elaine_doc_ref = db.collection(u'users').document(user_id).collection(u'agents').document(u'elaine')
+            elaine_doc = elaine_doc_ref.get()
+            elaine_settings = elaine_doc.to_dict()
+            
+            existing_events = user_settings_ref.collection('events').order_by('start').stream()
+            existing_event_times = []
+            for event in existing_events:
+                event_data = event.to_dict()
+                if 'start' in event_data:
+                    existing_event_times.append(event_data['start'])
+                    
+            event_id = uuid.uuid4()
+            eid = str(event_id)
+            eventDocRef = user_settings_ref.collection('events').document(eid)
+
+            socials = ['instagram'] if user_settings.get("isInstagram") else None
+
+            if not socials:
+                messages.error(request, 'Please link your instagram account to post.')
+                return redirect('service:clips_creator')
+
+            times_array = ["08:00:00", "12:00:00", "15:00:00", "18:00:00"]
+            tzone = "America/Chicago"  # Example timezone
+            days_to_add = random.randint(1, 7)
+            random_date = datetime.now() + timedelta(days=days_to_add)
+            
+            # Pick a random time from the array
+            random_time_str = random.choice(times_array)
+            
+            # Convert the time string to a datetime object in the specified timezone
+            local_tz = pytz.timezone(tzone)
+            time_obj = datetime.strptime(random_time_str, "%H:%M:%S").time()
+            now = datetime.now(local_tz)
+            
+            # Combine the random date with the selected time
+            start_time = datetime.combine(random_date.date(), time_obj)
+            start_time = local_tz.localize(start_time)  # Localize the datetime to the specified timezone
+
+            event_data = {
+                'eid': eid,
+                'start': start_time,
+                'image_url': video_url,
+                'caption': caption,
+                'className': 'bg-warning',
+                'socials': socials,
+                'type' : 'reel',
+                'access_token' : access_token,
+                'instagram_user_id' : instagram_user_id,
+                'status': 'pending'
+            }
+            eventDocRef.set(event_data, merge=True)
+            messages.success(request, 'Post has been successfully uploaded to the schedule!')
+            return redirect('service:clips_creator')
+        
+        return redirect('service:clips_creator')
+    
+    current_time = datetime.now(timezone.utc)
+    last_clip = f"{user_settings.get('last_clip', current_time)}"
+    firestore_timestamp = datetime.fromisoformat(last_clip)
+    time_difference = current_time - firestore_timestamp
+    is_time_less = time_difference >= timedelta(hours=3)
+
+    print("LAST: ", last_clip)
+    print("current_time: ", current_time)
+    print("is_time_less: ", is_time_less)
+
+    context = {
+        'clips': clips_data,
+        'user_settings': user_settings,
+        'user_id': user_id,
+        'is_time_less': is_time_less
+    }
+
+    return render(request, "clip_creator.html", context)
+
+
+def website_builder(request):
+    user_id = request.session.get('user_id')
+    if not user_id:
+        return redirect('login')
+
+    try:
+        user_settings_ref = db.collection('users').document(user_id)
+        user_settings_doc = user_settings_ref.get()
+        user_settings = user_settings_doc.to_dict()
+
+    except firestore.NotFound:
+        messages.error(request, 'Please try logging in again.')
+        return redirect('login')
+    except Exception:
+        return redirect('login')
+    
+    context = {
+        'user_settings': user_settings,
+        'user_id': user_id,
+    }
+    return render(request, "website_builder.html", context)
+
+def send_post_request(url, payload):
+    requests.post(url, json=payload)
+
 @csrf_exempt
 def generate_signed_url(request):
     user_id = request.session.get('user_id')
@@ -1552,6 +1762,23 @@ def submit_brief(request):
     send_email = EmailMessage(subject, message, from_email, recipient_list)
     send_email.send()
 
+    redirect_url = request.POST.get('redirect_url')
+    return redirect(redirect_url)
+
+@csrf_exempt
+def get_clips(request):
+    user_id = request.session.get('user_id')
+    if not user_id:
+        return redirect('login')
+    
+    bucket = client.bucket(bucket_name)
+    folder_name = request.POST.get('folder_name')
+    folder_path = f'user_folders/{user_id}/{folder_name}/'
+    blobs = bucket.list_blobs(prefix=folder_path)
+    for blob in blobs:
+        print(blob.name)
+        blob.make_public()
+    
     redirect_url = request.POST.get('redirect_url')
     return redirect(redirect_url)
 

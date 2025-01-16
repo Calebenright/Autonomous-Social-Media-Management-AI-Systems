@@ -9,6 +9,7 @@ urlpatterns = [
     path('add_graphics/', views.add_graphics, name='add_graphics'),
     path('success/', views.success, name='success'),
     path('cancel/', views.cancel, name='cancel'),
+    path('tiktok-callback/', views.tiktok_callback, name='tiktok_callback'),
     path("callback/", views.callback, name="callback"),
 
     # API #
@@ -25,4 +26,5 @@ urlpatterns = [
     path('cron_inactive_users/', views.cron_inactive_users, name='cron_inactive_users'),
     path('cron_reset_monthly_limits/', views.cron_reset_monthly_limits, name='cron_reset_monthly_limits'),
     path('cron_auto_add_article/', views.cron_auto_add_article, name='cron_auto_add_article'),    
+    path('reset_leaderboard/', views.reset_leaderboard, name='reset_leaderboard'),    
 ]
